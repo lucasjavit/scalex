@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: #1e1e1e;
+    color: #cccccc;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Microsoft Copilot scrollbar style */
+  ::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1e1e1e;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #424242;
+    border-radius: 0;
+    border: 3px solid #1e1e1e;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #4e4e4e;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: #1e1e1e;
+  }
+
+  /* Focus styles */
+  *:focus-visible {
+    outline: 1px solid #007acc;
+    outline-offset: -1px;
+  }
+
+  /* Selection styles */
+  ::selection {
+    background: #264f78;
+    color: #ffffff;
+  }
+}
+
+@layer components {
+  /* Button base styles - Microsoft Copilot Style */
+  .btn-copilot {
+    @apply px-5 py-2 font-medium transition-all duration-150;
+    @apply focus:outline-none;
+    border-radius: 4px;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-copilot-primary {
+    @apply btn-copilot bg-copilot-accent-primary text-white;
+    @apply hover:bg-[#005a9e] active:bg-[#004578];
+    border: 1px solid transparent;
+  }
+
+  .btn-copilot-secondary {
+    @apply btn-copilot bg-copilot-bg-tertiary text-copilot-text-primary;
+    @apply hover:bg-copilot-bg-hover border border-copilot-border-default;
+    @apply hover:border-copilot-border-focus;
+  }
+
+  /* Card styles - Microsoft Copilot Style */
+  .card-copilot {
+    @apply bg-copilot-bg-secondary border border-copilot-border-default;
+    @apply transition-all duration-150;
+    border-radius: 4px;
+  }
+
+  .card-copilot:hover {
+    @apply border-copilot-border-focus;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Input styles - Microsoft Copilot Style */
+  .input-copilot {
+    @apply bg-copilot-bg-input text-copilot-text-primary;
+    @apply border border-copilot-border-input;
+    @apply focus:border-copilot-border-focus;
+    @apply placeholder:text-copilot-text-tertiary;
+    @apply transition-all duration-150;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .input-copilot:hover {
+    @apply border-copilot-text-tertiary;
+  }
+
+  .input-copilot:focus {
+    outline: 1px solid #007acc;
+    outline-offset: -1px;
+  }
+
+  /* Link styles */
+  .link-copilot {
+    @apply text-copilot-text-link no-underline;
+    @apply hover:underline;
+    @apply transition-colors duration-150;
+  }
+}
