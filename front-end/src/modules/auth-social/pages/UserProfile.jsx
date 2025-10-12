@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../../../services/api';
 import { useAuth } from '../context/AuthContext';
 
 export default function UserProfile() {
   const { user: firebaseUser } = useAuth();
+  const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState(null);
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -208,7 +210,7 @@ export default function UserProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center">
+      <div className="bg-copilot-bg-primary flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent-primary mx-auto mb-4"></div>
           <p className="text-copilot-text-secondary">Carregando perfil...</p>
@@ -218,19 +220,32 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-copilot-bg-primary">
+    <div className="bg-copilot-bg-primary">
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-copilot-text-primary mb-2">
-            {userProfile ? 'Meu Perfil' : 'Complete seu Perfil'}
-          </h1>
-          <p className="text-copilot-text-secondary">
-            {userProfile 
-              ? 'Gerencie suas informações pessoais e endereços'
-              : 'Adicione suas informações pessoais e endereços para começar'
-            }
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-copilot-text-primary mb-2">
+                {userProfile ? 'Meu Perfil' : 'Complete seu Perfil'}
+              </h1>
+              <p className="text-copilot-text-secondary">
+                {userProfile 
+                  ? 'Gerencie suas informações pessoais e endereços'
+                  : 'Adicione suas informações pessoais e endereços para começar'
+                }
+              </p>
+            </div>
+            
+            {userProfile && (
+              <button
+                onClick={() => navigate('/home')}
+                className="bg-copilot-accent-primary text-white px-6 py-2 rounded-copilot font-medium hover:bg-opacity-90 transition-all duration-200"
+              >
+                Ir para Home
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Success/Error Messages */}
@@ -326,14 +341,24 @@ export default function UserProfile() {
           </div>
 
           {/* Addresses Section */}
-          <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6">
+          <div className={`bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 ${!userProfile ? 'opacity-50 pointer-events-none' : ''}`}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-copilot-text-primary">
                 Endereços
+                {!userProfile && (
+                  <span className="text-sm text-copilot-text-secondary ml-2">
+                    (Complete as informações pessoais primeiro)
+                  </span>
+                )}
               </h2>
               <button
                 onClick={() => setShowAddressForm(!showAddressForm)}
-                className="bg-copilot-accent-primary text-white px-4 py-2 rounded-copilot text-sm font-medium hover:bg-opacity-90 transition-all duration-200"
+                disabled={!userProfile}
+                className={`px-4 py-2 rounded-copilot text-sm font-medium transition-all duration-200 ${
+                  !userProfile 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                    : 'bg-copilot-accent-primary text-white hover:bg-opacity-90'
+                }`}
               >
                 {showAddressForm ? 'Cancelar' : 'Adicionar Endereço'}
               </button>
@@ -341,6 +366,12 @@ export default function UserProfile() {
 
             {/* Address List */}
             <div className="space-y-4 mb-6">
+              {!userProfile && (
+                <div className="text-center py-8 text-copilot-text-secondary">
+                  <div className="text-4xl mb-2">🔒</div>
+                  <p>Complete suas informações pessoais primeiro para gerenciar endereços</p>
+                </div>
+              )}
               {addresses.map((address) => (
                 <div key={address.id} className="border border-copilot-border-default rounded-copilot p-4">
                   <div className="flex justify-between items-start">
@@ -366,20 +397,30 @@ export default function UserProfile() {
                         {address.country}
                       </p>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleUpdateAddress(address.id, { is_primary: !address.is_primary })}
-                        className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
-                      >
-                        {address.is_primary ? 'Remover Principal' : 'Tornar Principal'}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteAddress(address.id)}
-                        className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200 transition-colors"
-                      >
-                        Remover
-                      </button>
-                    </div>
+                     <div className="flex gap-2">
+                       <button
+                         onClick={() => handleUpdateAddress(address.id, { is_primary: !address.is_primary })}
+                         disabled={!userProfile}
+                         className={`text-xs px-2 py-1 rounded transition-colors ${
+                           !userProfile 
+                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                             : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                         }`}
+                       >
+                         {address.is_primary ? 'Remover Principal' : 'Tornar Principal'}
+                       </button>
+                       <button
+                         onClick={() => handleDeleteAddress(address.id)}
+                         disabled={!userProfile}
+                         className={`text-xs px-2 py-1 rounded transition-colors ${
+                           !userProfile 
+                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                             : 'bg-red-100 text-red-800 hover:bg-red-200'
+                         }`}
+                       >
+                         Remover
+                       </button>
+                     </div>
                   </div>
                 </div>
               ))}

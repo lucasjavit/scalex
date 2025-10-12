@@ -29,7 +29,7 @@ export default function Home() {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen bg-copilot-bg-primary">
+    <div className="bg-copilot-bg-primary">
 
 
       {/* Main Content */}
