@@ -1,7 +1,32 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import apiService from "../../../services/api";
 import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Check if user has profile data and redirect accordingly
+  useEffect(() => {
+    const checkUserProfile = async () => {
+      if (!user) return;
+
+      try {
+        const existingUser = await apiService.checkUserExists(user.uid);
+        if (!existingUser) {
+          // User doesn't have profile data, redirect to profile page
+          navigate('/profile');
+        }
+      } catch (error) {
+        console.error('Error checking user profile:', error);
+        // On error, redirect to profile page to be safe
+        navigate('/profile');
+      }
+    };
+
+    checkUserProfile();
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen bg-copilot-bg-primary">
@@ -54,6 +79,12 @@ export default function Home() {
                 </h3>
                 <p className="text-copilot-text-secondary">{user.email}</p>
               </div>
+              <button
+                onClick={() => navigate('/profile')}
+                className="bg-copilot-accent-primary text-white px-4 py-2 rounded-copilot text-sm font-medium hover:bg-opacity-90 transition-all duration-200"
+              >
+                Completar Perfil
+              </button>
             </div>
           </div>
         )}

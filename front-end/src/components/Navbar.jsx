@@ -1,11 +1,12 @@
-import { useLocation } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../modules/auth-social/context/AuthContext';
 import { auth } from '../modules/auth-social/services/firebaseAuth';
 
 export default function Navbar() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Don't render navbar if user is not logged in or on login page
   if (!user || location.pathname === '/') {
@@ -16,6 +17,10 @@ export default function Navbar() {
     signOut(auth)
       .then(() => console.log('Logout successful'))
       .catch((error) => console.error('Logout error:', error));
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
   };
 
   return (
@@ -31,19 +36,37 @@ export default function Navbar() {
 
           {/* User Info and Logout */}
           <div className="flex items-center space-x-4">
-            {/* User Avatar */}
-            {user.photoURL && (
-              <img
-                src={user.photoURL}
-                alt={user.displayName || 'User'}
-                className="w-9 h-9 rounded-full border-2 border-copilot-border-default hover:border-copilot-border-focus transition-colors duration-150"
-              />
-            )}
+            {/* User Avatar - Clickable */}
+            <div className="flex items-center space-x-3">
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName || 'User'}
+                  onClick={handleProfileClick}
+                  className="w-9 h-9 rounded-full border-2 border-copilot-border-default hover:border-copilot-border-focus transition-colors duration-150 cursor-pointer"
+                  title="Clique para ver perfil"
+                />
+              ) : (
+                <div
+                  onClick={handleProfileClick}
+                  className="w-9 h-9 rounded-full bg-copilot-gradient flex items-center justify-center border-2 border-copilot-border-default hover:border-copilot-border-focus transition-colors duration-150 cursor-pointer"
+                  title="Clique para ver perfil"
+                >
+                  <span className="text-white text-sm font-bold">
+                    {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
 
-            {/* User Name */}
-            <span className="text-copilot-text-primary text-sm font-medium">
-              {user.displayName || user.email}
-            </span>
+              {/* User Name - Clickable */}
+              <span 
+                onClick={handleProfileClick}
+                className="text-copilot-text-primary text-sm font-medium cursor-pointer hover:text-copilot-accent-primary transition-colors duration-150"
+                title="Clique para ver perfil"
+              >
+                {user.displayName || user.email}
+              </span>
+            </div>
 
             {/* Logout Button */}
             <button

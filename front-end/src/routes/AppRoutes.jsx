@@ -1,8 +1,9 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import Home from "../modules/auth-social/pages/Home";
 import Login from "../modules/auth-social/pages/Login";
+import UserProfile from "../modules/auth-social/pages/UserProfile";
 import PrivateRoute from "./PrivateRoute";
-import Navbar from "../components/Navbar";
 
 export default function AppRoutes() {
   return (
@@ -15,6 +16,14 @@ export default function AppRoutes() {
           element={
             <PrivateRoute>
               <Home />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <UserProfile />
             </PrivateRoute>
           }
         />
