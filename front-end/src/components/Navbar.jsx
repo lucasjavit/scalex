@@ -28,10 +28,37 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo/Brand */}
-          <div className="flex items-center">
-            <span className="bg-copilot-gradient bg-clip-text text-transparent font-semibold text-lg">
+          <div className="flex items-center space-x-6">
+            <span
+              onClick={() => navigate('/home')}
+              className="bg-copilot-gradient bg-clip-text text-transparent font-semibold text-lg cursor-pointer"
+            >
               ScaleX
             </span>
+
+            {/* Navigation Links */}
+            <div className="hidden md:flex space-x-4">
+              <button
+                onClick={() => navigate('/home')}
+                className={`text-sm px-3 py-2 rounded-md transition-colors ${
+                  location.pathname === '/home'
+                    ? 'text-copilot-accent-primary bg-copilot-bg-tertiary'
+                    : 'text-copilot-text-secondary hover:text-copilot-text-primary hover:bg-copilot-bg-tertiary'
+                }`}
+              >
+                Home
+              </button>
+              <button
+                onClick={() => navigate('/english-course')}
+                className={`text-sm px-3 py-2 rounded-md transition-colors ${
+                  location.pathname.startsWith('/english-course')
+                    ? 'text-copilot-accent-primary bg-copilot-bg-tertiary'
+                    : 'text-copilot-text-secondary hover:text-copilot-text-primary hover:bg-copilot-bg-tertiary'
+                }`}
+              >
+                English Course
+              </button>
+            </div>
           </div>
 
           {/* User Info and Logout */}

@@ -49,6 +49,109 @@ CREATE TABLE IF NOT EXISTS addresses (
 );
 
 -- ============================================
+-- ENGLISH COURSE TABLES (Callan Method Style)
+-- ============================================
+
+-- Lessons table - Contains lesson content
+CREATE TABLE IF NOT EXISTS english_lessons (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    lesson_number INTEGER UNIQUE NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    level VARCHAR(20) NOT NULL DEFAULT 'beginner',
+    grammar_focus TEXT,
+    vocabulary_focus TEXT[],
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Constraints
+    CONSTRAINT check_level CHECK (level IN ('beginner', 'elementary', 'intermediate', 'advanced')),
+    CONSTRAINT check_lesson_number_positive CHECK (lesson_number > 0)
+);
+
+-- Questions table - Contains questions for practice (Callan method style)
+CREATE TABLE IF NOT EXISTS english_questions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    lesson_id UUID NOT NULL REFERENCES english_lessons(id) ON DELETE CASCADE,
+    question_number INTEGER NOT NULL,
+    question_text TEXT NOT NULL,
+    expected_answer TEXT NOT NULL,
+    alternative_answers TEXT[],
+    grammar_point VARCHAR(255),
+    difficulty VARCHAR(20) NOT NULL DEFAULT 'medium',
+    audio_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Constraints
+    CONSTRAINT check_difficulty CHECK (difficulty IN ('easy', 'medium', 'hard')),
+    CONSTRAINT check_question_number_positive CHECK (question_number > 0),
+    CONSTRAINT unique_lesson_question UNIQUE (lesson_id, question_number)
+);
+
+-- User Progress table - Tracks user progress through lessons
+CREATE TABLE IF NOT EXISTS english_user_progress (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id UUID NOT NULL REFERENCES english_lessons(id) ON DELETE CASCADE,
+    status VARCHAR(20) NOT NULL DEFAULT 'not_started',
+    correct_answers INTEGER DEFAULT 0,
+    total_attempts INTEGER DEFAULT 0,
+    accuracy_percentage DECIMAL(5,2) DEFAULT 0.00,
+    time_spent_minutes INTEGER DEFAULT 0,
+    last_practiced_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Constraints
+    CONSTRAINT check_status CHECK (status IN ('not_started', 'in_progress', 'completed', 'needs_review')),
+    CONSTRAINT check_correct_answers_positive CHECK (correct_answers >= 0),
+    CONSTRAINT check_total_attempts_positive CHECK (total_attempts >= 0),
+    CONSTRAINT check_accuracy CHECK (accuracy_percentage >= 0 AND accuracy_percentage <= 100),
+    CONSTRAINT check_time_positive CHECK (time_spent_minutes >= 0),
+    CONSTRAINT unique_user_lesson UNIQUE (user_id, lesson_id)
+);
+
+-- Reviews table - Tracks scheduled reviews for spaced repetition (Callan method)
+CREATE TABLE IF NOT EXISTS english_reviews (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id UUID NOT NULL REFERENCES english_lessons(id) ON DELETE CASCADE,
+    question_id UUID NOT NULL REFERENCES english_questions(id) ON DELETE CASCADE,
+    review_count INTEGER DEFAULT 0,
+    next_review_date TIMESTAMP NOT NULL,
+    interval_days INTEGER DEFAULT 1,
+    ease_factor DECIMAL(3,2) DEFAULT 2.50,
+    last_reviewed_at TIMESTAMP,
+    is_due BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Constraints
+    CONSTRAINT check_review_count_positive CHECK (review_count >= 0),
+    CONSTRAINT check_interval_positive CHECK (interval_days > 0),
+    CONSTRAINT check_ease_factor CHECK (ease_factor >= 1.30 AND ease_factor <= 3.00),
+    CONSTRAINT unique_user_question_review UNIQUE (user_id, question_id)
+);
+
+-- Answer History table - Tracks all user answers for analytics
+CREATE TABLE IF NOT EXISTS english_answer_history (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    question_id UUID NOT NULL REFERENCES english_questions(id) ON DELETE CASCADE,
+    user_answer TEXT NOT NULL,
+    is_correct BOOLEAN NOT NULL,
+    response_time_seconds INTEGER,
+    feedback TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Constraints
+    CONSTRAINT check_response_time_positive CHECK (response_time_seconds IS NULL OR response_time_seconds >= 0)
+);
+
+-- ============================================
 -- INDEXES FOR PERFORMANCE
 -- ============================================
 
@@ -63,6 +166,21 @@ CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON addresses(user_id);
 CREATE INDEX IF NOT EXISTS idx_addresses_is_primary ON addresses(is_primary);
 CREATE INDEX IF NOT EXISTS idx_addresses_postal_code ON addresses(postal_code);
 CREATE INDEX IF NOT EXISTS idx_addresses_country ON addresses(country);
+
+-- English Course indexes
+CREATE INDEX IF NOT EXISTS idx_english_lessons_level ON english_lessons(level);
+CREATE INDEX IF NOT EXISTS idx_english_lessons_is_active ON english_lessons(is_active);
+CREATE INDEX IF NOT EXISTS idx_english_questions_lesson_id ON english_questions(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_english_questions_difficulty ON english_questions(difficulty);
+CREATE INDEX IF NOT EXISTS idx_english_user_progress_user_id ON english_user_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_english_user_progress_lesson_id ON english_user_progress(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_english_user_progress_status ON english_user_progress(status);
+CREATE INDEX IF NOT EXISTS idx_english_reviews_user_id ON english_reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_english_reviews_next_review_date ON english_reviews(next_review_date);
+CREATE INDEX IF NOT EXISTS idx_english_reviews_is_due ON english_reviews(is_due);
+CREATE INDEX IF NOT EXISTS idx_english_answer_history_user_id ON english_answer_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_english_answer_history_question_id ON english_answer_history(question_id);
+CREATE INDEX IF NOT EXISTS idx_english_answer_history_created_at ON english_answer_history(created_at);
 
 -- ============================================
 -- TRIGGERS
@@ -81,6 +199,10 @@ $$ language 'plpgsql';
 DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 DROP TRIGGER IF EXISTS update_addresses_updated_at ON addresses;
 DROP TRIGGER IF EXISTS ensure_one_primary_address_trigger ON addresses;
+DROP TRIGGER IF EXISTS update_english_lessons_updated_at ON english_lessons;
+DROP TRIGGER IF EXISTS update_english_questions_updated_at ON english_questions;
+DROP TRIGGER IF EXISTS update_english_user_progress_updated_at ON english_user_progress;
+DROP TRIGGER IF EXISTS update_english_reviews_updated_at ON english_reviews;
 
 -- Triggers for updated_at
 CREATE TRIGGER update_users_updated_at
@@ -113,6 +235,27 @@ CREATE TRIGGER ensure_one_primary_address_trigger
     FOR EACH ROW
     EXECUTE FUNCTION ensure_one_primary_address();
 
+-- Triggers for English Course tables
+CREATE TRIGGER update_english_lessons_updated_at
+    BEFORE UPDATE ON english_lessons
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_english_questions_updated_at
+    BEFORE UPDATE ON english_questions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_english_user_progress_updated_at
+    BEFORE UPDATE ON english_user_progress
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_english_reviews_updated_at
+    BEFORE UPDATE ON english_reviews
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- ============================================
 -- COMMENTS FOR DOCUMENTATION
 -- ============================================
@@ -133,8 +276,109 @@ COMMENT ON COLUMN addresses.is_primary IS 'Flag indicating if this is the user p
 COMMENT ON COLUMN addresses.country IS 'Country name';
 COMMENT ON COLUMN addresses.state IS 'State/Province name';
 
+-- English Course tables comments
+COMMENT ON TABLE english_lessons IS 'Lessons for English course using Callan method approach';
+COMMENT ON TABLE english_questions IS 'Questions for each lesson - Callan method style rapid Q&A';
+COMMENT ON TABLE english_user_progress IS 'Tracks user progress through English lessons';
+COMMENT ON TABLE english_reviews IS 'Spaced repetition review schedule for questions';
+COMMENT ON TABLE english_answer_history IS 'Complete history of user answers for analytics';
+
+COMMENT ON COLUMN english_lessons.lesson_number IS 'Sequential lesson number';
+COMMENT ON COLUMN english_lessons.level IS 'Difficulty level: beginner, elementary, intermediate, advanced';
+COMMENT ON COLUMN english_questions.expected_answer IS 'The correct/expected answer for the question';
+COMMENT ON COLUMN english_questions.alternative_answers IS 'Array of acceptable alternative answers';
+COMMENT ON COLUMN english_user_progress.accuracy_percentage IS 'Percentage of correct answers';
+COMMENT ON COLUMN english_reviews.ease_factor IS 'Spaced repetition ease factor (1.30-3.00)';
+COMMENT ON COLUMN english_reviews.interval_days IS 'Days until next review';
+COMMENT ON COLUMN english_reviews.is_due IS 'Flag indicating if review is currently due';
+
+-- ============================================
+-- SAMPLE DATA FOR ENGLISH COURSE
+-- ============================================
+
+-- Insert sample lessons
+INSERT INTO english_lessons (lesson_number, title, description, level, grammar_focus, vocabulary_focus) VALUES
+(1, 'Introduction to Basic Questions', 'Learn to answer basic questions about yourself and your surroundings', 'beginner', 'Present Simple - Questions with "What", "Where", "Who"', ARRAY['pen', 'book', 'table', 'chair', 'room', 'wall', 'door', 'window']),
+(2, 'Actions and Present Continuous', 'Practice describing actions happening now', 'beginner', 'Present Continuous - "What are you doing?"', ARRAY['standing', 'sitting', 'walking', 'talking', 'writing', 'reading', 'opening', 'closing']),
+(3, 'Prepositions of Place', 'Learn to describe location and position', 'elementary', 'Prepositions - in, on, under, behind, in front of', ARRAY['on the table', 'in the room', 'under the chair', 'behind the door', 'next to'])
+ON CONFLICT (lesson_number) DO NOTHING;
+
+-- Insert sample questions for Lesson 1
+INSERT INTO english_questions (lesson_id, question_number, question_text, expected_answer, alternative_answers, grammar_point, difficulty)
+SELECT
+    id,
+    1,
+    'What is this?',
+    'It''s a pen',
+    ARRAY['That''s a pen', 'It is a pen', 'This is a pen'],
+    'Demonstrative pronouns with "to be"',
+    'easy'
+FROM english_lessons WHERE lesson_number = 1
+ON CONFLICT (lesson_id, question_number) DO NOTHING;
+
+INSERT INTO english_questions (lesson_id, question_number, question_text, expected_answer, alternative_answers, grammar_point, difficulty)
+SELECT
+    id,
+    2,
+    'Is this a book?',
+    'Yes, it''s a book',
+    ARRAY['Yes, it is', 'Yes, that''s a book', 'Yes, this is a book'],
+    'Yes/No questions with "to be"',
+    'easy'
+FROM english_lessons WHERE lesson_number = 1
+ON CONFLICT (lesson_id, question_number) DO NOTHING;
+
+INSERT INTO english_questions (lesson_id, question_number, question_text, expected_answer, alternative_answers, grammar_point, difficulty)
+SELECT
+    id,
+    3,
+    'Where is the book?',
+    'The book is on the table',
+    ARRAY['It''s on the table', 'On the table'],
+    'Questions with "Where"',
+    'medium'
+FROM english_lessons WHERE lesson_number = 1
+ON CONFLICT (lesson_id, question_number) DO NOTHING;
+
+INSERT INTO english_questions (lesson_id, question_number, question_text, expected_answer, alternative_answers, grammar_point, difficulty)
+SELECT
+    id,
+    4,
+    'What color is the pen?',
+    'The pen is blue',
+    ARRAY['It''s blue', 'Blue'],
+    'Questions about color',
+    'easy'
+FROM english_lessons WHERE lesson_number = 1
+ON CONFLICT (lesson_id, question_number) DO NOTHING;
+
+-- Insert sample questions for Lesson 2
+INSERT INTO english_questions (lesson_id, question_number, question_text, expected_answer, alternative_answers, grammar_point, difficulty)
+SELECT
+    id,
+    1,
+    'What are you doing?',
+    'I''m reading a book',
+    ARRAY['I am reading', 'I''m reading'],
+    'Present Continuous',
+    'medium'
+FROM english_lessons WHERE lesson_number = 2
+ON CONFLICT (lesson_id, question_number) DO NOTHING;
+
+INSERT INTO english_questions (lesson_id, question_number, question_text, expected_answer, alternative_answers, grammar_point, difficulty)
+SELECT
+    id,
+    2,
+    'Are you sitting or standing?',
+    'I''m sitting',
+    ARRAY['I am sitting', 'Sitting'],
+    'Alternative questions with Present Continuous',
+    'medium'
+FROM english_lessons WHERE lesson_number = 2
+ON CONFLICT (lesson_id, question_number) DO NOTHING;
+
 -- Log successful initialization
 DO $$
 BEGIN
-    RAISE NOTICE 'ScaleX database initialized successfully!';
+    RAISE NOTICE 'ScaleX database initialized successfully with English Course module!';
 END $$;

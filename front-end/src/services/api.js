@@ -119,8 +119,134 @@ class ApiService {
       phone: userData.phone,
       preferred_language: userData.preferred_language,
     };
-    
+
     return await this.createUser(userPayload);
+  }
+
+  // ============================================
+  // ENGLISH COURSE METHODS
+  // ============================================
+
+  // Lesson methods
+  async getEnglishLessons(level) {
+    const query = level ? `?level=${level}` : '';
+    return this.request(`/english-course/lessons${query}`);
+  }
+
+  async getEnglishLesson(lessonId) {
+    return this.request(`/english-course/lessons/${lessonId}`);
+  }
+
+  async createLesson(lessonData) {
+    return this.request('/english-course/lessons', {
+      method: 'POST',
+      body: JSON.stringify(lessonData),
+    });
+  }
+
+  async updateLesson(lessonId, lessonData) {
+    return this.request(`/english-course/lessons/${lessonId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(lessonData),
+    });
+  }
+
+  async deleteLesson(lessonId) {
+    return this.request(`/english-course/lessons/${lessonId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Question methods
+  async getQuestionsByLesson(lessonId) {
+    return this.request(`/english-course/lessons/${lessonId}/questions`);
+  }
+
+  async getQuestion(questionId) {
+    return this.request(`/english-course/questions/${questionId}`);
+  }
+
+  async createQuestion(questionData) {
+    return this.request('/english-course/questions', {
+      method: 'POST',
+      body: JSON.stringify(questionData),
+    });
+  }
+
+  async updateQuestion(questionId, questionData) {
+    return this.request(`/english-course/questions/${questionId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(questionData),
+    });
+  }
+
+  async deleteQuestion(questionId) {
+    return this.request(`/english-course/questions/${questionId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Progress methods
+  async getUserProgress(userId) {
+    return this.request(`/english-course/users/${userId}/progress`);
+  }
+
+  async getLessonProgress(userId, lessonId) {
+    return this.request(`/english-course/users/${userId}/lessons/${lessonId}/progress`);
+  }
+
+  async updateProgress(userId, lessonId, progressData) {
+    return this.request(`/english-course/users/${userId}/lessons/${lessonId}/progress`, {
+      method: 'PATCH',
+      body: JSON.stringify(progressData),
+    });
+  }
+
+  // Answer submission
+  async submitAnswer(userId, lessonId, answerData) {
+    return this.request(`/english-course/users/${userId}/lessons/${lessonId}/submit-answer`, {
+      method: 'POST',
+      body: JSON.stringify(answerData),
+    });
+  }
+
+  // Difficulty submission for Anki-style spaced repetition
+  async submitDifficulty(userId, lessonId, questionId, difficulty) {
+    return this.request(`/english-course/users/${userId}/lessons/${lessonId}/questions/${questionId}/difficulty`, {
+      method: 'POST',
+      body: JSON.stringify({ difficulty }),
+    });
+  }
+
+
+  // Review methods
+  async getDueReviews(userId, limit = 20) {
+    return this.request(`/english-course/users/${userId}/reviews/due?limit=${limit}`);
+  }
+
+
+  // SRS methods for lesson-specific practice
+  async getDueQuestionsByLesson(userId, lessonId, limit = 20) {
+    return this.request(`/english-course/lessons/${lessonId}/questions/due?userId=${userId}&limit=${limit}`);
+  }
+
+  async getNewQuestionsByLesson(userId, lessonId, limit = 10) {
+    return this.request(`/english-course/lessons/${lessonId}/questions/new?userId=${userId}&limit=${limit}`);
+  }
+
+  async markReviewsAsDue() {
+    return this.request('/english-course/reviews/mark-due', {
+      method: 'POST',
+    });
+  }
+
+  // Statistics methods
+  async getUserStatistics(userId) {
+    return this.request(`/english-course/users/${userId}/statistics`);
+  }
+
+  async getAnswerHistory(userId, limit = 50) {
+    return this.request(`/english-course/users/${userId}/answer-history?limit=${limit}`);
   }
 }
 
