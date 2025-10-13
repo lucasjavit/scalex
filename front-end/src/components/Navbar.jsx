@@ -1,4 +1,5 @@
 import { signOut } from 'firebase/auth';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../modules/auth-social/context/AuthContext';
 import { auth } from '../modules/auth-social/services/firebaseAuth';
@@ -13,10 +14,10 @@ const gradientAnimation = `
   
   @keyframes glow {
     0%, 100% { 
-      filter: brightness(1) drop-shadow(0 0 6px rgba(102, 126, 234, 0.3));
+      filter: brightness(1) drop-shadow(0 0 3px rgba(102, 126, 234, 0.2));
     }
     50% { 
-      filter: brightness(1.1) drop-shadow(0 0 10px rgba(118, 75, 162, 0.5)) drop-shadow(0 0 15px rgba(240, 147, 251, 0.3));
+      filter: brightness(1.05) drop-shadow(0 0 6px rgba(118, 75, 162, 0.3)) drop-shadow(0 0 8px rgba(240, 147, 251, 0.2));
     }
   }
   
@@ -53,6 +54,17 @@ export default function Navbar() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [shouldGlow, setShouldGlow] = useState(false);
+
+  // Control glow effect - only glow when user is not logged in
+  useEffect(() => {
+    if (!user) {
+      setShouldGlow(true);
+    } else {
+      // Stop glowing after user logs in
+      setShouldGlow(false);
+    }
+  }, [user]);
 
   // Don't render navbar if user is not logged in or on login page
   if (!user || location.pathname === '/') {
@@ -77,11 +89,11 @@ export default function Navbar() {
           <div className="flex items-center space-x-6">
             <span
               onClick={() => navigate('/home')}
-              className="shining-text font-semibold text-lg cursor-pointer transition-all duration-300 hover:scale-105"
+              className={`font-semibold text-lg cursor-pointer transition-all duration-300 hover:scale-105 ${shouldGlow ? 'shining-text' : ''}`}
               style={{
                 background: 'linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe)',
                 backgroundSize: '400% 400%',
-                animation: 'gradientShift 3s ease infinite, glow 2s ease-in-out infinite',
+                animation: shouldGlow ? 'gradientShift 3s ease infinite, glow 2s ease-in-out infinite' : 'gradientShift 3s ease infinite',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
