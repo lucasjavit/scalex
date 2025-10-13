@@ -538,4 +538,210 @@ export class EnglishCourseService {
       take: limit,
     });
   }
+
+  // ============================================
+  // ADMIN METHODS
+  // ============================================
+
+  // Lessons Admin CRUD
+  async getAllLessonsForAdmin(): Promise<Lesson[]> {
+    return await this.lessonRepository.find({
+      relations: ['questions'],
+      order: { lessonNumber: 'ASC' },
+    });
+  }
+
+  async getLessonByIdForAdmin(id: string): Promise<Lesson> {
+    const lesson = await this.lessonRepository.findOne({
+      where: { id },
+      relations: ['questions'],
+    });
+
+    if (!lesson) {
+      throw new NotFoundException(`Lesson with ID ${id} not found`);
+    }
+
+    return lesson;
+  }
+
+  async createLessonForAdmin(createLessonDto: CreateLessonDto): Promise<Lesson> {
+    // Check if lesson number already exists
+    const existingLesson = await this.lessonRepository.findOne({
+      where: { lessonNumber: createLessonDto.lessonNumber },
+    });
+
+    if (existingLesson) {
+      throw new BadRequestException(`Lesson number ${createLessonDto.lessonNumber} already exists`);
+    }
+
+    const lesson = this.lessonRepository.create(createLessonDto);
+    return await this.lessonRepository.save(lesson);
+  }
+
+  async updateLessonForAdmin(id: string, updateLessonDto: UpdateLessonDto): Promise<Lesson> {
+    const lesson = await this.getLessonByIdForAdmin(id);
+    
+    // Check if lesson number already exists (if being changed)
+    if (updateLessonDto.lessonNumber && updateLessonDto.lessonNumber !== lesson.lessonNumber) {
+      const existingLesson = await this.lessonRepository.findOne({
+        where: { lessonNumber: updateLessonDto.lessonNumber },
+      });
+
+      if (existingLesson) {
+        throw new BadRequestException(`Lesson number ${updateLessonDto.lessonNumber} already exists`);
+      }
+    }
+
+    Object.assign(lesson, updateLessonDto);
+    return await this.lessonRepository.save(lesson);
+  }
+
+  async deleteLessonForAdmin(id: string): Promise<void> {
+    const lesson = await this.getLessonByIdForAdmin(id);
+    await this.lessonRepository.remove(lesson);
+  }
+
+  // Questions Admin CRUD
+  async getQuestionsByLessonForAdmin(lessonId: string): Promise<Question[]> {
+    return await this.questionRepository.find({
+      where: { lessonId },
+      relations: ['lesson'],
+      order: { questionNumber: 'ASC' },
+    });
+  }
+
+  async getQuestionByIdForAdmin(id: string): Promise<Question> {
+    const question = await this.questionRepository.findOne({
+      where: { id },
+      relations: ['lesson'],
+    });
+
+    if (!question) {
+      throw new NotFoundException(`Question with ID ${id} not found`);
+    }
+
+    return question;
+  }
+
+  async createQuestionForAdmin(createQuestionDto: CreateQuestionDto): Promise<Question> {
+    // Verify lesson exists
+    await this.getLessonByIdForAdmin(createQuestionDto.lessonId);
+
+    // Check if question number already exists in this lesson
+    const existingQuestion = await this.questionRepository.findOne({
+      where: { 
+        lessonId: createQuestionDto.lessonId,
+        questionNumber: createQuestionDto.questionNumber,
+      },
+    });
+
+    if (existingQuestion) {
+      throw new BadRequestException(`Question number ${createQuestionDto.questionNumber} already exists in this lesson`);
+    }
+
+    const question = this.questionRepository.create(createQuestionDto);
+    return await this.questionRepository.save(question);
+  }
+
+  async updateQuestionForAdmin(id: string, updateQuestionDto: UpdateQuestionDto): Promise<Question> {
+    const question = await this.getQuestionByIdForAdmin(id);
+
+    // Check if question number already exists in this lesson (if being changed)
+    if (updateQuestionDto.questionNumber && updateQuestionDto.questionNumber !== question.questionNumber) {
+      const existingQuestion = await this.questionRepository.findOne({
+        where: { 
+          lessonId: question.lessonId,
+          questionNumber: updateQuestionDto.questionNumber,
+        },
+      });
+
+      if (existingQuestion) {
+        throw new BadRequestException(`Question number ${updateQuestionDto.questionNumber} already exists in this lesson`);
+      }
+    }
+
+    Object.assign(question, updateQuestionDto);
+    return await this.questionRepository.save(question);
+  }
+
+  async deleteQuestionForAdmin(id: string): Promise<void> {
+    const question = await this.getQuestionByIdForAdmin(id);
+    await this.questionRepository.remove(question);
+  }
+
+  // Bulk operations
+  async createQuestionsBulkForAdmin(bulkCreateDto: any): Promise<{ created: number; questions: Question[] }> {
+    const { lessonId, questions } = bulkCreateDto;
+    
+    // Verify lesson exists
+    await this.getLessonByIdForAdmin(lessonId);
+
+    const createdQuestions: Question[] = [];
+    
+    for (const questionData of questions) {
+      // Check if question number already exists
+      const existingQuestion = await this.questionRepository.findOne({
+        where: { 
+          lessonId,
+          questionNumber: questionData.questionNumber,
+        },
+      });
+
+      if (existingQuestion) {
+        throw new BadRequestException(`Question number ${questionData.questionNumber} already exists in this lesson`);
+      }
+
+      const question = this.questionRepository.create({
+        ...questionData,
+        lessonId,
+      });
+      
+      const savedQuestion = await this.questionRepository.save(question);
+      if (Array.isArray(savedQuestion)) {
+        createdQuestions.push(...savedQuestion);
+      } else {
+        createdQuestions.push(savedQuestion);
+      }
+    }
+
+    return {
+      created: createdQuestions.length,
+      questions: createdQuestions,
+    };
+  }
+
+  async deleteQuestionsBulkForAdmin(bulkDeleteDto: any): Promise<void> {
+    const { questionIds } = bulkDeleteDto;
+    
+    await this.questionRepository.delete(questionIds);
+  }
+
+  // Admin Statistics
+  async getAdminStatistics() {
+    const totalLessons = await this.lessonRepository.count({ where: { isActive: true } });
+    const totalQuestions = await this.questionRepository.count();
+    const activeUsers = await this.progressRepository
+      .createQueryBuilder('progress')
+      .select('DISTINCT progress.userId')
+      .where('progress.status IN (:...statuses)', { 
+        statuses: [ProgressStatus.IN_PROGRESS, ProgressStatus.COMPLETED] 
+      })
+      .getCount();
+
+    // Calculate average progress
+    const allProgress = await this.progressRepository.find({
+      where: { status: ProgressStatus.COMPLETED },
+    });
+
+    const averageProgress = allProgress.length > 0 
+      ? allProgress.reduce((sum, p) => sum + p.accuracyPercentage, 0) / allProgress.length
+      : 0;
+
+    return {
+      totalLessons,
+      totalQuestions,
+      activeUsers,
+      averageProgress: Number(averageProgress.toFixed(2)),
+    };
+  }
 }

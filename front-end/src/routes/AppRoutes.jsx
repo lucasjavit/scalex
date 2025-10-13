@@ -13,6 +13,9 @@ import EnglishReview from "../modules/english-course/pages/Review";
 import EnglishProgress from "../modules/english-course/pages/Progress";
 import LessonsList from "../modules/english-course/pages/LessonsList";
 
+// Admin English Course
+import AdminEnglishCourse from "../modules/admin-english-course";
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
@@ -76,6 +79,16 @@ export default function AppRoutes() {
               element={
                 <PrivateRoute>
                   <EnglishProgress />
+                </PrivateRoute>
+              }
+            />
+
+            {/* Admin English Course Routes */}
+            <Route
+              path="/admin/english-course/*"
+              element={
+                <PrivateRoute>
+                  <AdminEnglishCourse />
                 </PrivateRoute>
               }
             />

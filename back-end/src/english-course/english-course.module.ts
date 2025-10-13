@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EnglishCourseController } from './english-course.controller';
+import { EnglishCourseAdminController } from './english-course-admin.controller';
 import { EnglishCourseService } from './english-course.service';
 import { Lesson } from './entities/lesson.entity';
 import { Question } from './entities/question.entity';
@@ -18,7 +19,7 @@ import { AnswerHistory } from './entities/answer-history.entity';
       AnswerHistory,
     ]),
   ],
-  controllers: [EnglishCourseController],
+  controllers: [EnglishCourseController, EnglishCourseAdminController],
   providers: [EnglishCourseService],
   exports: [EnglishCourseService],
 })
