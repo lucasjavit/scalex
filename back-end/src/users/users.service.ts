@@ -210,4 +210,10 @@ export class UsersService {
     const user = await this.findOne(userId);
     return user.addresses;
   }
+
+  async toggleUserStatus(userId: string): Promise<User> {
+    const user = await this.findOne(userId);
+    user.is_active = !user.is_active;
+    return await this.userRepository.save(user);
+  }
 }

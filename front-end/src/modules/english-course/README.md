@@ -1,6 +1,6 @@
-# English Course Module - Callan Method Style
+# English Course Module - Interactive Method Style
 
-Este módulo implementa um sistema de aprendizado de inglês inspirado no Método Callan, com sistema de revisão espaçada (spaced repetition) similar ao Anki.
+Este módulo implementa um sistema de aprendizado de inglês com método interativo, com sistema de revisão espaçada inteligente.
 
 ## Características Principais
 
@@ -10,7 +10,7 @@ Este módulo implementa um sistema de aprendizado de inglês inspirado no Métod
 - Foco em gramática e vocabulário específicos
 - Rastreamento de progresso individual por lição
 
-### 2. Método Callan
+### 2. Método Interativo
 - Perguntas e respostas rápidas
 - Prática de repetição intensiva
 - Feedback imediato após cada resposta
@@ -199,7 +199,7 @@ if (review.reviewCount === 1) {
 - **Backend**: NestJS, TypeORM, PostgreSQL
 - **Frontend**: React, React Router, Bootstrap
 - **Algoritmo**: SM-2 (SuperMemo 2) para spaced repetition
-- **Inspiração**: Método Callan + Sistema Anki
+- **Inspiração**: Método Interativo + Sistema de Repetição Espaçada
 
 ## Suporte
 

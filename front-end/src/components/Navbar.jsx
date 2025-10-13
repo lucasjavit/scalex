@@ -55,19 +55,34 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [shouldGlow, setShouldGlow] = useState(false);
+  const [hasGlowed, setHasGlowed] = useState(false);
 
-  // Control glow effect - only glow when user is not logged in
+  // Control glow effect - glow for 30 seconds after login, then stop permanently
   useEffect(() => {
-    if (!user) {
+    if (user && !hasGlowed) {
+      console.log('🔥 Starting glow effect for ScaleX');
+      // Start glowing when user logs in
       setShouldGlow(true);
-    } else {
-      // Stop glowing after user logs in
+      setHasGlowed(true);
+      
+      // Stop glowing after 30 seconds (30000ms)
+      const timer = setTimeout(() => {
+        console.log('⏰ Stopping glow effect after 30 seconds');
+        setShouldGlow(false);
+      }, 30000);
+      
+      // Cleanup timer on unmount
+      return () => clearTimeout(timer);
+    } else if (!user) {
+      console.log('🔄 Resetting glow state on logout');
+      // Reset when user logs out
       setShouldGlow(false);
+      setHasGlowed(false);
     }
-  }, [user]);
+  }, [user, hasGlowed]);
 
-  // Don't render navbar if user is not logged in or on login page
-  if (!user || location.pathname === '/') {
+  // Don't render navbar if user is not logged in or on landing/login pages
+  if (!user || location.pathname === '/' || location.pathname === '/login') {
     return null;
   }
 
@@ -89,15 +104,23 @@ export default function Navbar() {
           <div className="flex items-center space-x-6">
             <span
               onClick={() => navigate('/home')}
-              className={`font-semibold text-lg cursor-pointer transition-all duration-300 hover:scale-105 ${shouldGlow ? 'shining-text' : ''}`}
-              style={{
+              className={`cursor-pointer transition-all duration-300 hover:scale-105 ${shouldGlow ? 'shining-text' : ''}`}
+              style={shouldGlow ? {
                 background: 'linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe)',
                 backgroundSize: '400% 400%',
-                animation: shouldGlow ? 'gradientShift 3s ease infinite, glow 2s ease-in-out infinite' : 'gradientShift 3s ease infinite',
+                animation: 'gradientShift 3s ease infinite, glow 2s ease-in-out infinite',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
                 color: 'transparent',
+              } : {
+                background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                color: 'transparent',
+                fontWeight: 'bold',
+                fontSize: '1.125rem', // text-lg equivalent
               }}
             >
               ScaleX

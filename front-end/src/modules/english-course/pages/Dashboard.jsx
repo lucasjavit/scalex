@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth-social/context/AuthContext';
 import apiService from '../../../services/api';
-import LessonCard from '../components/LessonCard';
+import { useAuth } from '../../auth-social/context/AuthContext';
 import ProgressStats from '../components/ProgressStats';
 
 const Dashboard = () => {
@@ -119,7 +118,7 @@ const Dashboard = () => {
           </h1>
 
           <p className="text-copilot-text-secondary text-lg mb-6">
-            Practice with Anik's Callan Method revision system
+            Practice with our intelligent revision system
           </p>
 
           {statistics?.dueReviews > 0 && (
@@ -328,7 +327,7 @@ const Dashboard = () => {
             Ready to improve your English?
           </h3>
           <p className="text-white text-opacity-90 mb-6">
-            Practice daily with the Callan Method for fast results
+            Practice daily with our interactive method for fast results
           </p>
           {lessons.length > 0 && (
             <Link

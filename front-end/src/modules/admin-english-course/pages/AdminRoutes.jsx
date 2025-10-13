@@ -1,9 +1,10 @@
-import { Routes, Route } from 'react-router-dom';
-import AdminDashboard from './AdminDashboard';
-import LessonList from '../components/LessonList';
+import { Route, Routes } from 'react-router-dom';
 import LessonForm from '../components/LessonForm';
-import QuestionList from '../components/QuestionList';
+import LessonList from '../components/LessonList';
 import QuestionForm from '../components/QuestionForm';
+import QuestionList from '../components/QuestionList';
+import UsersList from '../components/UsersList';
+import AdminDashboard from './AdminDashboard';
 
 const AdminRoutes = () => {
   return (
@@ -21,9 +22,11 @@ const AdminRoutes = () => {
       <Route path="/lessons/:lessonId/questions/new" element={<QuestionForm />} />
       <Route path="/lessons/:lessonId/questions/:questionId/edit" element={<QuestionForm />} />
       
+      {/* Users */}
+      <Route path="/users" element={<UsersList />} />
+      
       {/* Future routes */}
       <Route path="/statistics" element={<div>Statistics Page - Coming Soon</div>} />
-      <Route path="/users" element={<div>Users Management - Coming Soon</div>} />
       <Route path="/settings" element={<div>Settings - Coming Soon</div>} />
     </Routes>
   );

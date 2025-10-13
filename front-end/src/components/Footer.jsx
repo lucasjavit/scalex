@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom';
 export default function Footer() {
   const location = useLocation();
 
-  // Don't render footer on login page
-  if (location.pathname === '/') {
+  // Don't render footer on landing/login pages
+  if (location.pathname === '/' || location.pathname === '/login') {
     return null;
   }
 

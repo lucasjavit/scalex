@@ -4,14 +4,15 @@ import Navbar from "../components/Navbar";
 import Home from "../modules/auth-social/pages/Home";
 import Login from "../modules/auth-social/pages/Login";
 import UserProfile from "../modules/auth-social/pages/UserProfile";
+import LandingPage from "../pages/LandingPage";
 import PrivateRoute from "./PrivateRoute";
 
 // English Course Pages
 import EnglishDashboard from "../modules/english-course/pages/Dashboard";
-import EnglishPractice from "../modules/english-course/pages/Practice";
-import EnglishReview from "../modules/english-course/pages/Review";
-import EnglishProgress from "../modules/english-course/pages/Progress";
 import LessonsList from "../modules/english-course/pages/LessonsList";
+import EnglishPractice from "../modules/english-course/pages/Practice";
+import EnglishProgress from "../modules/english-course/pages/Progress";
+import EnglishReview from "../modules/english-course/pages/Review";
 
 // Admin English Course
 import AdminEnglishCourse from "../modules/admin-english-course";
@@ -23,7 +24,8 @@ export default function AppRoutes() {
         <Navbar />
         <main className="flex-1">
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
             <Route
               path="/home"
               element={

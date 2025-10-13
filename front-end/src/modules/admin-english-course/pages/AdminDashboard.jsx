@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import adminApi from '../services/adminApi';
 
@@ -39,6 +39,13 @@ const AdminDashboard = () => {
       icon: '➕',
       color: 'bg-green-500',
       onClick: () => navigate('/admin/english-course/lessons/new'),
+    },
+    {
+      title: 'Gerenciar Usuários',
+      description: 'Visualizar e gerenciar usuários cadastrados',
+      icon: '👥',
+      color: 'bg-orange-500',
+      onClick: () => navigate('/admin/english-course/users'),
     },
     {
       title: 'Estatísticas',

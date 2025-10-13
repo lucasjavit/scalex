@@ -1,27 +1,29 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-  HttpStatus,
-  HttpCode,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Post,
+    Put
 } from '@nestjs/common';
-import { EnglishCourseService } from './english-course.service';
-import { CreateLessonDto } from './dto/create-lesson.dto';
-import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
+import { UsersService } from '../users/users.service';
 import { BulkCreateQuestionsDto } from './dto/bulk-create-questions.dto';
 import { BulkDeleteQuestionsDto } from './dto/bulk-delete-questions.dto';
+import { CreateLessonDto } from './dto/create-lesson.dto';
+import { CreateQuestionDto } from './dto/create-question.dto';
+import { UpdateLessonDto } from './dto/update-lesson.dto';
+import { UpdateQuestionDto } from './dto/update-question.dto';
+import { EnglishCourseService } from './english-course.service';
 
 @Controller('english-course/admin')
 export class EnglishCourseAdminController {
-  constructor(private readonly englishCourseService: EnglishCourseService) {}
+  constructor(
+    private readonly englishCourseService: EnglishCourseService,
+    private readonly usersService: UsersService,
+  ) {}
 
   // Lessons CRUD
   @Get('lessons')
@@ -102,5 +104,16 @@ export class EnglishCourseAdminController {
   @Get('statistics')
   async getAdminStatistics() {
     return this.englishCourseService.getAdminStatistics();
+  }
+
+  // Users management
+  @Get('users')
+  async getAllUsers() {
+    return this.usersService.findAll();
+  }
+
+  @Put('users/:id/toggle-status')
+  async toggleUserStatus(@Param('id') id: string) {
+    return this.usersService.toggleUserStatus(id);
   }
 }

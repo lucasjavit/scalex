@@ -78,6 +78,17 @@ class AdminApiService {
   async getAdminStatistics() {
     return apiService.request('/english-course/admin/statistics');
   }
+
+  // Users management
+  async getAllUsers() {
+    return apiService.request('/english-course/admin/users');
+  }
+
+  async toggleUserStatus(userId) {
+    return apiService.request(`/english-course/admin/users/${userId}/toggle-status`, {
+      method: 'PUT',
+    });
+  }
 }
 
 export default new AdminApiService();

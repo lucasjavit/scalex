@@ -210,7 +210,7 @@ class ApiService {
     });
   }
 
-  // Difficulty submission for Anki-style spaced repetition
+  // Difficulty submission for spaced repetition system
   async submitDifficulty(userId, lessonId, questionId, difficulty) {
     return this.request(`/english-course/users/${userId}/lessons/${lessonId}/questions/${questionId}/difficulty`, {
       method: 'POST',
