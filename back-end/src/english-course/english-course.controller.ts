@@ -147,6 +147,29 @@ export class EnglishCourseController {
     return this.englishCourseService.markReviewsAsDue();
   }
 
+  @Post('users/:userId/lessons/:lessonId/create-reviews')
+  @HttpCode(HttpStatus.OK)
+  createReviewsForLesson(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+  ) {
+    return this.englishCourseService.createReviewsForLesson(userId, lessonId);
+  }
+
+  @Get('users/:userId/reviews/all')
+  getAllReviews(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.englishCourseService.getAllReviews(userId);
+  }
+
+  @Get('users/:userId/lessons/:lessonId/reviews/due')
+  getDueReviewsForLesson(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.englishCourseService.getDueReviewsForLesson(userId, lessonId, limit || 20);
+  }
+
   // ============================================
   // STATISTICS & ANALYTICS
   // ============================================

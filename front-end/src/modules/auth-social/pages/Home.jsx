@@ -36,11 +36,6 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Welcome Section */}
         <div className="text-center mb-12">
-          <div className="inline-block bg-copilot-gradient p-4 rounded-copilot-lg mb-6 shadow-copilot-lg">
-            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-              <span className="text-5xl">🏠</span>
-            </div>
-          </div>
           
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-3">
             Bem-vindo de volta
@@ -56,41 +51,27 @@ export default function Home() {
           </p>
         </div>
 
-        {/* User Info Card */}
-        {user && (
-          <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 mb-8 max-w-2xl mx-auto">
-            <div className="flex items-center gap-4">
-              {user.photoURL ? (
-                <img 
-                  src={user.photoURL} 
-                  alt={user.displayName} 
-                  className="w-16 h-16 rounded-full border-2 border-copilot-accent-primary"
-                />
-              ) : (
-                <div className="w-16 h-16 bg-copilot-gradient rounded-full flex items-center justify-center">
-                  <span className="text-white text-2xl font-bold">
-                    {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold text-copilot-text-primary">
-                  {user.displayName || "Usuário"}
-                </h3>
-                <p className="text-copilot-text-secondary">{user.email}</p>
-              </div>
-              <button
-                onClick={() => navigate('/profile')}
-                className="bg-copilot-accent-primary text-white px-4 py-2 rounded-copilot text-sm font-medium hover:bg-opacity-90 transition-all duration-200"
-              >
-                Completar Perfil
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* English Course Card */}
+          <div 
+            className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 hover:border-copilot-accent-primary transition-all duration-200 cursor-pointer group"
+            onClick={() => navigate('/english-course')}
+          >
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-copilot flex items-center justify-center mb-4 shadow-copilot group-hover:scale-110 transition-transform duration-200">
+              <span className="text-white text-2xl">🇬🇧</span>
+            </div>
+            <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">English Course</h3>
+            <p className="text-copilot-text-secondary text-sm">
+              Aprenda inglês com método Callan e sistema Anki de repetição espaçada
+            </p>
+            <div className="mt-4 flex items-center text-copilot-accent-primary text-sm font-medium">
+              <span>Começar agora</span>
+              <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
+            </div>
+          </div>
+
           <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 hover:border-copilot-accent-purple transition-all duration-200 cursor-pointer">
             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-copilot flex items-center justify-center mb-4 shadow-copilot">
               <span className="text-white text-2xl">📊</span>
@@ -108,16 +89,6 @@ export default function Home() {
             <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">Configurações</h3>
             <p className="text-copilot-text-secondary text-sm">
               Personalize sua experiência e preferências
-            </p>
-          </div>
-
-          <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 hover:border-copilot-accent-success transition-all duration-200 cursor-pointer">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-copilot flex items-center justify-center mb-4 shadow-copilot">
-              <span className="text-white text-2xl">📝</span>
-            </div>
-            <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">Projetos</h3>
-            <p className="text-copilot-text-secondary text-sm">
-              Gerencie e acompanhe seus projetos
             </p>
           </div>
         </div>

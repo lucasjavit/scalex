@@ -80,6 +80,7 @@ export default function Profile() {
               </div>
             </div>
 
+
             {/* Details section */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">
@@ -134,6 +135,78 @@ export default function Profile() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Complete Profile Section */}
+        <div className="mt-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-copilot-lg p-6 text-white shadow-copilot-xl">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-copilot flex items-center justify-center">
+              <span className="text-2xl">✨</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold">Complete seu Perfil</h3>
+              <p className="text-white text-opacity-90">Adicione informações para personalizar sua experiência</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white bg-opacity-10 rounded-copilot p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <span className="text-sm">✓</span>
+                </div>
+                <span className="font-medium">Nome</span>
+              </div>
+              <p className="text-white text-opacity-80 text-sm pl-9">
+                {user.displayName || "Não definido"}
+              </p>
+            </div>
+            
+            <div className="bg-white bg-opacity-10 rounded-copilot p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <span className="text-sm">✓</span>
+                </div>
+                <span className="font-medium">Email</span>
+              </div>
+              <p className="text-white text-opacity-80 text-sm pl-9">
+                {user.email}
+              </p>
+            </div>
+            
+            <div className="bg-white bg-opacity-10 rounded-copilot p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <span className="text-sm">?</span>
+                </div>
+                <span className="font-medium">Telefone</span>
+              </div>
+              <p className="text-white text-opacity-80 text-sm pl-9">
+                Adicionar telefone
+              </p>
+            </div>
+            
+            <div className="bg-white bg-opacity-10 rounded-copilot p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <span className="text-sm">?</span>
+                </div>
+                <span className="font-medium">Data de Nascimento</span>
+              </div>
+              <p className="text-white text-opacity-80 text-sm pl-9">
+                Adicionar data de nascimento
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-6 flex gap-3">
+            <button className="bg-white text-blue-600 px-6 py-2 rounded-copilot font-semibold hover:bg-opacity-90 transition-all duration-200">
+              Editar Perfil
+            </button>
+            <button className="bg-white bg-opacity-20 text-white px-6 py-2 rounded-copilot font-semibold hover:bg-opacity-30 transition-all duration-200">
+              Ver Progresso
+            </button>
           </div>
         </div>
 

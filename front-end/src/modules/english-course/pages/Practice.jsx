@@ -36,9 +36,36 @@ const Practice = () => {
       const lessonData = await apiService.getEnglishLesson(lessonId);
       setLesson(lessonData);
 
-      // Load questions for this lesson
-      const questionsData = await apiService.getQuestionsByLesson(lessonId);
-      setQuestions(questionsData);
+      // First, try to load due reviews for this lesson
+      const reviewsData = await apiService.getDueReviewsForLesson(userData.id, lessonId);
+      
+      if (reviewsData.length > 0) {
+        // If there are due reviews, show them
+        const questionsData = reviewsData.map(review => review.question);
+        setQuestions(questionsData);
+      } else {
+        // If no due reviews, check if user has completed this lesson
+        const progressData = await apiService.getLessonProgress(userData.id, lessonId);
+        if (progressData.status === 'completed') {
+          // Lesson completed but no reviews due - show message
+          setQuestions([]);
+        } else {
+          // Lesson not completed - show only questions that haven't been practiced yet
+          const allQuestionsData = await apiService.getQuestionsByLesson(lessonId);
+          const allReviewsData = await apiService.getAllReviews(userData.id);
+          
+          // Filter out questions that have already been practiced
+          const practicedQuestionIds = allReviewsData
+            .filter(review => review.lessonId === lessonId)
+            .map(review => review.questionId);
+          
+          const unpracticedQuestions = allQuestionsData.filter(
+            question => !practicedQuestionIds.includes(question.id)
+          );
+          
+          setQuestions(unpracticedQuestions);
+        }
+      }
     } catch (error) {
       console.error('Error loading lesson:', error);
     } finally {
@@ -109,10 +136,18 @@ const Practice = () => {
             <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
               <span className="text-white text-3xl">✅</span>
             </div>
-            <h2 className="text-2xl font-bold text-copilot-text-primary mb-3">No Practice Available</h2>
+            <h2 className="text-2xl font-bold text-copilot-text-primary mb-3">
+              {lesson ? 
+                (lesson.status === 'completed' ? "No Reviews Due" : "Ready to Practice") :
+                "No Questions Available"
+              }
+            </h2>
             <p className="text-copilot-text-secondary mb-6">
               {lesson ? 
-                "All questions in this lesson have been practiced recently. Check back later for reviews!" :
+                (lesson.status === 'completed' ? 
+                  "All cards in this lesson are up to date! No reviews are due right now. Check back later when cards are ready for review." :
+                  "This lesson is ready for practice! Complete it to add cards to your review system."
+                ) :
                 "This lesson doesn't have any questions yet."
               }
             </p>

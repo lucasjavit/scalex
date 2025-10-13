@@ -148,6 +148,8 @@ export class EnglishCourseService {
 
   async updateProgress(userId: string, lessonId: string, updateDto: UpdateProgressDto): Promise<UserProgress> {
     const progress = await this.getLessonProgress(userId, lessonId);
+    const wasCompleted = progress.status === ProgressStatus.COMPLETED;
+    
     Object.assign(progress, updateDto);
 
     // Calculate accuracy percentage
@@ -158,9 +160,18 @@ export class EnglishCourseService {
     progress.lastPracticedAt = new Date();
 
     // Auto-complete if accuracy is high enough
-    if (progress.accuracyPercentage >= 80 && progress.totalAttempts >= 10) {
+    // For lessons with fewer questions, complete if all questions are answered correctly
+    const shouldComplete = progress.accuracyPercentage >= 80 && 
+      (progress.totalAttempts >= 10 || progress.accuracyPercentage === 100);
+    
+    if (shouldComplete) {
       progress.status = ProgressStatus.COMPLETED;
       progress.completedAt = new Date();
+      
+      // Create initial reviews for spaced repetition if lesson was just completed
+      if (!wasCompleted) {
+        await this.createInitialReviews(userId, lessonId);
+      }
     } else if (progress.totalAttempts > 0) {
       progress.status = ProgressStatus.IN_PROGRESS;
     }
@@ -204,7 +215,10 @@ export class EnglishCourseService {
     if (isCorrect) {
       progress.correctAnswers++;
     }
-    await this.updateProgress(userId, lessonId, {});
+    await this.updateProgress(userId, lessonId, {
+      correctAnswers: progress.correctAnswers,
+      totalAttempts: progress.totalAttempts,
+    });
 
     return {
       isCorrect,
@@ -261,7 +275,7 @@ export class EnglishCourseService {
           review.intervalDays = Math.max(1, review.intervalDays * 1.2);
         }
         review.easeFactor = Math.max(1.3, review.easeFactor - 0.15);
-        review.isDue = false;
+        review.isDue = false; // Not due until next review date
         break;
 
       case 'good':
@@ -273,7 +287,7 @@ export class EnglishCourseService {
         } else {
           review.intervalDays = Math.round(review.intervalDays * review.easeFactor);
         }
-        review.isDue = false;
+        review.isDue = false; // Not due until next review date
         break;
 
       case 'easy':
@@ -284,7 +298,7 @@ export class EnglishCourseService {
           review.intervalDays = Math.round(review.intervalDays * review.easeFactor * 1.3);
         }
         review.easeFactor = Math.min(3.0, review.easeFactor + 0.15);
-        review.isDue = false;
+        review.isDue = false; // Not due until next review date
         break;
 
       default:
@@ -293,6 +307,13 @@ export class EnglishCourseService {
 
     review.nextReviewDate = this.calculateNextReviewDate(review.intervalDays, review.easeFactor);
     await this.reviewRepository.save(review);
+
+    // Update lesson progress
+    const isCorrect = difficulty.toLowerCase() !== 'again';
+    await this.updateProgress(userId, lessonId, {
+      correctAnswers: isCorrect ? 1 : 0,
+      totalAttempts: 1,
+    });
 
     return {
       success: true,
@@ -307,7 +328,11 @@ export class EnglishCourseService {
   // ============================================
 
   async getDueReviews(userId: string, limit: number = 20): Promise<Review[]> {
+    // First, mark reviews as due if their next review date has passed
+    await this.markReviewsAsDue();
+    
     const now = new Date();
+    
     return await this.reviewRepository.find({
       where: {
         userId,
@@ -332,7 +357,7 @@ export class EnglishCourseService {
     });
 
     if (!review) {
-      // Create new review
+      // Create new review - first time answering this question
       review = this.reviewRepository.create({
         userId,
         lessonId,
@@ -342,7 +367,7 @@ export class EnglishCourseService {
         intervalDays: 1,
         easeFactor: 2.5,
         lastReviewedAt: new Date(),
-        isDue: false,
+        isDue: false, // Not due until next review date
       });
     } else {
       // Update existing review using SM-2 algorithm
@@ -366,7 +391,7 @@ export class EnglishCourseService {
       }
 
       review.nextReviewDate = this.calculateNextReviewDate(review.intervalDays, review.easeFactor);
-      review.isDue = false;
+      review.isDue = false; // Not due until next review date
     }
 
     await this.reviewRepository.save(review);
@@ -387,6 +412,87 @@ export class EnglishCourseService {
       .where('nextReviewDate <= :now', { now })
       .andWhere('isDue = :isDue', { isDue: false })
       .execute();
+  }
+
+  // Helper method to check if a review should be due
+  private isReviewDue(review: Review): boolean {
+    const now = new Date();
+    return review.isDue && review.nextReviewDate <= now;
+  }
+
+  // Public method to create reviews for a lesson (for testing/debugging)
+  async createReviewsForLesson(userId: string, lessonId: string): Promise<{ message: string; reviewsCreated: number }> {
+    await this.createInitialReviews(userId, lessonId);
+    
+    // Count created reviews
+    const reviews = await this.reviewRepository.find({
+      where: { userId, lessonId },
+    });
+    
+    return {
+      message: `Reviews created for lesson ${lessonId}`,
+      reviewsCreated: reviews.length
+    };
+  }
+
+  // Get all reviews for a user (for debugging)
+  async getAllReviews(userId: string): Promise<Review[]> {
+    return await this.reviewRepository.find({
+      where: { userId },
+      relations: ['question', 'lesson'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  // Get due reviews for a specific lesson
+  async getDueReviewsForLesson(userId: string, lessonId: string, limit: number = 20): Promise<Review[]> {
+    // First, mark reviews as due if their next review date has passed
+    await this.markReviewsAsDue();
+    
+    const now = new Date();
+    
+    return await this.reviewRepository.find({
+      where: {
+        userId,
+        lessonId,
+        isDue: true,
+        nextReviewDate: LessThan(now),
+      },
+      relations: ['question', 'lesson'],
+      order: { nextReviewDate: 'ASC' },
+      take: limit,
+    });
+  }
+
+  // Create initial reviews for all questions in a lesson when completed
+  private async createInitialReviews(userId: string, lessonId: string): Promise<void> {
+    const questions = await this.questionRepository.find({
+      where: { lessonId },
+    });
+
+    for (const question of questions) {
+      // Check if review already exists
+      const existingReview = await this.reviewRepository.findOne({
+        where: { userId, questionId: question.id },
+      });
+
+      if (!existingReview) {
+        // Create initial review entry
+        const review = this.reviewRepository.create({
+          userId,
+          lessonId,
+          questionId: question.id,
+          reviewCount: 0,
+          nextReviewDate: new Date(), // Available immediately for first review
+          intervalDays: 1,
+          easeFactor: 2.5,
+          lastReviewedAt: undefined,
+          isDue: true, // Available for review
+        });
+
+        await this.reviewRepository.save(review);
+      }
+    }
   }
 
   // ============================================

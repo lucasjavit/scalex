@@ -224,6 +224,14 @@ class ApiService {
     return this.request(`/english-course/users/${userId}/reviews/due?limit=${limit}`);
   }
 
+  async getDueReviewsForLesson(userId, lessonId, limit = 20) {
+    return this.request(`/english-course/users/${userId}/lessons/${lessonId}/reviews/due?limit=${limit}`);
+  }
+
+  async getAllReviews(userId) {
+    return this.request(`/english-course/users/${userId}/reviews/all`);
+  }
+
 
   // SRS methods for lesson-specific practice
   async getDueQuestionsByLesson(userId, lessonId, limit = 20) {
