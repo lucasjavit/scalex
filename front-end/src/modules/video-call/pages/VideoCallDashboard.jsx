@@ -92,8 +92,7 @@ const VideoCallDashboard = () => {
       
       navigate(`/video-call/room/${roomId}`, {
         state: {
-          createdByMe: true,
-          inviteLink: `${window.location.origin}/video-call/room/${roomId}`
+          createdByMe: true
         }
       });
     } catch (error) {

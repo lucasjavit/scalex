@@ -15,7 +15,6 @@ const VideoCallRoom = () => {
   const [matchedUser, setMatchedUser] = useState(null);
   const [callDuration, setCallDuration] = useState(0);
   const [participants, setParticipants] = useState(0);
-  const [inviteLink, setInviteLink] = useState('');
   const [callStarted, setCallStarted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes in seconds
   const [showTimeWarning, setShowTimeWarning] = useState(false);
@@ -26,11 +25,6 @@ const VideoCallRoom = () => {
       setMatchedUser(location.state.matchedUser);
       setTopic(location.state.topic);
       setRandomTopic(location.state.randomTopic);
-      if (location.state.inviteLink) {
-        setInviteLink(location.state.inviteLink);
-      } else {
-        setInviteLink(`${window.location.origin}/video-call/room/${roomId}`);
-      }
     }
 
     // Start call tracking when component mounts
@@ -145,18 +139,19 @@ const VideoCallRoom = () => {
         </div>
         
         <div className="flex items-center gap-4">
-          {/* Share link */}
+          {/* Share Room ID */}
           <div className="hidden md:flex items-center gap-2 bg-copilot-bg-primary border border-copilot-border-default rounded-copilot px-3 py-2">
-            <span className="text-xs text-copilot-text-secondary hidden lg:inline">Invite:</span>
-            <input
-              readOnly
-              value={inviteLink}
-              className="text-xs text-copilot-text-primary bg-transparent outline-none w-64"
-            />
+            <span className="text-xs text-copilot-text-secondary">Room ID:</span>
+            <span className="text-xs font-mono text-copilot-text-primary font-semibold">
+              {roomId}
+            </span>
             <button
-              onClick={() => { navigator.clipboard.writeText(inviteLink); }}
-              className="text-xs text-copilot-accent-primary font-semibold"
-              title="Copy link"
+              onClick={() => { 
+                navigator.clipboard.writeText(roomId);
+                alert('Room ID copiado!');
+              }}
+              className="text-xs text-copilot-accent-primary font-semibold hover:text-copilot-accent-secondary"
+              title="Copy Room ID"
             >
               Copy
             </button>
