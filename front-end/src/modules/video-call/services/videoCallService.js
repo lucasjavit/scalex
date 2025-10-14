@@ -337,6 +337,30 @@ class VideoCallService {
       throw error;
     }
   }
+
+  /**
+   * Get system status (active/inactive periods)
+   */
+  async getSystemStatus() {
+    try {
+      const response = await fetch(`${this.baseURL}/video-call/system-status`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error getting system status:', error);
+      throw error;
+    }
+  }
 }
 
 export default new VideoCallService();

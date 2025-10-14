@@ -1,6 +1,7 @@
 import { signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useIsAdmin } from '../hooks/useIsAdmin';
 import { useAuth } from '../modules/auth-social/context/AuthContext';
 import { auth } from '../modules/auth-social/services/firebaseAuth';
 
@@ -54,6 +55,7 @@ export default function Navbar() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAdmin } = useIsAdmin();
   const [shouldGlow, setShouldGlow] = useState(false);
   const [hasGlowed, setHasGlowed] = useState(false);
 
@@ -148,6 +150,22 @@ export default function Navbar() {
               >
                 Video Call
               </button>
+              
+              {/* Admin Button - Only visible for admins */}
+              {isAdmin && (
+                <button
+                  onClick={() => navigate('/video-call/admin')}
+                  className={`text-sm font-medium transition-colors duration-200 flex items-center gap-1 ${
+                    location.pathname === '/video-call/admin'
+                      ? 'text-copilot-accent-primary'
+                      : 'text-yellow-600 hover:text-yellow-700'
+                  }`}
+                  title="Painel de Administração"
+                >
+                  <span>🔧</span>
+                  <span>Admin</span>
+                </button>
+              )}
             </div>
           </div>
 

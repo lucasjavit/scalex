@@ -12,6 +12,7 @@ import {
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinQueueDto } from './dto/join-queue.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
+import { ActivePeriod } from './entities/active-period.entity';
 import { VideoCallQueueService } from './video-call-queue.service';
 import { VideoCallService } from './video-call.service';
 
@@ -389,6 +390,146 @@ export class VideoCallController {
         {
           success: false,
           message: 'Failed to get session room',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // GET /video-call/system-status - Get system status (active/inactive periods)
+  @Get('system-status')
+  async getSystemStatus(): Promise<{
+    success: boolean;
+    data: {
+      isActive: boolean;
+      currentPeriod: ActivePeriod | null;
+      nextPeriod: ActivePeriod | null;
+      nextPeriodStart: Date | null;
+      canAcceptSessions: boolean;
+      activePeriods: ActivePeriod[];
+      manualOverride: boolean;
+      manuallyDisabled: boolean;
+    };
+  }> {
+    try {
+      const status = this.queueService.getSystemStatus();
+      return {
+        success: true,
+        data: status,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to get system status',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // ====== ADMIN ENDPOINTS ======
+
+  // POST /video-call/admin/disable - Manually disable system
+  @Post('admin/disable')
+  async adminDisableSystem() {
+    try {
+      const result = this.queueService.manuallyDisableSystem();
+      return {
+        success: result.success,
+        message: result.message,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to disable system',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // POST /video-call/admin/enable - Manually enable system (return to auto mode)
+  @Post('admin/enable')
+  async adminEnableSystem() {
+    try {
+      const result = this.queueService.manuallyEnableSystem();
+      return {
+        success: result.success,
+        message: result.message,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to enable system',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // GET /video-call/admin/statistics - Get admin statistics
+  @Get('admin/statistics')
+  async getAdminStatistics() {
+    try {
+      const stats = this.queueService.getAdminStatistics();
+      return {
+        success: true,
+        data: stats,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to get admin statistics',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // POST /video-call/admin/add-period - Add custom period
+  @Post('admin/add-period')
+  async addCustomPeriod(@Body() body: { start: { hour: number; minute: number }; end: { hour: number; minute: number } }) {
+    try {
+      const result = this.queueService.addCustomPeriod(body);
+      return {
+        success: result.success,
+        message: result.message,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to add period',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // DELETE /video-call/admin/remove-period/:index - Remove period
+  @Delete('admin/remove-period/:index')
+  async removeCustomPeriod(@Param('index') index: string) {
+    try {
+      const result = this.queueService.removeCustomPeriod(parseInt(index, 10));
+      return {
+        success: result.success,
+        message: result.message,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to remove period',
           error: error.message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
