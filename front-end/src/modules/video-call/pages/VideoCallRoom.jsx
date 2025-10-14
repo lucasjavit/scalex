@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../auth-social/context/AuthContext';
 import VideoCallSimple from '../components/VideoCallSimple';
+import videoCallService from '../services/videoCallService';
 
 const VideoCallRoom = () => {
   const { roomId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [showTopic, setShowTopic] = useState(true);
   const [topic, setTopic] = useState('');
   const [randomTopic, setRandomTopic] = useState('');
@@ -13,6 +16,9 @@ const VideoCallRoom = () => {
   const [callDuration, setCallDuration] = useState(0);
   const [participants, setParticipants] = useState(0);
   const [inviteLink, setInviteLink] = useState('');
+  const [callStarted, setCallStarted] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(60); // 1 minute in seconds for testing
+  const [showTimeWarning, setShowTimeWarning] = useState(false);
 
   useEffect(() => {
     // Get data from navigation state
@@ -27,13 +33,43 @@ const VideoCallRoom = () => {
       }
     }
 
+    // Start call tracking when component mounts
+    const startCallTracking = async () => {
+      if (user && !callStarted) {
+        try {
+          await videoCallService.startVideoCallSession(roomId);
+          setCallStarted(true);
+        } catch (error) {
+          console.error('Error starting call tracking:', error);
+        }
+      }
+    };
+
+    startCallTracking();
+
     // Start call duration timer
     const interval = setInterval(() => {
       setCallDuration(prev => prev + 1);
+      setTimeRemaining(prev => {
+        const newTime = prev - 1;
+        
+        // Show warning when 30 seconds remaining (half time for testing)
+        if (newTime === 30 && !showTimeWarning) {
+          setShowTimeWarning(true);
+        }
+        
+        // Auto-end call when time runs out
+        if (newTime <= 0) {
+          handleEndCall();
+          return 0;
+        }
+        
+        return newTime;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [location.state]);
+  }, [location.state, user, roomId, callStarted]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -41,7 +77,22 @@ const VideoCallRoom = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleEndCall = () => {
+  const formatTimeRemaining = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleEndCall = async () => {
+    try {
+      // End call tracking
+      if (user && callStarted) {
+        await videoCallService.endVideoCallSession(roomId, callDuration);
+      }
+    } catch (error) {
+      console.error('Error ending call tracking:', error);
+    }
+    
     navigate('/video-call');
   };
 
@@ -110,12 +161,30 @@ const VideoCallRoom = () => {
             </button>
           </div>
 
-          <div className="text-sm text-copilot-text-secondary">
-            <span className="font-mono text-copilot-accent-primary">
-              {formatTime(callDuration)}
-            </span>
-            <span className="ml-2">•</span>
-            <span className="ml-2">{participants} participants</span>
+          <div className="flex items-center gap-4">
+            {/* Call Duration */}
+            <div className="text-sm text-copilot-text-secondary">
+              <span className="font-mono text-copilot-accent-primary">
+                {formatTime(callDuration)}
+              </span>
+              <span className="ml-2">•</span>
+              <span className="ml-2">{participants} participants</span>
+            </div>
+            
+            {/* Time Remaining Timer */}
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ${
+              timeRemaining <= 15 
+                ? 'bg-red-100 text-red-700 border border-red-200' 
+                : timeRemaining <= 30 
+                ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                : 'bg-green-100 text-green-700 border border-green-200'
+            }`}>
+              <span className="text-lg">⏰</span>
+              <span className="font-mono">
+                {formatTimeRemaining(timeRemaining)}
+              </span>
+              <span className="text-xs">remaining</span>
+            </div>
           </div>
           
           {matchedUser && (
@@ -128,6 +197,45 @@ const VideoCallRoom = () => {
           )}
         </div>
       </div>
+
+      {/* Time Warning Modal */}
+      {showTimeWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+            <div className="text-6xl mb-6">⚠️</div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              Time Warning!
+            </h3>
+            
+            {/* Countdown Display */}
+            <div className="mb-6">
+              <div className="text-4xl font-mono font-bold text-red-600 mb-2">
+                {timeRemaining}
+              </div>
+              <div className="text-lg text-gray-600 mb-2">
+                seconds remaining
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div 
+                  className="bg-red-500 h-3 rounded-full transition-all duration-1000"
+                  style={{ width: `${(timeRemaining / 60) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              Please wrap up your conversation quickly!
+            </p>
+            
+            <button
+              onClick={() => setShowTimeWarning(false)}
+              className="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Topic Suggestion */}
       {showTopic && (

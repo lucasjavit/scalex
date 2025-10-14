@@ -24,11 +24,14 @@ class VideoCallService {
           topic: preferences.topic || 'random',
           language: preferences.language || 'en',
           level: preferences.level || 'intermediate',
-          duration: preferences.duration || 15, // minutes
+          duration: preferences.duration || 1, // minutes - default 1 minute for testing
           ...preferences
         },
         createdAt: new Date().toISOString(),
-        status: 'waiting'
+        startedAt: null,
+        endedAt: null,
+        status: 'waiting',
+        duration: 0 // in seconds
       };
 
       // In a real implementation, this would save to backend
@@ -71,13 +74,40 @@ class VideoCallService {
     }
   }
 
-  // End video call session
-  async endVideoCallSession(roomName) {
+  // Start video call session (when call actually begins)
+  async startVideoCallSession(roomName) {
     try {
       const sessions = this.getSessions();
       if (sessions[roomName]) {
+        sessions[roomName].status = 'active';
+        sessions[roomName].startedAt = new Date().toISOString();
+        localStorage.setItem('videoCallSessions', JSON.stringify(sessions));
+        return sessions[roomName];
+      }
+      return null;
+    } catch (error) {
+      console.error('Error starting video call session:', error);
+      throw error;
+    }
+  }
+
+  // End video call session
+  async endVideoCallSession(roomName, duration = 0) {
+    try {
+      const sessions = this.getSessions();
+      if (sessions[roomName]) {
+        const now = new Date().toISOString();
         sessions[roomName].status = 'ended';
-        sessions[roomName].endedAt = new Date().toISOString();
+        sessions[roomName].endedAt = now;
+        sessions[roomName].duration = duration;
+        
+        // Calculate duration if not provided
+        if (duration === 0 && sessions[roomName].startedAt) {
+          const start = new Date(sessions[roomName].startedAt);
+          const end = new Date(now);
+          sessions[roomName].duration = Math.round((end - start) / 1000); // in seconds
+        }
+        
         localStorage.setItem('videoCallSessions', JSON.stringify(sessions));
         return sessions[roomName];
       }
@@ -302,28 +332,75 @@ class VideoCallService {
       const completedSessions = sessions.filter(session => session.status === 'ended');
       
       const totalCalls = completedSessions.length;
+      
+      // Calculate total duration using stored duration or calculated from timestamps
       const totalDuration = completedSessions.reduce((total, session) => {
-        if (session.startedAt && session.endedAt) {
+        if (session.duration && session.duration > 0) {
+          return total + session.duration; // use stored duration
+        } else if (session.startedAt && session.endedAt) {
           const start = new Date(session.startedAt);
           const end = new Date(session.endedAt);
-          return total + (end - start) / 1000; // duration in seconds
+          return total + (end - start) / 1000; // calculate from timestamps
         }
         return total;
       }, 0);
 
       const averageDuration = totalCalls > 0 ? totalDuration / totalCalls : 0;
 
+      // Format duration for display
+      const formatDuration = (seconds) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+        
+        if (hours > 0) {
+          return `${hours}h ${minutes}m`;
+        } else if (minutes > 0) {
+          return `${minutes}m ${secs}s`;
+        } else {
+          return `${secs}s`;
+        }
+      };
+
       return {
         totalCalls,
         totalDuration: Math.round(totalDuration),
+        totalDurationFormatted: formatDuration(Math.round(totalDuration)),
         averageDuration: Math.round(averageDuration),
+        averageDurationFormatted: formatDuration(Math.round(averageDuration)),
         lastCall: completedSessions.length > 0 ? 
-          completedSessions[completedSessions.length - 1].endedAt : null
+          completedSessions[completedSessions.length - 1].endedAt : null,
+        // Additional stats
+        thisWeekCalls: this.getThisWeekCalls(completedSessions),
+        thisMonthCalls: this.getThisMonthCalls(completedSessions)
       };
     } catch (error) {
       console.error('Error getting call statistics:', error);
       throw error;
     }
+  }
+
+  // Get calls from this week
+  getThisWeekCalls(sessions) {
+    const now = new Date();
+    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    return sessions.filter(session => {
+      const sessionDate = new Date(session.endedAt);
+      return sessionDate >= startOfWeek;
+    }).length;
+  }
+
+  // Get calls from this month
+  getThisMonthCalls(sessions) {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    return sessions.filter(session => {
+      const sessionDate = new Date(session.endedAt);
+      return sessionDate >= startOfMonth;
+    }).length;
   }
 }
 

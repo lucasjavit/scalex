@@ -59,7 +59,7 @@ services:
       - scalex-network
 
   jitsi-web:
-    image: jitsi/web:stable
+    image: scalex-jitsi-web:v1
     container_name: jitsi-web
     restart: unless-stopped
     ports:
@@ -95,6 +95,7 @@ services:
       - ./jitsi-cfg/web:/config:Z
       - ./jitsi-cfg/web/letsencrypt:/etc/letsencrypt:Z
       - ./jitsi-cfg/transcripts:/usr/share/jitsi-meet/transcripts:Z
+      - ./watermark.png:/usr/share/jitsi-meet/images/watermark.png
     networks:
       - scalex-network
 

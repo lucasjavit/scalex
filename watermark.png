@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <defs>
+    <linearGradient id="terrainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="24" height="24" rx="4" fill="url(#terrainGradient)"/>
+
+  <!-- Terrain/Mountain layers representing scaling -->
+  <path d="M2 18L6 12L10 15L14 9L18 13L22 10V20H2V18Z" fill="white" opacity="0.9"/>
+  <path d="M2 20L6 14L10 17L14 11L18 15L22 12V22H2V20Z" fill="white" opacity="0.7"/>
+
+  <!-- Peak highlights -->
+  <circle cx="6" cy="12" r="1.5" fill="white"/>
+  <circle cx="14" cy="9" r="1.5" fill="white"/>
+  <circle cx="18" cy="13" r="1.5" fill="white"/>
+</svg>

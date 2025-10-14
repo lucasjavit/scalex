@@ -88,7 +88,61 @@ const VideoCall = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
           height: '100%',
           parentNode: jitsiContainerRef.current,
           configOverwrite: {
-            prejoinPageEnabled: false // Skip pre-join page for faster testing
+            prejoinPageEnabled: false, // Skip pre-join page for faster testing
+            
+            // Disable toolbar buttons
+            toolbarButtons: [
+              'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
+              'fodeviceselection', 'hangup', 'profile', 'chat', 'recording',
+              'livestreaming', 'etherpad', 'sharedvideo', 'settings', 'raisehand',
+              'videoquality', 'filmstrip', 'invite', 'feedback', 'stats', 'shortcuts',
+              'tileview', 'videobackgroundblur', 'download', 'help', 'mute-everyone'
+            ],
+            
+            // Disable specific features
+            disableWhiteboard: true,
+            disableShare: true,
+            disableStats: true,
+            disableBroadcast: true,
+            disableRecording: true,
+            disableLiveStreaming: true,
+            
+            // Disable toolbar completely for cleaner interface
+            TOOLBAR_BUTTONS: [
+              'microphone', 'camera', 'hangup', 'chat'
+            ],
+            
+            // Disable other UI elements
+            DISABLE_VIDEO_BACKGROUND: true,
+            DISABLE_TRANSCRIPTION_SUBTITLES: true,
+            DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+            DISABLE_PRESENCE_STATUS: true,
+            DISABLE_DOMINANT_SPEAKER_INDICATOR: true,
+            DISABLE_FOCUS_INDICATOR: true,
+            DISABLE_RECORDING: true,
+            DISABLE_LIVE_STREAMING: true,
+            DISABLE_WHITEBOARD: true,
+            DISABLE_SHARE: true,
+            DISABLE_STATS: true,
+            
+            // Disable settings menu options
+            DISABLE_SETTINGS_WHITEBOARD: true,
+            DISABLE_SETTINGS_SHARE: true,
+            DISABLE_SETTINGS_STATS: true,
+            DISABLE_SETTINGS_BROADCAST: true,
+            DISABLE_SETTINGS_RECORDING: true,
+            DISABLE_SETTINGS_LIVE_STREAMING: true,
+            
+            // Hide specific settings sections
+            SETTINGS_SECTIONS: ['devices', 'language', 'moderator', 'profile', 'sounds'],
+            
+            // Disable specific features in settings
+            disableWhiteboardInSettings: true,
+            disableShareInSettings: true,
+            disableStatsInSettings: true,
+            disableBroadcastInSettings: true,
+            disableRecordingInSettings: true,
+            disableLiveStreamingInSettings: true
           }
         };
 

@@ -86,36 +86,72 @@ const VideoCallDashboard = () => {
 
         {/* Statistics */}
         {statistics && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-copilot flex items-center justify-center mb-4 mx-auto">
-                <span className="text-white text-2xl">📞</span>
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-copilot-text-primary mb-6 text-center">
+              Your Practice Statistics
+            </h2>
+            
+            {/* Main Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+              <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-copilot flex items-center justify-center mb-4 mx-auto">
+                  <span className="text-white text-2xl">📞</span>
+                </div>
+                <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
+                  {statistics.totalCalls}
+                </h3>
+                <p className="text-copilot-text-secondary">Total Calls</p>
               </div>
-              <h3 className="text-2xl font-bold text-copilot-text-primary mb-1">
-                {statistics.totalCalls}
-              </h3>
-              <p className="text-copilot-text-secondary">Total Calls</p>
+
+              <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
+                  <span className="text-white text-2xl">⏱️</span>
+                </div>
+                <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
+                  {statistics.totalDurationFormatted || '0m'}
+                </h3>
+                <p className="text-copilot-text-secondary">Total Practice Time</p>
+              </div>
+
+              <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
+                  <span className="text-white text-2xl">📊</span>
+                </div>
+                <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
+                  {statistics.averageDurationFormatted || '0m'}
+                </h3>
+                <p className="text-copilot-text-secondary">Average Call Duration</p>
+              </div>
+
+              <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
+                  <span className="text-white text-2xl">📅</span>
+                </div>
+                <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
+                  {statistics.thisWeekCalls || 0}
+                </h3>
+                <p className="text-copilot-text-secondary">This Week</p>
+              </div>
+
+              <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
+                  <span className="text-white text-2xl">📈</span>
+                </div>
+                <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
+                  {statistics.thisMonthCalls || 0}
+                </h3>
+                <p className="text-copilot-text-secondary">This Month</p>
+              </div>
             </div>
 
-            <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
-                <span className="text-white text-2xl">⏱️</span>
+            {/* Last Call Info */}
+            {statistics.lastCall && (
+              <div className="mt-6 bg-blue-50 border border-blue-200 rounded-copilot p-4 text-center">
+                <p className="text-blue-800 text-sm">
+                  <span className="font-semibold">Last call:</span> {new Date(statistics.lastCall).toLocaleDateString()} at {new Date(statistics.lastCall).toLocaleTimeString()}
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-copilot-text-primary mb-1">
-                {Math.floor(statistics.totalDuration / 60)}m
-              </h3>
-              <p className="text-copilot-text-secondary">Total Practice Time</p>
-            </div>
-
-            <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
-                <span className="text-white text-2xl">📊</span>
-              </div>
-              <h3 className="text-2xl font-bold text-copilot-text-primary mb-1">
-                {Math.floor(statistics.averageDuration / 60)}m
-              </h3>
-              <p className="text-copilot-text-secondary">Average Call Duration</p>
-            </div>
+            )}
           </div>
         )}
 
