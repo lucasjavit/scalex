@@ -17,7 +17,7 @@ const VideoCallRoom = () => {
   const [participants, setParticipants] = useState(0);
   const [inviteLink, setInviteLink] = useState('');
   const [callStarted, setCallStarted] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(60); // 1 minute in seconds for testing
+  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes in seconds
   const [showTimeWarning, setShowTimeWarning] = useState(false);
 
   useEffect(() => {
@@ -53,8 +53,8 @@ const VideoCallRoom = () => {
       setTimeRemaining(prev => {
         const newTime = prev - 1;
         
-        // Show warning when 30 seconds remaining (half time for testing)
-        if (newTime === 30 && !showTimeWarning) {
+        // Show warning when 5 minutes (300 seconds) remaining
+        if (newTime === 300 && !showTimeWarning) {
           setShowTimeWarning(true);
         }
         
@@ -93,6 +93,7 @@ const VideoCallRoom = () => {
       console.error('Error ending call tracking:', error);
     }
     
+    // Voltar para o dashboard
     navigate('/video-call');
   };
 

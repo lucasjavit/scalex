@@ -27,8 +27,33 @@ const VideoCallDashboard = () => {
     }
   };
 
-  const handleStartCall = () => {
-    navigate('/video-call/matching');
+  const handleFindPartner = async () => {
+    try {
+      if (!user?.uid) {
+        alert('Usuário não autenticado. Faça login primeiro.');
+        return;
+      }
+
+      // Por enquanto, vamos usar nível intermediário como padrão
+      // No futuro, isso pode vir do perfil do usuário
+      const level = 'intermediate';
+
+      // Entrar na fila
+      const result = await videoCallService.joinQueue(user.uid, level, {
+        topic: 'random',
+        language: 'en',
+      });
+
+      if (result.success) {
+        // Redirecionar para a página de espera
+        navigate('/video-call/waiting-queue');
+      } else {
+        alert(result.message);
+      }
+    } catch (error) {
+      console.error('Error joining queue:', error);
+      alert('Erro ao entrar na fila. Tente novamente.');
+    }
   };
 
   const handleJoinRoom = () => {
@@ -45,15 +70,38 @@ const VideoCallDashboard = () => {
     }
   };
 
-  const handleCreateRoom = () => {
-    const roomId = videoCallService.generateRoomName();
-    navigate(`/video-call/room/${roomId}`, {
-      state: {
-        createdByMe: true,
-        inviteLink: `${window.location.origin}/video-call/room/${roomId}`
+  const handleCreateRoom = async () => {
+    try {
+      if (!user) {
+        alert('Usuário não autenticado. Faça login primeiro.');
+        return;
       }
-    });
+
+      if (!user.uid) {
+        alert('ID do usuário não disponível. Tente fazer login novamente.');
+        return;
+      }
+
+      const sessionData = await videoCallService.createVideoCallSession(user.uid, {
+        topic: 'random',
+        language: 'en',
+        level: 'intermediate'
+      });
+      
+      const roomId = sessionData.roomName;
+      
+      navigate(`/video-call/room/${roomId}`, {
+        state: {
+          createdByMe: true,
+          inviteLink: `${window.location.origin}/video-call/room/${roomId}`
+        }
+      });
+    } catch (error) {
+      console.error('Error creating room:', error);
+      alert('Erro ao criar room. Tente novamente.');
+    }
   };
+
 
   if (isLoading) {
     return (
@@ -169,20 +217,12 @@ const VideoCallDashboard = () => {
               <p className="text-copilot-text-secondary mb-6">
                 Find a conversation partner and start practicing English right away
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <button
-                  onClick={handleStartCall}
-                  className="btn-copilot-primary text-lg px-8 py-4 w-full"
-                >
-                  Find a Partner
-                </button>
-                <button
-                  onClick={handleCreateRoom}
-                  className="btn-copilot-secondary text-lg px-8 py-4 w-full"
-                >
-                  Create Room & Share
-                </button>
-              </div>
+              <button
+                onClick={handleFindPartner}
+                className="btn-copilot-primary text-lg px-8 py-4 w-full"
+              >
+                Find a Partner
+              </button>
             </div>
           </div>
 
@@ -196,14 +236,22 @@ const VideoCallDashboard = () => {
                 Join Room
               </h3>
               <p className="text-copilot-text-secondary mb-6">
-                Join a specific room using a room ID shared by a friend
+                Create a new room or join using a room ID shared by a friend
               </p>
-              <button
-                onClick={handleJoinRoom}
-                className="btn-copilot-secondary text-lg px-8 py-4 w-full"
-              >
-                Join with Room ID
-              </button>
+              <div className="space-y-3">
+                <button
+                  onClick={handleCreateRoom}
+                  className="btn-copilot-primary text-lg px-8 py-4 w-full"
+                >
+                  Create Room
+                </button>
+                <button
+                  onClick={handleJoinRoom}
+                  className="btn-copilot-secondary text-lg px-8 py-4 w-full"
+                >
+                  Join with Room ID
+                </button>
+              </div>
             </div>
           </div>
         </div>
