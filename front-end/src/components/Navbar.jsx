@@ -126,6 +126,29 @@ export default function Navbar() {
               ScaleX
             </span>
 
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center space-x-4">
+              <button
+                onClick={() => navigate('/english-course')}
+                className={`text-sm font-medium transition-colors duration-200 ${
+                  location.pathname.startsWith('/english-course')
+                    ? 'text-copilot-accent-primary'
+                    : 'text-copilot-text-secondary hover:text-copilot-text-primary'
+                }`}
+              >
+                English Course
+              </button>
+              <button
+                onClick={() => navigate('/video-call')}
+                className={`text-sm font-medium transition-colors duration-200 ${
+                  location.pathname.startsWith('/video-call')
+                    ? 'text-copilot-accent-primary'
+                    : 'text-copilot-text-secondary hover:text-copilot-text-primary'
+                }`}
+              >
+                Video Call
+              </button>
+            </div>
           </div>
 
           {/* User Info and Logout */}

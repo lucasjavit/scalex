@@ -74,6 +74,24 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Video Call Card */}
+          <div 
+            className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 hover:border-copilot-accent-primary transition-all duration-200 cursor-pointer group"
+            onClick={() => navigate('/video-call')}
+          >
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-copilot flex items-center justify-center mb-4 shadow-copilot group-hover:scale-110 transition-transform duration-200">
+              <span className="text-white text-2xl">🎥</span>
+            </div>
+            <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">Video Call</h3>
+            <p className="text-copilot-text-secondary text-sm">
+              Pratique inglês com falantes nativos e aprendizes de todo o mundo
+            </p>
+            <div className="mt-4 flex items-center text-copilot-accent-primary text-sm font-medium">
+              <span>Começar agora</span>
+              <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
+            </div>
+          </div>
+
           <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 hover:border-copilot-accent-purple transition-all duration-200 cursor-pointer">
             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-copilot flex items-center justify-center mb-4 shadow-copilot">
               <span className="text-white text-2xl">📊</span>

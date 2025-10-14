@@ -17,6 +17,12 @@ import EnglishReview from "../modules/english-course/pages/Review";
 // Admin English Course
 import AdminEnglishCourse from "../modules/admin-english-course";
 
+// Video Call Module
+import VideoCallRoutes from "../modules/video-call/VideoCallRoutes";
+
+// Test Environment Variables
+import TestEnv from "../test-env";
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
@@ -94,6 +100,19 @@ export default function AppRoutes() {
                 </PrivateRoute>
               }
             />
+
+            {/* Video Call Routes */}
+            <Route
+              path="/video-call/*"
+              element={
+                <PrivateRoute>
+                  <VideoCallRoutes />
+                </PrivateRoute>
+              }
+            />
+
+            {/* Test Environment Variables - Remove in production */}
+            <Route path="/test-env" element={<TestEnv />} />
           </Routes>
         </main>
         <Footer />
