@@ -358,6 +358,33 @@ export class VideoCallQueueService {
   }
 
   /**
+   * Get user statistics from queue sessions
+   */
+  getUserSessionStatistics(userId: string): {
+    totalCalls: number;
+    totalDuration: number;
+    sessions: SessionRoom[];
+  } {
+    // Get all session rooms where user participated
+    const userSessionRooms = Array.from(this.sessionRooms.values()).filter(
+      (room) =>
+        (room.user1 === userId || room.user2 === userId) && room.status === 'ended',
+    );
+
+    const totalCalls = userSessionRooms.length;
+    
+    // Each session is 10 minutes (600 seconds)
+    const SESSION_DURATION_SECONDS = 10 * 60;
+    const totalDuration = totalCalls * SESSION_DURATION_SECONDS;
+
+    return {
+      totalCalls,
+      totalDuration,
+      sessions: userSessionRooms,
+    };
+  }
+
+  /**
    * Cleanup ao destruir o serviço
    */
   onModuleDestroy() {

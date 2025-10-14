@@ -76,18 +76,100 @@ class VideoCallService {
     }
   }
 
-  // Simple mock statistics for now
+  // Start tracking a video call session
+  async startVideoCallSession(roomName, userId) {
+    try {
+      console.log('=== STARTING CALL SESSION ===');
+      console.log('Room Name:', roomName);
+      console.log('User ID:', userId);
+      
+      // Mark the room as started via API and add user to participants
+      const response = await fetch(`${this.baseURL}/video-call/rooms/${roomName}/start`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Session started:', result);
+      }
+      
+      console.log('=== END STARTING CALL SESSION ===');
+    } catch (error) {
+      console.error('Error starting call session:', error);
+    }
+  }
+
+  // End a video call session
+  async endVideoCallSession(roomName, duration = 0) {
+    try {
+      console.log('=== ENDING CALL SESSION ===');
+      console.log('Room Name:', roomName);
+      console.log('Duration:', duration);
+
+      const response = await fetch(`${this.baseURL}/video-call/rooms/${roomName}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Session ended:', result);
+      console.log('=== END ENDING CALL SESSION ===');
+      
+      return result.data;
+    } catch (error) {
+      console.error('Error ending call session:', error);
+      throw error;
+    }
+  }
+
+  // Get user call statistics from API
   async getCallStatistics(userId) {
-    return {
-      totalCalls: 0,
-      totalDuration: 0,
-      totalDurationFormatted: '0m',
-      averageDuration: 0,
-      averageDurationFormatted: '0m',
-      lastCall: null,
-      thisWeekCalls: 0,
-      thisMonthCalls: 0
-    };
+    try {
+      console.log('=== FETCHING STATISTICS FROM API ===');
+      console.log('User ID:', userId);
+
+      const response = await fetch(`${this.baseURL}/video-call/statistics/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Statistics result:', result.data);
+      console.log('=== END FETCHING STATISTICS ===');
+      
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching statistics:', error);
+      // Return default values on error
+      return {
+        totalCalls: 0,
+        totalDuration: 0,
+        totalDurationFormatted: '0m',
+        averageDuration: 0,
+        averageDurationFormatted: '0m',
+        lastCall: null,
+        thisWeekCalls: 0,
+        thisMonthCalls: 0
+      };
+    }
   }
 
   // ====== QUEUE METHODS ======

@@ -37,7 +37,7 @@ const VideoCallRoom = () => {
     const startCallTracking = async () => {
       if (user && !callStarted) {
         try {
-          await videoCallService.startVideoCallSession(roomId);
+          await videoCallService.startVideoCallSession(roomId, user.uid);
           setCallStarted(true);
         } catch (error) {
           console.error('Error starting call tracking:', error);

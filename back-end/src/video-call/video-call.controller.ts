@@ -136,6 +136,43 @@ export class VideoCallController {
     }
   }
 
+  // PUT /video-call/rooms/:roomName/start - Start a room
+  @Put('rooms/:roomName/start')
+  async startRoom(
+    @Param('roomName') roomName: string,
+    @Body() body: { userId?: string },
+  ) {
+    try {
+      const room = await this.videoCallService.startRoom(roomName, body.userId);
+      if (!room) {
+        throw new HttpException(
+          {
+            success: false,
+            message: 'Room not found',
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      return {
+        success: true,
+        data: room,
+        message: 'Room started successfully',
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to start room',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   // DELETE /video-call/rooms/:roomName - End a room
   @Delete('rooms/:roomName')
   async endRoom(@Param('roomName') roomName: string) {
@@ -185,6 +222,27 @@ export class VideoCallController {
         {
           success: false,
           message: 'Failed to get rooms',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // GET /video-call/statistics/:userId - Get user statistics
+  @Get('statistics/:userId')
+  async getUserStatistics(@Param('userId') userId: string) {
+    try {
+      const stats = await this.videoCallService.getUserStatistics(userId);
+      return {
+        success: true,
+        data: stats,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to get user statistics',
           error: error.message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
