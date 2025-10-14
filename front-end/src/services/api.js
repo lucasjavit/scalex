@@ -202,15 +202,15 @@ class ApiService {
     });
   }
 
-  // Answer submission
-  async submitAnswer(userId, lessonId, answerData) {
-    return this.request(`/english-course/users/${userId}/lessons/${lessonId}/submit-answer`, {
+  // Card difficulty submission (new card system)
+  async submitCardDifficulty(userId, lessonId, questionId, difficulty) {
+    return this.request(`/english-course/users/${userId}/lessons/${lessonId}/submit-card-difficulty`, {
       method: 'POST',
-      body: JSON.stringify(answerData),
+      body: JSON.stringify({ questionId, difficulty }),
     });
   }
 
-  // Difficulty submission for spaced repetition system
+  // Difficulty submission for spaced repetition system (legacy)
   async submitDifficulty(userId, lessonId, questionId, difficulty) {
     return this.request(`/english-course/users/${userId}/lessons/${lessonId}/questions/${questionId}/difficulty`, {
       method: 'POST',

@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
-import { SubmitAnswerDto } from './dto/submit-answer.dto';
+import { SubmitCardDifficultyDto } from './dto/submit-card-difficulty.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { UpdateProgressDto } from './dto/update-progress.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
@@ -108,13 +108,18 @@ export class EnglishCourseController {
   // PRACTICE & ANSWER SUBMISSION
   // ============================================
 
-  @Post('users/:userId/lessons/:lessonId/submit-answer')
-  submitAnswer(
+  @Post('users/:userId/lessons/:lessonId/submit-card-difficulty')
+  submitCardDifficulty(
     @Param('userId', ParseUUIDPipe) userId: string,
     @Param('lessonId', ParseUUIDPipe) lessonId: string,
-    @Body() submitAnswerDto: SubmitAnswerDto,
+    @Body() submitCardDifficultyDto: SubmitCardDifficultyDto,
   ) {
-    return this.englishCourseService.submitAnswer(userId, lessonId, submitAnswerDto);
+    return this.englishCourseService.submitCardDifficulty(
+      userId, 
+      lessonId, 
+      submitCardDifficultyDto.questionId, 
+      submitCardDifficultyDto.difficulty
+    );
   }
 
   @Post('users/:userId/lessons/:lessonId/questions/:questionId/difficulty')

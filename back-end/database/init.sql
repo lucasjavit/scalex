@@ -70,14 +70,13 @@ CREATE TABLE IF NOT EXISTS english_lessons (
     CONSTRAINT check_lesson_number_positive CHECK (lesson_number > 0)
 );
 
--- Questions table - Contains questions for practice (Callan method style)
+-- Questions table - Contains cards for practice (front/back style)
 CREATE TABLE IF NOT EXISTS english_questions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     lesson_id UUID NOT NULL REFERENCES english_lessons(id) ON DELETE CASCADE,
     question_number INTEGER NOT NULL,
-    question_text TEXT NOT NULL,
-    expected_answer TEXT NOT NULL,
-    alternative_answers TEXT[],
+    front_text TEXT NOT NULL, -- English phrase/sentence
+    back_text TEXT NOT NULL,  -- Portuguese translation
     grammar_point VARCHAR(255),
     difficulty VARCHAR(20) NOT NULL DEFAULT 'medium',
     audio_url VARCHAR(500),
@@ -277,16 +276,16 @@ COMMENT ON COLUMN addresses.country IS 'Country name';
 COMMENT ON COLUMN addresses.state IS 'State/Province name';
 
 -- English Course tables comments
-COMMENT ON TABLE english_lessons IS 'Lessons for English course using Callan method approach';
-COMMENT ON TABLE english_questions IS 'Questions for each lesson - Callan method style rapid Q&A';
+COMMENT ON TABLE english_lessons IS 'Lessons for English course using interactive method approach';
+COMMENT ON TABLE english_questions IS 'Cards for each lesson - front/back style with English phrases and Portuguese translations';
 COMMENT ON TABLE english_user_progress IS 'Tracks user progress through English lessons';
-COMMENT ON TABLE english_reviews IS 'Spaced repetition review schedule for questions';
+COMMENT ON TABLE english_reviews IS 'Spaced repetition review schedule for cards';
 COMMENT ON TABLE english_answer_history IS 'Complete history of user answers for analytics';
 
 COMMENT ON COLUMN english_lessons.lesson_number IS 'Sequential lesson number';
 COMMENT ON COLUMN english_lessons.level IS 'Difficulty level: beginner, elementary, intermediate, advanced';
-COMMENT ON COLUMN english_questions.expected_answer IS 'The correct/expected answer for the question';
-COMMENT ON COLUMN english_questions.alternative_answers IS 'Array of acceptable alternative answers';
+COMMENT ON COLUMN english_questions.front_text IS 'English phrase/sentence on the front of the card';
+COMMENT ON COLUMN english_questions.back_text IS 'Portuguese translation on the back of the card';
 COMMENT ON COLUMN english_user_progress.accuracy_percentage IS 'Percentage of correct answers';
 COMMENT ON COLUMN english_reviews.ease_factor IS 'Spaced repetition ease factor (1.30-3.00)';
 COMMENT ON COLUMN english_reviews.interval_days IS 'Days until next review';

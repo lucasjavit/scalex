@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '../../../services/api';
 import { useAuth } from '../../auth-social/context/AuthContext';
-import FeedbackModal from '../components/FeedbackModal';
-import QuestionCard from '../components/QuestionCard';
+import Card from '../components/Card';
 
 const Practice = () => {
   const { lessonId } = useParams();
@@ -11,12 +10,11 @@ const Practice = () => {
   const { user } = useAuth();
 
   const [lesson, setLesson] = useState(null);
-  const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [feedback, setFeedback] = useState(null);
-  const [showFeedback, setShowFeedback] = useState(false);
+  const [cards, setCards] = useState([]);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [backendUser, setBackendUser] = useState(null);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -41,29 +39,29 @@ const Practice = () => {
       
       if (reviewsData.length > 0) {
         // If there are due reviews, show them
-        const questionsData = reviewsData.map(review => review.question);
-        setQuestions(questionsData);
+        const cardsData = reviewsData.map(review => review.question);
+        setCards(cardsData);
       } else {
         // If no due reviews, check if user has completed this lesson
         const progressData = await apiService.getLessonProgress(userData.id, lessonId);
         if (progressData.status === 'completed') {
           // Lesson completed but no reviews due - show message
-          setQuestions([]);
+          setCards([]);
         } else {
-          // Lesson not completed - show only questions that haven't been practiced yet
-          const allQuestionsData = await apiService.getQuestionsByLesson(lessonId);
+          // Lesson not completed - show only cards that haven't been practiced yet
+          const allCardsData = await apiService.getQuestionsByLesson(lessonId);
           const allReviewsData = await apiService.getAllReviews(userData.id);
           
-          // Filter out questions that have already been practiced
-          const practicedQuestionIds = allReviewsData
+          // Filter out cards that have already been practiced
+          const practicedCardIds = allReviewsData
             .filter(review => review.lessonId === lessonId)
             .map(review => review.questionId);
           
-          const unpracticedQuestions = allQuestionsData.filter(
-            question => !practicedQuestionIds.includes(question.id)
+          const unpracticedCards = allCardsData.filter(
+            card => !practicedCardIds.includes(card.id)
           );
           
-          setQuestions(unpracticedQuestions);
+          setCards(unpracticedCards);
         }
       }
     } catch (error) {
@@ -73,48 +71,31 @@ const Practice = () => {
     }
   };
 
-  const handleSubmitAnswer = async (submitData) => {
+  const handleCardDifficultySubmit = async (questionId, difficulty) => {
     try {
-      const result = await apiService.submitAnswer(backendUser.id, lessonId, submitData);
-      setFeedback(result);
-      setShowFeedback(true);
-    } catch (error) {
-      console.error('Error submitting answer:', error);
-      alert('Failed to submit answer. Please try again.');
-    }
-  };
-
-  const handleDifficultySelect = async (difficulty) => {
-    try {
-      // Submit the difficulty rating to update spaced repetition
-      await apiService.submitDifficulty(
+      // Submit the card difficulty rating
+      await apiService.submitCardDifficulty(
         backendUser.id,
         lessonId,
-        feedback.questionId,
+        questionId,
         difficulty
       );
 
-      setShowFeedback(false);
-      setFeedback(null);
-
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      // Move to next card
+      if (currentCardIndex < cards.length - 1) {
+        setCurrentCardIndex(currentCardIndex + 1);
       } else {
-        // Lesson completed
-        navigate(`/english-course/progress/${lessonId}`);
+        // All cards completed
+        setIsCompleted(true);
       }
     } catch (error) {
-      console.error('Error submitting difficulty:', error);
-      // Continue anyway
-      setShowFeedback(false);
-      setFeedback(null);
-
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-      } else {
-        navigate(`/english-course/progress/${lessonId}`);
-      }
+      console.error('Error submitting card difficulty:', error);
+      alert('Failed to submit difficulty. Please try again.');
     }
+  };
+
+  const handleComplete = () => {
+    navigate(`/english-course/progress/${lessonId}`);
   };
 
   if (loading) {
@@ -128,7 +109,7 @@ const Practice = () => {
     );
   }
 
-  if (!lesson || questions.length === 0) {
+  if (!lesson || cards.length === 0) {
     return (
       <div className="bg-copilot-bg-primary min-h-screen">
         <div className="max-w-3xl mx-auto px-6 py-12">
@@ -139,7 +120,7 @@ const Practice = () => {
             <h2 className="text-2xl font-bold text-copilot-text-primary mb-3">
               {lesson ? 
                 (lesson.status === 'completed' ? "No Reviews Due" : "Ready to Practice") :
-                "No Questions Available"
+                "No Cards Available"
               }
             </h2>
             <p className="text-copilot-text-secondary mb-6">
@@ -148,7 +129,7 @@ const Practice = () => {
                   "All cards in this lesson are up to date! No reviews are due right now. Check back later when cards are ready for review." :
                   "This lesson is ready for practice! Complete it to add cards to your review system."
                 ) :
-                "This lesson doesn't have any questions yet."
+                "This lesson doesn't have any cards yet."
               }
             </p>
             <div className="flex gap-4 justify-center">
@@ -171,8 +152,43 @@ const Practice = () => {
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const currentCard = cards[currentCardIndex];
+  const progress = ((currentCardIndex + 1) / cards.length) * 100;
+
+  // Show completion message
+  if (isCompleted) {
+    return (
+      <div className="bg-copilot-bg-primary min-h-screen">
+        <div className="max-w-3xl mx-auto px-6 py-12">
+          <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
+              <span className="text-white text-3xl">🎉</span>
+            </div>
+            <h2 className="text-2xl font-bold text-copilot-text-primary mb-3">
+              Practice Complete!
+            </h2>
+            <p className="text-copilot-text-secondary mb-6">
+              Great job! You've completed all the cards in this lesson. Your progress has been saved.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <button
+                className="btn-copilot-primary"
+                onClick={() => navigate('/english-course')}
+              >
+                ← Back to Dashboard
+              </button>
+              <button
+                className="btn-copilot-secondary"
+                onClick={() => navigate('/english-course/review')}
+              >
+                Review All Lessons
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-copilot-bg-primary min-h-screen">
@@ -199,7 +215,7 @@ const Practice = () => {
             </div>
             <div className="flex items-center gap-3">
               <span className="bg-copilot-accent-primary text-white text-sm px-4 py-2 rounded-copilot font-semibold whitespace-nowrap">
-                {currentQuestionIndex + 1} / {questions.length}
+                {currentCardIndex + 1} / {cards.length}
               </span>
             </div>
           </div>
@@ -219,19 +235,12 @@ const Practice = () => {
           </div>
         </div>
 
-        {/* Question Card */}
-        <QuestionCard
-          question={currentQuestion}
-          onSubmit={handleSubmitAnswer}
-          showFeedback={showFeedback}
-        />
-
-        {/* Feedback Modal */}
-        <FeedbackModal
-          show={showFeedback}
-          feedback={feedback}
-          onDifficultySelect={handleDifficultySelect}
-          isLastQuestion={currentQuestionIndex === questions.length - 1}
+        {/* Card Component */}
+        <Card
+          question={currentCard}
+          onDifficultySubmit={handleCardDifficultySubmit}
+          isLastCard={currentCardIndex === cards.length - 1}
+          onComplete={handleComplete}
         />
       </main>
     </div>

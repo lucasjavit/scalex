@@ -1,7 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { AnswerHistory } from './answer-history.entity';
 import { Lesson } from './lesson.entity';
 import { Review } from './review.entity';
-import { AnswerHistory } from './answer-history.entity';
 
 export enum QuestionDifficulty {
   EASY = 'easy',
@@ -20,14 +20,11 @@ export class Question {
   @Column({ name: 'question_number' })
   questionNumber: number;
 
-  @Column({ name: 'question_text', type: 'text' })
-  questionText: string;
+  @Column({ name: 'front_text', type: 'text' })
+  frontText: string;
 
-  @Column({ name: 'expected_answer', type: 'text' })
-  expectedAnswer: string;
-
-  @Column({ name: 'alternative_answers', type: 'text', array: true, nullable: true })
-  alternativeAnswers: string[];
+  @Column({ name: 'back_text', type: 'text' })
+  backText: string;
 
   @Column({ name: 'grammar_point', length: 255, nullable: true })
   grammarPoint: string;

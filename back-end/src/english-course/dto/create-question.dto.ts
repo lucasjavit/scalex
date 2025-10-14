@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsInt, IsEnum, IsOptional, IsArray, IsUUID, Min } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { QuestionDifficulty } from '../entities/question.entity';
 
 export class CreateQuestionDto {
@@ -11,16 +11,11 @@ export class CreateQuestionDto {
 
   @IsString()
   @IsNotEmpty()
-  questionText: string;
+  frontText: string;
 
   @IsString()
   @IsNotEmpty()
-  expectedAnswer: string;
-
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  alternativeAnswers?: string[];
+  backText: string;
 
   @IsString()
   @IsOptional()

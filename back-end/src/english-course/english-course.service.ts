@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, Repository } from 'typeorm';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
-import { SubmitAnswerDto } from './dto/submit-answer.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { UpdateProgressDto } from './dto/update-progress.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
@@ -159,10 +158,10 @@ export class EnglishCourseService {
 
     progress.lastPracticedAt = new Date();
 
-    // Auto-complete if accuracy is high enough
-    // For lessons with fewer questions, complete if all questions are answered correctly
+    // Auto-complete if accuracy is high enough and user has practiced enough
+    // Require at least 5 attempts and 80% accuracy, or 100% accuracy with at least 1 attempt
     const shouldComplete = progress.accuracyPercentage >= 80 && 
-      (progress.totalAttempts >= 10 || progress.accuracyPercentage === 100);
+      (progress.totalAttempts >= 5 || (progress.accuracyPercentage === 100 && progress.totalAttempts >= 1));
     
     if (shouldComplete) {
       progress.status = ProgressStatus.COMPLETED;
@@ -183,47 +182,41 @@ export class EnglishCourseService {
   // ANSWER SUBMISSION & CHECKING
   // ============================================
 
-  async submitAnswer(userId: string, lessonId: string, submitAnswerDto: SubmitAnswerDto) {
-    const question = await this.findQuestionById(submitAnswerDto.questionId);
-    const userAnswer = submitAnswerDto.userAnswer.trim().toLowerCase();
-    const expectedAnswer = question.expectedAnswer.trim().toLowerCase();
-
-    // Check if answer is correct
-    let isCorrect = userAnswer === expectedAnswer;
-
-    // Check alternative answers if not correct
-    if (!isCorrect && question.alternativeAnswers) {
-      isCorrect = question.alternativeAnswers.some(
-        (alt) => alt.trim().toLowerCase() === userAnswer,
-      );
-    }
-
-    // Save answer history
+  async submitCardDifficulty(userId: string, lessonId: string, questionId: string, difficulty: string) {
+    // This method now handles card difficulty submission instead of answer checking
+    // The card system doesn't require answer validation, just difficulty rating
+    
+    const question = await this.findQuestionById(questionId);
+    
+    // Save answer history for tracking (optional - for analytics)
     const answerHistory = this.answerHistoryRepository.create({
       userId,
       questionId: question.id,
-      userAnswer: submitAnswerDto.userAnswer,
-      isCorrect,
-      responseTimeSeconds: submitAnswerDto.responseTimeSeconds,
-      feedback: isCorrect ? 'Correct!' : `Expected: ${question.expectedAnswer}`,
+      userAnswer: `Difficulty: ${difficulty}`, // Store difficulty as "answer"
+      isCorrect: difficulty !== 'again', // 'again' is considered incorrect
+      responseTimeSeconds: 0, // Could be tracked if needed
+      feedback: `Card difficulty rated as: ${difficulty}`,
     });
     await this.answerHistoryRepository.save(answerHistory);
 
-    // Update user progress
+    // Update user progress based on difficulty
     const progress = await this.getLessonProgress(userId, lessonId);
-    progress.totalAttempts++;
-    if (isCorrect) {
-      progress.correctAnswers++;
-    }
+    const newTotalAttempts = progress.totalAttempts + 1;
+    const newCorrectAnswers = difficulty !== 'again' ? progress.correctAnswers + 1 : progress.correctAnswers;
+    
     await this.updateProgress(userId, lessonId, {
-      correctAnswers: progress.correctAnswers,
-      totalAttempts: progress.totalAttempts,
+      correctAnswers: newCorrectAnswers,
+      totalAttempts: newTotalAttempts,
     });
 
+    // IMPORTANT: Update the review schedule using the existing submitDifficulty method
+    // This ensures that dueReviews count is updated correctly
+    await this.submitDifficulty(userId, lessonId, questionId, difficulty);
+
     return {
-      isCorrect,
-      correctAnswer: question.expectedAnswer,
-      feedback: answerHistory.feedback,
+      success: true,
+      difficulty,
+      feedback: `Card difficulty rated as: ${difficulty}`,
       accuracy: progress.accuracyPercentage,
       questionId: question.id,
     };
