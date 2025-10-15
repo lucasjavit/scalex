@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import apiService from '../../../services/api';
 import { useAuth } from '../../auth-social/context/AuthContext';
 import ProgressStats from '../components/ProgressStats';
 
 const Dashboard = () => {
+  const { t } = useTranslation(['englishCourse', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [lessons, setLessons] = useState([]);
@@ -96,7 +98,7 @@ const Dashboard = () => {
       <div className="bg-copilot-bg-primary min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block w-12 h-12 border-4 border-copilot-accent-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-copilot-text-secondary mt-4">Loading...</p>
+          <p className="text-copilot-text-secondary mt-4">{t('dashboard.loading')}</p>
         </div>
       </div>
     );
@@ -112,7 +114,7 @@ const Dashboard = () => {
             className="btn-copilot-secondary flex items-center gap-2"
           >
             <span>←</span>
-            <span>Back to Home</span>
+            <span>{t('common:navigation.backToHome')}</span>
           </button>
         </div>
 
@@ -125,11 +127,11 @@ const Dashboard = () => {
           </div>
 
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-3">
-            English Course
+            {t('dashboard.title')}
           </h1>
 
           <p className="text-copilot-text-secondary text-lg mb-6">
-            Practice with our intelligent revision system
+            {t('dashboard.subtitle')}
           </p>
 
           {statistics?.dueReviews > 0 && (
@@ -138,7 +140,7 @@ const Dashboard = () => {
               className="inline-flex items-center gap-2 bg-gradient-to-br from-yellow-500 to-orange-500 text-white px-6 py-3 rounded-copilot font-semibold hover:opacity-90 transition-all duration-200 shadow-copilot-lg"
             >
               <span>⚡</span>
-              Review {statistics.dueReviews} Questions
+              {t('dashboard.reviewQuestions', { count: statistics.dueReviews })}
             </Link>
           )}
         </div>
@@ -149,14 +151,14 @@ const Dashboard = () => {
         {/* Lesson Decks by Level */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-copilot-text-primary mb-8">
-            Lesson Decks
+            {t('dashboard.lessonDecks')}
           </h2>
 
           {lessons.length === 0 ? (
             <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8 text-center">
               <span className="text-5xl mb-4 block">📭</span>
               <p className="text-copilot-text-secondary">
-                No lessons available yet.
+                {t('dashboard.noLessonsAvailable')}
               </p>
             </div>
           ) : (
@@ -173,14 +175,14 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-2xl font-bold text-copilot-text-primary mb-2">
-                        Beginner
+                        {t('dashboard.levels.beginner')}
                       </h3>
                       <p className="text-copilot-text-secondary text-sm mb-4">
-                        Start your English learning journey with basic concepts
+                        {t('dashboard.levels.beginnerDescription')}
                       </p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-copilot-text-tertiary">Lessons</span>
+                          <span className="text-copilot-text-tertiary">{t('dashboard.lessons')}</span>
                           <span className="text-copilot-text-primary font-semibold">
                             {groupedLessons.beginner.length}
                           </span>
@@ -192,7 +194,7 @@ const Dashboard = () => {
                           ></div>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-copilot-text-tertiary">Progress</span>
+                          <span className="text-copilot-text-tertiary">{t('dashboard.progressPercentage')}</span>
                           <span className="text-copilot-accent-success font-semibold">
                             {getDeckProgress(groupedLessons.beginner)}%
                           </span>
@@ -215,14 +217,14 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-2xl font-bold text-copilot-text-primary mb-2">
-                        Elementary
+                        {t('dashboard.levels.elementary')}
                       </h3>
                       <p className="text-copilot-text-secondary text-sm mb-4">
-                        Build your foundation with essential grammar and vocabulary
+                        {t('dashboard.levels.elementaryDescription')}
                       </p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-copilot-text-tertiary">Lessons</span>
+                          <span className="text-copilot-text-tertiary">{t('dashboard.lessons')}</span>
                           <span className="text-copilot-text-primary font-semibold">
                             {groupedLessons.elementary.length}
                           </span>
@@ -234,7 +236,7 @@ const Dashboard = () => {
                           ></div>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-copilot-text-tertiary">Progress</span>
+                          <span className="text-copilot-text-tertiary">{t('dashboard.progressPercentage')}</span>
                           <span className="text-copilot-accent-blue font-semibold">
                             {getDeckProgress(groupedLessons.elementary)}%
                           </span>
@@ -257,14 +259,14 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-2xl font-bold text-copilot-text-primary mb-2">
-                        Intermediate
+                        {t('dashboard.levels.intermediate')}
                       </h3>
                       <p className="text-copilot-text-secondary text-sm mb-4">
-                        Advance your skills with complex structures and expressions
+                        {t('dashboard.levels.intermediateDescription')}
                       </p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-copilot-text-tertiary">Lessons</span>
+                          <span className="text-copilot-text-tertiary">{t('dashboard.lessons')}</span>
                           <span className="text-copilot-text-primary font-semibold">
                             {groupedLessons.intermediate.length}
                           </span>
@@ -276,7 +278,7 @@ const Dashboard = () => {
                           ></div>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-copilot-text-tertiary">Progress</span>
+                          <span className="text-copilot-text-tertiary">{t('dashboard.progressPercentage')}</span>
                           <span className="text-copilot-accent-warning font-semibold">
                             {getDeckProgress(groupedLessons.intermediate)}%
                           </span>
@@ -299,14 +301,14 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-2xl font-bold text-copilot-text-primary mb-2">
-                        Advanced
+                        {t('dashboard.levels.advanced')}
                       </h3>
                       <p className="text-copilot-text-secondary text-sm mb-4">
-                        Master advanced concepts and achieve fluency
+                        {t('dashboard.levels.advancedDescription')}
                       </p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-copilot-text-tertiary">Lessons</span>
+                          <span className="text-copilot-text-tertiary">{t('dashboard.lessons')}</span>
                           <span className="text-copilot-text-primary font-semibold">
                             {groupedLessons.advanced.length}
                           </span>
@@ -318,7 +320,7 @@ const Dashboard = () => {
                           ></div>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-copilot-text-tertiary">Progress</span>
+                          <span className="text-copilot-text-tertiary">{t('dashboard.progressPercentage')}</span>
                           <span className="text-copilot-accent-error font-semibold">
                             {getDeckProgress(groupedLessons.advanced)}%
                           </span>
@@ -335,17 +337,17 @@ const Dashboard = () => {
         {/* CTA Section */}
         <div className="mt-16 bg-copilot-gradient rounded-copilot-lg p-8 text-center shadow-copilot-xl">
           <h3 className="text-2xl font-bold text-white mb-3">
-            Ready to improve your English?
+            {t('dashboard.readyToImprove')}
           </h3>
           <p className="text-white text-opacity-90 mb-6">
-            Practice daily with our interactive method for fast results
+            {t('dashboard.practiceDaily')}
           </p>
           {lessons.length > 0 && (
             <Link
               to={`/english-course/practice/${lessons[0].id}`}
               className="inline-block bg-white text-copilot-bg-primary px-8 py-3 rounded-copilot font-semibold hover:bg-opacity-90 transition-all duration-200 shadow-copilot-lg"
             >
-              Start Practicing Now
+{t('dashboard.startPracticingNow')}
             </Link>
           )}
         </div>

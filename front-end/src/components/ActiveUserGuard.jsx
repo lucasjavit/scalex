@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useUserStatus } from '../hooks/useUserStatus';
 import InactiveUserBlock from './InactiveUserBlock';
 
 const ActiveUserGuard = ({ children }) => {
+  const { t } = useTranslation('common');
   const { isActive, isInactive, loading, error } = useUserStatus();
 
   // Show loading while checking user status
@@ -10,7 +12,7 @@ const ActiveUserGuard = ({ children }) => {
       <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent-primary mx-auto mb-4"></div>
-          <p className="text-copilot-text-secondary">Checking account status...</p>
+          <p className="text-copilot-text-secondary">{t('messages.checkingAccountStatus')}</p>
         </div>
       </div>
     );
@@ -25,16 +27,16 @@ const ActiveUserGuard = ({ children }) => {
             <span className="text-3xl">⚠️</span>
           </div>
           <h1 className="text-xl font-bold text-copilot-text-primary mb-4">
-            Verification Error
+            {t('messages.verificationError')}
           </h1>
           <p className="text-copilot-text-secondary mb-6">
-            Could not verify your account status. Please try again.
+            {t('messages.couldNotVerifyStatus')}
           </p>
           <button
             onClick={() => window.location.reload()}
             className="bg-copilot-accent-primary text-white px-6 py-3 rounded-copilot font-semibold hover:bg-copilot-accent-primary/90 transition-colors duration-200"
           >
-            Try Again
+            {t('buttons.tryAgain')}
           </button>
         </div>
       </div>

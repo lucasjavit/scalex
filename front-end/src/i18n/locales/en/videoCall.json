@@ -1,0 +1,136 @@
+{
+  "dashboard": {
+    "title": "Video Call Practice",
+    "subtitle": "Practice English with native speakers and learners worldwide",
+    "statistics": {
+      "title": "Your Practice Statistics",
+      "totalCalls": "Total Calls",
+      "totalPracticeTime": "Total Practice Time",
+      "averageCallDuration": "Average Call Duration",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "lastCall": "Last call: {{date}} at {{time}}"
+    },
+    "systemStatus": {
+      "sessionActive": "Session Active",
+      "sessionUnavailable": "Session Unavailable",
+      "currentPeriod": "Current period: {{start}} - {{end}}",
+      "nextAvailable": "Next available: {{time}}",
+      "opensIn": "Opens in: {{time}}",
+      "availableTimes": "Available Times:"
+    },
+    "actions": {
+      "startNewCall": {
+        "title": "Start New Call",
+        "description": "Find a conversation partner and start practicing English right away",
+        "findPartner": "Find a Partner",
+        "sessionUnavailable": "Session Unavailable"
+      },
+      "joinRoom": {
+        "title": "Join Room",
+        "description": "Create a new room or join using a room ID shared by a friend",
+        "createRoom": "Create Room",
+        "joinWithId": "Join with Room ID"
+      }
+    },
+    "features": {
+      "title": "Why Practice with Video Calls?",
+      "realConversation": {
+        "title": "Real Conversation",
+        "description": "Practice with real people in natural, flowing conversations"
+      },
+      "culturalExchange": {
+        "title": "Cultural Exchange",
+        "description": "Learn about different cultures while improving your English"
+      },
+      "instantFeedback": {
+        "title": "Instant Feedback",
+        "description": "Get immediate feedback and corrections from native speakers"
+      }
+    },
+    "tips": {
+      "title": "Tips for a great video call experience",
+      "testEquipment": "Test your camera and microphone before starting",
+      "findQuietPlace": "Find a quiet, well-lit place for your call",
+      "beRespectful": "Be respectful and patient with your partner",
+      "dontWorryMistakes": "Don't worry about making mistakes - practice makes perfect!",
+      "askQuestions": "Ask questions to keep the conversation flowing",
+      "shareExperiences": "Share your experiences and listen to theirs",
+      "haveFun": "Have fun and enjoy the cultural exchange!",
+      "useSuggestedTopics": "Use the suggested topics to guide your conversation"
+    },
+    "messages": {
+      "loading": "Loading...",
+      "userNotAuthenticated": "User not authenticated. Please login first.",
+      "sessionUnavailable": "Session unavailable at the moment. Next available time: {{time}}",
+      "errorJoiningQueue": "Error joining queue. Please try again.",
+      "errorCreatingRoom": "Error creating room. Please try again.",
+      "invalidRoomId": "Invalid room ID. Please enter a valid room ID (at least 3 characters, letters, numbers, hyphens, or underscores)."
+    }
+  },
+  "room": {
+    "title": "Video Call Practice",
+    "room": "Room",
+    "roomId": "Room ID:",
+    "participants": "participants",
+    "remaining": "remaining",
+    "chattingWith": "Chatting with",
+    "conversationTopic": "Conversation Topic",
+    "tips": {
+      "dontWorryMistakes": "Don't worry about mistakes - practice makes perfect!",
+      "askQuestions": "Ask questions to keep the conversation flowing",
+      "enjoyExchange": "Enjoy the cultural exchange!"
+    },
+    "timeWarning": {
+      "title": "Time Warning!",
+      "secondsRemaining": "seconds remaining",
+      "wrapUp": "Please wrap up your conversation quickly!",
+      "gotIt": "Got it"
+    },
+    "topics": {
+      "random": "Let's have a great conversation!",
+      "travel": "Let's talk about travel and different cultures!",
+      "food": "Share your favorite foods and cooking experiences!",
+      "technology": "Discuss the latest in technology and innovation!",
+      "sports": "Talk about sports, fitness, and healthy living!",
+      "music": "Share your favorite music and entertainment!",
+      "books": "Discuss books, literature, and learning!",
+      "career": "Talk about work, careers, and professional growth!"
+    },
+    "messages": {
+      "roomIdCopied": "Room ID copied!",
+      "errorStartingCall": "Error starting call tracking",
+      "errorEndingCall": "Error ending call tracking"
+    }
+  },
+  "queue": {
+    "title": "Looking for a Practice Partner",
+    "waitingInQueue": "Waiting in queue...",
+    "findingPartner": "We're finding the perfect conversation partner for you!",
+    "yourPosition": "Your position in queue:",
+    "estimatedWait": "Estimated wait:",
+    "level": "Level:",
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "whileWaiting": {
+      "title": "While you wait...",
+      "tip1": "Make sure your camera and microphone are working",
+      "tip2": "Think about what you'd like to talk about",
+      "tip3": "Relax and get ready for a great conversation!",
+      "tip4": "Remember: it's okay to make mistakes when learning"
+    },
+    "leaveQueue": "Leave Queue",
+    "confirmLeave": "Are you sure you want to leave the queue?",
+    "messages": {
+      "error": "Error",
+      "errorCheckingStatus": "Error checking queue status",
+      "errorLeavingQueue": "Error leaving queue",
+      "matchFound": "Match found! Redirecting...",
+      "redirecting": "Redirecting to video call room..."
+    }
+  }
+}
+

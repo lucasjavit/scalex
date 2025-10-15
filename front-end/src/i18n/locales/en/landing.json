@@ -1,0 +1,71 @@
+{
+  "hero": {
+    "tagline": "Learn English the smart way",
+    "headline": "Master English with",
+    "method": "interactive method + spaced repetition",
+    "description": "Combine the efficiency of interactive method with the power of intelligent spaced repetition system. Learn English naturally, quickly and lastingly.",
+    "getStarted": "Get Started",
+    "viewDemo": "View Demo"
+  },
+  "stats": {
+    "completeLessons": "Complete Lessons",
+    "interactiveQuestions": "Interactive Questions",
+    "available": "Available"
+  },
+  "whyChoose": {
+    "title": "Why choose ScaleX?",
+    "subtitle": "Our platform combines the best learning techniques to maximize your results"
+  },
+  "features": {
+    "interactive": {
+      "title": "Interactive Method",
+      "description": "Learn American and British English through quick questions and answers, developing natural fluency"
+    },
+    "intelligent": {
+      "title": "Intelligent System",
+      "description": "Smart spaced repetition that ensures you never forget what you've learned"
+    },
+    "progress": {
+      "title": "Smart Progress",
+      "description": "Track your development with detailed metrics and personalized reports"
+    },
+    "fastLearning": {
+      "title": "Fast Learning",
+      "description": "Master English in record time with our proven and efficient methodology"
+    },
+    "practice": {
+      "title": "Practice Focused",
+      "description": "Practical exercises that simulate real English conversation situations"
+    },
+    "fullAccess": {
+      "title": "Full Access",
+      "description": "Study anywhere, anytime with our responsive platform"
+    }
+  },
+  "howItWorks": {
+    "title": "How does it work?",
+    "subtitle": "Three simple steps to master English",
+    "step1": {
+      "title": "Choose Your Level",
+      "description": "Select between Beginner, Intermediate or Advanced to start at your ideal level"
+    },
+    "step2": {
+      "title": "Practice Intelligently",
+      "description": "Answer questions and mark difficulty. The system automatically adjusts review"
+    },
+    "step3": {
+      "title": "Review and Master",
+      "description": "The system schedules smart reviews to ensure you never forget"
+    }
+  },
+  "cta": {
+    "title": "Ready to start your journey?",
+    "subtitle": "Join thousands of students who have already mastered English with ScaleX",
+    "button": "Get Started"
+  },
+  "footer": {
+    "tagline": "Learn English the smart way with interactive method + spaced repetition",
+    "copyright": "© 2024 ScaleX. All rights reserved."
+  }
+}
+

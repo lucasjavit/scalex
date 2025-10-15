@@ -1,0 +1,45 @@
+{
+  "dashboard": {
+    "loading": "Cargando...",
+    "selectLevel": "Seleccionar Nivel",
+    "allLevels": "Todos los Niveles",
+    "levels": {
+      "beginner": "Principiante",
+      "elementary": "Elemental",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado",
+      "beginnerDescription": "Comienza tu viaje de aprendizaje de inglés con conceptos básicos",
+      "elementaryDescription": "Construye tu base con gramática esencial y vocabulario",
+      "intermediateDescription": "Avanza tus habilidades con estructuras complejas y expresiones",
+      "advancedDescription": "Domina conceptos avanzados y alcanza fluidez nativa"
+    },
+    "lessonsAvailable": "lecciones disponibles",
+    "lessonCompleted": "lección completada",
+    "lessonsCompleted": "lecciones completadas",
+    "startPractice": "Iniciar Práctica",
+    "continuePractice": "Continuar Práctica",
+    "reviewCards": "Revisar Tarjetas",
+    "progress": "Progreso",
+    "title": "Curso de Inglés",
+    "subtitle": "Practica con nuestro sistema inteligente de revisión",
+    "reviewQuestions": "Revisar {{count}} Preguntas",
+    "lessonDecks": "Decks de Lecciones",
+    "noLessonsAvailable": "No hay lecciones disponibles aún.",
+    "readyToImprove": "¿Listo para mejorar tu inglés?",
+    "practiceDaily": "Practica diariamente con nuestro método interactivo para resultados rápidos",
+    "startPracticingNow": "Comenzar a Practicar Ahora",
+    "lessons": "Lecciones",
+    "progressPercentage": "Progreso"
+  },
+  "stats": {
+    "overallProgress": "Progreso General",
+    "overallAccuracy": "Precisión General",
+    "inProgress": "En Progreso",
+    "dueReviews": "Revisiones Pendientes",
+    "lessonsCompleted": "{{completed}}/{{total}} lecciones completadas",
+    "correctAnswers": "{{correct}}/{{total}} respuestas correctas",
+    "lessonsStarted": "lecciones iniciadas",
+    "questionsToReview": "preguntas para revisar"
+  }
+}
+

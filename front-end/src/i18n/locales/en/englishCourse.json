@@ -1,0 +1,45 @@
+{
+  "dashboard": {
+    "loading": "Loading...",
+    "selectLevel": "Select Level",
+    "allLevels": "All Levels",
+    "levels": {
+      "beginner": "Beginner",
+      "elementary": "Elementary",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "beginnerDescription": "Start your English learning journey with basic concepts",
+      "elementaryDescription": "Build your foundation with essential grammar and vocabulary",
+      "intermediateDescription": "Advance your skills with complex structures and expressions",
+      "advancedDescription": "Master advanced concepts and achieve fluency"
+    },
+    "lessonsAvailable": "lessons available",
+    "lessonCompleted": "lesson completed",
+    "lessonsCompleted": "lessons completed",
+    "startPractice": "Start Practice",
+    "continuePractice": "Continue Practice",
+    "reviewCards": "Review Cards",
+    "progress": "Progress",
+    "title": "English Course",
+    "subtitle": "Practice with our intelligent revision system",
+    "reviewQuestions": "Review {{count}} Questions",
+    "lessonDecks": "Lesson Decks",
+    "noLessonsAvailable": "No lessons available yet.",
+    "readyToImprove": "Ready to improve your English?",
+    "practiceDaily": "Practice daily with our interactive method for fast results",
+    "startPracticingNow": "Start Practicing Now",
+    "lessons": "Lessons",
+    "progressPercentage": "Progress"
+  },
+  "stats": {
+    "overallProgress": "Overall Progress",
+    "overallAccuracy": "Overall Accuracy",
+    "inProgress": "In Progress",
+    "dueReviews": "Due Reviews",
+    "lessonsCompleted": "{{completed}}/{{total}} lessons completed",
+    "correctAnswers": "{{correct}}/{{total}} correct answers",
+    "lessonsStarted": "lessons started",
+    "questionsToReview": "questions to review"
+  }
+}
+

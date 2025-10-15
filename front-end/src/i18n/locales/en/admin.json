@@ -1,0 +1,213 @@
+{
+  "dashboard": {
+    "title": "English Course Dashboard",
+    "subtitle": "Manage lessons, questions and monitor English course progress",
+    "statistics": {
+      "totalLessons": "Total Lessons",
+      "totalQuestions": "Total Questions",
+      "activeUsers": "Active Users",
+      "averageProgress": "Average Progress"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "manageLessons": {
+        "title": "Manage Lessons",
+        "description": "Create, edit and delete lessons"
+      },
+      "createLesson": {
+        "title": "Create New Lesson",
+        "description": "Add a new lesson to the course"
+      },
+      "manageUsers": {
+        "title": "Manage Users",
+        "description": "View and manage registered users"
+      },
+      "statistics": {
+        "title": "Statistics",
+        "description": "View course reports and metrics"
+      },
+      "access": "Access"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "comingSoon": "Coming soon",
+      "description": "Activity history and system logs will be displayed here"
+    },
+    "errors": {
+      "loadingStatistics": "Error loading statistics"
+    }
+  },
+  "lessons": {
+    "title": "Manage Lessons",
+    "newLesson": "New Lesson",
+    "editLesson": "Edit Lesson",
+    "createFirstLesson": "Create First Lesson",
+    "noLessonsFound": "No lessons found",
+    "startCreating": "Start by creating your first lesson",
+    "updateInfo": "Update lesson information",
+    "fillDataToCreate": "Fill in the data to create a new lesson",
+    "lessonNumber": "Lesson Number",
+    "level": "Level",
+    "title": "Title",
+    "description": "Description",
+    "grammarFocus": "Grammar Focus",
+    "vocabularyFocus": "Vocabulary Focus",
+    "activeLesson": "Active lesson",
+    "questions": "questions",
+    "lesson": "Lesson",
+    "levels": {
+      "beginner": "Beginner",
+      "elementary": "Elementary",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "placeholders": {
+      "addWord": "Type a word or phrase"
+    },
+    "messages": {
+      "errorLoading": "Error loading lessons",
+      "errorDeleting": "Error deleting lesson",
+      "errorSaving": "Error saving lesson"
+    },
+    "deleteConfirm": {
+      "title": "Confirm Deletion",
+      "message": "Are you sure you want to delete the lesson \"{{title}}\"? This action cannot be undone and all associated questions will be removed."
+    }
+  },
+  "questions": {
+    "title": "Questions",
+    "newQuestion": "New Question",
+    "editQuestion": "Edit Question",
+    "bulkCreate": "Bulk Create",
+    "createFirstQuestion": "Create First Question",
+    "noQuestionsFound": "No questions found",
+    "startCreating": "Start creating questions for this lesson",
+    "questionNumber": "Question Number",
+    "questionText": "Question Text",
+    "expectedAnswer": "Expected Answer",
+    "alternativeAnswers": "Alternative Answers",
+    "grammarPoint": "Grammar Point",
+    "audioUrl": "Audio URL (optional)",
+    "difficulty": "Difficulty",
+    "question": "Question",
+    "selected": "question(s) selected",
+    "selectAll": "Select all",
+    "deleteSelected": "Delete Selected",
+    "clearSelection": "Clear Selection",
+    "difficulties": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "placeholders": {
+      "questionText": "Type the question or instruction...",
+      "expectedAnswer": "Type the correct answer...",
+      "alternativeAnswer": "Type an alternative answer"
+    },
+    "labels": {
+      "expectedAnswer": "Expected answer:",
+      "alternativeAnswers": "Alternative answers:",
+      "grammarPoint": "Grammar point:"
+    },
+    "messages": {
+      "errorLoading": "Error loading data",
+      "errorLoadingLesson": "Error loading lesson",
+      "errorLoadingQuestion": "Error loading question",
+      "errorDeleting": "Error deleting question",
+      "errorDeletingMultiple": "Error deleting questions",
+      "errorSaving": "Error saving question"
+    },
+    "deleteConfirm": {
+      "title": "Confirm Deletion",
+      "message": "Are you sure you want to delete this question? This action cannot be undone."
+    }
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Manage all users registered in the system",
+    "searchUser": "Search user",
+    "searchPlaceholder": "Type email, name or phone...",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "activeOnly": "Active only",
+    "inactiveOnly": "Inactive only",
+    "clearFilters": "Clear filters",
+    "user": "User",
+    "email": "Email",
+    "phone": "Phone",
+    "notProvided": "Not provided",
+    "nameNotProvided": "Name not provided",
+    "clickToActivate": "Click to activate",
+    "clickToDeactivate": "Click to deactivate",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "results": "results",
+    "noUsersFound": "No users found",
+    "noUsersInSystem": "There are no users registered in the system yet.",
+    "tryAdjustingFilters": "Try adjusting the search filters to find users.",
+    "usersCount": "{{count}} of {{total}} users",
+    "messages": {
+      "errorLoading": "Error loading users",
+      "errorChangingStatus": "Error changing user status"
+    }
+  },
+  "videoCall": {
+    "title": "Video Call Management",
+    "subtitle": "Manual control of video call system",
+    "systemStatus": {
+      "title": "System Status",
+      "active": "System ACTIVE (Accepting Calls)",
+      "inactive": "System INACTIVE (Waiting for Next Period)",
+      "currentPeriod": "Current period: {{start}} - {{end}}",
+      "nextSchedule": "Next schedule: {{time}}",
+      "howToManage": "How to manage:",
+      "instructions": "To control when the system accepts calls, add or remove periods in the \"Scheduled Times\" section below."
+    },
+    "statistics": {
+      "usersInQueue": "Users in Queue",
+      "activeSessions": "Active Sessions",
+      "totalSessions": "Total Sessions",
+      "configuredPeriods": "Configured Periods"
+    },
+    "activeSessions": {
+      "title": "Active Sessions ({{count}})",
+      "id": "ID",
+      "start": "Start",
+      "end": "End",
+      "rooms": "Rooms"
+    },
+    "queue": {
+      "title": "Users in Queue ({{count}})",
+      "userId": "User ID",
+      "level": "Level",
+      "joined": "Joined"
+    },
+    "scheduledTimes": {
+      "title": "Scheduled Times (Timezone: America/Sao_Paulo)",
+      "addPeriod": "Add Period",
+      "newPeriod": "New Period",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "period": "Period {{number}}",
+      "removePeriod": "Remove period"
+    },
+    "confirmations": {
+      "disableSystem": "Are you sure you want to DISABLE the system manually?\n\nThis will:\n- Clear the queue\n- Stop all future sessions\n- System will be offline until reactivated",
+      "enableSystem": "Are you sure you want to ENABLE the system?\n\nThis will:\n- Return to automatic mode\n- Follow scheduled times",
+      "removePeriod": "Are you sure you want to remove this period?"
+    },
+    "messages": {
+      "systemDisabled": "System disabled successfully",
+      "systemEnabled": "System enabled successfully",
+      "periodAdded": "Period added successfully",
+      "periodRemoved": "Period removed successfully",
+      "errorDisabling": "Error disabling system",
+      "errorEnabling": "Error enabling system",
+      "errorAddingPeriod": "Error adding period",
+      "errorRemovingPeriod": "Error removing period",
+      "errorLoadingData": "Error loading admin data"
+    }
+  }
+}
+

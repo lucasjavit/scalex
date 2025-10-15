@@ -1,9 +1,11 @@
 import { signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useIsAdmin } from '../hooks/useIsAdmin';
 import { useAuth } from '../modules/auth-social/context/AuthContext';
 import { auth } from '../modules/auth-social/services/firebaseAuth';
+import LanguageSelector from './LanguageSelector';
 
 // Add CSS animation for gradient shift and glow effect
 const gradientAnimation = `
@@ -52,6 +54,7 @@ if (typeof document !== 'undefined') {
 }
 
 export default function Navbar() {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -141,10 +144,10 @@ export default function Navbar() {
                     ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                     : 'text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50'
                 }`}
-                title="Admin Panel"
+                title={t('navigation.adminPanel')}
               >
                 <span>🔧</span>
-                <span>Admin Panel</span>
+                <span>{t('navigation.adminPanel')}</span>
               </button>
             )}
 
@@ -174,18 +177,21 @@ export default function Navbar() {
               <span 
                 onClick={handleProfileClick}
                 className="text-copilot-text-primary text-sm font-medium cursor-pointer hover:text-copilot-accent-primary transition-colors duration-150"
-                title="Click to view profile"
+                title={t('tooltips.clickToViewProfile')}
               >
                 {user.displayName || user.email}
               </span>
             </div>
+
+            {/* Language Selector */}
+            <LanguageSelector />
 
             {/* Logout Button */}
             <button
               onClick={handleLogout}
               className="btn-copilot-secondary text-sm"
             >
-              Logout
+              {t('navigation.logout')}
             </button>
           </div>
         </div>

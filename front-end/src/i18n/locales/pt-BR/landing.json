@@ -1,0 +1,71 @@
+{
+  "hero": {
+    "tagline": "Aprenda inglês de forma inteligente",
+    "headline": "Domine o inglês com",
+    "method": "método interativo + repetição espaçada",
+    "description": "Combine a eficiência do método interativo com o poder do sistema de repetição espaçada inteligente. Aprenda inglês de forma natural, rápida e duradoura.",
+    "getStarted": "Começar",
+    "viewDemo": "Ver Demo"
+  },
+  "stats": {
+    "completeLessons": "Lições Completas",
+    "interactiveQuestions": "Questões Interativas",
+    "available": "Disponível"
+  },
+  "whyChoose": {
+    "title": "Por que escolher ScaleX?",
+    "subtitle": "Nossa plataforma combina as melhores técnicas de aprendizado para maximizar seus resultados"
+  },
+  "features": {
+    "interactive": {
+      "title": "Método Interativo",
+      "description": "Aprenda inglês americano e britânico através de perguntas e respostas rápidas, desenvolvendo fluência natural"
+    },
+    "intelligent": {
+      "title": "Sistema Inteligente",
+      "description": "Repetição espaçada inteligente que garante que você nunca esqueça o que aprendeu"
+    },
+    "progress": {
+      "title": "Progresso Inteligente",
+      "description": "Acompanhe seu desenvolvimento com métricas detalhadas e relatórios personalizados"
+    },
+    "fastLearning": {
+      "title": "Aprendizado Rápido",
+      "description": "Domine o inglês em tempo recorde com nossa metodologia comprovada e eficiente"
+    },
+    "practice": {
+      "title": "Foco na Prática",
+      "description": "Exercícios práticos que simulam situações reais de conversação em inglês"
+    },
+    "fullAccess": {
+      "title": "Acesso Total",
+      "description": "Estude em qualquer lugar, a qualquer hora com nossa plataforma responsiva"
+    }
+  },
+  "howItWorks": {
+    "title": "Como funciona?",
+    "subtitle": "Três passos simples para dominar o inglês",
+    "step1": {
+      "title": "Escolha Seu Nível",
+      "description": "Selecione entre Iniciante, Intermediário ou Avançado para começar no seu nível ideal"
+    },
+    "step2": {
+      "title": "Pratique Inteligentemente",
+      "description": "Responda questões e marque a dificuldade. O sistema ajusta automaticamente a revisão"
+    },
+    "step3": {
+      "title": "Revise e Domine",
+      "description": "O sistema agenda revisões inteligentes para garantir que você nunca esqueça"
+    }
+  },
+  "cta": {
+    "title": "Pronto para começar sua jornada?",
+    "subtitle": "Junte-se a milhares de estudantes que já dominaram o inglês com ScaleX",
+    "button": "Começar"
+  },
+  "footer": {
+    "tagline": "Aprenda inglês de forma inteligente com método interativo + repetição espaçada",
+    "copyright": "© 2024 ScaleX. Todos os direitos reservados."
+  }
+}
+

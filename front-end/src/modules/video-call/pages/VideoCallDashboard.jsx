@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth-social/context/AuthContext';
 import videoCallService from '../services/videoCallService';
 
 const VideoCallDashboard = () => {
+  const { t } = useTranslation(['videoCall', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [statistics, setStatistics] = useState(null);
@@ -82,7 +84,7 @@ const VideoCallDashboard = () => {
       const handleFindPartner = async () => {
         try {
           if (!user?.uid) {
-            alert('User not authenticated. Please login first.');
+            alert(t('dashboard.messages.userNotAuthenticated'));
             return;
           }
 
@@ -90,7 +92,7 @@ const VideoCallDashboard = () => {
           if (!systemStatus?.isActive || !systemStatus?.canAcceptSessions) {
             const nextHour = String(systemStatus?.nextPeriod?.start.hour || 0).padStart(2, '0');
             const nextMinute = String(systemStatus?.nextPeriod?.start.minute || 0).padStart(2, '0');
-            alert(`Session unavailable at the moment. Next available time: ${nextHour}:${nextMinute}`);
+            alert(t('dashboard.messages.sessionUnavailable', { time: `${nextHour}:${nextMinute}` }));
             return;
           }
 
@@ -112,7 +114,7 @@ const VideoCallDashboard = () => {
           }
         } catch (error) {
           console.error('Error joining queue:', error);
-          alert('Error joining queue. Please try again.');
+          alert(t('dashboard.messages.errorJoiningQueue'));
         }
       };
 
@@ -126,7 +128,7 @@ const VideoCallDashboard = () => {
     if (videoCallService.isValidRoomName(roomId)) {
       navigate(`/video-call/room/${roomId}`);
     } else {
-      alert('Invalid room ID. Please enter a valid room ID (at least 3 characters, letters, numbers, hyphens, or underscores).');
+      alert(t('dashboard.messages.invalidRoomId'));
     }
   };
 
@@ -157,7 +159,7 @@ const VideoCallDashboard = () => {
           });
         } catch (error) {
           console.error('Error creating room:', error);
-          alert('Error creating room. Please try again.');
+          alert(t('dashboard.messages.errorCreatingRoom'));
         }
       };
 
@@ -167,7 +169,7 @@ const VideoCallDashboard = () => {
       <div className="bg-copilot-bg-primary min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent-primary mx-auto mb-4"></div>
-          <p className="text-copilot-text-secondary">Loading...</p>
+          <p className="text-copilot-text-secondary">{t('dashboard.messages.loading')}</p>
         </div>
       </div>
     );
@@ -183,7 +185,7 @@ const VideoCallDashboard = () => {
             className="btn-copilot-secondary flex items-center gap-2"
           >
             <span>←</span>
-            <span>Back to Home</span>
+            <span>{t('common:navigation.backToHome', { ns: 'common' })}</span>
           </button>
         </div>
 
@@ -195,10 +197,10 @@ const VideoCallDashboard = () => {
             </div>
           </div>
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-3">
-            Video Call Practice
+            {t('dashboard.title')}
           </h1>
           <p className="text-copilot-text-secondary text-lg mb-6">
-            Practice English with native speakers and learners worldwide
+            {t('dashboard.subtitle')}
           </p>
         </div>
 
@@ -206,7 +208,7 @@ const VideoCallDashboard = () => {
         {statistics && (
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-copilot-text-primary mb-6 text-center">
-              Your Practice Statistics
+              {t('dashboard.statistics.title')}
             </h2>
             
             {/* Main Stats Grid */}
@@ -218,7 +220,7 @@ const VideoCallDashboard = () => {
                 <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
                   {statistics.totalCalls}
                 </h3>
-                <p className="text-copilot-text-secondary">Total Calls</p>
+                <p className="text-copilot-text-secondary">{t('dashboard.statistics.totalCalls')}</p>
               </div>
 
               <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
@@ -228,7 +230,7 @@ const VideoCallDashboard = () => {
                 <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
                   {statistics.totalDurationFormatted || '0m'}
                 </h3>
-                <p className="text-copilot-text-secondary">Total Practice Time</p>
+                <p className="text-copilot-text-secondary">{t('dashboard.statistics.totalPracticeTime')}</p>
               </div>
 
               <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
@@ -238,7 +240,7 @@ const VideoCallDashboard = () => {
                 <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
                   {statistics.averageDurationFormatted || '0m'}
                 </h3>
-                <p className="text-copilot-text-secondary">Average Call Duration</p>
+                <p className="text-copilot-text-secondary">{t('dashboard.statistics.averageCallDuration')}</p>
               </div>
 
               <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
@@ -248,7 +250,7 @@ const VideoCallDashboard = () => {
                 <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
                   {statistics.thisWeekCalls || 0}
                 </h3>
-                <p className="text-copilot-text-secondary">This Week</p>
+                <p className="text-copilot-text-secondary">{t('dashboard.statistics.thisWeek')}</p>
               </div>
 
               <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 text-center">
@@ -258,7 +260,7 @@ const VideoCallDashboard = () => {
                 <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
                   {statistics.thisMonthCalls || 0}
                 </h3>
-                <p className="text-copilot-text-secondary">This Month</p>
+                <p className="text-copilot-text-secondary">{t('dashboard.statistics.thisMonth')}</p>
               </div>
             </div>
 
@@ -266,7 +268,10 @@ const VideoCallDashboard = () => {
             {statistics.lastCall && (
               <div className="mt-6 bg-blue-50 border border-blue-200 rounded-copilot p-4 text-center">
                 <p className="text-blue-800 text-sm">
-                  <span className="font-semibold">Last call:</span> {new Date(statistics.lastCall).toLocaleDateString()} at {new Date(statistics.lastCall).toLocaleTimeString()}
+                  {t('dashboard.statistics.lastCall', { 
+                    date: new Date(statistics.lastCall).toLocaleDateString(), 
+                    time: new Date(statistics.lastCall).toLocaleTimeString() 
+                  })}
                 </p>
               </div>
             )}
@@ -292,23 +297,28 @@ const VideoCallDashboard = () => {
                           : 'text-yellow-900'
                       }`}>
                         {systemStatus.isActive && systemStatus.canAcceptSessions
-                          ? 'Session Active'
-                          : 'Session Unavailable'}
+                          ? t('dashboard.systemStatus.sessionActive')
+                          : t('dashboard.systemStatus.sessionUnavailable')}
                       </h3>
                     </div>
                     
                     {systemStatus.isActive && systemStatus.canAcceptSessions ? (
                       <p className="text-green-800 text-sm">
-                        Current period: {String(systemStatus.currentPeriod.start.hour).padStart(2, '0')}:{String(systemStatus.currentPeriod.start.minute).padStart(2, '0')} - {String(systemStatus.currentPeriod.end.hour).padStart(2, '0')}:{String(systemStatus.currentPeriod.end.minute).padStart(2, '0')}
+                        {t('dashboard.systemStatus.currentPeriod', {
+                          start: `${String(systemStatus.currentPeriod.start.hour).padStart(2, '0')}:${String(systemStatus.currentPeriod.start.minute).padStart(2, '0')}`,
+                          end: `${String(systemStatus.currentPeriod.end.hour).padStart(2, '0')}:${String(systemStatus.currentPeriod.end.minute).padStart(2, '0')}`
+                        })}
                       </p>
                     ) : (
                       <div className="text-yellow-800 text-sm">
                         <p className="mb-1">
-                          Next available: {String(systemStatus.nextPeriod?.start.hour || 0).padStart(2, '0')}:{String(systemStatus.nextPeriod?.start.minute || 0).padStart(2, '0')}
+                          {t('dashboard.systemStatus.nextAvailable', {
+                            time: `${String(systemStatus.nextPeriod?.start.hour || 0).padStart(2, '0')}:${String(systemStatus.nextPeriod?.start.minute || 0).padStart(2, '0')}`
+                          })}
                         </p>
                         {timeUntilNextPeriod && (
                           <p className="font-semibold">
-                            Opens in: {timeUntilNextPeriod}
+                            {t('dashboard.systemStatus.opensIn', { time: timeUntilNextPeriod })}
                           </p>
                         )}
                       </div>
@@ -317,7 +327,7 @@ const VideoCallDashboard = () => {
                   
                   {/* Available Periods */}
                   <div className="ml-6">
-                    <p className="text-sm font-semibold text-gray-700 mb-2">Available Times:</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-2">{t('dashboard.systemStatus.availableTimes')}</p>
                     <div className="space-y-1 text-xs text-gray-600">
                       {systemStatus.activePeriods?.map((period, idx) => (
                         <div key={idx} className="flex items-center gap-2">
@@ -342,10 +352,10 @@ const VideoCallDashboard = () => {
                 <span className="text-white text-3xl">🚀</span>
               </div>
               <h3 className="text-2xl font-bold text-copilot-text-primary mb-3">
-                Start New Call
+                {t('dashboard.actions.startNewCall.title')}
               </h3>
               <p className="text-copilot-text-secondary mb-6">
-                Find a conversation partner and start practicing English right away
+                {t('dashboard.actions.startNewCall.description')}
               </p>
                   <button
                     onClick={handleFindPartner}
@@ -357,8 +367,8 @@ const VideoCallDashboard = () => {
                     }`}
                   >
                     {systemStatus?.isActive && systemStatus?.canAcceptSessions
-                      ? 'Find a Partner'
-                      : 'Session Unavailable'}
+                      ? t('dashboard.actions.startNewCall.findPartner')
+                      : t('dashboard.actions.startNewCall.sessionUnavailable')}
                   </button>
             </div>
           </div>
@@ -370,23 +380,23 @@ const VideoCallDashboard = () => {
                 <span className="text-white text-3xl">🔗</span>
               </div>
               <h3 className="text-2xl font-bold text-copilot-text-primary mb-3">
-                Join Room
+                {t('dashboard.actions.joinRoom.title')}
               </h3>
               <p className="text-copilot-text-secondary mb-6">
-                Create a new room or join using a room ID shared by a friend
+                {t('dashboard.actions.joinRoom.description')}
               </p>
               <div className="space-y-3">
                 <button
                   onClick={handleCreateRoom}
                   className="btn-copilot-primary text-lg px-8 py-4 w-full"
                 >
-                  Create Room
+                  {t('dashboard.actions.joinRoom.createRoom')}
                 </button>
                 <button
                   onClick={handleJoinRoom}
                   className="btn-copilot-secondary text-lg px-8 py-4 w-full"
                 >
-                  Join with Room ID
+                  {t('dashboard.actions.joinRoom.joinWithId')}
                 </button>
               </div>
             </div>
@@ -396,7 +406,7 @@ const VideoCallDashboard = () => {
         {/* Features */}
         <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8 mb-12">
           <h3 className="text-2xl font-bold text-copilot-text-primary mb-6 text-center">
-            Why Practice with Video Calls?
+            {t('dashboard.features.title')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
@@ -404,10 +414,10 @@ const VideoCallDashboard = () => {
                 <span className="text-white text-2xl">🗣️</span>
               </div>
               <h4 className="text-lg font-semibold text-copilot-text-primary mb-2">
-                Real Conversation
+                {t('dashboard.features.realConversation.title')}
               </h4>
               <p className="text-copilot-text-secondary text-sm">
-                Practice with real people in natural, flowing conversations
+                {t('dashboard.features.realConversation.description')}
               </p>
             </div>
 
@@ -416,10 +426,10 @@ const VideoCallDashboard = () => {
                 <span className="text-white text-2xl">🌍</span>
               </div>
               <h4 className="text-lg font-semibold text-copilot-text-primary mb-2">
-                Cultural Exchange
+                {t('dashboard.features.culturalExchange.title')}
               </h4>
               <p className="text-copilot-text-secondary text-sm">
-                Learn about different cultures while improving your English
+                {t('dashboard.features.culturalExchange.description')}
               </p>
             </div>
 
@@ -428,10 +438,10 @@ const VideoCallDashboard = () => {
                 <span className="text-white text-2xl">💡</span>
               </div>
               <h4 className="text-lg font-semibold text-copilot-text-primary mb-2">
-                Instant Feedback
+                {t('dashboard.features.instantFeedback.title')}
               </h4>
               <p className="text-copilot-text-secondary text-sm">
-                Get immediate feedback and corrections from native speakers
+                {t('dashboard.features.instantFeedback.description')}
               </p>
             </div>
           </div>
@@ -440,20 +450,20 @@ const VideoCallDashboard = () => {
         {/* Tips */}
         <div className="bg-blue-50 border border-blue-200 rounded-copilot p-6">
           <h4 className="text-lg font-semibold text-blue-800 mb-3">
-            💡 Tips for a great video call experience
+            💡 {t('dashboard.tips.title')}
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-blue-700 text-sm">
             <ul className="space-y-2">
-              <li>• Test your camera and microphone before starting</li>
-              <li>• Find a quiet, well-lit place for your call</li>
-              <li>• Be respectful and patient with your partner</li>
-              <li>• Don't worry about making mistakes - practice makes perfect!</li>
+              <li>• {t('dashboard.tips.testEquipment')}</li>
+              <li>• {t('dashboard.tips.findQuietPlace')}</li>
+              <li>• {t('dashboard.tips.beRespectful')}</li>
+              <li>• {t('dashboard.tips.dontWorryMistakes')}</li>
             </ul>
             <ul className="space-y-2">
-              <li>• Ask questions to keep the conversation flowing</li>
-              <li>• Share your experiences and listen to theirs</li>
-              <li>• Have fun and enjoy the cultural exchange!</li>
-              <li>• Use the suggested topics to guide your conversation</li>
+              <li>• {t('dashboard.tips.askQuestions')}</li>
+              <li>• {t('dashboard.tips.shareExperiences')}</li>
+              <li>• {t('dashboard.tips.haveFun')}</li>
+              <li>• {t('dashboard.tips.useSuggestedTopics')}</li>
             </ul>
           </div>
         </div>

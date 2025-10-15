@@ -1,0 +1,136 @@
+{
+  "dashboard": {
+    "title": "Práctica de Videollamada",
+    "subtitle": "Practica inglés con nativos y estudiantes de todo el mundo",
+    "statistics": {
+      "title": "Tus Estadísticas de Práctica",
+      "totalCalls": "Total de Llamadas",
+      "totalPracticeTime": "Tiempo Total de Práctica",
+      "averageCallDuration": "Duración Promedio de Llamadas",
+      "thisWeek": "Esta Semana",
+      "thisMonth": "Este Mes",
+      "lastCall": "Última llamada: {{date}} a las {{time}}"
+    },
+    "systemStatus": {
+      "sessionActive": "Sesión Activa",
+      "sessionUnavailable": "Sesión No Disponible",
+      "currentPeriod": "Período actual: {{start}} - {{end}}",
+      "nextAvailable": "Próximo disponible: {{time}}",
+      "opensIn": "Abre en: {{time}}",
+      "availableTimes": "Horarios Disponibles:"
+    },
+    "actions": {
+      "startNewCall": {
+        "title": "Iniciar Nueva Llamada",
+        "description": "Encuentra un compañero de conversación y comienza a practicar inglés ahora mismo",
+        "findPartner": "Encontrar Compañero",
+        "sessionUnavailable": "Sesión No Disponible"
+      },
+      "joinRoom": {
+        "title": "Unirse a Sala",
+        "description": "Crea una nueva sala o únete usando un ID de sala compartido por un amigo",
+        "createRoom": "Crear Sala",
+        "joinWithId": "Unirse con ID de Sala"
+      }
+    },
+    "features": {
+      "title": "¿Por qué Practicar con Videollamadas?",
+      "realConversation": {
+        "title": "Conversación Real",
+        "description": "Practica con personas reales en conversaciones naturales y fluidas"
+      },
+      "culturalExchange": {
+        "title": "Intercambio Cultural",
+        "description": "Aprende sobre diferentes culturas mientras mejoras tu inglés"
+      },
+      "instantFeedback": {
+        "title": "Retroalimentación Instantánea",
+        "description": "Recibe comentarios inmediatos y correcciones de hablantes nativos"
+      }
+    },
+    "tips": {
+      "title": "Consejos para una gran experiencia de videollamada",
+      "testEquipment": "Prueba tu cámara y micrófono antes de comenzar",
+      "findQuietPlace": "Encuentra un lugar tranquilo y bien iluminado para tu llamada",
+      "beRespectful": "Sé respetuoso y paciente con tu compañero",
+      "dontWorryMistakes": "¡No te preocupes por cometer errores - la práctica hace al maestro!",
+      "askQuestions": "Haz preguntas para mantener la conversación fluida",
+      "shareExperiences": "Comparte tus experiencias y escucha las de ellos",
+      "haveFun": "¡Diviértete y disfruta del intercambio cultural!",
+      "useSuggestedTopics": "Usa los temas sugeridos para guiar tu conversación"
+    },
+    "messages": {
+      "loading": "Cargando...",
+      "userNotAuthenticated": "Usuario no autenticado. Por favor, inicia sesión primero.",
+      "sessionUnavailable": "Sesión no disponible en este momento. Próximo horario disponible: {{time}}",
+      "errorJoiningQueue": "Error al unirse a la cola. Por favor, inténtalo de nuevo.",
+      "errorCreatingRoom": "Error al crear sala. Por favor, inténtalo de nuevo.",
+      "invalidRoomId": "ID de sala inválido. Por favor, ingresa un ID de sala válido (al menos 3 caracteres, letras, números, guiones o guiones bajos)."
+    }
+  },
+  "room": {
+    "title": "Práctica de Videollamada",
+    "room": "Sala",
+    "roomId": "ID de Sala:",
+    "participants": "participantes",
+    "remaining": "restante",
+    "chattingWith": "Conversando con",
+    "conversationTopic": "Tema de Conversación",
+    "tips": {
+      "dontWorryMistakes": "¡No te preocupes por los errores - la práctica hace al maestro!",
+      "askQuestions": "Haz preguntas para mantener la conversación fluida",
+      "enjoyExchange": "¡Disfruta del intercambio cultural!"
+    },
+    "timeWarning": {
+      "title": "¡Advertencia de Tiempo!",
+      "secondsRemaining": "segundos restantes",
+      "wrapUp": "¡Por favor, finaliza tu conversación rápidamente!",
+      "gotIt": "Entendido"
+    },
+    "topics": {
+      "random": "¡Vamos a tener una gran conversación!",
+      "travel": "¡Hablemos sobre viajes y diferentes culturas!",
+      "food": "¡Comparte tus comidas favoritas y experiencias culinarias!",
+      "technology": "¡Discute las últimas novedades en tecnología e innovación!",
+      "sports": "¡Habla sobre deportes, fitness y vida saludable!",
+      "music": "¡Comparte tu música favorita y entretenimiento!",
+      "books": "¡Discute libros, literatura y aprendizaje!",
+      "career": "¡Habla sobre trabajo, carreras y crecimiento profesional!"
+    },
+    "messages": {
+      "roomIdCopied": "¡ID de sala copiado!",
+      "errorStartingCall": "Error al iniciar seguimiento de llamada",
+      "errorEndingCall": "Error al finalizar seguimiento de llamada"
+    }
+  },
+  "queue": {
+    "title": "Buscando un Compañero de Práctica",
+    "waitingInQueue": "Esperando en cola...",
+    "findingPartner": "¡Estamos encontrando el compañero de conversación perfecto para ti!",
+    "yourPosition": "Tu posición en la cola:",
+    "estimatedWait": "Tiempo estimado de espera:",
+    "level": "Nivel:",
+    "levels": {
+      "beginner": "Principiante",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado"
+    },
+    "whileWaiting": {
+      "title": "Mientras esperas...",
+      "tip1": "Asegúrate de que tu cámara y micrófono funcionen",
+      "tip2": "Piensa en lo que te gustaría conversar",
+      "tip3": "¡Relájate y prepárate para una gran conversación!",
+      "tip4": "Recuerda: está bien cometer errores al aprender"
+    },
+    "leaveQueue": "Salir de la Cola",
+    "confirmLeave": "¿Estás seguro de que deseas salir de la cola?",
+    "messages": {
+      "error": "Error",
+      "errorCheckingStatus": "Error al verificar estado de la cola",
+      "errorLeavingQueue": "Error al salir de la cola",
+      "matchFound": "¡Compañero encontrado! Redirigiendo...",
+      "redirecting": "Redirigiendo a sala de videollamada..."
+    }
+  }
+}
+

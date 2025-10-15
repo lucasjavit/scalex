@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
 export default function Footer() {
+  const { t } = useTranslation('common');
   const location = useLocation();
 
   // Don't render footer on landing/login pages
@@ -15,13 +17,13 @@ export default function Footer() {
           {/* Brand */}
           <div className="mb-1">
             <span className="bg-copilot-gradient bg-clip-text text-transparent font-bold text-base">
-              ScaleX
+              {t('app.name')}
             </span>
           </div>
           
           {/* Copyright */}
           <div className="text-copilot-text-secondary text-xs mb-1">
-            © {new Date().getFullYear()} ScaleX. All rights reserved.
+            © {new Date().getFullYear()} {t('app.name')}. {t('footer.allRightsReserved')}.
           </div>
 
           {/* Legal Links */}
@@ -30,19 +32,19 @@ export default function Footer() {
               href="#"
               className="text-copilot-text-secondary hover:text-copilot-accent-primary transition-colors duration-200 text-xs"
             >
-              Privacy Policy
+              {t('footer.privacyPolicy')}
             </a>
             <a
               href="#"
               className="text-copilot-text-secondary hover:text-copilot-accent-primary transition-colors duration-200 text-xs"
             >
-              Terms of Use
+              {t('footer.termsOfUse')}
             </a>
             <a 
               href="#" 
               className="text-copilot-text-secondary hover:text-copilot-accent-primary transition-colors duration-200 text-xs"
             >
-              Cookies
+              {t('footer.cookies')}
             </a>
           </div>
         </div>

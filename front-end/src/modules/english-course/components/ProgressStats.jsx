@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ProgressStats = ({ statistics }) => {
+  const { t } = useTranslation('englishCourse');
   if (!statistics) {
     return null;
   }
@@ -8,30 +10,30 @@ const ProgressStats = ({ statistics }) => {
   const stats = [
     {
       icon: '📊',
-      label: 'Overall Progress',
+      label: t('stats.overallProgress'),
       value: `${statistics.progressPercentage}%`,
-      subtitle: `${statistics.completedLessons}/${statistics.totalLessons} lessons completed`,
+      subtitle: t('stats.lessonsCompleted', { completed: statistics.completedLessons, total: statistics.totalLessons }),
       gradient: 'from-purple-500 to-purple-600',
     },
     {
       icon: '✓',
-      label: 'Overall Accuracy',
+      label: t('stats.overallAccuracy'),
       value: `${statistics.overallAccuracy}%`,
-      subtitle: `${statistics.totalCorrect}/${statistics.totalAttempts} correct answers`,
+      subtitle: t('stats.correctAnswers', { correct: statistics.totalCorrect, total: statistics.totalAttempts }),
       gradient: 'from-green-500 to-emerald-500',
     },
     {
       icon: '📖',
-      label: 'In Progress',
+      label: t('stats.inProgress'),
       value: statistics.inProgressLessons,
-      subtitle: 'lessons started',
+      subtitle: t('stats.lessonsStarted'),
       gradient: 'from-blue-500 to-cyan-500',
     },
     {
       icon: '⚡',
-      label: 'Due Reviews',
+      label: t('stats.dueReviews'),
       value: statistics.dueReviews,
-      subtitle: 'questions to review',
+      subtitle: t('stats.questionsToReview'),
       gradient: 'from-yellow-500 to-orange-500',
     },
   ];

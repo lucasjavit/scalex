@@ -1,10 +1,12 @@
 import { useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import { useIsAdmin } from "../../../hooks/useIsAdmin";
 import apiService from "../../../services/api";
 import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
@@ -40,7 +42,7 @@ export default function Home() {
         <div className="text-center mb-12">
           
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-3">
-            Welcome back
+            {t('home.welcomeBack')}
             {user?.displayName && (
               <span className="bg-copilot-gradient bg-clip-text text-transparent">
                 , {user.displayName}
@@ -49,7 +51,7 @@ export default function Home() {
           </h1>
 
           <p className="text-copilot-text-secondary text-lg">
-            Explore your features and make the most of them
+            {t('home.exploreFeatures')}
           </p>
         </div>
 
@@ -64,12 +66,12 @@ export default function Home() {
             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-copilot flex items-center justify-center mb-4 shadow-copilot group-hover:scale-110 transition-transform duration-200">
               <span className="text-white text-2xl">🇬🇧</span>
             </div>
-            <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">English Course</h3>
+            <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">{t('home.englishCourse.title')}</h3>
             <p className="text-copilot-text-secondary text-sm">
-              Learn English with interactive method and intelligent spaced repetition system
+              {t('home.englishCourse.description')}
             </p>
             <div className="mt-4 flex items-center text-copilot-accent-primary text-sm font-medium">
-              <span>Get started</span>
+              <span>{t('buttons.getStarted')}</span>
               <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
             </div>
           </div>
@@ -82,12 +84,12 @@ export default function Home() {
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-copilot flex items-center justify-center mb-4 shadow-copilot group-hover:scale-110 transition-transform duration-200">
               <span className="text-white text-2xl">🎥</span>
             </div>
-            <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">Video Call</h3>
+            <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">{t('home.videoCall.title')}</h3>
             <p className="text-copilot-text-secondary text-sm">
-              Practice English with native speakers and learners from around the world
+              {t('home.videoCall.description')}
             </p>
             <div className="mt-4 flex items-center text-copilot-accent-primary text-sm font-medium">
-              <span>Get started</span>
+              <span>{t('buttons.getStarted')}</span>
               <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
             </div>
           </div>

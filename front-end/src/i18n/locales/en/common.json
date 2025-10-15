@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "ScaleX",
+    "tagline": "Learn English the smart way"
+  },
+  "navigation": {
+    "home": "Home",
+    "profile": "Profile",
+    "adminPanel": "Admin Panel",
+    "logout": "Logout",
+    "backToHome": "Back to Home",
+    "back": "Back"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Update",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "remove": "Remove",
+    "confirm": "Confirm",
+    "close": "Close",
+    "getStarted": "Get Started",
+    "viewDemo": "View Demo",
+    "tryAgain": "Try again",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "creating": "Creating...",
+    "copy": "Copy"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "completed": "Completed",
+    "error": "Error",
+    "success": "Success"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation completed successfully",
+    "noDataFound": "No data found",
+    "checkingAccountStatus": "Checking account status...",
+    "verificationError": "Verification Error",
+    "couldNotVerifyStatus": "Could not verify your account status. Please try again."
+  },
+  "footer": {
+    "allRightsReserved": "All rights reserved",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfUse": "Terms of Use",
+    "cookies": "Cookies"
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to access this resource."
+  },
+  "tooltips": {
+    "clickToViewProfile": "Click to view profile"
+  },
+  "home": {
+    "welcomeBack": "Welcome back",
+    "exploreFeatures": "Explore your features and make the most of them",
+    "englishCourse": {
+      "title": "English Course",
+      "description": "Learn English with interactive method and intelligent spaced repetition system"
+    },
+    "videoCall": {
+      "title": "Video Call",
+      "description": "Practice English with native speakers and learners from around the world"
+    }
+  }
+}
+

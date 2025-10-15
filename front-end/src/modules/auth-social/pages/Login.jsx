@@ -1,6 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import SocialLoginButtons from "../components/SocialLoginButtons";
 
 export default function Login() {
+  const { t } = useTranslation('auth');
+  
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-copilot-bg-primary">
       {/* Background decorative elements */}
@@ -33,10 +36,10 @@ export default function Login() {
 
           {/* Title and description */}
           <h1 className="text-3xl font-bold mb-3 text-center text-copilot-text-primary">
-            Welcome to ScaleX
+            {t('login.title')}
           </h1>
           <p className="text-copilot-text-secondary text-sm mb-8 text-center leading-relaxed">
-            Login with your Google or Microsoft account to continue and access all features.
+            {t('login.subtitle')}
           </p>
 
           {/* Login buttons */}
@@ -45,13 +48,13 @@ export default function Login() {
           {/* Footer text */}
           <div className="mt-8 pt-6 border-t border-copilot-border-default">
             <p className="text-center text-copilot-text-tertiary text-xs">
-              By logging in, you agree to our{" "}
+              {t('login.byLoggingIn')}{" "}
               <a href="#" className="text-copilot-accent-primary hover:underline">
-                Terms of Service
+                {t('login.termsOfService')}
               </a>{" "}
-              and{" "}
+              {t('login.and')}{" "}
               <a href="#" className="text-copilot-accent-primary hover:underline">
-                Privacy Policy
+                {t('login.privacyPolicy')}
               </a>
             </p>
           </div>

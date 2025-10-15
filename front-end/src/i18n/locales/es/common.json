@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "ScaleX",
+    "tagline": "Aprende inglés de forma inteligente"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "profile": "Perfil",
+    "adminPanel": "Panel Admin",
+    "logout": "Salir",
+    "backToHome": "Volver al Inicio",
+    "back": "Volver"
+  },
+  "buttons": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "add": "Añadir",
+    "remove": "Quitar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "getStarted": "Comenzar",
+    "viewDemo": "Ver Demo",
+    "tryAgain": "Intentar de nuevo",
+    "refresh": "Actualizar",
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "creating": "Creando...",
+    "copy": "Copiar"
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "pending": "Pendiente",
+    "completed": "Completado",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "messages": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "success": "Operación completada con éxito",
+    "noDataFound": "No se encontraron datos",
+    "checkingAccountStatus": "Verificando estado de la cuenta...",
+    "verificationError": "Error de Verificación",
+    "couldNotVerifyStatus": "No se pudo verificar el estado de su cuenta. Por favor, inténtelo de nuevo."
+  },
+  "footer": {
+    "allRightsReserved": "Todos los derechos reservados",
+    "privacyPolicy": "Política de Privacidad",
+    "termsOfUse": "Términos de Uso",
+    "cookies": "Cookies"
+  },
+  "errors": {
+    "generic": "Ocurrió un error. Por favor, inténtelo de nuevo.",
+    "network": "Error de red. Por favor, verifique su conexión.",
+    "unauthorized": "No está autorizado para acceder a este recurso."
+  },
+  "tooltips": {
+    "clickToViewProfile": "Haz clic para ver el perfil"
+  },
+  "home": {
+    "welcomeBack": "Bienvenido de vuelta",
+    "exploreFeatures": "Explora tus funciones y aprovéchalas al máximo",
+    "englishCourse": {
+      "title": "Curso de Inglés",
+      "description": "Aprende inglés con método interactivo y sistema inteligente de repetición espaciada"
+    },
+    "videoCall": {
+      "title": "Videollamada",
+      "description": "Practica inglés con nativos y estudiantes de todo el mundo"
+    }
+  }
+}
+

@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
+  const { t } = useTranslation('landing');
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
@@ -39,13 +41,13 @@ export default function LandingPage() {
                 ScaleX
               </h1>
             <p className="text-xl text-gray-600 font-medium">
-              Learn English the smart way
+              {t('hero.tagline')}
             </p>
           </div>
 
           {/* Main Headline */}
           <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight" style={{ overflow: 'visible' }}>
-            Master English with
+            {t('hero.headline')}
             <span
               className="block"
               style={{
@@ -66,13 +68,12 @@ export default function LandingPage() {
                 overflow: 'visible'
               }}
             >
-              interactive method + spaced repetition
+              {t('hero.method')}
             </span>
           </h2>
 
           <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Combine the efficiency of interactive method with the power of intelligent spaced repetition system.
-            Learn English naturally, quickly and lastingly.
+            {t('hero.description')}
           </p>
 
             {/* CTA Buttons */}
@@ -81,10 +82,10 @@ export default function LandingPage() {
                 onClick={handleGetStarted}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl"
               >
-                Get Started
+                {t('hero.getStarted')}
               </button>
               <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full text-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all duration-200">
-                View Demo
+                {t('hero.viewDemo')}
               </button>
             </div>
 
@@ -92,15 +93,15 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
                 <div className="text-4xl font-bold text-blue-600 mb-2">12</div>
-                <div className="text-gray-600">Complete Lessons</div>
+                <div className="text-gray-600">{t('stats.completeLessons')}</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-purple-600 mb-2">500+</div>
-                <div className="text-gray-600">Interactive Questions</div>
+                <div className="text-gray-600">{t('stats.interactiveQuestions')}</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-pink-600 mb-2">24/7</div>
-                <div className="text-gray-600">Available</div>
+                <div className="text-gray-600">{t('stats.available')}</div>
               </div>
             </div>
           </div>
@@ -112,10 +113,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              Why choose ScaleX?
+              {t('whyChoose.title')}
             </h3>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Our platform combines the best learning techniques to maximize your results
+              {t('whyChoose.subtitle')}
             </p>
           </div>
 
@@ -125,9 +126,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">🇬🇧</span>
               </div>
-            <h4 className="text-xl font-bold text-gray-900 mb-4">Interactive Method</h4>
+            <h4 className="text-xl font-bold text-gray-900 mb-4">{t('features.interactive.title')}</h4>
             <p className="text-gray-600">
-              Learn American and British English through quick questions and answers, developing natural fluency
+              {t('features.interactive.description')}
             </p>
             </div>
 
@@ -136,9 +137,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">🧠</span>
               </div>
-            <h4 className="text-xl font-bold text-gray-900 mb-4">Intelligent System</h4>
+            <h4 className="text-xl font-bold text-gray-900 mb-4">{t('features.intelligent.title')}</h4>
             <p className="text-gray-600">
-              Smart spaced repetition that ensures you never forget what you've learned
+              {t('features.intelligent.description')}
             </p>
             </div>
 
@@ -147,9 +148,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-pink-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">📊</span>
               </div>
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Smart Progress</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-4">{t('features.progress.title')}</h4>
               <p className="text-gray-600">
-                Track your development with detailed metrics and personalized reports
+                {t('features.progress.description')}
               </p>
             </div>
 
@@ -158,9 +159,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">⚡</span>
               </div>
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Fast Learning</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-4">{t('features.fastLearning.title')}</h4>
               <p className="text-gray-600">
-                Master English in record time with our proven and efficient methodology
+                {t('features.fastLearning.description')}
               </p>
             </div>
 
@@ -169,9 +170,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">🎯</span>
               </div>
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Practice Focused</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-4">{t('features.practice.title')}</h4>
               <p className="text-gray-600">
-                Practical exercises that simulate real English conversation situations
+                {t('features.practice.description')}
               </p>
             </div>
 
@@ -180,9 +181,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">📱</span>
               </div>
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Full Access</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-4">{t('features.fullAccess.title')}</h4>
               <p className="text-gray-600">
-                Study anywhere, anytime with our responsive platform
+                {t('features.fullAccess.description')}
               </p>
             </div>
           </div>
@@ -194,10 +195,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              How does it work?
+              {t('howItWorks.title')}
             </h3>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Three simple steps to master English
+              {t('howItWorks.subtitle')}
             </p>
           </div>
 
@@ -207,9 +208,9 @@ export default function LandingPage() {
               <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
                 1
               </div>
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">Choose Your Level</h4>
+              <h4 className="text-2xl font-bold text-gray-900 mb-4">{t('howItWorks.step1.title')}</h4>
               <p className="text-gray-600 text-lg">
-                Select between Beginner, Intermediate or Advanced to start at your ideal level
+                {t('howItWorks.step1.description')}
               </p>
             </div>
 
@@ -218,9 +219,9 @@ export default function LandingPage() {
               <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
                 2
               </div>
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">Practice Intelligently</h4>
+              <h4 className="text-2xl font-bold text-gray-900 mb-4">{t('howItWorks.step2.title')}</h4>
               <p className="text-gray-600 text-lg">
-                Answer questions and mark difficulty. The system automatically adjusts review
+                {t('howItWorks.step2.description')}
               </p>
             </div>
 
@@ -229,9 +230,9 @@ export default function LandingPage() {
               <div className="w-20 h-20 bg-gradient-to-r from-pink-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
                 3
               </div>
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">Review and Master</h4>
+              <h4 className="text-2xl font-bold text-gray-900 mb-4">{t('howItWorks.step3.title')}</h4>
               <p className="text-gray-600 text-lg">
-                The system schedules smart reviews to ensure you never forget
+                {t('howItWorks.step3.description')}
               </p>
             </div>
           </div>
@@ -242,16 +243,16 @@ export default function LandingPage() {
       <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
         <div className="max-w-4xl mx-auto text-center px-6">
           <h3 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to start your journey?
+            {t('cta.title')}
           </h3>
           <p className="text-xl text-white text-opacity-90 mb-8">
-            Join thousands of students who have already mastered English with ScaleX
+            {t('cta.subtitle')}
           </p>
           <button
             onClick={handleGetStarted}
             className="bg-white text-gray-900 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl"
           >
-            Get Started
+            {t('cta.button')}
           </button>
         </div>
       </section>
@@ -262,12 +263,12 @@ export default function LandingPage() {
           <div className="mb-8">
             <h4 className="text-2xl font-bold mb-4">ScaleX</h4>
             <p className="text-gray-400">
-              Learn English the smart way with interactive method + spaced repetition
+              {t('footer.tagline')}
             </p>
           </div>
           <div className="border-t border-gray-800 pt-8">
             <p className="text-gray-400">
-              © 2024 ScaleX. All rights reserved.
+              {t('footer.copyright')}
             </p>
           </div>
         </div>

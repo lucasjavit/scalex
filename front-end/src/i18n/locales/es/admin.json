@@ -1,0 +1,213 @@
+{
+  "dashboard": {
+    "title": "Panel del Curso de Inglés",
+    "subtitle": "Gestiona lecciones, preguntas y monitorea el progreso del curso de inglés",
+    "statistics": {
+      "totalLessons": "Total de Lecciones",
+      "totalQuestions": "Total de Preguntas",
+      "activeUsers": "Usuarios Activos",
+      "averageProgress": "Progreso Promedio"
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "manageLessons": {
+        "title": "Gestionar Lecciones",
+        "description": "Crear, editar y eliminar lecciones"
+      },
+      "createLesson": {
+        "title": "Crear Nueva Lección",
+        "description": "Añadir una nueva lección al curso"
+      },
+      "manageUsers": {
+        "title": "Gestionar Usuarios",
+        "description": "Ver y gestionar usuarios registrados"
+      },
+      "statistics": {
+        "title": "Estadísticas",
+        "description": "Ver informes y métricas del curso"
+      },
+      "access": "Acceder"
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "comingSoon": "Próximamente",
+      "description": "El historial de actividades y los registros del sistema se mostrarán aquí"
+    },
+    "errors": {
+      "loadingStatistics": "Error al cargar estadísticas"
+    }
+  },
+  "lessons": {
+    "title": "Gestionar Lecciones",
+    "newLesson": "Nueva Lección",
+    "editLesson": "Editar Lección",
+    "createFirstLesson": "Crear Primera Lección",
+    "noLessonsFound": "No se encontraron lecciones",
+    "startCreating": "Comienza creando tu primera lección",
+    "updateInfo": "Actualiza la información de la lección",
+    "fillDataToCreate": "Rellena los datos para crear una nueva lección",
+    "lessonNumber": "Número de Lección",
+    "level": "Nivel",
+    "title": "Título",
+    "description": "Descripción",
+    "grammarFocus": "Enfoque Gramatical",
+    "vocabularyFocus": "Vocabulario Enfocado",
+    "activeLesson": "Lección activa",
+    "questions": "preguntas",
+    "lesson": "Lección",
+    "levels": {
+      "beginner": "Principiante",
+      "elementary": "Elemental",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado"
+    },
+    "placeholders": {
+      "addWord": "Escribe una palabra o frase"
+    },
+    "messages": {
+      "errorLoading": "Error al cargar lecciones",
+      "errorDeleting": "Error al eliminar lección",
+      "errorSaving": "Error al guardar lección"
+    },
+    "deleteConfirm": {
+      "title": "Confirmar Eliminación",
+      "message": "¿Estás seguro de que deseas eliminar la lección \"{{title}}\"? Esta acción no se puede deshacer y todas las preguntas asociadas serán eliminadas."
+    }
+  },
+  "questions": {
+    "title": "Preguntas",
+    "newQuestion": "Nueva Pregunta",
+    "editQuestion": "Editar Pregunta",
+    "bulkCreate": "Crear en Lote",
+    "createFirstQuestion": "Crear Primera Pregunta",
+    "noQuestionsFound": "No se encontraron preguntas",
+    "startCreating": "Comienza creando preguntas para esta lección",
+    "questionNumber": "Número de Pregunta",
+    "questionText": "Texto de la Pregunta",
+    "expectedAnswer": "Respuesta Esperada",
+    "alternativeAnswers": "Respuestas Alternativas",
+    "grammarPoint": "Punto Gramatical",
+    "audioUrl": "URL de Audio (opcional)",
+    "difficulty": "Dificultad",
+    "question": "Pregunta",
+    "selected": "pregunta(s) seleccionada(s)",
+    "selectAll": "Seleccionar todas",
+    "deleteSelected": "Eliminar Seleccionadas",
+    "clearSelection": "Limpiar Selección",
+    "difficulties": {
+      "easy": "Fácil",
+      "medium": "Medio",
+      "hard": "Difícil"
+    },
+    "placeholders": {
+      "questionText": "Escribe la pregunta o instrucción...",
+      "expectedAnswer": "Escribe la respuesta correcta...",
+      "alternativeAnswer": "Escribe una respuesta alternativa"
+    },
+    "labels": {
+      "expectedAnswer": "Respuesta esperada:",
+      "alternativeAnswers": "Respuestas alternativas:",
+      "grammarPoint": "Punto gramatical:"
+    },
+    "messages": {
+      "errorLoading": "Error al cargar datos",
+      "errorLoadingLesson": "Error al cargar lección",
+      "errorLoadingQuestion": "Error al cargar pregunta",
+      "errorDeleting": "Error al eliminar pregunta",
+      "errorDeletingMultiple": "Error al eliminar preguntas",
+      "errorSaving": "Error al guardar pregunta"
+    },
+    "deleteConfirm": {
+      "title": "Confirmar Eliminación",
+      "message": "¿Estás seguro de que deseas eliminar esta pregunta? Esta acción no se puede deshacer."
+    }
+  },
+  "users": {
+    "title": "Usuarios",
+    "subtitle": "Gestiona todos los usuarios registrados en el sistema",
+    "searchUser": "Buscar usuario",
+    "searchPlaceholder": "Escribe email, nombre o teléfono...",
+    "status": "Estado",
+    "allStatuses": "Todos los estados",
+    "activeOnly": "Solo activos",
+    "inactiveOnly": "Solo inactivos",
+    "clearFilters": "Limpiar filtros",
+    "user": "Usuario",
+    "email": "Email",
+    "phone": "Teléfono",
+    "notProvided": "No proporcionado",
+    "nameNotProvided": "Nombre no proporcionado",
+    "clickToActivate": "Haz clic para activar",
+    "clickToDeactivate": "Haz clic para desactivar",
+    "showing": "Mostrando",
+    "to": "a",
+    "of": "de",
+    "results": "resultados",
+    "noUsersFound": "No se encontraron usuarios",
+    "noUsersInSystem": "Todavía no hay usuarios registrados en el sistema.",
+    "tryAdjustingFilters": "Intenta ajustar los filtros de búsqueda para encontrar usuarios.",
+    "usersCount": "{{count}} de {{total}} usuarios",
+    "messages": {
+      "errorLoading": "Error al cargar usuarios",
+      "errorChangingStatus": "Error al cambiar estado del usuario"
+    }
+  },
+  "videoCall": {
+    "title": "Gestión de Videollamadas",
+    "subtitle": "Control manual del sistema de videollamadas",
+    "systemStatus": {
+      "title": "Estado del Sistema",
+      "active": "Sistema ACTIVO (Aceptando Llamadas)",
+      "inactive": "Sistema INACTIVO (Esperando Próximo Período)",
+      "currentPeriod": "Período actual: {{start}} - {{end}}",
+      "nextSchedule": "Próximo horario: {{time}}",
+      "howToManage": "Cómo gestionar:",
+      "instructions": "Para controlar cuándo el sistema acepta llamadas, añade o elimina períodos en la sección \"Horarios Programados\" a continuación."
+    },
+    "statistics": {
+      "usersInQueue": "Usuarios en Cola",
+      "activeSessions": "Sesiones Activas",
+      "totalSessions": "Total de Sesiones",
+      "configuredPeriods": "Períodos Configurados"
+    },
+    "activeSessions": {
+      "title": "Sesiones Activas ({{count}})",
+      "id": "ID",
+      "start": "Inicio",
+      "end": "Fin",
+      "rooms": "Salas"
+    },
+    "queue": {
+      "title": "Usuarios en Cola ({{count}})",
+      "userId": "ID de Usuario",
+      "level": "Nivel",
+      "joined": "Ingresó"
+    },
+    "scheduledTimes": {
+      "title": "Horarios Programados (Zona horaria: America/Sao_Paulo)",
+      "addPeriod": "Añadir Período",
+      "newPeriod": "Nuevo Período",
+      "startTime": "Hora de Inicio",
+      "endTime": "Hora de Fin",
+      "period": "Período {{number}}",
+      "removePeriod": "Eliminar período"
+    },
+    "confirmations": {
+      "disableSystem": "¿Estás seguro de que deseas DESACTIVAR el sistema manualmente?\n\nEsto:\n- Limpiará la cola\n- Detendrá todas las sesiones futuras\n- El sistema estará offline hasta que se reactive",
+      "enableSystem": "¿Estás seguro de que deseas ACTIVAR el sistema?\n\nEsto:\n- Volverá al modo automático\n- Seguirá los horarios programados",
+      "removePeriod": "¿Estás seguro de que deseas eliminar este período?"
+    },
+    "messages": {
+      "systemDisabled": "Sistema desactivado con éxito",
+      "systemEnabled": "Sistema activado con éxito",
+      "periodAdded": "Período añadido con éxito",
+      "periodRemoved": "Período eliminado con éxito",
+      "errorDisabling": "Error al desactivar sistema",
+      "errorEnabling": "Error al activar sistema",
+      "errorAddingPeriod": "Error al añadir período",
+      "errorRemovingPeriod": "Error al eliminar período",
+      "errorLoadingData": "Error al cargar datos del admin"
+    }
+  }
+}
+
