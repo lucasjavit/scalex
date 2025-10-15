@@ -41,6 +41,17 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => navigate('/home')}
+            className="btn-copilot-secondary flex items-center gap-2"
+          >
+            <span>←</span>
+            <span>Back to Home</span>
+          </button>
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-copilot-text-primary mb-2">

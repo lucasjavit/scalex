@@ -176,6 +176,17 @@ const VideoCallDashboard = () => {
   return (
     <div className="bg-copilot-bg-primary min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-12">
+        {/* Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => navigate('/home')}
+            className="btn-copilot-secondary flex items-center gap-2"
+          >
+            <span>←</span>
+            <span>Back to Home</span>
+          </button>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-block bg-copilot-gradient p-4 rounded-copilot-lg mb-6 shadow-copilot-lg">

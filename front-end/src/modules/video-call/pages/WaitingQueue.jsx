@@ -183,9 +183,18 @@ export default function WaitingQueue() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full">
+      <div className="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full relative">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/video-call')}
+          className="absolute top-4 left-4 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors bg-white px-3 py-1 rounded-lg border border-gray-200 hover:border-gray-300"
+        >
+          <span>←</span>
+          <span className="text-sm">Back</span>
+        </button>
+
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 pt-4">
           <div className="text-6xl mb-4 animate-bounce">⏳</div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Waiting for Session

@@ -291,6 +291,17 @@ export default function UserProfile() {
   return (
     <div className="bg-copilot-bg-primary">
       <div className="max-w-4xl mx-auto px-6 py-8">
+        {/* Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => navigate('/home')}
+            className="btn-copilot-secondary flex items-center gap-2"
+          >
+            <span>←</span>
+            <span>Back to Home</span>
+          </button>
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-start">
@@ -305,15 +316,6 @@ export default function UserProfile() {
                 }
               </p>
             </div>
-
-            {userProfile && (
-              <button
-                onClick={() => navigate('/home')}
-                className="bg-copilot-accent-primary text-white px-6 py-2 rounded-copilot font-medium hover:bg-opacity-90 transition-all duration-200"
-              >
-                Ir para Home
-              </button>
-            )}
           </div>
         </div>
 
