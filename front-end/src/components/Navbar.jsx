@@ -128,49 +128,26 @@ export default function Navbar() {
               ScaleX
             </span>
 
-            {/* Navigation Links */}
-            <div className="hidden md:flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/english-course')}
-                className={`text-sm font-medium transition-colors duration-200 ${
-                  location.pathname.startsWith('/english-course')
-                    ? 'text-copilot-accent-primary'
-                    : 'text-copilot-text-secondary hover:text-copilot-text-primary'
-                }`}
-              >
-                English Course
-              </button>
-              <button
-                onClick={() => navigate('/video-call')}
-                className={`text-sm font-medium transition-colors duration-200 ${
-                  location.pathname.startsWith('/video-call')
-                    ? 'text-copilot-accent-primary'
-                    : 'text-copilot-text-secondary hover:text-copilot-text-primary'
-                }`}
-              >
-                Video Call
-              </button>
-              
-              {/* Admin Panel Button - Only visible for admins */}
-              {isAdmin && (
-                <button
-                  onClick={() => navigate('/admin')}
-                  className={`text-sm font-medium transition-colors duration-200 flex items-center gap-1 px-3 py-1.5 rounded-lg ${
-                    location.pathname.startsWith('/admin')
-                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                      : 'text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50'
-                  }`}
-                  title="Admin Panel"
-                >
-                  <span>🔧</span>
-                  <span>Admin Panel</span>
-                </button>
-              )}
-            </div>
           </div>
 
           {/* User Info and Logout */}
           <div className="flex items-center space-x-4">
+            {/* Admin Panel Button - Only visible for admins */}
+            {isAdmin && (
+              <button
+                onClick={() => navigate('/admin')}
+                className={`text-sm font-medium transition-colors duration-200 flex items-center gap-1 px-3 py-1.5 rounded-lg ${
+                  location.pathname.startsWith('/admin')
+                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                    : 'text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50'
+                }`}
+                title="Admin Panel"
+              >
+                <span>🔧</span>
+                <span>Admin Panel</span>
+              </button>
+            )}
+
             {/* User Avatar - Clickable */}
             <div className="flex items-center space-x-3">
               {user.photoURL ? (
