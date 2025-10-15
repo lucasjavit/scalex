@@ -27,8 +27,8 @@ const Dashboard = () => {
 
       const backendUser = await apiService.getUserByFirebaseUid(user.uid);
 
-      // Always load all lessons for grouping by level
-      const lessonsData = await apiService.getEnglishLessons();
+      // Load lessons with access validation
+      const lessonsData = await apiService.getEnglishLessons(null, backendUser.id);
       setLessons(lessonsData);
 
       const progressData = await apiService.getUserProgress(backendUser.id);
@@ -47,6 +47,24 @@ const Dashboard = () => {
     return progress.find((p) => p.lessonId === lessonId);
   };
 
+  const getLessonStatus = (lesson) => {
+    const lessonProgress = getProgressForLesson(lesson.id);
+    
+    if (!lesson.isAccessible) {
+      return { status: 'locked', text: 'Locked', color: 'bg-gray-500' };
+    }
+    
+    if (lessonProgress?.status === 'completed') {
+      return { status: 'completed', text: 'Completed', color: 'bg-green-500' };
+    }
+    
+    if (lessonProgress?.status === 'in_progress') {
+      return { status: 'in_progress', text: 'In Progress', color: 'bg-yellow-500' };
+    }
+    
+    return { status: 'available', text: 'Available', color: 'bg-blue-500' };
+  };
+
   // Group lessons by level
   const groupedLessons = {
     beginner: lessons.filter(l => l.level === 'beginner'),
@@ -54,6 +72,7 @@ const Dashboard = () => {
     intermediate: lessons.filter(l => l.level === 'intermediate'),
     advanced: lessons.filter(l => l.level === 'advanced'),
   };
+
 
   // Calculate progress for each level deck
   const getDeckProgress = (levelLessons) => {
@@ -77,7 +96,7 @@ const Dashboard = () => {
     // Then try to find a not started lesson
     const notStarted = levelLessons.find(lesson => {
       const prog = getProgressForLesson(lesson.id);
-      return !prog || prog.status === 'not_started';
+      return lesson.isAccessible && (!prog || prog.status === 'not_started');
     });
     if (notStarted) return notStarted;
 
@@ -134,15 +153,25 @@ const Dashboard = () => {
             {t('dashboard.subtitle')}
           </p>
 
-          {statistics?.dueReviews > 0 && (
-            <Link
-              to="/english-course/review"
-              className="inline-flex items-center gap-2 bg-gradient-to-br from-yellow-500 to-orange-500 text-white px-6 py-3 rounded-copilot font-semibold hover:opacity-90 transition-all duration-200 shadow-copilot-lg"
-            >
-              <span>⚡</span>
-              {t('dashboard.reviewQuestions', { count: statistics.dueReviews })}
-            </Link>
-          )}
+          <Link
+            to="/english-course/review"
+            className={`inline-flex items-center gap-2 px-6 py-3 rounded-copilot font-semibold transition-all duration-200 shadow-copilot-lg ${
+              statistics?.dueReviews > 0
+                ? 'bg-gradient-to-br from-yellow-500 to-orange-500 text-white hover:opacity-90 cursor-pointer'
+                : 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
+            }`}
+            onClick={(e) => {
+              if (statistics?.dueReviews === 0) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span>⚡</span>
+            {statistics?.dueReviews > 0 
+              ? t('dashboard.reviewQuestions', { count: statistics.dueReviews })
+              : t('dashboard.noReviewsAvailable', 'No reviews available')
+            }
+          </Link>
         </div>
 
         {/* Statistics */}

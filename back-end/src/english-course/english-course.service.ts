@@ -36,7 +36,7 @@ export class EnglishCourseService {
     return await this.lessonRepository.save(lesson);
   }
 
-  async findAllLessons(level?: string): Promise<Lesson[]> {
+  async findAllLessons(level?: string, userId?: string): Promise<Lesson[]> {
     const query = this.lessonRepository
       .createQueryBuilder('lesson')
       .where('lesson.isActive = :isActive', { isActive: true })
@@ -46,7 +46,56 @@ export class EnglishCourseService {
       query.andWhere('lesson.level = :level', { level });
     }
 
-    return await query.getMany();
+    const lessons = await query.getMany();
+
+    // If userId is provided, add access validation
+    if (userId) {
+      const userProgress = await this.progressRepository.find({
+        where: { userId },
+        order: { lessonId: 'ASC' }
+      });
+
+      const completedLessonIds = userProgress
+        .filter(p => p.status === ProgressStatus.COMPLETED)
+        .map(p => p.lessonId);
+
+      // Add access validation to each lesson
+      return lessons.map(lesson => ({
+        ...lesson,
+        isAccessible: this.canAccessLesson(lesson, completedLessonIds, lessons)
+      }));
+    }
+
+    return lessons;
+  }
+
+  private canAccessLesson(lesson: Lesson, completedLessonIds: string[], allLessons: Lesson[]): boolean {
+    // First lesson is always accessible
+    if (lesson.lessonNumber === 1) {
+      return true;
+    }
+
+    // Check if previous lesson in the same level is completed
+    const previousLesson = allLessons.find(l => 
+      l.level === lesson.level && 
+      l.lessonNumber === lesson.lessonNumber - 1
+    );
+
+    if (previousLesson) {
+      return completedLessonIds.includes(previousLesson.id);
+    }
+
+    // If no previous lesson in same level, check if any lesson in previous level is completed
+    const levelOrder = ['beginner', 'elementary', 'intermediate', 'advanced'];
+    const currentLevelIndex = levelOrder.indexOf(lesson.level);
+    
+    if (currentLevelIndex > 0) {
+      const previousLevel = levelOrder[currentLevelIndex - 1];
+      const previousLevelLessons = allLessons.filter(l => l.level === previousLevel);
+      return previousLevelLessons.some(l => completedLessonIds.includes(l.id));
+    }
+
+    return true; // Fallback - allow access
   }
 
   async findLessonById(id: string): Promise<Lesson> {
@@ -183,8 +232,7 @@ export class EnglishCourseService {
   // ============================================
 
   async submitCardDifficulty(userId: string, lessonId: string, questionId: string, difficulty: string) {
-    // This method now handles card difficulty submission instead of answer checking
-    // The card system doesn't require answer validation, just difficulty rating
+    // This method handles card difficulty submission for the spaced repetition system
     
     const question = await this.findQuestionById(questionId);
     
@@ -204,14 +252,14 @@ export class EnglishCourseService {
     const newTotalAttempts = progress.totalAttempts + 1;
     const newCorrectAnswers = difficulty !== 'again' ? progress.correctAnswers + 1 : progress.correctAnswers;
     
+    // Update progress
     await this.updateProgress(userId, lessonId, {
       correctAnswers: newCorrectAnswers,
       totalAttempts: newTotalAttempts,
     });
 
-    // IMPORTANT: Update the review schedule using the existing submitDifficulty method
-    // This ensures that dueReviews count is updated correctly
-    await this.submitDifficulty(userId, lessonId, questionId, difficulty);
+    // Create or update review entry for this specific question
+    await this.createOrUpdateReview(userId, lessonId, questionId, difficulty);
 
     return {
       success: true,
@@ -314,6 +362,71 @@ export class EnglishCourseService {
       intervalDays: review.intervalDays,
       easeFactor: review.easeFactor,
     };
+  }
+
+  async createOrUpdateReview(userId: string, lessonId: string, questionId: string, difficulty: string) {
+    try {
+      // Check if review already exists
+      let review = await this.reviewRepository.findOne({
+        where: { userId, questionId },
+      });
+
+      const now = new Date();
+      let intervalDays: number;
+      let easeFactor: number;
+
+      if (review) {
+        // Update existing review with SM-2 algorithm
+        const isCorrect = difficulty !== 'again';
+        
+        if (isCorrect) {
+          if (review.reviewCount === 0) {
+            intervalDays = 1;
+          } else if (review.reviewCount === 1) {
+            intervalDays = 6;
+          } else {
+            intervalDays = Math.round(review.intervalDays * review.easeFactor);
+          }
+          easeFactor = Math.min(3.0, Number(review.easeFactor) + 0.1);
+        } else {
+          intervalDays = 1;
+          easeFactor = Math.max(1.3, Number(review.easeFactor) - 0.2);
+        }
+
+        review.intervalDays = intervalDays;
+        review.easeFactor = easeFactor;
+        review.reviewCount += 1;
+        review.lastReviewedAt = now;
+        review.isDue = false;
+      } else {
+        // Create new review with initial values
+        intervalDays = difficulty === 'again' ? 1 : (difficulty === 'hard' ? 1 : (difficulty === 'good' ? 4 : 7));
+        easeFactor = 2.5; // Default ease factor
+
+        review = this.reviewRepository.create({
+          userId,
+          lessonId,
+          questionId,
+          intervalDays,
+          easeFactor,
+          reviewCount: 1,
+          lastReviewedAt: now,
+          isDue: false,
+        });
+      }
+
+      // Calculate next review date
+      const nextReviewDate = new Date();
+      nextReviewDate.setDate(nextReviewDate.getDate() + intervalDays);
+      review.nextReviewDate = nextReviewDate;
+
+      await this.reviewRepository.save(review);
+
+      return review;
+    } catch (error) {
+      console.error('❌ Error in createOrUpdateReview:', error);
+      throw error;
+    }
   }
 
   // ============================================
@@ -459,7 +572,7 @@ export class EnglishCourseService {
 
   // Create initial reviews for all questions in a lesson when completed
   private async createInitialReviews(userId: string, lessonId: string): Promise<void> {
-    const questions = await this.questionRepository.find({
+      const questions = await this.questionRepository.find({
       where: { lessonId },
     });
 

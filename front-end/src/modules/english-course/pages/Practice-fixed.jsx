@@ -16,7 +16,6 @@ const Practice = () => {
   const [backendUser, setBackendUser] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [lessonProgress, setLessonProgress] = useState(null);
 
   useEffect(() => {
     console.log('🔄 useEffect triggered - user:', !!user, 'lessonId:', lessonId);
@@ -43,7 +42,6 @@ const Practice = () => {
 
       // Check lesson progress first
       const progressData = await apiService.getLessonProgress(userData.id, lessonId);
-      setLessonProgress(progressData);
       console.log('📊 Lesson progress:', progressData.status);
       
       if (progressData.status === 'completed') {
@@ -146,13 +144,13 @@ const Practice = () => {
             </div>
             <h2 className="text-2xl font-bold text-copilot-text-primary mb-3">
               {lesson ? 
-                (lessonProgress?.status === 'completed' ? "No Reviews Due" : "Ready to Practice") :
+                (lesson.status === 'completed' ? "No Reviews Due" : "Ready to Practice") :
                 "No Cards Available"
               }
             </h2>
             <p className="text-copilot-text-secondary mb-6">
               {lesson ? 
-                (lessonProgress?.status === 'completed' ? 
+                (lesson.status === 'completed' ? 
                   "All cards in this lesson are up to date! No reviews are due right now. Check back later when cards are ready for review." :
                   "This lesson is ready for practice! Complete it to add cards to your review system."
                 ) :
@@ -178,9 +176,6 @@ const Practice = () => {
       </div>
     );
   }
-
-  const currentCard = cards[currentCardIndex];
-  const progress = ((currentCardIndex + 1) / cards.length) * 100;
 
   console.log('🎯 Final render check - isCompleted:', isCompleted, 'currentCard:', !!currentCard, 'cards.length:', cards.length);
 
@@ -219,6 +214,9 @@ const Practice = () => {
       </div>
     );
   }
+
+  const currentCard = cards[currentCardIndex];
+  const progress = ((currentCardIndex + 1) / cards.length) * 100;
 
   console.log('✅ Rendering practice interface with cards:', cards.length);
   

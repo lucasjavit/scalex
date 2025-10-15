@@ -47,11 +47,11 @@ export default function UserProfile() {
 
         // Check if user exists in backend
         const existingUser = await apiService.checkUserExists(firebaseUser.uid);
-
+        
         if (existingUser) {
           // User exists, load their data
           setUserProfile(existingUser);
-
+          
           // Load user addresses
           const userAddresses = await apiService.getUserAddresses(existingUser.id);
           setAddresses(userAddresses);
@@ -167,7 +167,7 @@ export default function UserProfile() {
       };
 
       let updatedProfile;
-
+      
       if (userProfile) {
         // User exists, update their data
         updatedProfile = await apiService.updateUser(userProfile.id, userData);
@@ -195,7 +195,7 @@ export default function UserProfile() {
 
         setSuccess('Profile and address created successfully!');
       }
-
+      
       setUserProfile(updatedProfile);
 
       // Navigate to home page after successful save
@@ -220,7 +220,7 @@ export default function UserProfile() {
       setSuccess(null);
 
       const updatedAddress = await apiService.updateAddress(userProfile.id, addressId, updatedData);
-      setAddresses(prev =>
+      setAddresses(prev => 
         prev.map(addr => addr.id === addressId ? updatedAddress : addr)
       );
       setSuccess('Address updated successfully!');
@@ -310,7 +310,7 @@ export default function UserProfile() {
                 {userProfile ? 'My Profile' : 'Complete Your Profile'}
               </h1>
               <p className="text-copilot-text-secondary">
-                {userProfile
+                {userProfile 
                   ? 'Manage your personal information and addresses'
                   : 'Add your personal information and addresses to get started'
                 }
@@ -332,73 +332,73 @@ export default function UserProfile() {
         )}
 
         {/* Unified Form Card: Personal Information and Address */}
-        <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6">
+          <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6">
           <form onSubmit={handleSaveProfile} className="space-y-6">
             {/* Personal Information Section */}
             <div>
-              <h2 className="text-xl font-semibold text-copilot-text-primary mb-6">
+            <h2 className="text-xl font-semibold text-copilot-text-primary mb-6">
                 Personal Information
-              </h2>
+            </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-copilot-text-primary mb-2">
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-primary mb-2">
                     Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="full_name"
-                    value={formData.full_name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    Birth Date *
-                  </label>
-                  <input
-                    type="date"
-                    name="birth_date"
-                    value={formData.birth_date}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    Phone *
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="+55 (11) 99999-9999"
-                    className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    Preferred Language
-                  </label>
-                  <select
-                    name="preferred_language"
-                    value={formData.preferred_language}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-                  >
-                    <option value="pt-BR">Portuguese (Brazil)</option>
-                    <option value="en-US">English (US)</option>
-                    <option value="es-ES">Spanish</option>
-                  </select>
-                </div>
+                </label>
+                <input
+                  type="text"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
+                />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-primary mb-2">
+                    Birth Date *
+                </label>
+                <input
+                  type="date"
+                  name="birth_date"
+                  value={formData.birth_date}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-primary mb-2">
+                    Phone *
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="+55 (11) 99999-9999"
+                  className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-primary mb-2">
+                    Preferred Language
+                </label>
+                <select
+                  name="preferred_language"
+                  value={formData.preferred_language}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
+                >
+                    <option value="pt-BR">Portuguese (Brazil)</option>
+                  <option value="en-US">English (US)</option>
+                    <option value="es-ES">Spanish</option>
+                </select>
+                  </div>
+                </div>
             </div>
 
             {/* Divider */}
@@ -714,28 +714,28 @@ export default function UserProfile() {
                             name="country"
                             value={editAddress.country}
                             onChange={handleEditAddressInputChange}
-                            required
-                            className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-                          />
-                        </div>
+                    required
+                    className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
+                  />
+                </div>
 
-                        <div className="flex gap-2">
-                          <button
-                            type="submit"
-                            disabled={saving}
-                            className="flex-1 bg-copilot-accent-primary text-white py-2 px-4 rounded-copilot font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                          >
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 bg-copilot-accent-primary text-white py-2 px-4 rounded-copilot font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  >
                             {saving ? 'Saving...' : 'Save Changes'}
-                          </button>
-                          <button
-                            type="button"
+                  </button>
+                  <button
+                    type="button"
                             onClick={handleCancelEditAddress}
-                            className="px-4 py-2 border border-copilot-border-default text-copilot-text-primary rounded-copilot hover:bg-copilot-bg-primary transition-all duration-200"
-                          >
+                    className="px-4 py-2 border border-copilot-border-default text-copilot-text-primary rounded-copilot hover:bg-copilot-bg-primary transition-all duration-200"
+                  >
                             Cancel
-                          </button>
-                        </div>
-                      </form>
+                  </button>
+                </div>
+              </form>
                     ) : (
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -796,8 +796,8 @@ export default function UserProfile() {
                           </button>
                         </div>
                       </div>
-                    )}
-                  </div>
+            )}
+          </div>
                 ))}
               </div>
             </div>

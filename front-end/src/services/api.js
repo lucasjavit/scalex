@@ -128,8 +128,12 @@ class ApiService {
   // ============================================
 
   // Lesson methods
-  async getEnglishLessons(level) {
-    const query = level ? `?level=${level}` : '';
+  async getEnglishLessons(level, userId) {
+    const params = new URLSearchParams();
+    if (level) params.append('level', level);
+    if (userId) params.append('userId', userId);
+    
+    const query = params.toString() ? `?${params.toString()}` : '';
     return this.request(`/english-course/lessons${query}`);
   }
 

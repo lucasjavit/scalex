@@ -21,8 +21,11 @@ export class EnglishCourseController {
   }
 
   @Get('lessons')
-  findAllLessons(@Query('level') level?: string) {
-    return this.englishCourseService.findAllLessons(level);
+  findAllLessons(
+    @Query('level') level?: string,
+    @Query('userId') userId?: string
+  ) {
+    return this.englishCourseService.findAllLessons(level, userId);
   }
 
   @Get('lessons/:id')
@@ -109,17 +112,25 @@ export class EnglishCourseController {
   // ============================================
 
   @Post('users/:userId/lessons/:lessonId/submit-card-difficulty')
-  submitCardDifficulty(
+  async submitCardDifficulty(
     @Param('userId', ParseUUIDPipe) userId: string,
     @Param('lessonId', ParseUUIDPipe) lessonId: string,
     @Body() submitCardDifficultyDto: SubmitCardDifficultyDto,
   ) {
-    return this.englishCourseService.submitCardDifficulty(
-      userId, 
-      lessonId, 
-      submitCardDifficultyDto.questionId, 
-      submitCardDifficultyDto.difficulty
-    );
+    try {
+      console.log('🔍 Controller received:', { userId, lessonId, submitCardDifficultyDto });
+      const result = await this.englishCourseService.submitCardDifficulty(
+        userId, 
+        lessonId, 
+        submitCardDifficultyDto.questionId, 
+        submitCardDifficultyDto.difficulty
+      );
+      console.log('✅ Controller result:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Controller error:', error);
+      throw error;
+    }
   }
 
   @Post('users/:userId/lessons/:lessonId/questions/:questionId/difficulty')
@@ -190,5 +201,10 @@ export class EnglishCourseController {
     @Query('limit') limit?: number,
   ) {
     return this.englishCourseService.getAnswerHistory(userId, limit || 50);
+  }
+
+  @Get('test')
+  testEndpoint() {
+    return { message: 'Test endpoint working', timestamp: new Date() };
   }
 }

@@ -23,6 +23,7 @@
     "title": "Curso de Inglês",
     "subtitle": "Pratique com nosso sistema inteligente de revisão",
     "reviewQuestions": "Revisar {{count}} Perguntas",
+    "noReviewsAvailable": "Nenhuma revisão disponível",
     "lessonDecks": "Decks de Lições",
     "noLessonsAvailable": "Nenhuma lição disponível ainda.",
     "readyToImprove": "Pronto para melhorar seu inglês?",

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Lesson } from './lesson.entity';
 import { Question } from './question.entity';
@@ -26,7 +26,7 @@ export class Review {
   @Column({ name: 'interval_days', default: 1 })
   intervalDays: number;
 
-  @Column({ name: 'ease_factor', type: 'decimal', precision: 3, scale: 2, default: 2.5 })
+  @Column({ name: 'ease_factor', type: 'real', default: 2.5 })
   easeFactor: number;
 
   @Column({ name: 'last_reviewed_at', nullable: true })

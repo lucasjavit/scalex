@@ -23,6 +23,7 @@
     "title": "English Course",
     "subtitle": "Practice with our intelligent revision system",
     "reviewQuestions": "Review {{count}} Questions",
+    "noReviewsAvailable": "No reviews available",
     "lessonDecks": "Lesson Decks",
     "noLessonsAvailable": "No lessons available yet.",
     "readyToImprove": "Ready to improve your English?",
