@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import adminApi from '../../services/adminApi';
+import AdminLayout from '../AdminLayout';
 
 const LessonList = () => {
   const [lessons, setLessons] = useState([]);
@@ -82,18 +83,19 @@ const LessonList = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-copilot-text-primary">Gerenciar Lições</h2>
-        <button
-          onClick={() => navigate('/admin/english-course/lessons/new')}
-          className="bg-copilot-accent-primary text-white px-6 py-2 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors flex items-center gap-2"
-        >
-          <span>+</span>
-          Nova Lição
-        </button>
-      </div>
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-copilot-text-primary">Gerenciar Lições</h2>
+          <button
+            onClick={() => navigate('/admin/english-course/lessons/new')}
+            className="bg-copilot-accent-primary text-white px-6 py-2 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors flex items-center gap-2"
+          >
+            <span>+</span>
+            Nova Lição
+          </button>
+        </div>
 
       {/* Lessons Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -207,7 +209,8 @@ const LessonList = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 

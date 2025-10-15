@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import adminApi from '../../services/adminApi';
+import AdminLayout from '../AdminLayout';
 
 const LessonForm = () => {
   const { id } = useParams();
@@ -116,15 +117,16 @@ const LessonForm = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-copilot-text-primary">
-          {isEdit ? 'Editar Lição' : 'Nova Lição'}
-        </h2>
-        <p className="text-copilot-text-secondary mt-1">
-          {isEdit ? 'Atualize as informações da lição' : 'Preencha os dados para criar uma nova lição'}
-        </p>
-      </div>
+    <AdminLayout>
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-copilot-text-primary">
+            {isEdit ? 'Editar Lição' : 'Nova Lição'}
+          </h2>
+          <p className="text-copilot-text-secondary mt-1">
+            {isEdit ? 'Atualize as informações da lição' : 'Preencha os dados para criar uma nova lição'}
+          </p>
+        </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
@@ -278,7 +280,8 @@ const LessonForm = () => {
           </button>
         </div>
       </form>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 

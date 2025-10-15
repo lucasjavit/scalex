@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import adminApi from '../services/adminApi';
+import AdminLayout from '../components/AdminLayout';
 
 const AdminDashboard = () => {
   const [statistics, setStatistics] = useState(null);
@@ -79,16 +80,17 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-copilot-text-primary">
-          Painel Administrativo
-        </h1>
-        <p className="text-copilot-text-secondary mt-2">
-          Gerencie lições, questões e monitore o progresso do curso de inglês
-        </p>
-      </div>
+    <AdminLayout>
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-copilot-text-primary">
+            English Course Dashboard
+          </h1>
+          <p className="text-copilot-text-secondary mt-2">
+            Gerencie lições, questões e monitore o progresso do curso de inglês
+          </p>
+        </div>
 
       {/* Statistics Cards */}
       {statistics && (
@@ -200,7 +202,8 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 

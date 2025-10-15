@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import adminApi from '../../services/adminApi';
+import AdminLayout from '../AdminLayout';
 
 const QuestionList = () => {
   const { lessonId } = useParams();
@@ -116,17 +117,18 @@ const QuestionList = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-copilot-text-primary">
-            Questões - {lesson?.title}
-          </h2>
-          <p className="text-copilot-text-secondary">
-            Lição {lesson?.lessonNumber} • {questions.length} questões
-          </p>
-        </div>
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-copilot-text-primary">
+              Questões - {lesson?.title}
+            </h2>
+            <p className="text-copilot-text-secondary">
+              Lição {lesson?.lessonNumber} • {questions.length} questões
+            </p>
+          </div>
         <div className="flex gap-2">
           <button
             onClick={() => navigate(`/admin/english-course/lessons/${lessonId}/questions/new`)}
@@ -309,7 +311,8 @@ const QuestionList = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 

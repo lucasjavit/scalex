@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import adminApi from '../../services/adminApi';
+import AdminLayout from '../AdminLayout';
 
 const QuestionForm = () => {
   const { lessonId, questionId } = useParams();
@@ -128,15 +129,16 @@ const QuestionForm = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-copilot-text-primary">
-          {isEdit ? 'Editar Questão' : 'Nova Questão'}
-        </h2>
-        <p className="text-copilot-text-secondary mt-1">
-          {lesson && `Lição ${lesson.lessonNumber}: ${lesson.title}`}
-        </p>
-      </div>
+    <AdminLayout>
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-copilot-text-primary">
+            {isEdit ? 'Editar Questão' : 'Nova Questão'}
+          </h2>
+          <p className="text-copilot-text-secondary mt-1">
+            {lesson && `Lição ${lesson.lessonNumber}: ${lesson.title}`}
+          </p>
+        </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
@@ -295,7 +297,8 @@ const QuestionForm = () => {
           </button>
         </div>
       </form>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 

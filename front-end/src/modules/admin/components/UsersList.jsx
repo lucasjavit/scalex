@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import adminApi from '../services/adminApi';
+import AdminLayout from './AdminLayout';
 
 export default function UsersList() {
   const [users, setUsers] = useState([]);
@@ -126,16 +127,17 @@ export default function UsersList() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold text-copilot-text-primary">Usuários</h2>
-            <p className="text-copilot-text-secondary mt-1">
-              Gerencie todos os usuários cadastrados no sistema
-            </p>
-          </div>
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-copilot-text-primary">Usuários</h2>
+              <p className="text-copilot-text-secondary mt-1">
+                Gerencie todos os usuários cadastrados no sistema
+              </p>
+            </div>
           <div className="flex items-center space-x-3">
             <span className="text-sm text-copilot-text-secondary">
               {filteredUsers.length} de {users.length} usuários
@@ -365,6 +367,7 @@ export default function UsersList() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

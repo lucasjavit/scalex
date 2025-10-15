@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIsAdmin } from '../../../hooks/useIsAdmin';
 import { useAuth } from '../../auth-social/context/AuthContext';
+import AdminLayout from '../components/AdminLayout';
 
 const VideoCallAdmin = () => {
   const { user } = useAuth();
@@ -193,18 +194,12 @@ const VideoCallAdmin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-copilot-bg-primary">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <AdminLayout>
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => navigate('/video-call')}
-            className="btn-copilot-secondary mb-4"
-          >
-            ← Voltar ao Dashboard
-          </button>
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-2">
-            🔧 Painel de Administração
+            Video Call Management
           </h1>
           <p className="text-copilot-text-secondary">
             Controle manual do sistema de video calls
@@ -490,7 +485,7 @@ const VideoCallAdmin = () => {
           </div>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 
