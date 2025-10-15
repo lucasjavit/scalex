@@ -40,16 +40,16 @@ export default function Home() {
         <div className="text-center mb-12">
           
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-3">
-            Bem-vindo de volta
+            Welcome back
             {user?.displayName && (
               <span className="bg-copilot-gradient bg-clip-text text-transparent">
                 , {user.displayName}
               </span>
             )}!
           </h1>
-          
+
           <p className="text-copilot-text-secondary text-lg">
-            Explore suas funcionalidades e aproveite ao máximo
+            Explore your features and make the most of them
           </p>
         </div>
 
@@ -66,16 +66,16 @@ export default function Home() {
             </div>
             <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">English Course</h3>
             <p className="text-copilot-text-secondary text-sm">
-              Aprenda inglês com método interativo e sistema inteligente de repetição espaçada
+              Learn English with interactive method and intelligent spaced repetition system
             </p>
             <div className="mt-4 flex items-center text-copilot-accent-primary text-sm font-medium">
-              <span>Começar agora</span>
+              <span>Get started</span>
               <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
             </div>
           </div>
 
           {/* Video Call Card */}
-          <div 
+          <div
             className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 hover:border-copilot-accent-primary transition-all duration-200 cursor-pointer group"
             onClick={() => navigate('/video-call')}
           >
@@ -84,10 +84,10 @@ export default function Home() {
             </div>
             <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">Video Call</h3>
             <p className="text-copilot-text-secondary text-sm">
-              Pratique inglês com falantes nativos e aprendizes de todo o mundo
+              Practice English with native speakers and learners from around the world
             </p>
             <div className="mt-4 flex items-center text-copilot-accent-primary text-sm font-medium">
-              <span>Começar agora</span>
+              <span>Get started</span>
               <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
             </div>
           </div>

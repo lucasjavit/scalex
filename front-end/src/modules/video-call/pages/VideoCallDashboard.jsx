@@ -59,7 +59,7 @@ const VideoCallDashboard = () => {
       const diff = nextPeriod - now;
 
       if (diff <= 0) {
-        setTimeUntilNextPeriod('Em breve...');
+        setTimeUntilNextPeriod('Soon...');
         loadSystemStatus(); // Reload status
       } else {
         const hours = Math.floor(diff / 3600000);

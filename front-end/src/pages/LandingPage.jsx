@@ -39,14 +39,14 @@ export default function LandingPage() {
                 ScaleX
               </h1>
             <p className="text-xl text-gray-600 font-medium">
-              Aprenda inglês de forma inteligente
+              Learn English the smart way
             </p>
           </div>
 
           {/* Main Headline */}
           <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight" style={{ overflow: 'visible' }}>
-            Domine o inglês com
-            <span 
+            Master English with
+            <span
               className="block"
               style={{
                 background: 'linear-gradient(90deg, #2563eb, #7c3aed)',
@@ -66,13 +66,13 @@ export default function LandingPage() {
                 overflow: 'visible'
               }}
             >
-              método interativo + repetição espaçada
+              interactive method + spaced repetition
             </span>
           </h2>
 
           <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Combine a eficiência do método interativo com o poder do sistema de repetição espaçada inteligente. 
-            Aprenda inglês de forma natural, rápida e duradoura.
+            Combine the efficiency of interactive method with the power of intelligent spaced repetition system.
+            Learn English naturally, quickly and lastingly.
           </p>
 
             {/* CTA Buttons */}
@@ -81,10 +81,10 @@ export default function LandingPage() {
                 onClick={handleGetStarted}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl"
               >
-                Começar Agora
+                Get Started
               </button>
               <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full text-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all duration-200">
-                Ver Demonstração
+                View Demo
               </button>
             </div>
 
@@ -92,15 +92,15 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
                 <div className="text-4xl font-bold text-blue-600 mb-2">12</div>
-                <div className="text-gray-600">Lições Completas</div>
+                <div className="text-gray-600">Complete Lessons</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-purple-600 mb-2">500+</div>
-                <div className="text-gray-600">Questões Interativas</div>
+                <div className="text-gray-600">Interactive Questions</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-pink-600 mb-2">24/7</div>
-                <div className="text-gray-600">Disponível</div>
+                <div className="text-gray-600">Available</div>
               </div>
             </div>
           </div>
@@ -112,10 +112,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              Por que escolher o ScaleX?
+              Why choose ScaleX?
             </h3>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Nossa plataforma combina as melhores técnicas de aprendizado para maximizar seus resultados
+              Our platform combines the best learning techniques to maximize your results
             </p>
           </div>
 
@@ -125,9 +125,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">🇬🇧</span>
               </div>
-            <h4 className="text-xl font-bold text-gray-900 mb-4">Método Interativo</h4>
+            <h4 className="text-xl font-bold text-gray-900 mb-4">Interactive Method</h4>
             <p className="text-gray-600">
-              Aprenda inglês americano e britânico através de perguntas e respostas rápidas, desenvolvendo fluência natural
+              Learn American and British English through quick questions and answers, developing natural fluency
             </p>
             </div>
 
@@ -136,9 +136,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">🧠</span>
               </div>
-            <h4 className="text-xl font-bold text-gray-900 mb-4">Sistema Inteligente</h4>
+            <h4 className="text-xl font-bold text-gray-900 mb-4">Intelligent System</h4>
             <p className="text-gray-600">
-              Repetição espaçada inteligente que garante que você nunca esqueça o que aprendeu
+              Smart spaced repetition that ensures you never forget what you've learned
             </p>
             </div>
 
@@ -147,9 +147,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-pink-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">📊</span>
               </div>
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Progresso Inteligente</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-4">Smart Progress</h4>
               <p className="text-gray-600">
-                Acompanhe seu desenvolvimento com métricas detalhadas e relatórios personalizados
+                Track your development with detailed metrics and personalized reports
               </p>
             </div>
 
@@ -158,9 +158,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">⚡</span>
               </div>
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Aprendizado Rápido</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-4">Fast Learning</h4>
               <p className="text-gray-600">
-                Domine o inglês em tempo recorde com nossa metodologia comprovada e eficiente
+                Master English in record time with our proven and efficient methodology
               </p>
             </div>
 
@@ -169,9 +169,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">🎯</span>
               </div>
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Foco na Prática</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-4">Practice Focused</h4>
               <p className="text-gray-600">
-                Exercícios práticos que simulam situações reais de conversação em inglês
+                Practical exercises that simulate real English conversation situations
               </p>
             </div>
 
@@ -180,9 +180,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white text-2xl">📱</span>
               </div>
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Acesso Total</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-4">Full Access</h4>
               <p className="text-gray-600">
-                Estude em qualquer lugar, a qualquer hora, com nossa plataforma responsiva
+                Study anywhere, anytime with our responsive platform
               </p>
             </div>
           </div>
@@ -194,10 +194,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              Como funciona?
+              How does it work?
             </h3>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Três passos simples para dominar o inglês
+              Three simple steps to master English
             </p>
           </div>
 
@@ -207,9 +207,9 @@ export default function LandingPage() {
               <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
                 1
               </div>
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">Escolha seu Nível</h4>
+              <h4 className="text-2xl font-bold text-gray-900 mb-4">Choose Your Level</h4>
               <p className="text-gray-600 text-lg">
-                Selecione entre Beginner, Intermediate ou Advanced para começar no seu nível ideal
+                Select between Beginner, Intermediate or Advanced to start at your ideal level
               </p>
             </div>
 
@@ -218,9 +218,9 @@ export default function LandingPage() {
               <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
                 2
               </div>
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">Pratique com Inteligência</h4>
+              <h4 className="text-2xl font-bold text-gray-900 mb-4">Practice Intelligently</h4>
               <p className="text-gray-600 text-lg">
-                Responda perguntas e marque a dificuldade. O sistema ajusta automaticamente a revisão
+                Answer questions and mark difficulty. The system automatically adjusts review
               </p>
             </div>
 
@@ -229,9 +229,9 @@ export default function LandingPage() {
               <div className="w-20 h-20 bg-gradient-to-r from-pink-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
                 3
               </div>
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">Revise e Domine</h4>
+              <h4 className="text-2xl font-bold text-gray-900 mb-4">Review and Master</h4>
               <p className="text-gray-600 text-lg">
-                O sistema agenda revisões inteligentes para garantir que você nunca esqueça
+                The system schedules smart reviews to ensure you never forget
               </p>
             </div>
           </div>
@@ -242,16 +242,16 @@ export default function LandingPage() {
       <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
         <div className="max-w-4xl mx-auto text-center px-6">
           <h3 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Pronto para começar sua jornada?
+            Ready to start your journey?
           </h3>
           <p className="text-xl text-white text-opacity-90 mb-8">
-            Junte-se a milhares de estudantes que já dominaram o inglês com o ScaleX
+            Join thousands of students who have already mastered English with ScaleX
           </p>
           <button
             onClick={handleGetStarted}
             className="bg-white text-gray-900 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl"
           >
-            Começar Agora
+            Get Started
           </button>
         </div>
       </section>
@@ -262,12 +262,12 @@ export default function LandingPage() {
           <div className="mb-8">
             <h4 className="text-2xl font-bold mb-4">ScaleX</h4>
             <p className="text-gray-400">
-              Aprenda inglês de forma inteligente com método interativo + repetição espaçada
+              Learn English the smart way with interactive method + spaced repetition
             </p>
           </div>
           <div className="border-t border-gray-800 pt-8">
             <p className="text-gray-400">
-              © 2024 ScaleX. Todos os direitos reservados.
+              © 2024 ScaleX. All rights reserved.
             </p>
           </div>
         </div>

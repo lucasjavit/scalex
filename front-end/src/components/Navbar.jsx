@@ -156,13 +156,13 @@ export default function Navbar() {
                   alt={user.displayName || 'User'}
                   onClick={handleProfileClick}
                   className="w-9 h-9 rounded-full border-2 border-copilot-border-default hover:border-copilot-border-focus transition-colors duration-150 cursor-pointer"
-                  title="Clique para ver perfil"
+                  title="Click to view profile"
                 />
               ) : (
                 <div
                   onClick={handleProfileClick}
                   className="w-9 h-9 rounded-full bg-copilot-gradient flex items-center justify-center border-2 border-copilot-border-default hover:border-copilot-border-focus transition-colors duration-150 cursor-pointer"
-                  title="Clique para ver perfil"
+                  title="Click to view profile"
                 >
                   <span className="text-white text-sm font-bold">
                     {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase()}
@@ -174,7 +174,7 @@ export default function Navbar() {
               <span 
                 onClick={handleProfileClick}
                 className="text-copilot-text-primary text-sm font-medium cursor-pointer hover:text-copilot-accent-primary transition-colors duration-150"
-                title="Clique para ver perfil"
+                title="Click to view profile"
               >
                 {user.displayName || user.email}
               </span>

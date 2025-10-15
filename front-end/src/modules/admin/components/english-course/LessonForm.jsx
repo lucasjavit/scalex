@@ -23,10 +23,10 @@ const LessonForm = () => {
   const [vocabularyInput, setVocabularyInput] = useState('');
 
   const levels = [
-    { value: 'beginner', label: 'Iniciante' },
-    { value: 'elementary', label: 'Elementar' },
-    { value: 'intermediate', label: 'Intermediário' },
-    { value: 'advanced', label: 'Avançado' },
+    { value: 'beginner', label: 'Beginner' },
+    { value: 'elementary', label: 'Elementary' },
+    { value: 'intermediate', label: 'Intermediate' },
+    { value: 'advanced', label: 'Advanced' },
   ];
 
   useEffect(() => {
@@ -49,7 +49,7 @@ const LessonForm = () => {
         isActive: lesson.isActive,
       });
     } catch (err) {
-      setError('Erro ao carregar lição');
+      setError('Error loading lesson');
       console.error('Error loading lesson:', err);
     } finally {
       setLoading(false);
@@ -101,7 +101,7 @@ const LessonForm = () => {
 
       navigate('/admin/english-course');
     } catch (err) {
-      setError('Erro ao salvar lição');
+      setError('Error saving lesson');
       console.error('Error saving lesson:', err);
     } finally {
       setLoading(false);
@@ -121,10 +121,10 @@ const LessonForm = () => {
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-copilot-text-primary">
-            {isEdit ? 'Editar Lição' : 'Nova Lição'}
+            {isEdit ? 'Edit Lesson' : 'New Lesson'}
           </h2>
           <p className="text-copilot-text-secondary mt-1">
-            {isEdit ? 'Atualize as informações da lição' : 'Preencha os dados para criar uma nova lição'}
+            {isEdit ? 'Update lesson information' : 'Fill in the data to create a new lesson'}
           </p>
         </div>
 
@@ -138,7 +138,7 @@ const LessonForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-              Número da Lição *
+              Lesson Number *
             </label>
             <input
               type="number"
@@ -152,7 +152,7 @@ const LessonForm = () => {
 
           <div>
             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-              Nível *
+              Level *
             </label>
             <select
               name="level"
@@ -172,7 +172,7 @@ const LessonForm = () => {
 
         <div>
           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-            Título *
+            Title *
           </label>
           <input
             type="text"
@@ -186,7 +186,7 @@ const LessonForm = () => {
 
         <div>
           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-            Descrição
+            Description
           </label>
           <textarea
             name="description"
@@ -199,7 +199,7 @@ const LessonForm = () => {
 
         <div>
           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-            Foco Gramatical
+            Grammar Focus
           </label>
           <textarea
             name="grammarFocus"
@@ -212,14 +212,14 @@ const LessonForm = () => {
 
         <div>
           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-            Vocabulário Focado
+            Vocabulary Focus
           </label>
           <div className="flex gap-2 mb-2">
             <input
               type="text"
               value={vocabularyInput}
               onChange={(e) => setVocabularyInput(e.target.value)}
-              placeholder="Digite uma palavra ou frase"
+              placeholder="Type a word or phrase"
               className="flex-1 px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleVocabularyAdd())}
             />
@@ -228,7 +228,7 @@ const LessonForm = () => {
               onClick={handleVocabularyAdd}
               className="bg-copilot-accent-primary text-white px-4 py-2 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors"
             >
-              Adicionar
+              Add
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -259,7 +259,7 @@ const LessonForm = () => {
             className="h-4 w-4 text-copilot-accent-primary focus:ring-copilot-accent-primary border-copilot-border-default rounded"
           />
           <label className="ml-2 text-sm text-copilot-text-primary">
-            Lição ativa
+            Active lesson
           </label>
         </div>
 
@@ -269,14 +269,14 @@ const LessonForm = () => {
             onClick={() => navigate('/admin/english-course')}
             className="px-6 py-2 border border-copilot-border-default text-copilot-text-secondary rounded-copilot hover:bg-copilot-bg-secondary transition-colors"
           >
-            Cancelar
+            Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
             className="px-6 py-2 bg-copilot-accent-primary text-white rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Salvando...' : (isEdit ? 'Atualizar' : 'Criar')}
+            {loading ? 'Saving...' : (isEdit ? 'Update' : 'Create')}
           </button>
         </div>
       </form>

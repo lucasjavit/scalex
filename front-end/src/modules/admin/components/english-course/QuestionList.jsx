@@ -28,7 +28,7 @@ const QuestionList = () => {
       setLesson(lessonData);
       setQuestions(questionsData);
     } catch (err) {
-      setError('Erro ao carregar dados');
+      setError('Error loading data');
       console.error('Error loading data:', err);
     } finally {
       setLoading(false);
@@ -42,7 +42,7 @@ const QuestionList = () => {
       setShowDeleteModal(false);
       setQuestionToDelete(null);
     } catch (err) {
-      setError('Erro ao deletar questão');
+      setError('Error deleting question');
       console.error('Error deleting question:', err);
     }
   };
@@ -55,7 +55,7 @@ const QuestionList = () => {
       setQuestions(questions.filter(q => !selectedQuestions.includes(q.id)));
       setSelectedQuestions([]);
     } catch (err) {
-      setError('Erro ao deletar questões');
+      setError('Error deleting questions');
       console.error('Error bulk deleting questions:', err);
     }
   };
@@ -87,9 +87,9 @@ const QuestionList = () => {
 
   const getDifficultyLabel = (difficulty) => {
     const labels = {
-      easy: 'Fácil',
-      medium: 'Médio',
-      hard: 'Difícil',
+      easy: 'Easy',
+      medium: 'Medium',
+      hard: 'Hard',
     };
     return labels[difficulty] || difficulty;
   };
@@ -110,7 +110,7 @@ const QuestionList = () => {
           onClick={loadData}
           className="mt-2 bg-red-600 text-white px-4 py-2 rounded-copilot hover:bg-red-700 transition-colors"
         >
-          Tentar novamente
+          Try again
         </button>
       </div>
     );
@@ -123,10 +123,10 @@ const QuestionList = () => {
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold text-copilot-text-primary">
-              Questões - {lesson?.title}
+              Questions - {lesson?.title}
             </h2>
             <p className="text-copilot-text-secondary">
-              Lição {lesson?.lessonNumber} • {questions.length} questões
+              Lesson {lesson?.lessonNumber} • {questions.length} questions
             </p>
           </div>
         <div className="flex gap-2">
@@ -135,14 +135,14 @@ const QuestionList = () => {
             className="bg-copilot-accent-primary text-white px-4 py-2 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors flex items-center gap-2"
           >
             <span>+</span>
-            Nova Questão
+            New Question
           </button>
           <button
             onClick={() => navigate(`/admin/english-course/lessons/${lessonId}/questions/bulk`)}
             className="bg-copilot-accent-secondary text-white px-4 py-2 rounded-copilot hover:bg-copilot-accent-secondary/90 transition-colors flex items-center gap-2"
           >
             <span>📝</span>
-            Criar em Lote
+            Bulk Create
           </button>
         </div>
       </div>
@@ -152,20 +152,20 @@ const QuestionList = () => {
         <div className="bg-copilot-accent-primary/10 border border-copilot-accent-primary/20 rounded-copilot p-4">
           <div className="flex items-center justify-between">
             <span className="text-copilot-accent-primary font-medium">
-              {selectedQuestions.length} questão(ões) selecionada(s)
+              {selectedQuestions.length} question(s) selected
             </span>
             <div className="flex gap-2">
               <button
                 onClick={handleBulkDelete}
                 className="bg-red-600 text-white px-4 py-2 rounded-copilot hover:bg-red-700 transition-colors text-sm"
               >
-                Deletar Selecionadas
+                Delete Selected
               </button>
               <button
                 onClick={() => setSelectedQuestions([])}
                 className="bg-gray-600 text-white px-4 py-2 rounded-copilot hover:bg-gray-700 transition-colors text-sm"
               >
-                Limpar Seleção
+                Clear Selection
               </button>
             </div>
           </div>
@@ -183,7 +183,7 @@ const QuestionList = () => {
               className="h-4 w-4 text-copilot-accent-primary focus:ring-copilot-accent-primary border-copilot-border-default rounded"
             />
             <span className="text-sm text-copilot-text-secondary">
-              Selecionar todas ({questions.length})
+              Select all ({questions.length})
             </span>
           </div>
         )}
@@ -204,7 +204,7 @@ const QuestionList = () => {
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-copilot-text-secondary">
-                    Questão {question.questionNumber}
+                    Question {question.questionNumber}
                   </span>
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(question.difficulty)}`}
@@ -219,13 +219,13 @@ const QuestionList = () => {
 
                 <div className="space-y-2">
                   <div>
-                    <span className="text-sm font-medium text-copilot-text-secondary">Resposta esperada:</span>
+                    <span className="text-sm font-medium text-copilot-text-secondary">Expected answer:</span>
                     <p className="text-copilot-text-primary">{question.expectedAnswer}</p>
                   </div>
 
                   {question.alternativeAnswers && question.alternativeAnswers.length > 0 && (
                     <div>
-                      <span className="text-sm font-medium text-copilot-text-secondary">Respostas alternativas:</span>
+                      <span className="text-sm font-medium text-copilot-text-secondary">Alternative answers:</span>
                       <p className="text-copilot-text-primary">
                         {question.alternativeAnswers.join(', ')}
                       </p>
@@ -234,7 +234,7 @@ const QuestionList = () => {
 
                   {question.grammarPoint && (
                     <div>
-                      <span className="text-sm font-medium text-copilot-text-secondary">Ponto gramatical:</span>
+                      <span className="text-sm font-medium text-copilot-text-secondary">Grammar point:</span>
                       <p className="text-copilot-text-primary">{question.grammarPoint}</p>
                     </div>
                   )}
@@ -246,7 +246,7 @@ const QuestionList = () => {
                   onClick={() => navigate(`/admin/english-course/lessons/${lessonId}/questions/${question.id}/edit`)}
                   className="bg-copilot-accent-primary text-white px-3 py-1 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors text-sm"
                 >
-                  Editar
+                  Edit
                 </button>
                 <button
                   onClick={() => {
@@ -255,7 +255,7 @@ const QuestionList = () => {
                   }}
                   className="bg-red-600 text-white px-3 py-1 rounded-copilot hover:bg-red-700 transition-colors text-sm"
                 >
-                  Deletar
+                  Delete
                 </button>
               </div>
             </div>
@@ -267,16 +267,16 @@ const QuestionList = () => {
         <div className="text-center py-12">
           <div className="text-6xl mb-4">❓</div>
           <h3 className="text-xl font-semibold text-copilot-text-primary mb-2">
-            Nenhuma questão encontrada
+            No questions found
           </h3>
           <p className="text-copilot-text-secondary mb-6">
-            Comece criando questões para esta lição
+            Start creating questions for this lesson
           </p>
           <button
             onClick={() => navigate(`/admin/english-course/lessons/${lessonId}/questions/new`)}
             className="bg-copilot-accent-primary text-white px-6 py-3 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors"
           >
-            Criar Primeira Questão
+            Create First Question
           </button>
         </div>
       )}
@@ -286,10 +286,10 @@ const QuestionList = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-copilot p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">
-              Confirmar Exclusão
+              Confirm Deletion
             </h3>
             <p className="text-copilot-text-secondary mb-6">
-              Tem certeza que deseja deletar esta questão? Esta ação não pode ser desfeita.
+              Are you sure you want to delete this question? This action cannot be undone.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -299,13 +299,13 @@ const QuestionList = () => {
                 }}
                 className="px-4 py-2 text-copilot-text-secondary hover:text-copilot-text-primary transition-colors"
               >
-                Cancelar
+                Cancel
               </button>
               <button
                 onClick={() => handleDelete(questionToDelete.id)}
                 className="bg-red-600 text-white px-4 py-2 rounded-copilot hover:bg-red-700 transition-colors"
               >
-                Deletar
+                Delete
               </button>
             </div>
           </div>

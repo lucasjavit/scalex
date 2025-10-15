@@ -96,7 +96,7 @@ export default function UserProfile() {
         }
       } catch (err) {
         console.error('Error loading user profile:', err);
-        setError('Erro ao carregar perfil do usuário');
+        setError('Error loading user profile');
       } finally {
         setLoading(false);
       }
@@ -184,7 +184,7 @@ export default function UserProfile() {
           setAddresses(prev => [...prev, newAddress]);
         }
 
-        setSuccess('Perfil e endereço atualizados com sucesso!');
+        setSuccess('Profile and address updated successfully!');
       } else {
         // User doesn't exist, create new user
         updatedProfile = await apiService.createUserFromFirebase(firebaseUser, userData);
@@ -193,7 +193,7 @@ export default function UserProfile() {
         const newAddress = await apiService.createAddress(updatedProfile.id, addressData);
         setAddresses([newAddress]);
 
-        setSuccess('Perfil e endereço criados com sucesso!');
+        setSuccess('Profile and address created successfully!');
       }
 
       setUserProfile(updatedProfile);
@@ -204,7 +204,7 @@ export default function UserProfile() {
       }, 1500);
     } catch (err) {
       console.error('Error saving profile:', err);
-      setError('Erro ao salvar perfil e endereço');
+      setError('Error saving profile and address');
     } finally {
       setSaving(false);
     }
@@ -223,10 +223,10 @@ export default function UserProfile() {
       setAddresses(prev =>
         prev.map(addr => addr.id === addressId ? updatedAddress : addr)
       );
-      setSuccess('Endereço atualizado com sucesso!');
+      setSuccess('Address updated successfully!');
     } catch (err) {
       console.error('Error updating address:', err);
-      setError('Erro ao atualizar endereço');
+      setError('Error updating address');
     } finally {
       setSaving(false);
     }
@@ -246,12 +246,12 @@ export default function UserProfile() {
       setAddresses(prev =>
         prev.map(addr => addr.id === editAddress.id ? updatedAddress : addr)
       );
-      setSuccess('Endereço atualizado com sucesso!');
+      setSuccess('Address updated successfully!');
       setEditingAddressId(null);
       setEditAddress(null);
     } catch (err) {
       console.error('Error updating address:', err);
-      setError('Erro ao atualizar endereço');
+      setError('Error updating address');
     } finally {
       setSaving(false);
     }
@@ -268,10 +268,10 @@ export default function UserProfile() {
 
       await apiService.deleteAddress(userProfile.id, addressId);
       setAddresses(prev => prev.filter(addr => addr.id !== addressId));
-      setSuccess('Endereço removido com sucesso!');
+      setSuccess('Address removed successfully!');
     } catch (err) {
       console.error('Error deleting address:', err);
-      setError('Erro ao remover endereço');
+      setError('Error removing address');
     } finally {
       setSaving(false);
     }
@@ -282,7 +282,7 @@ export default function UserProfile() {
       <div className="bg-copilot-bg-primary flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent-primary mx-auto mb-4"></div>
-          <p className="text-copilot-text-secondary">Carregando perfil...</p>
+          <p className="text-copilot-text-secondary">Loading profile...</p>
         </div>
       </div>
     );
@@ -307,12 +307,12 @@ export default function UserProfile() {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold text-copilot-text-primary mb-2">
-                {userProfile ? 'Meu Perfil' : 'Complete seu Perfil'}
+                {userProfile ? 'My Profile' : 'Complete Your Profile'}
               </h1>
               <p className="text-copilot-text-secondary">
                 {userProfile
-                  ? 'Gerencie suas informações pessoais e endereços'
-                  : 'Adicione suas informações pessoais e endereços para começar'
+                  ? 'Manage your personal information and addresses'
+                  : 'Add your personal information and addresses to get started'
                 }
               </p>
             </div>
@@ -337,12 +337,12 @@ export default function UserProfile() {
             {/* Personal Information Section */}
             <div>
               <h2 className="text-xl font-semibold text-copilot-text-primary mb-6">
-                Informações Pessoais
+                Personal Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    Nome Completo *
+                    Full Name *
                   </label>
                   <input
                     type="text"
@@ -356,7 +356,7 @@ export default function UserProfile() {
 
                 <div>
                   <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    Data de Nascimento *
+                    Birth Date *
                   </label>
                   <input
                     type="date"
@@ -370,7 +370,7 @@ export default function UserProfile() {
 
                 <div>
                   <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    Telefone *
+                    Phone *
                   </label>
                   <input
                     type="tel"
@@ -385,7 +385,7 @@ export default function UserProfile() {
 
                 <div>
                   <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    Idioma Preferido
+                    Preferred Language
                   </label>
                   <select
                     name="preferred_language"
@@ -393,9 +393,9 @@ export default function UserProfile() {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
                   >
-                    <option value="pt-BR">Português (Brasil)</option>
+                    <option value="pt-BR">Portuguese (Brazil)</option>
                     <option value="en-US">English (US)</option>
-                    <option value="es-ES">Español</option>
+                    <option value="es-ES">Spanish</option>
                   </select>
                 </div>
               </div>
@@ -407,13 +407,13 @@ export default function UserProfile() {
             {/* Address Section */}
             <div>
               <h2 className="text-xl font-semibold text-copilot-text-primary mb-6">
-                Endereço
+                Address
               </h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                      Tipo
+                      Type
                     </label>
                     <select
                       name="address_type"
@@ -421,10 +421,10 @@ export default function UserProfile() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
                     >
-                      <option value="primary">Principal</option>
-                      <option value="billing">Cobrança</option>
-                      <option value="shipping">Entrega</option>
-                      <option value="other">Outro</option>
+                      <option value="primary">Primary</option>
+                      <option value="billing">Billing</option>
+                      <option value="shipping">Shipping</option>
+                      <option value="other">Other</option>
                     </select>
                   </div>
                   <div className="flex items-center">
@@ -436,14 +436,14 @@ export default function UserProfile() {
                         onChange={handleInputChange}
                         className="mr-2"
                       />
-                      <span className="text-sm text-copilot-text-primary">Endereço Principal</span>
+                      <span className="text-sm text-copilot-text-primary">Primary Address</span>
                     </label>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    Rua *
+                    Street *
                   </label>
                   <input
                     type="text"
@@ -458,7 +458,7 @@ export default function UserProfile() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                      Número
+                      Number
                     </label>
                     <input
                       type="text"
@@ -470,7 +470,7 @@ export default function UserProfile() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                      Complemento
+                      Complement
                     </label>
                     <input
                       type="text"
@@ -484,7 +484,7 @@ export default function UserProfile() {
 
                 <div>
                   <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    Bairro
+                    Neighborhood
                   </label>
                   <input
                     type="text"
@@ -498,7 +498,7 @@ export default function UserProfile() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                      Cidade
+                      City
                     </label>
                     <input
                       type="text"
@@ -510,7 +510,7 @@ export default function UserProfile() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                      Estado
+                      State
                     </label>
                     <input
                       type="text"
@@ -522,7 +522,7 @@ export default function UserProfile() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                      CEP *
+                      Postal Code *
                     </label>
                     <input
                       type="text"
@@ -537,7 +537,7 @@ export default function UserProfile() {
 
                 <div>
                   <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                    País *
+                    Country *
                   </label>
                   <input
                     type="text"
@@ -558,8 +558,8 @@ export default function UserProfile() {
               className="w-full bg-copilot-accent-primary text-white py-3 px-4 rounded-copilot font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               {saving
-                ? (userProfile ? 'Salvando...' : 'Criando...')
-                : 'Salvar'
+                ? (userProfile ? 'Saving...' : 'Creating...')
+                : 'Save'
               }
             </button>
           </form>
@@ -573,7 +573,7 @@ export default function UserProfile() {
           {userProfile && addresses.length > 1 && (
             <div>
               <h2 className="text-xl font-semibold text-copilot-text-primary mb-6">
-                Endereços Adicionais
+                Additional Addresses
               </h2>
               <div className="space-y-4">
                 {addresses.slice(1).map((address) => (
@@ -583,7 +583,7 @@ export default function UserProfile() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                              Tipo
+                              Type
                             </label>
                             <select
                               name="address_type"
@@ -591,10 +591,10 @@ export default function UserProfile() {
                               onChange={handleEditAddressInputChange}
                               className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
                             >
-                              <option value="primary">Principal</option>
-                              <option value="billing">Cobrança</option>
-                              <option value="shipping">Entrega</option>
-                              <option value="other">Outro</option>
+                              <option value="primary">Primary</option>
+                              <option value="billing">Billing</option>
+                              <option value="shipping">Shipping</option>
+                              <option value="other">Other</option>
                             </select>
                           </div>
                           <div className="flex items-center">
@@ -606,14 +606,14 @@ export default function UserProfile() {
                                 onChange={handleEditAddressInputChange}
                                 className="mr-2"
                               />
-                              <span className="text-sm text-copilot-text-primary">Endereço Principal</span>
+                              <span className="text-sm text-copilot-text-primary">Primary Address</span>
                             </label>
                           </div>
                         </div>
 
                         <div>
                           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                            Rua *
+                            Street *
                           </label>
                           <input
                             type="text"
@@ -628,7 +628,7 @@ export default function UserProfile() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                              Número
+                              Number
                             </label>
                             <input
                               type="text"
@@ -640,7 +640,7 @@ export default function UserProfile() {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                              Complemento
+                              Complement
                             </label>
                             <input
                               type="text"
@@ -654,7 +654,7 @@ export default function UserProfile() {
 
                         <div>
                           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                            Bairro
+                            Neighborhood
                           </label>
                           <input
                             type="text"
@@ -668,7 +668,7 @@ export default function UserProfile() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                              Cidade
+                              City
                             </label>
                             <input
                               type="text"
@@ -680,7 +680,7 @@ export default function UserProfile() {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                              Estado
+                              State
                             </label>
                             <input
                               type="text"
@@ -692,7 +692,7 @@ export default function UserProfile() {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                              CEP *
+                              Postal Code *
                             </label>
                             <input
                               type="text"
@@ -707,7 +707,7 @@ export default function UserProfile() {
 
                         <div>
                           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-                            País *
+                            Country *
                           </label>
                           <input
                             type="text"
@@ -725,14 +725,14 @@ export default function UserProfile() {
                             disabled={saving}
                             className="flex-1 bg-copilot-accent-primary text-white py-2 px-4 rounded-copilot font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                           >
-                            {saving ? 'Salvando...' : 'Salvar Alterações'}
+                            {saving ? 'Saving...' : 'Save Changes'}
                           </button>
                           <button
                             type="button"
                             onClick={handleCancelEditAddress}
                             className="px-4 py-2 border border-copilot-border-default text-copilot-text-primary rounded-copilot hover:bg-copilot-bg-primary transition-all duration-200"
                           >
-                            Cancelar
+                            Cancel
                           </button>
                         </div>
                       </form>
@@ -741,13 +741,13 @@ export default function UserProfile() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-sm font-medium text-copilot-text-primary">
-                              {address.address_type === 'primary' ? 'Principal' :
-                               address.address_type === 'billing' ? 'Cobrança' :
-                               address.address_type === 'shipping' ? 'Entrega' : 'Outro'}
+                              {address.address_type === 'primary' ? 'Primary' :
+                               address.address_type === 'billing' ? 'Billing' :
+                               address.address_type === 'shipping' ? 'Shipping' : 'Other'}
                             </span>
                             {address.is_primary && (
                               <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                                Principal
+                                Primary
                               </span>
                             )}
                           </div>
@@ -770,7 +770,7 @@ export default function UserProfile() {
                                 : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                             }`}
                           >
-                            Editar
+                            Edit
                           </button>
                           <button
                             onClick={() => handleUpdateAddress(address.id, { is_primary: !address.is_primary })}
@@ -781,7 +781,7 @@ export default function UserProfile() {
                                 : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                             }`}
                           >
-                            {address.is_primary ? 'Remover Principal' : 'Tornar Principal'}
+                            {address.is_primary ? 'Remove Primary' : 'Make Primary'}
                           </button>
                           <button
                             onClick={() => handleDeleteAddress(address.id)}
@@ -792,7 +792,7 @@ export default function UserProfile() {
                                 : 'bg-red-100 text-red-800 hover:bg-red-200'
                             }`}
                           >
-                            Remover
+                            Remove
                           </button>
                         </div>
                       </div>

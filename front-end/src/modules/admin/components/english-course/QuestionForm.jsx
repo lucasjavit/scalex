@@ -24,9 +24,9 @@ const QuestionForm = () => {
   const [lesson, setLesson] = useState(null);
 
   const difficulties = [
-    { value: 'easy', label: 'Fácil' },
-    { value: 'medium', label: 'Médio' },
-    { value: 'hard', label: 'Difícil' },
+    { value: 'easy', label: 'Easy' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'hard', label: 'Hard' },
   ];
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const QuestionForm = () => {
       const lessonData = await adminApi.getLessonById(lessonId);
       setLesson(lessonData);
     } catch (err) {
-      setError('Erro ao carregar lição');
+      setError('Error loading lesson');
       console.error('Error loading lesson:', err);
     }
   };
@@ -60,7 +60,7 @@ const QuestionForm = () => {
         audioUrl: question.audioUrl || '',
       });
     } catch (err) {
-      setError('Erro ao carregar questão');
+      setError('Error loading question');
       console.error('Error loading question:', err);
     } finally {
       setLoading(false);
@@ -113,7 +113,7 @@ const QuestionForm = () => {
 
       navigate(`/admin/english-course/lessons/${lessonId}/questions`);
     } catch (err) {
-      setError('Erro ao salvar questão');
+      setError('Error saving question');
       console.error('Error saving question:', err);
     } finally {
       setLoading(false);
@@ -133,10 +133,10 @@ const QuestionForm = () => {
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-copilot-text-primary">
-            {isEdit ? 'Editar Questão' : 'Nova Questão'}
+            {isEdit ? 'Edit Question' : 'New Question'}
           </h2>
           <p className="text-copilot-text-secondary mt-1">
-            {lesson && `Lição ${lesson.lessonNumber}: ${lesson.title}`}
+            {lesson && `Lesson ${lesson.lessonNumber}: ${lesson.title}`}
           </p>
         </div>
 
@@ -150,7 +150,7 @@ const QuestionForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-              Número da Questão *
+              Question Number *
             </label>
             <input
               type="number"
@@ -164,7 +164,7 @@ const QuestionForm = () => {
 
           <div>
             <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-              Dificuldade *
+              Difficulty *
             </label>
             <select
               name="difficulty"
@@ -184,7 +184,7 @@ const QuestionForm = () => {
 
         <div>
           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-            Texto da Questão *
+            Question Text *
           </label>
           <textarea
             name="questionText"
@@ -193,13 +193,13 @@ const QuestionForm = () => {
             required
             rows={3}
             className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-            placeholder="Digite a pergunta ou instrução da questão..."
+            placeholder="Type the question or instruction..."
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-            Resposta Esperada *
+            Expected Answer *
           </label>
           <textarea
             name="expectedAnswer"
@@ -208,20 +208,20 @@ const QuestionForm = () => {
             required
             rows={2}
             className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-            placeholder="Digite a resposta correta..."
+            placeholder="Type the correct answer..."
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-            Respostas Alternativas
+            Alternative Answers
           </label>
           <div className="flex gap-2 mb-2">
             <input
               type="text"
               value={alternativeInput}
               onChange={(e) => setAlternativeInput(e.target.value)}
-              placeholder="Digite uma resposta alternativa"
+              placeholder="Type an alternative answer"
               className="flex-1 px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAlternativeAdd())}
             />
@@ -230,7 +230,7 @@ const QuestionForm = () => {
               onClick={handleAlternativeAdd}
               className="bg-copilot-accent-primary text-white px-4 py-2 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors"
             >
-              Adicionar
+              Add
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -254,7 +254,7 @@ const QuestionForm = () => {
 
         <div>
           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-            Ponto Gramatical
+            Grammar Point
           </label>
           <input
             type="text"
@@ -268,7 +268,7 @@ const QuestionForm = () => {
 
         <div>
           <label className="block text-sm font-medium text-copilot-text-primary mb-2">
-            URL do Áudio (opcional)
+            Audio URL (optional)
           </label>
           <input
             type="url"
@@ -286,14 +286,14 @@ const QuestionForm = () => {
             onClick={() => navigate(`/admin/english-course/lessons/${lessonId}/questions`)}
             className="px-6 py-2 border border-copilot-border-default text-copilot-text-secondary rounded-copilot hover:bg-copilot-bg-secondary transition-colors"
           >
-            Cancelar
+            Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
             className="px-6 py-2 bg-copilot-accent-primary text-white rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Salvando...' : (isEdit ? 'Atualizar' : 'Criar')}
+            {loading ? 'Saving...' : (isEdit ? 'Update' : 'Create')}
           </button>
         </div>
       </form>

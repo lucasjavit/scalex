@@ -23,7 +23,7 @@ export default function UsersList() {
       setUsers(usersData);
     } catch (err) {
       console.error('Error loading users:', err);
-      setError('Erro ao carregar usuários');
+      setError('Error loading users');
     } finally {
       setLoading(false);
     }
@@ -87,7 +87,7 @@ export default function UsersList() {
       await loadUsers();
     } catch (error) {
       console.error('Error toggling user status:', error);
-      setError('Erro ao alterar status do usuário');
+      setError('Error changing user status');
     }
   };
 
@@ -108,7 +108,7 @@ export default function UsersList() {
             <span className="text-red-400 text-xl">⚠️</span>
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-red-800">Erro</h3>
+            <h3 className="text-sm font-medium text-red-800">Error</h3>
             <div className="mt-2 text-sm text-red-700">
               <p>{error}</p>
             </div>
@@ -117,7 +117,7 @@ export default function UsersList() {
                 onClick={loadUsers}
                 className="bg-red-100 text-red-800 px-3 py-2 rounded-copilot text-sm font-medium hover:bg-red-200 transition-colors duration-200"
               >
-                Tentar novamente
+                Try again
               </button>
             </div>
           </div>
@@ -133,20 +133,20 @@ export default function UsersList() {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-copilot-text-primary">Usuários</h2>
+              <h2 className="text-2xl font-bold text-copilot-text-primary">Users</h2>
               <p className="text-copilot-text-secondary mt-1">
-                Gerencie todos os usuários cadastrados no sistema
+                Manage all users registered in the system
               </p>
             </div>
           <div className="flex items-center space-x-3">
             <span className="text-sm text-copilot-text-secondary">
-              {filteredUsers.length} de {users.length} usuários
+              {filteredUsers.length} of {users.length} users
             </span>
             <button
               onClick={loadUsers}
               className="btn-copilot-secondary text-sm"
             >
-              Atualizar
+              Refresh
             </button>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function UsersList() {
             {/* Search Input */}
             <div className="flex-1">
               <label htmlFor="search" className="block text-sm font-medium text-copilot-text-primary mb-2">
-                Buscar usuário
+                Search user
               </label>
               <div className="relative">
                 <input
@@ -165,7 +165,7 @@ export default function UsersList() {
                   id="search"
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  placeholder="Digite email, nome ou telefone..."
+                  placeholder="Type email, name or phone..."
                   className="w-full pl-10 pr-4 py-2 border border-copilot-border-default rounded-copilot bg-copilot-bg-primary text-copilot-text-primary placeholder-copilot-text-secondary focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -185,9 +185,9 @@ export default function UsersList() {
                 onChange={handleStatusFilterChange}
                 className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot bg-copilot-bg-primary text-copilot-text-primary focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
               >
-                <option value="all">Todos os status</option>
-                <option value="active">Apenas ativos</option>
-                <option value="inactive">Apenas inativos</option>
+                <option value="all">All statuses</option>
+                <option value="active">Active only</option>
+                <option value="inactive">Inactive only</option>
               </select>
             </div>
 
@@ -198,7 +198,7 @@ export default function UsersList() {
                   onClick={clearFilters}
                   className="px-4 py-2 text-sm font-medium text-copilot-text-secondary bg-copilot-bg-tertiary border border-copilot-border-default rounded-copilot hover:bg-copilot-bg-primary transition-colors duration-200"
                 >
-                  Limpar filtros
+                  Clear filters
                 </button>
               </div>
             )}
@@ -214,13 +214,13 @@ export default function UsersList() {
               <thead className="bg-copilot-bg-tertiary">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-copilot-text-secondary uppercase tracking-wider">
-                    Usuário
+                    User
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-copilot-text-secondary uppercase tracking-wider">
                     Email
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-copilot-text-secondary uppercase tracking-wider">
-                    Telefone
+                    Phone
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-copilot-text-secondary uppercase tracking-wider">
                     Status
@@ -241,7 +241,7 @@ export default function UsersList() {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-copilot-text-primary">
-                            {user.full_name || 'Nome não informado'}
+                            {user.full_name || 'Name not provided'}
                           </div>
                           <div className="text-sm text-copilot-text-secondary">
                             ID: {user.id.slice(0, 8)}...
@@ -254,20 +254,20 @@ export default function UsersList() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-copilot-text-primary">
-                        {user.phone || 'Não informado'}
+                        {user.phone || 'Not provided'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => handleToggleUserStatus(user.id)}
                         className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full transition-all duration-200 hover:scale-105 cursor-pointer ${
-                          user.is_active 
-                            ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                          user.is_active
+                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
                             : 'bg-red-100 text-red-800 hover:bg-red-200'
                         }`}
-                        title={user.is_active ? 'Clique para inativar' : 'Clique para ativar'}
+                        title={user.is_active ? 'Click to deactivate' : 'Click to activate'}
                       >
-                        {user.is_active ? 'Ativo' : 'Inativo'}
+                        {user.is_active ? 'Active' : 'Inactive'}
                       </button>
                     </td>
                   </tr>
@@ -285,22 +285,22 @@ export default function UsersList() {
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center px-4 py-2 border border-copilot-border-default text-sm font-medium rounded-copilot text-copilot-text-secondary bg-copilot-bg-secondary hover:bg-copilot-bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Anterior
+                  Previous
                 </button>
                 <button
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages}
                   className="ml-3 relative inline-flex items-center px-4 py-2 border border-copilot-border-default text-sm font-medium rounded-copilot text-copilot-text-secondary bg-copilot-bg-secondary hover:bg-copilot-bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Próximo
+                  Next
                 </button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-copilot-text-secondary">
-                    Mostrando <span className="font-medium">{startIndex + 1}</span> até{' '}
-                    <span className="font-medium">{Math.min(endIndex, users.length)}</span> de{' '}
-                    <span className="font-medium">{users.length}</span> resultados
+                    Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+                    <span className="font-medium">{Math.min(endIndex, users.length)}</span> of{' '}
+                    <span className="font-medium">{users.length}</span> results
                   </p>
                 </div>
                 <div>
@@ -310,7 +310,7 @@ export default function UsersList() {
                       disabled={currentPage === 1}
                       className="relative inline-flex items-center px-2 py-2 rounded-l-copilot border border-copilot-border-default bg-copilot-bg-secondary text-sm font-medium text-copilot-text-secondary hover:bg-copilot-bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <span className="sr-only">Anterior</span>
+                      <span className="sr-only">Previous</span>
                       ←
                     </button>
                     
@@ -334,7 +334,7 @@ export default function UsersList() {
                       disabled={currentPage === totalPages}
                       className="relative inline-flex items-center px-2 py-2 rounded-r-copilot border border-copilot-border-default bg-copilot-bg-secondary text-sm font-medium text-copilot-text-secondary hover:bg-copilot-bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <span className="sr-only">Próximo</span>
+                      <span className="sr-only">Next</span>
                       →
                     </button>
                   </nav>
@@ -348,12 +348,12 @@ export default function UsersList() {
           <div className="text-copilot-text-secondary">
             <span className="text-4xl mb-4 block">👥</span>
             <h3 className="text-lg font-medium text-copilot-text-primary mb-2">
-              {users.length === 0 ? 'Nenhum usuário encontrado' : 'Nenhum resultado encontrado'}
+              {users.length === 0 ? 'No users found' : 'No results found'}
             </h3>
             <p className="text-copilot-text-secondary">
-              {users.length === 0 
-                ? 'Não há usuários cadastrados no sistema ainda.'
-                : 'Tente ajustar os filtros de busca para encontrar usuários.'
+              {users.length === 0
+                ? 'There are no users registered in the system yet.'
+                : 'Try adjusting the search filters to find users.'
               }
             </p>
             {users.length > 0 && (
@@ -361,7 +361,7 @@ export default function UsersList() {
                 onClick={clearFilters}
                 className="mt-4 px-4 py-2 bg-copilot-accent-primary text-white rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors duration-200"
               >
-                Limpar filtros
+                Clear filters
               </button>
             )}
           </div>

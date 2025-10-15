@@ -33,10 +33,10 @@ export default function Login() {
 
           {/* Title and description */}
           <h1 className="text-3xl font-bold mb-3 text-center text-copilot-text-primary">
-            Bem-vindo ao ScaleX
+            Welcome to ScaleX
           </h1>
           <p className="text-copilot-text-secondary text-sm mb-8 text-center leading-relaxed">
-            Faça login com sua conta Google ou Microsoft para continuar e acessar todos os recursos.
+            Login with your Google or Microsoft account to continue and access all features.
           </p>
 
           {/* Login buttons */}
@@ -45,13 +45,13 @@ export default function Login() {
           {/* Footer text */}
           <div className="mt-8 pt-6 border-t border-copilot-border-default">
             <p className="text-center text-copilot-text-tertiary text-xs">
-              Ao fazer login, você concorda com nossos{" "}
+              By logging in, you agree to our{" "}
               <a href="#" className="text-copilot-accent-primary hover:underline">
-                Termos de Serviço
+                Terms of Service
               </a>{" "}
-              e{" "}
+              and{" "}
               <a href="#" className="text-copilot-accent-primary hover:underline">
-                Política de Privacidade
+                Privacy Policy
               </a>
             </p>
           </div>

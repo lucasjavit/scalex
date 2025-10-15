@@ -21,22 +21,22 @@ export default function Footer() {
           
           {/* Copyright */}
           <div className="text-copilot-text-secondary text-xs mb-1">
-            © {new Date().getFullYear()} ScaleX. Todos os direitos reservados.
+            © {new Date().getFullYear()} ScaleX. All rights reserved.
           </div>
-          
+
           {/* Legal Links */}
           <div className="flex justify-center space-x-3">
-            <a 
-              href="#" 
+            <a
+              href="#"
               className="text-copilot-text-secondary hover:text-copilot-accent-primary transition-colors duration-200 text-xs"
             >
-              Política de Privacidade
+              Privacy Policy
             </a>
-            <a 
-              href="#" 
+            <a
+              href="#"
               className="text-copilot-text-secondary hover:text-copilot-accent-primary transition-colors duration-200 text-xs"
             >
-              Termos de Uso
+              Terms of Use
             </a>
             <a 
               href="#" 

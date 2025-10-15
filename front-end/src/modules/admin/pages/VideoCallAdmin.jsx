@@ -24,7 +24,7 @@ const VideoCallAdmin = () => {
     console.log('🔐 Admin Page - isAdmin status:', isAdmin);
     console.log('👤 User:', user);
     
-    // Redireciona se não for admin
+    // Redirect if not admin
     if (isAdmin === false) {
       console.log('❌ Not admin, redirecting to /video-call');
       navigate('/video-call');
@@ -34,7 +34,7 @@ const VideoCallAdmin = () => {
     if (isAdmin === true) {
       console.log('✅ Is admin, loading data...');
       loadData();
-      // Poll a cada 5 segundos
+      // Poll every 5 seconds
       const interval = setInterval(loadData, 5000);
       return () => clearInterval(interval);
     }
@@ -71,7 +71,7 @@ const VideoCallAdmin = () => {
   };
 
   const handleDisableSystem = async () => {
-    if (!confirm('Tem certeza que deseja DESABILITAR o sistema manualmente?\n\nIsso irá:\n- Limpar a fila\n- Parar todas as sessões futuras\n- Sistema ficará offline até ser reativado')) {
+    if (!confirm('Are you sure you want to DISABLE the system manually?\n\nThis will:\n- Clear the queue\n- Stop all future sessions\n- System will be offline until reactivated')) {
       return;
     }
 
@@ -87,16 +87,16 @@ const VideoCallAdmin = () => {
         alert('✅ ' + result.message);
         loadData();
       } else {
-        alert('❌ Erro: ' + result.message);
+        alert('❌ Error: ' + result.message);
       }
     } catch (error) {
       console.error('Error disabling system:', error);
-      alert('❌ Erro ao desabilitar sistema');
+      alert('❌ Error disabling system');
     }
   };
 
   const handleEnableSystem = async () => {
-    if (!confirm('Tem certeza que deseja HABILITAR o sistema?\n\nIsso irá:\n- Voltar ao modo automático\n- Seguir os horários programados')) {
+    if (!confirm('Are you sure you want to ENABLE the system?\n\nThis will:\n- Return to automatic mode\n- Follow scheduled times')) {
       return;
     }
 
@@ -112,11 +112,11 @@ const VideoCallAdmin = () => {
         alert('✅ ' + result.message);
         loadData();
       } else {
-        alert('❌ Erro: ' + result.message);
+        alert('❌ Error: ' + result.message);
       }
     } catch (error) {
       console.error('Error enabling system:', error);
-      alert('❌ Erro ao habilitar sistema');
+      alert('❌ Error enabling system');
     }
   };
 
@@ -153,12 +153,12 @@ const VideoCallAdmin = () => {
       }
     } catch (error) {
       console.error('Error adding period:', error);
-      alert('❌ Erro ao adicionar período');
+      alert('❌ Error adding period');
     }
   };
 
   const handleRemovePeriod = async (index) => {
-    if (!confirm('Tem certeza que deseja remover este período?')) {
+    if (!confirm('Are you sure you want to remove this period?')) {
       return;
     }
 
@@ -178,7 +178,7 @@ const VideoCallAdmin = () => {
       }
     } catch (error) {
       console.error('Error removing period:', error);
-      alert('❌ Erro ao remover período');
+      alert('❌ Error removing period');
     }
   };
 
@@ -187,7 +187,7 @@ const VideoCallAdmin = () => {
       <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-copilot-accent-primary mx-auto mb-4"></div>
-          <p className="text-copilot-text-secondary">Carregando...</p>
+          <p className="text-copilot-text-secondary">Loading...</p>
         </div>
       </div>
     );
@@ -202,14 +202,14 @@ const VideoCallAdmin = () => {
             Video Call Management
           </h1>
           <p className="text-copilot-text-secondary">
-            Controle manual do sistema de video calls
+            Manual control of video call system
           </p>
         </div>
 
         {/* System Status */}
         <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8 mb-8">
           <h2 className="text-2xl font-bold text-copilot-text-primary mb-6">
-            Status do Sistema
+            System Status
           </h2>
 
           {/* Status Badge */}
@@ -229,8 +229,8 @@ const VideoCallAdmin = () => {
                     : 'text-yellow-900'
                 }`}>
                   {systemStatus?.isActive && systemStatus?.canAcceptSessions
-                    ? 'Sistema ATIVO (Aceitando Chamadas)'
-                    : 'Sistema INATIVO (Aguardando Próximo Período)'}
+                    ? 'System ACTIVE (Accepting Calls)'
+                    : 'System INACTIVE (Waiting for Next Period)'}
                 </h3>
                 <p className={`text-sm ${
                   systemStatus?.isActive && systemStatus?.canAcceptSessions
@@ -238,8 +238,8 @@ const VideoCallAdmin = () => {
                     : 'text-yellow-800'
                 }`}>
                   {systemStatus?.currentPeriod
-                    ? `Período atual: ${String(systemStatus.currentPeriod.start.hour).padStart(2, '0')}:${String(systemStatus.currentPeriod.start.minute).padStart(2, '0')} - ${String(systemStatus.currentPeriod.end.hour).padStart(2, '0')}:${String(systemStatus.currentPeriod.end.minute).padStart(2, '0')}`
-                    : `Próximo horário: ${String(systemStatus?.nextPeriod?.start.hour || 0).padStart(2, '0')}:${String(systemStatus?.nextPeriod?.start.minute || 0).padStart(2, '0')}`}
+                    ? `Current period: ${String(systemStatus.currentPeriod.start.hour).padStart(2, '0')}:${String(systemStatus.currentPeriod.start.minute).padStart(2, '0')} - ${String(systemStatus.currentPeriod.end.hour).padStart(2, '0')}:${String(systemStatus.currentPeriod.end.minute).padStart(2, '0')}`
+                    : `Next schedule: ${String(systemStatus?.nextPeriod?.start.hour || 0).padStart(2, '0')}:${String(systemStatus?.nextPeriod?.start.minute || 0).padStart(2, '0')}`}
                 </p>
               </div>
             </div>
@@ -248,7 +248,7 @@ const VideoCallAdmin = () => {
           {/* Info Box */}
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
             <p className="text-sm text-blue-800">
-              <strong>ℹ️ Como gerenciar:</strong> Para controlar quando o sistema aceita chamadas, adicione ou remova períodos na seção "Horários Programados" abaixo.
+              <strong>ℹ️ How to manage:</strong> To control when the system accepts calls, add or remove periods in the "Scheduled Times" section below.
             </p>
           </div>
         </div>
@@ -260,28 +260,28 @@ const VideoCallAdmin = () => {
               <div className="text-4xl font-bold text-blue-600 mb-2">
                 {adminStats.queueSize}
               </div>
-              <div className="text-sm text-blue-800 font-semibold">Usuários na Fila</div>
+              <div className="text-sm text-blue-800 font-semibold">Users in Queue</div>
             </div>
 
             <div className="bg-green-50 border border-green-200 rounded-copilot p-6 text-center">
               <div className="text-4xl font-bold text-green-600 mb-2">
                 {adminStats.activeSessionsCount}
               </div>
-              <div className="text-sm text-green-800 font-semibold">Sessões Ativas</div>
+              <div className="text-sm text-green-800 font-semibold">Active Sessions</div>
             </div>
 
             <div className="bg-purple-50 border border-purple-200 rounded-copilot p-6 text-center">
               <div className="text-4xl font-bold text-purple-600 mb-2">
                 {adminStats.totalSessions}
               </div>
-              <div className="text-sm text-purple-800 font-semibold">Total de Sessões</div>
+              <div className="text-sm text-purple-800 font-semibold">Total Sessions</div>
             </div>
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-copilot p-6 text-center">
               <div className="text-4xl font-bold text-yellow-600 mb-2">
                 {systemStatus?.activePeriods?.length || 0}
               </div>
-              <div className="text-sm text-yellow-800 font-semibold">Períodos Configurados</div>
+              <div className="text-sm text-yellow-800 font-semibold">Configured Periods</div>
             </div>
           </div>
         )}
@@ -290,16 +290,16 @@ const VideoCallAdmin = () => {
         {adminStats?.activeSessions && adminStats.activeSessions.length > 0 && (
           <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8 mb-8">
             <h2 className="text-2xl font-bold text-copilot-text-primary mb-6">
-              Sessões Ativas ({adminStats.activeSessions.length})
+              Active Sessions ({adminStats.activeSessions.length})
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-copilot-bg-primary">
                   <tr>
                     <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">ID</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">Início</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">Término</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">Salas</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">Start</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">End</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">Rooms</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-copilot-border-default">
@@ -315,7 +315,7 @@ const VideoCallAdmin = () => {
                         {session.endTime ? new Date(session.endTime).toLocaleTimeString('pt-BR') : '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-copilot-text-primary font-semibold">
-                        {session.rooms?.length || 0} salas
+                        {session.rooms?.length || 0} rooms
                       </td>
                     </tr>
                   ))}
@@ -329,15 +329,15 @@ const VideoCallAdmin = () => {
         {adminStats?.queueUsers && adminStats.queueUsers.length > 0 && (
           <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8 mb-8">
             <h2 className="text-2xl font-bold text-copilot-text-primary mb-6">
-              Usuários na Fila ({adminStats.queueUsers.length})
+              Users in Queue ({adminStats.queueUsers.length})
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-copilot-bg-primary">
                   <tr>
                     <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">User ID</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">Nível</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">Entrada</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">Level</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-copilot-text-primary">Joined</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-copilot-border-default">
@@ -371,25 +371,25 @@ const VideoCallAdmin = () => {
           <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-copilot-text-primary">
-                Horários Programados (Timezone: America/Sao_Paulo)
+                Scheduled Times (Timezone: America/Sao_Paulo)
               </h2>
               <button
                 onClick={() => setShowAddPeriodForm(!showAddPeriodForm)}
                 className="btn-copilot-primary flex items-center gap-2"
               >
                 <span>➕</span>
-                <span>{showAddPeriodForm ? 'Cancelar' : 'Adicionar Período'}</span>
+                <span>{showAddPeriodForm ? 'Cancel' : 'Add Period'}</span>
               </button>
             </div>
 
             {/* Add Period Form */}
             {showAddPeriodForm && (
               <div className="bg-blue-50 border border-blue-200 rounded-copilot p-6 mb-6">
-                <h3 className="text-lg font-semibold text-blue-900 mb-4">Novo Período</h3>
+                <h3 className="text-lg font-semibold text-blue-900 mb-4">New Period</h3>
                 <form onSubmit={handleAddPeriod} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Hora de Início
+                      Start Time
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -418,7 +418,7 @@ const VideoCallAdmin = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Hora de Término
+                      End Time
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -450,7 +450,7 @@ const VideoCallAdmin = () => {
                       type="submit"
                       className="btn-copilot-primary w-full md:w-auto"
                     >
-                      ✅ Adicionar Período
+                      ✅ Add Period
                     </button>
                   </div>
                 </form>
@@ -464,7 +464,7 @@ const VideoCallAdmin = () => {
                   <button
                     onClick={() => handleRemovePeriod(idx)}
                     className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                    title="Remover período"
+                    title="Remove period"
                   >
                     ✕
                   </button>
@@ -472,7 +472,7 @@ const VideoCallAdmin = () => {
                     <span className="text-3xl">📅</span>
                     <div>
                       <div className="text-sm text-copilot-text-secondary font-semibold">
-                        Período {idx + 1}
+                        Period {idx + 1}
                       </div>
                       <div className="text-lg font-mono text-copilot-text-primary">
                         {String(period.start.hour).padStart(2, '0')}:{String(period.start.minute).padStart(2, '0')} - {String(period.end.hour).padStart(2, '0')}:{String(period.end.minute).padStart(2, '0')}

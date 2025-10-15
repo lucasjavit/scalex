@@ -10,7 +10,7 @@ export default function SocialLoginButtons() {
       await signInWithPopup(auth, provider);
       navigate("/home");
     } catch (error) {
-      console.error("Erro no login:", error);
+      console.error("Login error:", error);
     }
   };
 
@@ -27,10 +27,10 @@ export default function SocialLoginButtons() {
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
-        Entrar com Google
+        Sign in with Google
       </button>
 
-      {/* Botão Microsoft */}
+      {/* Microsoft Button */}
       <button
         onClick={() => handleLogin(new OAuthProvider("microsoft.com"))}
         className="bg-copilot-bg-tertiary text-copilot-text-primary font-semibold py-3 px-4 rounded-copilot hover:bg-copilot-bg-hover transition-all duration-200 flex items-center justify-center gap-3 border border-copilot-border-default shadow-copilot hover:shadow-copilot-lg"
@@ -41,7 +41,7 @@ export default function SocialLoginButtons() {
           <rect x="1" y="12" width="10" height="10" fill="#7fba00"/>
           <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
         </svg>
-        Entrar com Microsoft
+        Sign in with Microsoft
       </button>
     </div>
   );

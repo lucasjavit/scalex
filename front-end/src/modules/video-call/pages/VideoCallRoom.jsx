@@ -87,7 +87,7 @@ const VideoCallRoom = () => {
       console.error('Error ending call tracking:', error);
     }
     
-    // Voltar para o dashboard
+    // Return to dashboard
     navigate('/video-call');
   };
 
@@ -148,7 +148,7 @@ const VideoCallRoom = () => {
             <button
               onClick={() => { 
                 navigator.clipboard.writeText(roomId);
-                alert('Room ID copiado!');
+                alert('Room ID copied!');
               }}
               className="text-xs text-copilot-accent-primary font-semibold hover:text-copilot-accent-secondary"
               title="Copy Room ID"

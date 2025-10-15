@@ -10,7 +10,7 @@ const ActiveUserGuard = ({ children }) => {
       <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent-primary mx-auto mb-4"></div>
-          <p className="text-copilot-text-secondary">Verificando status da conta...</p>
+          <p className="text-copilot-text-secondary">Checking account status...</p>
         </div>
       </div>
     );
@@ -25,16 +25,16 @@ const ActiveUserGuard = ({ children }) => {
             <span className="text-3xl">⚠️</span>
           </div>
           <h1 className="text-xl font-bold text-copilot-text-primary mb-4">
-            Erro de Verificação
+            Verification Error
           </h1>
           <p className="text-copilot-text-secondary mb-6">
-            Não foi possível verificar o status da sua conta. Tente novamente.
+            Could not verify your account status. Please try again.
           </p>
           <button
             onClick={() => window.location.reload()}
             className="bg-copilot-accent-primary text-white px-6 py-3 rounded-copilot font-semibold hover:bg-copilot-accent-primary/90 transition-colors duration-200"
           >
-            Tentar Novamente
+            Try Again
           </button>
         </div>
       </div>

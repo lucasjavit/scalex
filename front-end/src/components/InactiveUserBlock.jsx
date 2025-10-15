@@ -20,22 +20,22 @@ export default function InactiveUserBlock() {
 
         {/* Title */}
         <h1 className="text-2xl font-bold text-copilot-text-primary mb-4">
-          Conta Inativa
+          Inactive Account
         </h1>
 
         {/* Message */}
         <p className="text-copilot-text-secondary mb-6 leading-relaxed">
-          Sua conta foi desativada por um administrador. Entre em contato com o suporte 
-          para reativar sua conta e continuar usando o ScaleX.
+          Your account has been deactivated by an administrator. Please contact support
+          to reactivate your account and continue using ScaleX.
         </p>
 
         {/* Contact Info */}
         <div className="bg-copilot-bg-tertiary border border-copilot-border-default rounded-copilot p-4 mb-6">
           <h3 className="font-semibold text-copilot-text-primary mb-2">
-            Precisa de ajuda?
+            Need help?
           </h3>
           <p className="text-sm text-copilot-text-secondary">
-            Entre em contato: <span className="font-medium text-copilot-accent-primary">suporte@scalex.com</span>
+            Contact us: <span className="font-medium text-copilot-accent-primary">support@scalex.com</span>
           </p>
         </div>
 
@@ -45,14 +45,14 @@ export default function InactiveUserBlock() {
             onClick={handleLogout}
             className="w-full bg-copilot-accent-primary text-white px-6 py-3 rounded-copilot font-semibold hover:bg-copilot-accent-primary/90 transition-colors duration-200"
           >
-            Fazer Logout
+            Logout
           </button>
-          
+
           <button
             onClick={() => window.location.reload()}
             className="w-full bg-copilot-bg-tertiary text-copilot-text-primary px-6 py-3 rounded-copilot font-semibold hover:bg-copilot-bg-primary transition-colors duration-200"
           >
-            Tentar Novamente
+            Try Again
           </button>
         </div>
       </div>

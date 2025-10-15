@@ -21,7 +21,7 @@ const LessonList = () => {
       const data = await adminApi.getAllLessons();
       setLessons(data);
     } catch (err) {
-      setError('Erro ao carregar lições');
+      setError('Error loading lessons');
       console.error('Error loading lessons:', err);
     } finally {
       setLoading(false);
@@ -35,7 +35,7 @@ const LessonList = () => {
       setShowDeleteModal(false);
       setLessonToDelete(null);
     } catch (err) {
-      setError('Erro ao deletar lição');
+      setError('Error deleting lesson');
       console.error('Error deleting lesson:', err);
     }
   };
@@ -52,10 +52,10 @@ const LessonList = () => {
 
   const getLevelLabel = (level) => {
     const labels = {
-      beginner: 'Iniciante',
-      elementary: 'Elementar',
-      intermediate: 'Intermediário',
-      advanced: 'Avançado',
+      beginner: 'Beginner',
+      elementary: 'Elementary',
+      intermediate: 'Intermediate',
+      advanced: 'Advanced',
     };
     return labels[level] || level;
   };
@@ -76,7 +76,7 @@ const LessonList = () => {
           onClick={loadLessons}
           className="mt-2 bg-red-600 text-white px-4 py-2 rounded-copilot hover:bg-red-700 transition-colors"
         >
-          Tentar novamente
+          Try again
         </button>
       </div>
     );
@@ -87,13 +87,13 @@ const LessonList = () => {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-copilot-text-primary">Gerenciar Lições</h2>
+          <h2 className="text-2xl font-bold text-copilot-text-primary">Manage Lessons</h2>
           <button
             onClick={() => navigate('/admin/english-course/lessons/new')}
             className="bg-copilot-accent-primary text-white px-6 py-2 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors flex items-center gap-2"
           >
             <span>+</span>
-            Nova Lição
+            New Lesson
           </button>
         </div>
 
@@ -107,7 +107,7 @@ const LessonList = () => {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="font-semibold text-lg text-copilot-text-primary mb-1">
-                  Lição {lesson.lessonNumber}
+                  Lesson {lesson.lessonNumber}
                 </h3>
                 <p className="text-copilot-text-secondary text-sm mb-2">
                   {lesson.title}
@@ -127,9 +127,9 @@ const LessonList = () => {
             )}
 
             <div className="flex items-center justify-between text-sm text-copilot-text-secondary mb-4">
-              <span>{lesson.questions?.length || 0} questões</span>
+              <span>{lesson.questions?.length || 0} questions</span>
               <span className={`px-2 py-1 rounded ${lesson.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                {lesson.isActive ? 'Ativa' : 'Inativa'}
+                {lesson.isActive ? 'Active' : 'Inactive'}
               </span>
             </div>
 
@@ -138,13 +138,13 @@ const LessonList = () => {
                 onClick={() => navigate(`/admin/english-course/lessons/${lesson.id}/edit`)}
                 className="flex-1 bg-copilot-accent-primary text-white px-4 py-2 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors text-sm"
               >
-                Editar
+                Edit
               </button>
               <button
                 onClick={() => navigate(`/admin/english-course/lessons/${lesson.id}/questions`)}
                 className="flex-1 bg-copilot-accent-secondary text-white px-4 py-2 rounded-copilot hover:bg-copilot-accent-secondary/90 transition-colors text-sm"
               >
-                Questões
+                Questions
               </button>
               <button
                 onClick={() => {
@@ -153,7 +153,7 @@ const LessonList = () => {
                 }}
                 className="bg-red-600 text-white px-4 py-2 rounded-copilot hover:bg-red-700 transition-colors text-sm"
               >
-                Deletar
+                Delete
               </button>
             </div>
           </div>
@@ -164,16 +164,16 @@ const LessonList = () => {
         <div className="text-center py-12">
           <div className="text-6xl mb-4">📚</div>
           <h3 className="text-xl font-semibold text-copilot-text-primary mb-2">
-            Nenhuma lição encontrada
+            No lessons found
           </h3>
           <p className="text-copilot-text-secondary mb-6">
-            Comece criando sua primeira lição
+            Start by creating your first lesson
           </p>
           <button
             onClick={() => navigate('/admin/english-course/lessons/new')}
             className="bg-copilot-accent-primary text-white px-6 py-3 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors"
           >
-            Criar Primeira Lição
+            Create First Lesson
           </button>
         </div>
       )}
@@ -183,11 +183,11 @@ const LessonList = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-copilot p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">
-              Confirmar Exclusão
+              Confirm Deletion
             </h3>
             <p className="text-copilot-text-secondary mb-6">
-              Tem certeza que deseja deletar a lição "{lessonToDelete.title}"? 
-              Esta ação não pode ser desfeita e todas as questões associadas serão removidas.
+              Are you sure you want to delete the lesson "{lessonToDelete.title}"? 
+              This action cannot be undone and all associated questions will be removed.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -197,13 +197,13 @@ const LessonList = () => {
                 }}
                 className="px-4 py-2 text-copilot-text-secondary hover:text-copilot-text-primary transition-colors"
               >
-                Cancelar
+                Cancel
               </button>
               <button
                 onClick={() => handleDelete(lessonToDelete.id)}
                 className="bg-red-600 text-white px-4 py-2 rounded-copilot hover:bg-red-700 transition-colors"
               >
-                Deletar
+                Delete
               </button>
             </div>
           </div>

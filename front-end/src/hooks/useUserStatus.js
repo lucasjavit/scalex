@@ -25,7 +25,7 @@ export const useUserStatus = () => {
         setUserStatus(userData);
       } catch (err) {
         console.error('Error checking user status:', err);
-        setError('Erro ao verificar status do usuário');
+        setError('Error checking user status');
         setUserStatus(null);
       } finally {
         setLoading(false);
