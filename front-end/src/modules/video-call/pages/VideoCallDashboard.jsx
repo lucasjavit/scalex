@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth-social/context/AuthContext';
 import videoCallService from '../services/videoCallService';
 
@@ -202,6 +202,17 @@ const VideoCallDashboard = () => {
           <p className="text-copilot-text-secondary text-lg mb-6">
             {t('dashboard.subtitle')}
           </p>
+          
+          {/* How It Works Link */}
+          <div className="flex justify-center gap-4 mb-6">
+            <Link
+              to="/video-call/how-it-works"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot text-copilot-text-primary hover:bg-copilot-bg-tertiary transition-colors"
+            >
+              <span>ℹ️</span>
+              {t('dashboard.howItWorks', 'Como Funciona')}
+            </Link>
+          </div>
         </div>
 
         {/* Statistics */}

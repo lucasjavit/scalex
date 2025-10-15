@@ -131,6 +131,153 @@
       "matchFound": "Match found! Redirecting...",
       "redirecting": "Redirecting to video call room..."
     }
+  },
+  "howItWorks": {
+    "title": "How the Video Call System Works",
+    "subtitle": "Connect with other users to practice English in live conversations",
+    "backToDashboard": "Back to Dashboard",
+    "overview": {
+      "title": "System Overview",
+      "realTime": {
+        "title": "Real-Time Conversations",
+        "description": "Connect instantly with other users to practice English through real-time video calls."
+      },
+      "matching": {
+        "title": "Intelligent Matching System",
+        "description": "Our algorithm connects users with similar English levels for a balanced learning experience."
+      }
+    },
+    "gettingStarted": {
+      "title": "Getting Started",
+      "step1": {
+        "title": "Access the Dashboard",
+        "description": "On the video call dashboard, you can see your current status and start a new conversation."
+      },
+      "step2": {
+        "title": "Start Matching",
+        "description": "Click \"Start Conversation\" to enter the matching queue. The system will find a compatible partner."
+      },
+      "step3": {
+        "title": "Wait in Queue",
+        "description": "You will be placed in the waiting queue until a compatible partner is found."
+      },
+      "step4": {
+        "title": "Connect and Practice",
+        "description": "When a partner is found, you will be redirected to the video call room to start the conversation."
+      }
+    },
+    "features": {
+      "title": "Available Features",
+      "video": {
+        "title": "High Quality Video",
+        "description": "HD video streaming for a clear and crisp experience"
+      },
+      "audio": {
+        "title": "Crystal Clear Audio",
+        "description": "Optimized audio quality for clear conversations"
+      },
+      "controls": {
+        "title": "Media Controls",
+        "description": "Mute/unmute audio and video as needed"
+      },
+      "timer": {
+        "title": "Session Timer",
+        "description": "Time control for structured practice sessions"
+      }
+    },
+    "matchingSystem": {
+      "title": "Matching System",
+      "howItWorks": {
+        "title": "How It Works",
+        "description": "Our matching system considers several factors to connect compatible users:"
+      },
+      "factors": {
+        "level": "Similar English level",
+        "availability": "Current availability",
+        "preferences": "Conversation preferences",
+        "timezone": "Compatible timezone"
+      },
+      "waiting": {
+        "title": "Waiting Time",
+        "description": "Waiting time varies depending on user availability. Usually, a partner is found within a few minutes."
+      }
+    },
+    "bestPractices": {
+      "title": "Tips for Better Experience",
+      "prepare": {
+        "title": "Prepare Beforehand",
+        "description": "Have conversation topics in mind and make sure your environment is suitable"
+      },
+      "audio": {
+        "title": "Test Your Audio",
+        "description": "Check if your microphone and headphones are working before starting"
+      },
+      "polite": {
+        "title": "Be Respectful",
+        "description": "Maintain a friendly and respectful tone throughout the conversation"
+      },
+      "time": {
+        "title": "Respect Time",
+        "description": "Be punctual and respect the agreed time for the session"
+      }
+    },
+    "troubleshooting": {
+      "title": "Troubleshooting",
+      "noVideo": {
+        "title": "Video Issues",
+        "description": "Check if your camera is connected and permissions are enabled in the browser"
+      },
+      "noAudio": {
+        "title": "Audio Issues",
+        "description": "Test your microphone in browser settings and check if it's not muted"
+      },
+      "connection": {
+        "title": "Connection Issues",
+        "description": "Check your internet connection and try refreshing the page"
+      }
+    },
+    "startVideoCall": "Start Video Call Now",
+    "dashboardFeatures": {
+      "title": "Dashboard Features",
+      "startNewCall": {
+        "title": "Start New Call",
+        "description": "Initiates the automatic matching process to find a conversation partner.",
+        "step1": "Click \"Find a Partner\"",
+        "step2": "System finds compatible user",
+        "step3": "Redirects to video call room"
+      },
+      "createRoom": {
+        "title": "Create Room",
+        "description": "Creates a private room with a unique ID that you can share with friends.",
+        "step1": "Click \"Create Room\"",
+        "step2": "System generates unique room ID",
+        "step3": "Share the ID with your friends",
+        "step4": "Wait for them to join the room"
+      },
+      "joinRoom": {
+        "title": "Join with Room ID",
+        "description": "Join an existing room using the ID provided by a friend.",
+        "step1": "Paste the room ID in the field",
+        "step2": "Click \"Join with Room ID\"",
+        "step3": "System connects you to the room",
+        "step4": "Start the conversation with participants"
+      },
+      "tips": {
+        "title": "Important Tips",
+        "startNewCall": {
+          "title": "Start New Call:",
+          "tip1": "Ideal for meeting new people",
+          "tip2": "System finds partner automatically",
+          "tip3": "May take a few minutes"
+        },
+        "privateRooms": {
+          "title": "Private Rooms:",
+          "tip1": "Perfect for studying with friends",
+          "tip2": "Full control over who participates",
+          "tip3": "Room ID is unique and secure"
+        }
+      }
+    }
   }
 }
 

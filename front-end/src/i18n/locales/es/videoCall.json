@@ -131,6 +131,153 @@
       "matchFound": "¡Compañero encontrado! Redirigiendo...",
       "redirecting": "Redirigiendo a sala de videollamada..."
     }
+  },
+  "howItWorks": {
+    "title": "Cómo Funciona el Sistema de Video Call",
+    "subtitle": "Conéctate con otros usuarios para practicar inglés en conversaciones en vivo",
+    "backToDashboard": "Volver al Dashboard",
+    "overview": {
+      "title": "Resumen del Sistema",
+      "realTime": {
+        "title": "Conversaciones en Tiempo Real",
+        "description": "Conéctate instantáneamente con otros usuarios para practicar inglés a través de videollamadas en tiempo real."
+      },
+      "matching": {
+        "title": "Sistema de Matching Inteligente",
+        "description": "Nuestro algoritmo conecta usuarios con niveles similares de inglés para una experiencia de aprendizaje equilibrada."
+      }
+    },
+    "gettingStarted": {
+      "title": "Cómo Empezar",
+      "step1": {
+        "title": "Accede al Dashboard",
+        "description": "En el dashboard del video call, puedes ver tu estado actual e iniciar una nueva conversación."
+      },
+      "step2": {
+        "title": "Inicia el Matching",
+        "description": "Haz clic en \"Iniciar Conversación\" para entrar en la cola de matching. El sistema encontrará un compañero compatible."
+      },
+      "step3": {
+        "title": "Espera en la Cola",
+        "description": "Serás colocado en la cola de espera hasta que se encuentre un compañero compatible."
+      },
+      "step4": {
+        "title": "Conéctate y Practica",
+        "description": "Cuando se encuentre un compañero, serás redirigido a la sala de video call para comenzar la conversación."
+      }
+    },
+    "features": {
+      "title": "Características Disponibles",
+      "video": {
+        "title": "Video de Alta Calidad",
+        "description": "Transmisión de video en HD para una experiencia clara y nítida"
+      },
+      "audio": {
+        "title": "Audio Cristalino",
+        "description": "Calidad de audio optimizada para conversaciones claras"
+      },
+      "controls": {
+        "title": "Controles de Medios",
+        "description": "Silenciar/activar audio y video según sea necesario"
+      },
+      "timer": {
+        "title": "Temporizador de Sesión",
+        "description": "Control de tiempo para sesiones de práctica estructuradas"
+      }
+    },
+    "matchingSystem": {
+      "title": "Sistema de Matching",
+      "howItWorks": {
+        "title": "Cómo Funciona",
+        "description": "Nuestro sistema de matching considera varios factores para conectar usuarios compatibles:"
+      },
+      "factors": {
+        "level": "Nivel de inglés similar",
+        "availability": "Disponibilidad actual",
+        "preferences": "Preferencias de conversación",
+        "timezone": "Zona horaria compatible"
+      },
+      "waiting": {
+        "title": "Tiempo de Espera",
+        "description": "El tiempo de espera varía según la disponibilidad de usuarios. Generalmente, se encuentra un compañero en pocos minutos."
+      }
+    },
+    "bestPractices": {
+      "title": "Consejos para Mejor Experiencia",
+      "prepare": {
+        "title": "Prepárate Antes",
+        "description": "Ten temas de conversación en mente y asegúrate de que tu entorno sea adecuado"
+      },
+      "audio": {
+        "title": "Prueba tu Audio",
+        "description": "Verifica que tu micrófono y auriculares estén funcionando antes de comenzar"
+      },
+      "polite": {
+        "title": "Sé Respetuoso",
+        "description": "Mantén un tono amigable y respetuoso durante toda la conversación"
+      },
+      "time": {
+        "title": "Respeta el Tiempo",
+        "description": "Sé puntual y respeta el tiempo acordado para la sesión"
+      }
+    },
+    "troubleshooting": {
+      "title": "Solución de Problemas",
+      "noVideo": {
+        "title": "Problemas de Video",
+        "description": "Verifica que tu cámara esté conectada y las permisos estén habilitados en el navegador"
+      },
+      "noAudio": {
+        "title": "Problemas de Audio",
+        "description": "Prueba tu micrófono en la configuración del navegador y verifica que no esté silenciado"
+      },
+      "connection": {
+        "title": "Problemas de Conexión",
+        "description": "Verifica tu conexión a internet e intenta recargar la página"
+      }
+    },
+    "startVideoCall": "Iniciar Video Call Ahora",
+    "dashboardFeatures": {
+      "title": "Funcionalidades del Dashboard",
+      "startNewCall": {
+        "title": "Start New Call",
+        "description": "Inicia el proceso de matching automático para encontrar un compañero de conversación.",
+        "step1": "Haz clic en \"Find a Partner\"",
+        "step2": "Sistema encuentra usuario compatible",
+        "step3": "Redirige a sala de video call"
+      },
+      "createRoom": {
+        "title": "Create Room",
+        "description": "Crea una sala privada con ID único que puedes compartir con amigos.",
+        "step1": "Haz clic en \"Create Room\"",
+        "step2": "Sistema genera ID único de la sala",
+        "step3": "Comparte el ID con tus amigos",
+        "step4": "Espera a que entren a la sala"
+      },
+      "joinRoom": {
+        "title": "Join with Room ID",
+        "description": "Únete a una sala existente usando el ID proporcionado por un amigo.",
+        "step1": "Pega el ID de la sala en el campo",
+        "step2": "Haz clic en \"Join with Room ID\"",
+        "step3": "Sistema te conecta a la sala",
+        "step4": "Inicia la conversación con los participantes"
+      },
+      "tips": {
+        "title": "Consejos Importantes",
+        "startNewCall": {
+          "title": "Start New Call:",
+          "tip1": "Ideal para conocer nuevas personas",
+          "tip2": "Sistema encuentra compañero automáticamente",
+          "tip3": "Puede tomar unos minutos"
+        },
+        "privateRooms": {
+          "title": "Salas Privadas:",
+          "tip1": "Perfecto para estudiar con amigos",
+          "tip2": "Control total sobre quién participa",
+          "tip3": "ID de la sala es único y seguro"
+        }
+      }
+    }
   }
 }
 
