@@ -31,26 +31,26 @@ export default function WaitingQueue() {
         setQueueStatus(status);
         setSystemStatus(sysStatus);
 
-        console.log('Queue status:', status);
-        console.log('System status:', sysStatus);
+        // console.log('Queue status:', status);
+        // console.log('System status:', sysStatus);
 
         // Verifica se o sistema está inativo
         if (!sysStatus.isActive || !sysStatus.canAcceptSessions) {
-          console.log('Sistema inativo, redirecionando para dashboard');
+          // console.log('Sistema inativo, redirecionando para dashboard');
           navigate('/video-call');
           return;
         }
 
         // Se o usuário entrou em uma sessão, redireciona para a room
         if (status.currentSession) {
-          console.log('Session started! Redirecting to room:', status.currentSession.roomName);
+          // console.log('Session started! Redirecting to room:', status.currentSession.roomName);
           navigate(`/video-call/room/${status.currentSession.roomName}`);
           return;
         }
 
         // Se não está na fila, volta para o dashboard
         if (!status.inQueue) {
-          console.log('User not in queue anymore. Redirecting to dashboard.');
+          // console.log('User not in queue anymore. Redirecting to dashboard.');
           navigate('/video-call');
           return;
         }

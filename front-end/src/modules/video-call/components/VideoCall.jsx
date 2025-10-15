@@ -40,13 +40,13 @@ const VideoCall = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
 
     const initializeJitsi = async () => {
       try {
-        console.log('🔵 Starting initializeJitsi...');
+        // console.log('🔵 Starting initializeJitsi...');
         setIsLoading(true);
         setError(null);
 
-        console.log('🔵 Loading Jitsi script...');
+        // console.log('🔵 Loading Jitsi script...');
         await loadJitsiScript();
-        console.log('🔵 Script loaded');
+        // console.log('🔵 Script loaded');
 
         if (!window.JitsiMeetExternalAPI) {
           throw new Error('Jitsi API not available (external_api.js blocked)');
@@ -54,33 +54,33 @@ const VideoCall = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
 
         // Dispose previous instance if any and clear container
         if (jitsiApi) {
-          console.log('🔵 Disposing previous API instance...');
+          // console.log('🔵 Disposing previous API instance...');
           try { jitsiApi.dispose(); } catch (e) { /* no-op */ }
         }
 
         if (!jitsiContainerRef.current) {
-          console.log('⚠️ Container not ready, waiting...');
+          // console.log('⚠️ Container not ready, waiting...');
           // Wait for container to be in the DOM
           requestAnimationFrame(initializeJitsi);
           return;
         }
 
-        console.log('🔵 Clearing container...');
+        // console.log('🔵 Clearing container...');
         jitsiContainerRef.current.innerHTML = '';
 
         // Prevent double-initialization (React StrictMode) for the same room
         if (hasInitializedRef.current) {
-          console.log('⚠️ Already initialized, skipping...');
+          // console.log('⚠️ Already initialized, skipping...');
           return;
         }
-        console.log('🔵 Proceeding with initialization...');
+        // console.log('🔵 Proceeding with initialization...');
 
         // Use the domain directly - Jitsi will handle it
         const domain = jitsiDomain; // localhost:8443
         const roomPath = jitsiTenant ? `${jitsiTenant}/${roomName}` : roomName;
 
-        console.log('🚀 Jitsi Domain:', domain);
-        console.log('🚀 Room:', roomPath);
+        // console.log('🚀 Jitsi Domain:', domain);
+        // console.log('🚀 Room:', roomPath);
 
         const options = {
           roomName: roomPath,
@@ -148,19 +148,19 @@ const VideoCall = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
 
         let api;
         try {
-          console.log('🟢 Creating JitsiMeetExternalAPI...');
+          // console.log('🟢 Creating JitsiMeetExternalAPI...');
           api = new window.JitsiMeetExternalAPI(domain, options);
-          console.log('✅ API created:', api);
-          console.log('✅ API _url:', api._url);
+          // console.log('✅ API created:', api);
+          // console.log('✅ API _url:', api._url);
 
           // Check iframe after a moment
           setTimeout(() => {
             const iframe = jitsiContainerRef.current?.querySelector('iframe');
-            console.log('🔍 Iframe exists?', !!iframe);
+            // console.log('🔍 Iframe exists?', !!iframe);
             if (iframe) {
-              console.log('🔍 Iframe src:', iframe.src);
+              // console.log('🔍 Iframe src:', iframe.src);
             }
-            console.log('🔍 Container children:', jitsiContainerRef.current?.childElementCount);
+            // console.log('🔍 Container children:', jitsiContainerRef.current?.childElementCount);
           }, 500);
 
         } catch (e) {
@@ -171,12 +171,12 @@ const VideoCall = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
         // Event listeners
         api.addListener('iframeReady', () => {
           // Iframe is ready; allow UI to appear even before join
-          console.log('✅ iframeReady event fired');
+          // console.log('✅ iframeReady event fired');
           setIsLoading(false);
         });
 
         api.addListener('videoConferenceJoined', async () => {
-          console.log('✅ Joined video conference');
+          // console.log('✅ Joined video conference');
           setIsLoading(false);
           try {
             const participants = await api.getParticipantsInfo?.();
@@ -188,22 +188,22 @@ const VideoCall = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
         });
 
         api.addListener('videoConferenceLeft', () => {
-          console.log('Left video conference');
+          // console.log('Left video conference');
           onEndCall?.();
         });
 
         api.addListener('participantJoined', (participant) => {
-          console.log('Participant joined:', participant);
+          // console.log('Participant joined:', participant);
           onUserJoined?.(participant);
         });
 
         api.addListener('participantLeft', (participant) => {
-          console.log('Participant left:', participant);
+          // console.log('Participant left:', participant);
           onUserLeft?.(participant);
         });
 
         api.addListener('readyToClose', () => {
-          console.log('Ready to close');
+          // console.log('Ready to close');
           onEndCall?.();
         });
 
@@ -216,16 +216,16 @@ const VideoCall = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
         // Fallback: stop loading after 15s even if no event fired
         loadingTimeoutRef.current = window.setTimeout(() => {
           // If iframe didn't mount properly, surface fallback
-          console.log('⏰ Timeout reached (15s)');
-          console.log('Container exists?', !!jitsiContainerRef.current);
-          console.log('Container children:', jitsiContainerRef.current?.childElementCount);
-          console.log('Container HTML:', jitsiContainerRef.current?.innerHTML.substring(0, 200));
+          // console.log('⏰ Timeout reached (15s)');
+          // console.log('Container exists?', !!jitsiContainerRef.current);
+          // console.log('Container children:', jitsiContainerRef.current?.childElementCount);
+          // console.log('Container HTML:', jitsiContainerRef.current?.innerHTML.substring(0, 200));
 
           if (!jitsiContainerRef.current || jitsiContainerRef.current.childElementCount === 0) {
             console.error('❌ Iframe was not created');
             setError('Unable to render embedded call. Open in a new tab below.');
           } else {
-            console.log('✅ Iframe exists but events may not have fired');
+            // console.log('✅ Iframe exists but events may not have fired');
             // Give it a bit more time, iframe might still be loading
           }
           setIsLoading(false);

@@ -12,14 +12,14 @@ const VideoCallSimple = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
   useEffect(() => {
     if (!roomName) return;
 
-    console.log('🚀 Loading Jitsi iframe for room:', roomName);
-    console.log('🚀 Domain:', jitsiDomain);
+    // console.log('🚀 Loading Jitsi iframe for room:', roomName);
+    // console.log('🚀 Domain:', jitsiDomain);
 
     // Simple iframe approach - let Jitsi handle everything
     const baseUrl = `https://${jitsiDomain}`;
     const iframeUrl = `${baseUrl}/${roomName}#config.startWithAudioMuted=false&config.startWithVideoMuted=false&config.prejoinPageEnabled=false&config.notifications=[]&interfaceConfig.DISABLE_JOIN_LEAVE_NOTIFICATIONS=true`;
 
-    console.log('🚀 Iframe URL:', iframeUrl);
+    // console.log('🚀 Iframe URL:', iframeUrl);
 
     if (iframeRef.current) {
       iframeRef.current.src = iframeUrl;
@@ -32,7 +32,7 @@ const VideoCallSimple = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
 
     // Listen for iframe load
     const handleIframeLoad = () => {
-      console.log('✅ Iframe loaded');
+      // console.log('✅ Iframe loaded');
       setIsLoading(false);
       setError(null);
     };

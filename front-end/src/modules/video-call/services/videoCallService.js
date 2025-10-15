@@ -79,9 +79,9 @@ class VideoCallService {
   // Start tracking a video call session
   async startVideoCallSession(roomName, userId) {
     try {
-      console.log('=== STARTING CALL SESSION ===');
-      console.log('Room Name:', roomName);
-      console.log('User ID:', userId);
+      // console.log('=== STARTING CALL SESSION ===');
+      // console.log('Room Name:', roomName);
+      // console.log('User ID:', userId);
       
       // Mark the room as started via API and add user to participants
       const response = await fetch(`${this.baseURL}/video-call/rooms/${roomName}/start`, {
@@ -96,10 +96,10 @@ class VideoCallService {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Session started:', result);
+        // console.log('Session started:', result);
       }
       
-      console.log('=== END STARTING CALL SESSION ===');
+      // console.log('=== END STARTING CALL SESSION ===');
     } catch (error) {
       console.error('Error starting call session:', error);
     }
@@ -108,9 +108,9 @@ class VideoCallService {
   // End a video call session
   async endVideoCallSession(roomName, duration = 0) {
     try {
-      console.log('=== ENDING CALL SESSION ===');
-      console.log('Room Name:', roomName);
-      console.log('Duration:', duration);
+      // console.log('=== ENDING CALL SESSION ===');
+      // console.log('Room Name:', roomName);
+      // console.log('Duration:', duration);
 
       const response = await fetch(`${this.baseURL}/video-call/rooms/${roomName}`, {
         method: 'DELETE',
@@ -124,8 +124,8 @@ class VideoCallService {
       }
 
       const result = await response.json();
-      console.log('Session ended:', result);
-      console.log('=== END ENDING CALL SESSION ===');
+      // console.log('Session ended:', result);
+      // console.log('=== END ENDING CALL SESSION ===');
       
       return result.data;
     } catch (error) {
@@ -137,8 +137,8 @@ class VideoCallService {
   // Get user call statistics from API
   async getCallStatistics(userId) {
     try {
-      console.log('=== FETCHING STATISTICS FROM API ===');
-      console.log('User ID:', userId);
+      // console.log('=== FETCHING STATISTICS FROM API ===');
+      // console.log('User ID:', userId);
 
       const response = await fetch(`${this.baseURL}/video-call/statistics/${userId}`, {
         method: 'GET',
@@ -152,8 +152,8 @@ class VideoCallService {
       }
 
       const result = await response.json();
-      console.log('Statistics result:', result.data);
-      console.log('=== END FETCHING STATISTICS ===');
+      // console.log('Statistics result:', result.data);
+      // console.log('=== END FETCHING STATISTICS ===');
       
       return result.data;
     } catch (error) {
@@ -179,10 +179,10 @@ class VideoCallService {
    */
   async joinQueue(userId, level, preferences = {}) {
     try {
-      console.log('=== JOINING QUEUE VIA API ===');
-      console.log('User ID:', userId);
-      console.log('Level:', level);
-      console.log('Preferences:', preferences);
+      // console.log('=== JOINING QUEUE VIA API ===');
+      // console.log('User ID:', userId);
+      // console.log('Level:', level);
+      // console.log('Preferences:', preferences);
 
       const response = await fetch(`${this.baseURL}/video-call/queue/join`, {
         method: 'POST',
@@ -202,8 +202,8 @@ class VideoCallService {
       }
 
       const result = await response.json();
-      console.log('Queue join result:', result);
-      console.log('=== END JOINING QUEUE ===');
+      // console.log('Queue join result:', result);
+      // console.log('=== END JOINING QUEUE ===');
       
       return result;
     } catch (error) {
@@ -217,8 +217,8 @@ class VideoCallService {
    */
   async leaveQueue(userId) {
     try {
-      console.log('=== LEAVING QUEUE VIA API ===');
-      console.log('User ID:', userId);
+      // console.log('=== LEAVING QUEUE VIA API ===');
+      // console.log('User ID:', userId);
 
       const response = await fetch(`${this.baseURL}/video-call/queue/leave/${userId}`, {
         method: 'DELETE',
@@ -232,8 +232,8 @@ class VideoCallService {
       }
 
       const result = await response.json();
-      console.log('Queue leave result:', result);
-      console.log('=== END LEAVING QUEUE ===');
+      // console.log('Queue leave result:', result);
+      // console.log('=== END LEAVING QUEUE ===');
       
       return result;
     } catch (error) {

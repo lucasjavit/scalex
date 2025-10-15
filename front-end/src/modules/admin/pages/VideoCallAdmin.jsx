@@ -21,18 +21,18 @@ const VideoCallAdmin = () => {
   const baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
 
   useEffect(() => {
-    console.log('🔐 Admin Page - isAdmin status:', isAdmin);
-    console.log('👤 User:', user);
+    // console.log('🔐 Admin Page - isAdmin status:', isAdmin);
+    // console.log('👤 User:', user);
     
     // Redirect if not admin
     if (isAdmin === false) {
-      console.log('❌ Not admin, redirecting to /video-call');
+      // console.log('❌ Not admin, redirecting to /video-call');
       navigate('/video-call');
       return;
     }
 
     if (isAdmin === true) {
-      console.log('✅ Is admin, loading data...');
+      // console.log('✅ Is admin, loading data...');
       loadData();
       // Poll every 5 seconds
       const interval = setInterval(loadData, 5000);
@@ -42,28 +42,28 @@ const VideoCallAdmin = () => {
 
   const loadData = async () => {
     try {
-      console.log('🔍 Admin: Loading data from API...');
-      console.log('📡 Base URL:', baseURL);
+      // console.log('🔍 Admin: Loading data from API...');
+      // console.log('📡 Base URL:', baseURL);
       
       const [statusRes, statsRes] = await Promise.all([
         fetch(`${baseURL}/video-call/system-status`),
         fetch(`${baseURL}/video-call/admin/statistics`)
       ]);
 
-      console.log('📊 Status Response:', statusRes.status, statusRes.statusText);
-      console.log('📊 Stats Response:', statsRes.status, statsRes.statusText);
+      // console.log('📊 Status Response:', statusRes.status, statusRes.statusText);
+      // console.log('📊 Stats Response:', statsRes.status, statsRes.statusText);
 
       const statusData = await statusRes.json();
       const statsData = await statsRes.json();
 
-      console.log('✅ Status Data:', statusData);
-      console.log('✅ Stats Data:', statsData);
+      // console.log('✅ Status Data:', statusData);
+      // console.log('✅ Stats Data:', statsData);
 
       setSystemStatus(statusData.data);
       setAdminStats(statsData.data);
       setLoading(false);
       
-      console.log('✅ Data loaded successfully!');
+      // console.log('✅ Data loaded successfully!');
     } catch (error) {
       console.error('❌ Error loading admin data:', error);
       setLoading(false);

@@ -4,7 +4,7 @@ import { auth } from "../services/firebaseAuth";
 export default function LogoutButton() {
   const handleLogout = () => {
     signOut(auth)
-      .then(() => console.log("Logout successful"))
+      .then(() => // console.log("Logout successful"))
       .catch((error) => console.error("Logout error:", error));
   };
 

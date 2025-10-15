@@ -43,7 +43,7 @@ const VideoCallDashboard = () => {
     try {
       const status = await videoCallService.getSystemStatus();
       setSystemStatus(status);
-      console.log('System status:', status);
+      // console.log('System status:', status);
     } catch (error) {
       console.error('Error loading system status:', error);
     }

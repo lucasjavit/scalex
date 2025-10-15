@@ -19,7 +19,6 @@ const Practice = () => {
   const [lessonProgress, setLessonProgress] = useState(null);
 
   useEffect(() => {
-    console.log('🔄 useEffect triggered - user:', !!user, 'lessonId:', lessonId);
     if (user && !hasLoaded) {
       setHasLoaded(true);
       loadLessonData();
@@ -29,74 +28,74 @@ const Practice = () => {
   const loadLessonData = async () => {
     try {
       setLoading(true);
-      console.log('🔄 Loading lesson data for lessonId:', lessonId);
+      // console.log('🔄 Loading lesson data for lessonId:', lessonId);
 
       // Get backend user
       const userData = await apiService.getUserByFirebaseUid(user.uid);
       setBackendUser(userData);
-      console.log('✅ Backend user:', userData.id);
+      // console.log('✅ Backend user:', userData.id);
 
       // Load lesson
       const lessonData = await apiService.getEnglishLesson(lessonId);
       setLesson(lessonData);
-      console.log('✅ Lesson loaded:', lessonData.title, lessonData.level);
+      // console.log('✅ Lesson loaded:', lessonData.title, lessonData.level);
 
       // Check lesson progress first
       const progressData = await apiService.getLessonProgress(userData.id, lessonId);
       setLessonProgress(progressData);
-      console.log('📊 Lesson progress:', progressData.status);
+      // console.log('📊 Lesson progress:', progressData.status);
       
       if (progressData.status === 'completed') {
         // Lesson completed - check for due reviews
         const reviewsData = await apiService.getDueReviewsForLesson(userData.id, lessonId);
-        console.log('📅 Due reviews for completed lesson:', reviewsData.length);
+        // console.log('📅 Due reviews for completed lesson:', reviewsData.length);
         
         if (reviewsData.length > 0) {
           // Show due review cards
           const cardsData = reviewsData.map(review => review.question);
           setCards(cardsData);
-          console.log('✅ Showing due review cards:', cardsData.length);
+          // console.log('✅ Showing due review cards:', cardsData.length);
         } else {
           // No reviews due - show completion message
           setCards([]);
-          console.log('❌ Lesson completed - no reviews due');
+          // console.log('❌ Lesson completed - no reviews due');
         }
       } else {
         // Lesson not completed - check if there are due reviews first
         const reviewsData = await apiService.getDueReviewsForLesson(userData.id, lessonId);
-        console.log('📅 Due reviews for incomplete lesson:', reviewsData.length);
+        // console.log('📅 Due reviews for incomplete lesson:', reviewsData.length);
         
         if (reviewsData.length > 0) {
           // Show due review cards
           const cardsData = reviewsData.map(review => review.question);
           setCards(cardsData);
-          console.log('✅ Showing due review cards:', cardsData.length);
+          // console.log('✅ Showing due review cards:', cardsData.length);
         } else {
           // No reviews due - show all cards for practice
           const allCardsData = await apiService.getQuestionsByLesson(lessonId, userData.id);
-          console.log('📚 Total questions in lesson:', allCardsData.length);
+          // console.log('📚 Total questions in lesson:', allCardsData.length);
           
           setCards(allCardsData);
-          console.log('✅ Showing all cards for practice:', allCardsData.length);
+          // console.log('✅ Showing all cards for practice:', allCardsData.length);
         }
       }
     } catch (error) {
       console.error('❌ Error loading lesson:', error);
       console.error('❌ Error details:', error.response?.data || error.message);
     } finally {
-      console.log('🏁 Setting loading to false');
+      // console.log('🏁 Setting loading to false');
       setLoading(false);
     }
   };
 
   const handleCardDifficultySubmit = async (questionId, difficulty) => {
     try {
-      console.log('🎯 Submitting card difficulty:', {
-        userId: backendUser?.id,
-        lessonId,
-        questionId,
-        difficulty
-      });
+      // console.log('🎯 Submitting card difficulty:', {
+      //   userId: backendUser?.id,
+      //   lessonId,
+      //   questionId,
+      //   difficulty
+      // });
       
       // Submit the card difficulty rating
       await apiService.submitCardDifficulty(
@@ -106,7 +105,7 @@ const Practice = () => {
         difficulty
       );
       
-      console.log('✅ Card difficulty submitted successfully');
+      // console.log('✅ Card difficulty submitted successfully');
 
       // Move to next card
       if (currentCardIndex < cards.length - 1) {
@@ -130,10 +129,10 @@ const Practice = () => {
     navigate(`/english-course/progress/${lessonId}`);
   };
 
-  console.log('🔄 Component state - loading:', loading, 'lesson:', !!lesson, 'cards.length:', cards.length, 'currentCardIndex:', currentCardIndex);
+  // console.log('🔄 Component state - loading:', loading, 'lesson:', !!lesson, 'cards.length:', cards.length, 'currentCardIndex:', currentCardIndex);
   
   if (loading) {
-    console.log('⏳ Showing loading screen');
+    // console.log('⏳ Showing loading screen');
     return (
       <div className="bg-copilot-bg-primary min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -144,10 +143,10 @@ const Practice = () => {
     );
   }
 
-  console.log('🎯 Render check - lesson:', !!lesson, 'cards.length:', cards.length);
+  // console.log('🎯 Render check - lesson:', !!lesson, 'cards.length:', cards.length);
   
   if (!lesson || cards.length === 0) {
-    console.log('❌ Showing no cards message - lesson:', !!lesson, 'cards.length:', cards.length);
+    // console.log('❌ Showing no cards message - lesson:', !!lesson, 'cards.length:', cards.length);
     return (
       <div className="bg-copilot-bg-primary min-h-screen">
         <div className="max-w-3xl mx-auto px-6 py-12">
@@ -193,11 +192,11 @@ const Practice = () => {
   const currentCard = cards[currentCardIndex];
   const progress = ((currentCardIndex + 1) / cards.length) * 100;
 
-  console.log('🎯 Final render check - isCompleted:', isCompleted, 'currentCard:', !!currentCard, 'cards.length:', cards.length);
+  // console.log('🎯 Final render check - isCompleted:', isCompleted, 'currentCard:', !!currentCard, 'cards.length:', cards.length);
 
   // Show completion message
   if (isCompleted) {
-    console.log('🎉 Showing completion message');
+    // console.log('🎉 Showing completion message');
     return (
       <div className="bg-copilot-bg-primary min-h-screen">
         <div className="max-w-3xl mx-auto px-6 py-12">
@@ -231,7 +230,7 @@ const Practice = () => {
     );
   }
 
-  console.log('✅ Rendering practice interface with cards:', cards.length);
+  // console.log('✅ Rendering practice interface with cards:', cards.length);
   
   return (
     <div className="bg-copilot-bg-primary min-h-screen">

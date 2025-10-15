@@ -65,21 +65,21 @@ export default function Navbar() {
   // Control glow effect - glow for 30 seconds after login, then stop permanently
   useEffect(() => {
     if (user && !hasGlowed) {
-      console.log('🔥 Starting glow effect for ScaleX');
+      // console.log('🔥 Starting glow effect for ScaleX');
       // Start glowing when user logs in
       setShouldGlow(true);
       setHasGlowed(true);
       
       // Stop glowing after 30 seconds (30000ms)
       const timer = setTimeout(() => {
-        console.log('⏰ Stopping glow effect after 30 seconds');
+        // console.log('⏰ Stopping glow effect after 30 seconds');
         setShouldGlow(false);
       }, 30000);
       
       // Cleanup timer on unmount
       return () => clearTimeout(timer);
     } else if (!user) {
-      console.log('🔄 Resetting glow state on logout');
+      // console.log('🔄 Resetting glow state on logout');
       // Reset when user logs out
       setShouldGlow(false);
       setHasGlowed(false);
@@ -93,7 +93,9 @@ export default function Navbar() {
 
   const handleLogout = () => {
     signOut(auth)
-      .then(() => console.log('Logout successful'))
+      .then(() => {
+        // console.log('Logout successful');
+      })
       .catch((error) => console.error('Logout error:', error));
   };
 

@@ -83,19 +83,19 @@ export default function Card({
           
           if (selectedVoice) {
             utterance.voice = selectedVoice;
-            console.log('Selected voice:', selectedVoice.name, 'for language:', language);
+            // console.log('Selected voice:', selectedVoice.name, 'for language:', language);
           }
         }
         
         // Eventos para controle de estado
         utterance.onstart = () => {
           setIsSpeaking(true);
-          console.log('Audio started:', selectedVoice?.name || 'Default voice');
+          // console.log('Audio started:', selectedVoice?.name || 'Default voice');
         };
         
         utterance.onend = () => {
           setIsSpeaking(false);
-          console.log('Audio ended');
+          // console.log('Audio ended');
         };
         
         utterance.onerror = (event) => {
