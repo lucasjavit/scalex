@@ -30,7 +30,8 @@
     "practiceDaily": "Practice daily with our interactive method for fast results",
     "startPracticingNow": "Start Practicing Now",
     "lessons": "Lessons",
-    "progressPercentage": "Progress"
+    "progressPercentage": "Progress",
+    "howItWorks": "How It Works"
   },
   "stats": {
     "overallProgress": "Overall Progress",
@@ -41,6 +42,101 @@
     "correctAnswers": "{{correct}}/{{total}} correct answers",
     "lessonsStarted": "lessons started",
     "questionsToReview": "questions to review"
+  },
+  "howItWorks": {
+    "title": "How the Learning System Works",
+    "subtitle": "Understand how to make the most of your English learning journey",
+    "backToDashboard": "Back to Dashboard",
+    "overview": {
+      "title": "System Overview",
+      "spacedRepetition": {
+        "title": "Spaced Repetition",
+        "description": "Our system uses spaced repetition techniques to optimize your learning. Cards appear at the ideal moments to maximize retention."
+      },
+      "levels": {
+        "title": "Progressive Levels",
+        "description": "Start at Beginner level and gradually advance to Elementary, Intermediate, and Advanced. Each level unlocks after completing the previous one."
+      }
+    },
+    "gettingStarted": {
+      "title": "Getting Started",
+      "step1": {
+        "title": "Choose a Lesson",
+        "description": "On the dashboard, click on a Beginner level lesson to start. Lessons are unlocked sequentially."
+      },
+      "step2": {
+        "title": "Practice the Cards",
+        "description": "See the question on the front of the card, think of the answer, and click to reveal. Rate your difficulty using the buttons: Again, Hard, Good, Easy."
+      },
+      "step3": {
+        "title": "Complete the Lesson",
+        "description": "After practicing all cards in the lesson, it will be marked as completed and cards will enter the review system."
+      }
+    },
+    "difficultyButtons": {
+      "title": "Difficulty Buttons",
+      "again": {
+        "title": "Again",
+        "description": "Didn't know the answer. Appears in 1 minute."
+      },
+      "hard": {
+        "title": "Hard",
+        "description": "Knew it, but it was difficult. Appears in 6 minutes."
+      },
+      "good": {
+        "title": "Good",
+        "description": "Knew it well. Appears in 10 minutes (first time) or 1 day (second time)."
+      },
+      "easy": {
+        "title": "Easy",
+        "description": "Very easy. Appears in 3 days."
+      }
+    },
+    "reviewSystem": {
+      "title": "Review System",
+      "howItWorks": {
+        "title": "How It Works",
+        "description": "After completing a lesson, cards enter the review system. The algorithm calculates when each card should appear again based on your difficulty rating."
+      },
+      "intervals": {
+        "title": "Review Intervals"
+      }
+    },
+    "progressTracking": {
+      "title": "Progress Tracking",
+      "accuracy": {
+        "title": "Accuracy",
+        "description": "Track how many answers you got right"
+      },
+      "lessons": {
+        "title": "Completed Lessons",
+        "description": "See how many lessons you've finished"
+      },
+      "reviews": {
+        "title": "Pending Reviews",
+        "description": "How many cards are ready for review"
+      }
+    },
+    "tips": {
+      "title": "Tips for Better Results",
+      "consistency": {
+        "title": "Be Consistent",
+        "description": "Practice a little every day instead of a lot at once"
+      },
+      "honest": {
+        "title": "Be Honest",
+        "description": "Rate your difficulty correctly to optimize the system"
+      },
+      "timing": {
+        "title": "Respect the Intervals",
+        "description": "Don't force reviews before time - the system is optimized"
+      },
+      "review": {
+        "title": "Review Regularly",
+        "description": "Use the \"Review All Lessons\" button to review due cards"
+      }
+    },
+    "startLearning": "Start Learning Now"
   }
 }
 

@@ -9,6 +9,7 @@ import PrivateRoute from "./PrivateRoute";
 
 // English Course Pages
 import EnglishDashboard from "../modules/english-course/pages/Dashboard";
+import HowItWorks from "../modules/english-course/pages/HowItWorks";
 import LessonsList from "../modules/english-course/pages/LessonsList";
 import EnglishPractice from "../modules/english-course/pages/Practice";
 import EnglishProgress from "../modules/english-course/pages/Progress";
@@ -55,6 +56,14 @@ export default function AppRoutes() {
               element={
                 <PrivateRoute>
                   <EnglishDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/english-course/how-it-works"
+              element={
+                <PrivateRoute>
+                  <HowItWorks />
                 </PrivateRoute>
               }
             />

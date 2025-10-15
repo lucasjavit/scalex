@@ -162,8 +162,12 @@ class ApiService {
   }
 
   // Question methods
-  async getQuestionsByLesson(lessonId) {
-    return this.request(`/english-course/lessons/${lessonId}/questions`);
+  async getQuestionsByLesson(lessonId, userId) {
+    const params = new URLSearchParams();
+    if (userId) params.append('userId', userId);
+    
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request(`/english-course/lessons/${lessonId}/questions${query}`);
   }
 
   async getQuestion(questionId) {

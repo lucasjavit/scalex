@@ -30,7 +30,8 @@
     "practiceDaily": "Practica diariamente con nuestro método interactivo para resultados rápidos",
     "startPracticingNow": "Comenzar a Practicar Ahora",
     "lessons": "Lecciones",
-    "progressPercentage": "Progreso"
+    "progressPercentage": "Progreso",
+    "howItWorks": "Cómo Funciona"
   },
   "stats": {
     "overallProgress": "Progreso General",
@@ -41,6 +42,101 @@
     "correctAnswers": "{{correct}}/{{total}} respuestas correctas",
     "lessonsStarted": "lecciones iniciadas",
     "questionsToReview": "preguntas para revisar"
+  },
+  "howItWorks": {
+    "title": "Cómo Funciona el Sistema de Aprendizaje",
+    "subtitle": "Entiende cómo aprovechar al máximo tu viaje de aprendizaje de inglés",
+    "backToDashboard": "Volver al Dashboard",
+    "overview": {
+      "title": "Resumen del Sistema",
+      "spacedRepetition": {
+        "title": "Repetición Espaciada",
+        "description": "Nuestro sistema usa técnicas de repetición espaciada para optimizar tu aprendizaje. Las tarjetas aparecen en los momentos ideales para maximizar la retención."
+      },
+      "levels": {
+        "title": "Niveles Progresivos",
+        "description": "Comienza en el nivel Principiante y avanza gradualmente a Elemental, Intermedio y Avanzado. Cada nivel se desbloquea después de completar el anterior."
+      }
+    },
+    "gettingStarted": {
+      "title": "Cómo Empezar",
+      "step1": {
+        "title": "Elige una Lección",
+        "description": "En el dashboard, haz clic en una lección del nivel Principiante para comenzar. Las lecciones se desbloquean secuencialmente."
+      },
+      "step2": {
+        "title": "Practica las Tarjetas",
+        "description": "Ve la pregunta en el frente de la tarjeta, piensa en la respuesta y haz clic para revelar. Evalúa tu dificultad usando los botones: Again, Hard, Good, Easy."
+      },
+      "step3": {
+        "title": "Completa la Lección",
+        "description": "Después de practicar todas las tarjetas de la lección, se marcará como completada y las tarjetas entrarán al sistema de revisión."
+      }
+    },
+    "difficultyButtons": {
+      "title": "Botones de Dificultad",
+      "again": {
+        "title": "Again (Otra vez)",
+        "description": "No supe la respuesta. Aparece en 1 minuto."
+      },
+      "hard": {
+        "title": "Hard (Difícil)",
+        "description": "Lo supe, pero fue difícil. Aparece en 6 minutos."
+      },
+      "good": {
+        "title": "Good (Bueno)",
+        "description": "Lo supe bien. Aparece en 10 minutos (primera vez) o 1 día (segunda vez)."
+      },
+      "easy": {
+        "title": "Easy (Fácil)",
+        "description": "Muy fácil. Aparece en 3 días."
+      }
+    },
+    "reviewSystem": {
+      "title": "Sistema de Revisión",
+      "howItWorks": {
+        "title": "Cómo Funciona",
+        "description": "Después de completar una lección, las tarjetas entran al sistema de revisión. El algoritmo calcula cuándo cada tarjeta debe aparecer nuevamente basado en tu calificación de dificultad."
+      },
+      "intervals": {
+        "title": "Intervalos de Revisión"
+      }
+    },
+    "progressTracking": {
+      "title": "Seguimiento de Progreso",
+      "accuracy": {
+        "title": "Precisión",
+        "description": "Rastrea cuántas respuestas acertaste"
+      },
+      "lessons": {
+        "title": "Lecciones Completadas",
+        "description": "Ve cuántas lecciones has terminado"
+      },
+      "reviews": {
+        "title": "Revisiones Pendientes",
+        "description": "Cuántas tarjetas están listas para revisión"
+      }
+    },
+    "tips": {
+      "title": "Consejos para Mejores Resultados",
+      "consistency": {
+        "title": "Sé Consistente",
+        "description": "Practica un poco todos los días en lugar de mucho de una vez"
+      },
+      "honest": {
+        "title": "Sé Honesto",
+        "description": "Evalúa tu dificultad correctamente para optimizar el sistema"
+      },
+      "timing": {
+        "title": "Respeta los Intervalos",
+        "description": "No fuerces revisiones antes de tiempo - el sistema está optimizado"
+      },
+      "review": {
+        "title": "Revisa Regularmente",
+        "description": "Usa el botón \"Review All Lessons\" para revisar tarjetas pendientes"
+      }
+    },
+    "startLearning": "Comenzar a Aprender Ahora"
   }
 }
 

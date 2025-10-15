@@ -62,12 +62,23 @@ const Practice = () => {
           console.log('❌ Lesson completed - no reviews due');
         }
       } else {
-        // Lesson not completed - show all cards for practice
-        const allCardsData = await apiService.getQuestionsByLesson(lessonId);
-        console.log('📚 Total questions in lesson:', allCardsData.length);
+        // Lesson not completed - check if there are due reviews first
+        const reviewsData = await apiService.getDueReviewsForLesson(userData.id, lessonId);
+        console.log('📅 Due reviews for incomplete lesson:', reviewsData.length);
         
-        setCards(allCardsData);
-        console.log('✅ Showing all cards for practice:', allCardsData.length);
+        if (reviewsData.length > 0) {
+          // Show due review cards
+          const cardsData = reviewsData.map(review => review.question);
+          setCards(cardsData);
+          console.log('✅ Showing due review cards:', cardsData.length);
+        } else {
+          // No reviews due - show all cards for practice
+          const allCardsData = await apiService.getQuestionsByLesson(lessonId, userData.id);
+          console.log('📚 Total questions in lesson:', allCardsData.length);
+          
+          setCards(allCardsData);
+          console.log('✅ Showing all cards for practice:', allCardsData.length);
+        }
       }
     } catch (error) {
       console.error('❌ Error loading lesson:', error);

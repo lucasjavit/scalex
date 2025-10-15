@@ -153,6 +153,17 @@ const Dashboard = () => {
             {t('dashboard.subtitle')}
           </p>
 
+          {/* How It Works Link */}
+          <div className="flex justify-center gap-4 mb-6">
+            <Link
+              to="/english-course/how-it-works"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot text-copilot-text-primary hover:bg-copilot-bg-tertiary transition-colors"
+            >
+              <span>ℹ️</span>
+              {t('dashboard.howItWorks', 'Como Funciona')}
+            </Link>
+          </div>
+
           <Link
             to="/english-course/review"
             className={`inline-flex items-center gap-2 px-6 py-3 rounded-copilot font-semibold transition-all duration-200 shadow-copilot-lg ${

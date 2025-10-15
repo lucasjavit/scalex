@@ -57,8 +57,11 @@ export class EnglishCourseController {
   }
 
   @Get('lessons/:lessonId/questions')
-  findQuestionsByLesson(@Param('lessonId', ParseUUIDPipe) lessonId: string) {
-    return this.englishCourseService.findQuestionsByLesson(lessonId);
+  findQuestionsByLesson(
+    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+    @Query('userId') userId?: string
+  ) {
+    return this.englishCourseService.findQuestionsByLesson(lessonId, userId);
   }
 
 

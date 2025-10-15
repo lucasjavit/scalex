@@ -132,11 +132,38 @@ export class EnglishCourseService {
     return await this.questionRepository.save(question);
   }
 
-  async findQuestionsByLesson(lessonId: string): Promise<Question[]> {
-    return await this.questionRepository.find({
-      where: { lessonId },
-      order: { questionNumber: 'ASC' },
+  async findQuestionsByLesson(lessonId: string, userId?: string): Promise<Question[]> {
+    // If no userId provided, return all questions (for admin purposes)
+    if (!userId) {
+      return await this.questionRepository.find({
+        where: { lessonId },
+        order: { questionNumber: 'ASC' },
+      });
+    }
+
+    // For regular users, check if there are due reviews first
+    const dueReviews = await this.getDueReviewsForLesson(userId, lessonId);
+    
+    if (dueReviews.length > 0) {
+      // Return only questions that are due for review
+      return dueReviews.map(review => review.question);
+    }
+
+    // If no due reviews, check lesson progress
+    const progress = await this.progressRepository.findOne({
+      where: { userId, lessonId },
     });
+
+    if (!progress || progress.status === 'not_started') {
+      // Lesson not started - return all questions for initial practice
+      return await this.questionRepository.find({
+        where: { lessonId },
+        order: { questionNumber: 'ASC' },
+      });
+    }
+
+    // Lesson in progress or completed but no due reviews - return empty array
+    return [];
   }
 
   async findQuestionById(id: string): Promise<Question> {
@@ -209,8 +236,13 @@ export class EnglishCourseService {
 
     // Auto-complete if accuracy is high enough and user has practiced enough
     // Require at least 5 attempts and 80% accuracy, or 100% accuracy with at least 1 attempt
-    const shouldComplete = progress.accuracyPercentage >= 80 && 
-      (progress.totalAttempts >= 5 || (progress.accuracyPercentage === 100 && progress.totalAttempts >= 1));
+    // OR if user has practiced all questions in the lesson (regardless of accuracy)
+    const totalQuestions = await this.questionRepository.count({ where: { lessonId } });
+    const hasPracticedAllQuestions = progress.totalAttempts >= totalQuestions;
+    
+    const shouldComplete = (progress.accuracyPercentage >= 80 && 
+      (progress.totalAttempts >= 5 || (progress.accuracyPercentage === 100 && progress.totalAttempts >= 1))) ||
+      hasPracticedAllQuestions;
     
     if (shouldComplete) {
       progress.status = ProgressStatus.COMPLETED;
@@ -372,24 +404,42 @@ export class EnglishCourseService {
       });
 
       const now = new Date();
-      let intervalDays: number;
-      let easeFactor: number;
+      let intervalDays: number = 1; // Default to 1 day
+      let easeFactor: number = 2.5; // Default ease factor
 
       if (review) {
         // Update existing review with SM-2 algorithm
         const isCorrect = difficulty !== 'again';
         
         if (isCorrect) {
-          if (review.reviewCount === 0) {
-            intervalDays = 1;
-          } else if (review.reviewCount === 1) {
-            intervalDays = 6;
-          } else {
-            intervalDays = Math.round(review.intervalDays * review.easeFactor);
+          // Anki-style intervals for correct answers
+          if (difficulty === 'again') {
+            intervalDays = 0; // 1 minute
+          } else if (difficulty === 'hard') {
+            intervalDays = 0; // 6 minutes
+          } else if (difficulty === 'good') {
+            if (review.reviewCount === 0) {
+              intervalDays = 0; // 10 minutes (first time)
+            } else if (review.reviewCount === 1) {
+              intervalDays = 1; // 1 day (second time)
+            } else {
+              intervalDays = Math.round(review.intervalDays * review.easeFactor);
+            }
+          } else if (difficulty === 'easy') {
+            intervalDays = 3; // 3 days
           }
-          easeFactor = Math.min(3.0, Number(review.easeFactor) + 0.1);
+          
+          // Adjust ease factor based on difficulty (SM-2 algorithm)
+          if (difficulty === 'hard') {
+            easeFactor = Math.max(1.3, Number(review.easeFactor) - 0.2);
+          } else if (difficulty === 'good') {
+            easeFactor = Number(review.easeFactor); // Keep same
+          } else if (difficulty === 'easy') {
+            easeFactor = Math.min(3.0, Number(review.easeFactor) + 0.1);
+          }
         } else {
-          intervalDays = 1;
+          // "Again" - reset interval and decrease ease factor
+          intervalDays = 0; // 1 minute
           easeFactor = Math.max(1.3, Number(review.easeFactor) - 0.2);
         }
 
@@ -399,8 +449,17 @@ export class EnglishCourseService {
         review.lastReviewedAt = now;
         review.isDue = false;
       } else {
-        // Create new review with initial values
-        intervalDays = difficulty === 'again' ? 1 : (difficulty === 'hard' ? 1 : (difficulty === 'good' ? 4 : 7));
+        // Create new review with initial values (Anki-style intervals)
+        if (difficulty === 'again') {
+          intervalDays = 0; // 1 minute (0.0007 days)
+        } else if (difficulty === 'hard') {
+          intervalDays = 0; // 6 minutes (0.004 days)
+        } else if (difficulty === 'good') {
+          intervalDays = 0; // 10 minutes (0.007 days)
+        } else if (difficulty === 'easy') {
+          intervalDays = 3; // 3 days
+        }
+        
         easeFactor = 2.5; // Default ease factor
 
         review = this.reviewRepository.create({
@@ -417,7 +476,19 @@ export class EnglishCourseService {
 
       // Calculate next review date
       const nextReviewDate = new Date();
-      nextReviewDate.setDate(nextReviewDate.getDate() + intervalDays);
+      if (intervalDays === 0) {
+        // For minute-based intervals (Again, Hard, Good first time)
+        if (difficulty === 'again') {
+          nextReviewDate.setMinutes(nextReviewDate.getMinutes() + 1); // 1 minute
+        } else if (difficulty === 'hard') {
+          nextReviewDate.setMinutes(nextReviewDate.getMinutes() + 6); // 6 minutes
+        } else if (difficulty === 'good' && review.reviewCount === 0) {
+          nextReviewDate.setMinutes(nextReviewDate.getMinutes() + 10); // 10 minutes
+        }
+      } else {
+        // For day-based intervals
+        nextReviewDate.setDate(nextReviewDate.getDate() + intervalDays);
+      }
       review.nextReviewDate = nextReviewDate;
 
       await this.reviewRepository.save(review);
