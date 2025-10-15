@@ -151,19 +151,19 @@ export default function Navbar() {
                 Video Call
               </button>
               
-              {/* Admin Button - Only visible for admins */}
+              {/* Admin Panel Button - Only visible for admins */}
               {isAdmin && (
                 <button
-                  onClick={() => navigate('/video-call/admin')}
-                  className={`text-sm font-medium transition-colors duration-200 flex items-center gap-1 ${
-                    location.pathname === '/video-call/admin'
-                      ? 'text-copilot-accent-primary'
-                      : 'text-yellow-600 hover:text-yellow-700'
+                  onClick={() => navigate('/admin')}
+                  className={`text-sm font-medium transition-colors duration-200 flex items-center gap-1 px-3 py-1.5 rounded-lg ${
+                    location.pathname.startsWith('/admin')
+                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                      : 'text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50'
                   }`}
-                  title="Painel de Administração"
+                  title="Admin Panel"
                 >
                   <span>🔧</span>
-                  <span>Admin</span>
+                  <span>Admin Panel</span>
                 </button>
               )}
             </div>

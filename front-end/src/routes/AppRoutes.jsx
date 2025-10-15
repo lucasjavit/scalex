@@ -14,8 +14,8 @@ import EnglishPractice from "../modules/english-course/pages/Practice";
 import EnglishProgress from "../modules/english-course/pages/Progress";
 import EnglishReview from "../modules/english-course/pages/Review";
 
-// Admin English Course
-import AdminEnglishCourse from "../modules/admin-english-course";
+// Admin Panel
+import { AdminRoutes } from "../modules/admin";
 
 // Video Call Module
 import VideoCallRoutes from "../modules/video-call/VideoCallRoutes";
@@ -91,12 +91,12 @@ export default function AppRoutes() {
               }
             />
 
-            {/* Admin English Course Routes */}
+            {/* Admin Panel Routes (English Course + Video Call) */}
             <Route
-              path="/admin/english-course/*"
+              path="/admin/*"
               element={
                 <PrivateRoute>
-                  <AdminEnglishCourse />
+                  <AdminRoutes />
                 </PrivateRoute>
               }
             />
