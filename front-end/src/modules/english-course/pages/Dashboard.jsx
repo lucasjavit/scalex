@@ -36,6 +36,18 @@ const Dashboard = () => {
 
       const statsData = await apiService.getUserStatistics(backendUser.id);
       setStatistics(statsData);
+      
+      // Debug logs
+      console.log('📊 Dashboard data loaded:');
+      console.log('Lessons:', lessonsData);
+      console.log('Progress:', progressData);
+      console.log('Statistics:', statsData);
+      console.log('Grouped lessons:', {
+        beginner: lessonsData.filter(l => l.level === 'beginner'),
+        elementary: lessonsData.filter(l => l.level === 'elementary'),
+        intermediate: lessonsData.filter(l => l.level === 'intermediate'),
+        advanced: lessonsData.filter(l => l.level === 'advanced'),
+      });
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -44,7 +56,9 @@ const Dashboard = () => {
   };
 
   const getProgressForLesson = (lessonId) => {
-    return progress.find((p) => p.lessonId === lessonId);
+    const lessonProgress = progress.find((p) => p.lessonId === lessonId);
+    console.log(`🔍 Looking for progress for lesson ${lessonId}:`, lessonProgress);
+    return lessonProgress;
   };
 
   const getLessonStatus = (lesson) => {
@@ -77,11 +91,35 @@ const Dashboard = () => {
   // Calculate progress for each level deck
   const getDeckProgress = (levelLessons) => {
     if (levelLessons.length === 0) return 0;
-    const completed = levelLessons.filter(lesson => {
+    
+    console.log(`📈 Calculating progress for ${levelLessons[0]?.level || 'unknown'} level:`, levelLessons);
+    
+    let totalProgress = 0;
+    
+    levelLessons.forEach(lesson => {
       const prog = getProgressForLesson(lesson.id);
-      return prog?.status === 'completed';
-    }).length;
-    return Math.round((completed / levelLessons.length) * 100);
+      let lessonProgress = 0;
+      
+      if (prog?.status === 'completed') {
+        lessonProgress = 100;
+      } else if (prog?.status === 'in_progress') {
+        lessonProgress = 50;
+      } else {
+        lessonProgress = 0;
+      }
+      
+      console.log(`  - Lesson ${lesson.title} (${lesson.id}): status=${prog?.status}, progress=${lessonProgress}%`);
+      totalProgress += lessonProgress;
+    });
+    
+    const averageProgress = Math.round(totalProgress / levelLessons.length);
+    console.log(`📈 Deck progress calculation:`, {
+      level: levelLessons[0]?.level || 'unknown',
+      totalLessons: levelLessons.length,
+      totalProgress: totalProgress,
+      averageProgress: `${averageProgress}%`
+    });
+    return averageProgress;
   };
 
   // Get the first available lesson for a level (not completed or in progress)

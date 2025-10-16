@@ -137,6 +137,64 @@
       }
     },
     "startLearning": "Começar a Aprender Agora"
+  },
+  "progress": {
+    "title": "Progresso da Lição",
+    "subtitle": "Acompanhe sua jornada de aprendizado",
+    "loading": "Carregando progresso...",
+    "dataNotAvailable": "Dados de progresso não disponíveis",
+    "dataNotAvailableDescription": "Não foi possível carregar seus dados de progresso. Tente novamente.",
+    "backToDashboard": "Voltar ao Dashboard",
+    "accuracy": "Precisão",
+    "correct": "Corretas",
+    "totalAttempts": "Tentativas Totais",
+    "totalCards": "Total de Cartas",
+    "overallProgress": "Progresso Geral",
+    "complete": "Completo",
+    "practiceAgain": "Praticar Novamente",
+    "reviewAll": "Revisar Todas",
+    "dashboard": "Dashboard",
+    "cardStatistics": "Estatísticas das Cartas",
+    "mastered": "Dominadas",
+    "dueForReview": "Devidas para Revisão",
+    "newCards": "Cartas Novas",
+    "remaining": "Restantes",
+    "lessonDetails": "Detalhes da Lição",
+    "level": "Nível",
+    "grammarFocus": "Foco Gramatical",
+    "vocabulary": "Vocabulário",
+    "progressTimeline": "Linha do Tempo do Progresso",
+    "lastPracticed": "Última Prática",
+    "completed": "Completada",
+    "started": "Iniciada",
+    "quickActions": "Ações Rápidas",
+    "reviewAllLessons": "Revisar Todas as Lições"
+  },
+  "lessons": {
+    "basicGreetings": {
+      "title": "Cumprimentos Básicos",
+      "description": "Aprenda cumprimentos essenciais e expressões educadas"
+    },
+    "numbersAndTime": {
+      "title": "Números e Tempo",
+      "description": "Domine números, expressões de tempo e contagem básica"
+    },
+    "familyAndRelationships": {
+      "title": "Família e Relacionamentos",
+      "description": "Aprenda vocabulário de membros da família e relacionamentos"
+    },
+    "foodAndDrinks": {
+      "title": "Comida e Bebidas",
+      "description": "Aprenda a falar sobre comida, bebidas e preferências"
+    },
+    "pastSimple": {
+      "title": "Passado Simples - Verbos Regulares",
+      "description": "Aprenda a descrever ações que aconteceram no passado"
+    },
+    "presentPerfect": {
+      "title": "Presente Perfeito",
+      "description": "Aprenda a falar sobre experiências e passado recente"
+    }
   }
 }
 

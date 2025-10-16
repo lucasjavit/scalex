@@ -137,6 +137,64 @@
       }
     },
     "startLearning": "Start Learning Now"
+  },
+  "progress": {
+    "title": "Lesson Progress",
+    "subtitle": "Track your learning journey",
+    "loading": "Loading progress...",
+    "dataNotAvailable": "Progress data not available",
+    "dataNotAvailableDescription": "We couldn't load your progress data. Please try again.",
+    "backToDashboard": "Back to Dashboard",
+    "accuracy": "Accuracy",
+    "correct": "Correct",
+    "totalAttempts": "Total Attempts",
+    "totalCards": "Total Cards",
+    "overallProgress": "Overall Progress",
+    "complete": "Complete",
+    "practiceAgain": "Practice Again",
+    "reviewAll": "Review All",
+    "dashboard": "Dashboard",
+    "cardStatistics": "Card Statistics",
+    "mastered": "Mastered",
+    "dueForReview": "Due for Review",
+    "newCards": "New Cards",
+    "remaining": "Remaining",
+    "lessonDetails": "Lesson Details",
+    "level": "Level",
+    "grammarFocus": "Grammar Focus",
+    "vocabulary": "Vocabulary",
+    "progressTimeline": "Progress Timeline",
+    "lastPracticed": "Last Practiced",
+    "completed": "Completed",
+    "started": "Started",
+    "quickActions": "Quick Actions",
+    "reviewAllLessons": "Review All Lessons"
+  },
+  "lessons": {
+    "basicGreetings": {
+      "title": "Basic Greetings",
+      "description": "Learn essential greetings and polite expressions"
+    },
+    "numbersAndTime": {
+      "title": "Numbers and Time",
+      "description": "Master numbers, time expressions, and basic counting"
+    },
+    "familyAndRelationships": {
+      "title": "Family and Relationships",
+      "description": "Learn family members and relationship vocabulary"
+    },
+    "foodAndDrinks": {
+      "title": "Food and Drinks",
+      "description": "Learn to talk about food, drinks and preferences"
+    },
+    "pastSimple": {
+      "title": "Past Simple - Regular Verbs",
+      "description": "Learn to describe actions that happened in the past"
+    },
+    "presentPerfect": {
+      "title": "Present Perfect",
+      "description": "Learn to talk about experiences and recent past"
+    }
   }
 }
 
