@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useNotification } from '../../../hooks/useNotification';
 import apiService from '../../../services/api';
 import { useAuth } from '../../auth-social/context/AuthContext';
 import Card from '../components/Card';
@@ -8,6 +9,7 @@ const Practice = () => {
   const { lessonId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showError } = useNotification();
 
   const [lesson, setLesson] = useState(null);
   const [cards, setCards] = useState([]);
@@ -121,7 +123,7 @@ const Practice = () => {
         response: error.response?.data,
         status: error.response?.status
       });
-      alert(`Failed to submit difficulty: ${error.message}. Please try again.`);
+      showError(`Failed to submit difficulty: ${error.message}. Please try again.`);
     }
   };
 

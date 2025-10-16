@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNotification } from '../../../hooks/useNotification';
 import apiService from '../../../services/api';
 import AdminLayout from '../components/AdminLayout';
 
 const UserManagement = () => {
   const { t } = useTranslation(['englishCourse', 'common']);
+  const { showSuccess, showError, showConfirmation } = useNotification();
   const [email, setEmail] = useState('');
   const [user, setUser] = useState(null);
   const [userProgress, setUserProgress] = useState(null);
@@ -98,33 +100,43 @@ const UserManagement = () => {
   };
 
   const handleResetProgress = async (lessonId) => {
-    if (!confirm('Are you sure you want to reset this lesson progress? This action cannot be undone.')) {
-      return;
-    }
+    showConfirmation(
+      'Are you sure you want to reset this lesson progress? This action cannot be undone.',
+      () => {
+        resetProgress(lessonId);
+      }
+    );
+  };
 
+  const resetProgress = async (lessonId) => {
     try {
       await apiService.resetLessonProgress(user.id, lessonId);
       // Reload data
       handleSearch({ preventDefault: () => {} });
-      alert('Lesson progress reset successfully');
+      showSuccess('Lesson progress reset successfully');
     } catch (err) {
-      alert('Error resetting lesson progress');
+      showError('Error resetting lesson progress');
       console.error('Error resetting progress:', err);
     }
   };
 
   const handleResetAllProgress = async () => {
-    if (!confirm('Are you sure you want to reset ALL progress for this user? This action cannot be undone.')) {
-      return;
-    }
+    showConfirmation(
+      'Are you sure you want to reset ALL progress for this user? This action cannot be undone.',
+      () => {
+        resetAllProgress();
+      }
+    );
+  };
 
+  const resetAllProgress = async () => {
     try {
       await apiService.resetAllUserProgress(user.id);
       // Reload data
       handleSearch({ preventDefault: () => {} });
-      alert('All user progress reset successfully');
+      showSuccess('All user progress reset successfully');
     } catch (err) {
-      alert('Error resetting all progress');
+      showError('Error resetting all progress');
       console.error('Error resetting all progress:', err);
     }
   };

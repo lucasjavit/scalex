@@ -31,6 +31,16 @@
     "creating": "Creando...",
     "copy": "Copiar"
   },
+  "notifications": {
+    "success": "Éxito",
+    "error": "Error",
+    "warning": "Advertencia",
+    "info": "Información",
+    "close": "Cerrar",
+    "apiError": "Error de API",
+    "confirmationRequired": "Confirmación Requerida",
+    "pleaseWait": "Por favor, espere"
+  },
   "status": {
     "active": "Activo",
     "inactive": "Inactivo",

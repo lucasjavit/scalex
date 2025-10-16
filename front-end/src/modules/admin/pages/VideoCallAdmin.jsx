@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIsAdmin } from '../../../hooks/useIsAdmin';
+import { useNotification } from '../../../hooks/useNotification';
 import { useAuth } from '../../auth-social/context/AuthContext';
 import AdminLayout from '../components/AdminLayout';
 
@@ -8,6 +9,7 @@ const VideoCallAdmin = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
+  const { showSuccess, showError, showConfirmation } = useNotification();
   const [loading, setLoading] = useState(true);
   const [systemStatus, setSystemStatus] = useState(null);
   const [adminStats, setAdminStats] = useState(null);
@@ -72,10 +74,15 @@ const VideoCallAdmin = () => {
   };
 
   const handleDisableSystem = async () => {
-    if (!confirm('Are you sure you want to DISABLE the system manually?\n\nThis will:\n- Clear the queue\n- Stop all future sessions\n- System will be offline until reactivated')) {
-      return;
-    }
+    showConfirmation(
+      'Are you sure you want to DISABLE the system manually?\n\nThis will:\n- Clear the queue\n- Stop all future sessions\n- System will be offline until reactivated',
+      () => {
+        disableSystem();
+      }
+    );
+  };
 
+  const disableSystem = async () => {
     try {
       const response = await fetch(`${baseURL}/video-call/admin/disable`, {
         method: 'POST',
@@ -85,22 +92,27 @@ const VideoCallAdmin = () => {
       const result = await response.json();
       
       if (result.success) {
-        alert('✅ ' + result.message);
+        showSuccess(result.message);
         loadData();
       } else {
-        alert('❌ Error: ' + result.message);
+        showError('Error: ' + result.message);
       }
     } catch (error) {
       console.error('Error disabling system:', error);
-      alert('❌ Error disabling system');
+      showError('Error disabling system');
     }
   };
 
   const handleEnableSystem = async () => {
-    if (!confirm('Are you sure you want to ENABLE the system?\n\nThis will:\n- Return to automatic mode\n- Follow scheduled times')) {
-      return;
-    }
+    showConfirmation(
+      'Are you sure you want to ENABLE the system?\n\nThis will:\n- Return to automatic mode\n- Follow scheduled times',
+      () => {
+        enableSystem();
+      }
+    );
+  };
 
+  const enableSystem = async () => {
     try {
       const response = await fetch(`${baseURL}/video-call/admin/enable`, {
         method: 'POST',
@@ -110,14 +122,14 @@ const VideoCallAdmin = () => {
       const result = await response.json();
       
       if (result.success) {
-        alert('✅ ' + result.message);
+        showSuccess(result.message);
         loadData();
       } else {
-        alert('❌ Error: ' + result.message);
+        showError('Error: ' + result.message);
       }
     } catch (error) {
       console.error('Error enabling system:', error);
-      alert('❌ Error enabling system');
+      showError('Error enabling system');
     }
   };
 
@@ -145,24 +157,29 @@ const VideoCallAdmin = () => {
       const result = await response.json();
       
       if (result.success) {
-        alert('✅ ' + result.message);
+        showSuccess(result.message);
         setShowAddPeriodForm(false);
         setNewPeriod({ startHour: '', startMinute: '', endHour: '', endMinute: '' });
         loadData();
       } else {
-        alert('❌ ' + result.message);
+        showError(result.message);
       }
     } catch (error) {
       console.error('Error adding period:', error);
-      alert('❌ Error adding period');
+      showError('Error adding period');
     }
   };
 
   const handleRemovePeriod = async (index) => {
-    if (!confirm('Are you sure you want to remove this period?')) {
-      return;
-    }
+    showConfirmation(
+      'Are you sure you want to remove this period?',
+      () => {
+        removePeriod(index);
+      }
+    );
+  };
 
+  const removePeriod = async (index) => {
     try {
       const response = await fetch(`${baseURL}/video-call/admin/remove-period/${index}`, {
         method: 'DELETE',
@@ -172,22 +189,27 @@ const VideoCallAdmin = () => {
       const result = await response.json();
       
       if (result.success) {
-        alert('✅ ' + result.message);
+        showSuccess(result.message);
         loadData();
       } else {
-        alert('❌ ' + result.message);
+        showError(result.message);
       }
     } catch (error) {
       console.error('Error removing period:', error);
-      alert('❌ Error removing period');
+      showError('Error removing period');
     }
   };
 
   const handleClearQueue = async () => {
-    if (!confirm('Are you sure you want to clear the waiting queue?\n\nThis will remove ALL users currently waiting for a session.')) {
-      return;
-    }
+    showConfirmation(
+      'Are you sure you want to clear the waiting queue?\n\nThis will remove ALL users currently waiting for a session.',
+      () => {
+        clearQueue();
+      }
+    );
+  };
 
+  const clearQueue = async () => {
     try {
       setClearingQueue(true);
       const response = await fetch(`${baseURL}/video-call/admin/queue/clear`, {
@@ -197,14 +219,14 @@ const VideoCallAdmin = () => {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        alert(`✅ Queue cleared successfully!\n\nRemoved ${result.removedCount} users from the queue.`);
+        showSuccess(`Queue cleared successfully!\n\nRemoved ${result.removedCount} users from the queue.`);
         loadData(); // Reload data to update queue count
       } else {
-        alert(`❌ Error clearing queue: ${result.message || 'Unknown error'}`);
+        showError(`Error clearing queue: ${result.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error clearing queue:', error);
-      alert('❌ Error clearing queue');
+      showError('Error clearing queue');
     } finally {
       setClearingQueue(false);
     }

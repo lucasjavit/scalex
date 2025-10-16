@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import { useNotification } from '../../../hooks/useNotification';
 import { useAuth } from '../../auth-social/context/AuthContext';
 import videoCallService from '../services/videoCallService';
 
@@ -8,6 +9,7 @@ const VideoCallDashboard = () => {
   const { t } = useTranslation(['videoCall', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { showError, showWarning } = useNotification();
   const [statistics, setStatistics] = useState(null);
   const [systemStatus, setSystemStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -84,7 +86,7 @@ const VideoCallDashboard = () => {
       const handleFindPartner = async () => {
         try {
           if (!user?.uid) {
-            alert(t('dashboard.messages.userNotAuthenticated'));
+            showError(t('dashboard.messages.userNotAuthenticated'));
             return;
           }
 
@@ -92,7 +94,7 @@ const VideoCallDashboard = () => {
           if (!systemStatus?.isActive || !systemStatus?.canAcceptSessions) {
             const nextHour = String(systemStatus?.nextPeriod?.start.hour || 0).padStart(2, '0');
             const nextMinute = String(systemStatus?.nextPeriod?.start.minute || 0).padStart(2, '0');
-            alert(t('dashboard.messages.sessionUnavailable', { time: `${nextHour}:${nextMinute}` }));
+            showWarning(t('dashboard.messages.sessionUnavailable', { time: `${nextHour}:${nextMinute}` }));
             return;
           }
 
@@ -110,11 +112,11 @@ const VideoCallDashboard = () => {
             // Redirect to waiting page
             navigate('/video-call/waiting-queue');
           } else {
-            alert(result.message);
+            showError(result.message);
           }
         } catch (error) {
           console.error('Error joining queue:', error);
-          alert(t('dashboard.messages.errorJoiningQueue'));
+          showError(t('dashboard.messages.errorJoiningQueue'));
         }
       };
 
@@ -128,19 +130,19 @@ const VideoCallDashboard = () => {
     if (videoCallService.isValidRoomName(roomId)) {
       navigate(`/video-call/room/${roomId}`);
     } else {
-      alert(t('dashboard.messages.invalidRoomId'));
+      showError(t('dashboard.messages.invalidRoomId'));
     }
   };
 
       const handleCreateRoom = async () => {
         try {
           if (!user) {
-            alert('User not authenticated. Please login first.');
+            showError('User not authenticated. Please login first.');
             return;
           }
 
           if (!user.uid) {
-            alert('User ID not available. Please try logging in again.');
+            showError('User ID not available. Please try logging in again.');
             return;
           }
 
@@ -159,7 +161,7 @@ const VideoCallDashboard = () => {
           });
         } catch (error) {
           console.error('Error creating room:', error);
-          alert(t('dashboard.messages.errorCreatingRoom'));
+          showError(t('dashboard.messages.errorCreatingRoom'));
         }
       };
 

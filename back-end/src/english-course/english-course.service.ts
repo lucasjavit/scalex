@@ -156,7 +156,7 @@ export class EnglishCourseService {
 
     if (!progress || progress.status === 'not_started') {
       // Lesson not started - return all questions for initial practice
-      return await this.questionRepository.find({
+    return await this.questionRepository.find({
         where: { lessonId },
         order: { questionNumber: 'ASC' },
       });
