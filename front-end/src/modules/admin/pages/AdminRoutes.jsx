@@ -10,6 +10,7 @@ import QuestionList from '../components/english-course/QuestionList';
 import UsersList from '../components/UsersList';
 import EnglishCourseDashboard from './EnglishCourseDashboard';
 import StatisticsPage from './StatisticsPage';
+import UserManagement from './UserManagement';
 
 const AdminRoutes = () => {
   return (
@@ -26,6 +27,7 @@ const AdminRoutes = () => {
       <Route path="/english-course/lessons/:lessonId/questions/new" element={<QuestionForm />} />
       <Route path="/english-course/lessons/:lessonId/questions/:questionId/edit" element={<QuestionForm />} />
       <Route path="/english-course/users" element={<UsersList />} />
+      <Route path="/english-course/user-management" element={<UserManagement />} />
       <Route path="/english-course/statistics" element={<StatisticsPage />} />
 
       {/* Video Call Admin */}

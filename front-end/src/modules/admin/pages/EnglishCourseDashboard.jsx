@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import adminApi from '../services/adminApi';
 import AdminLayout from '../components/AdminLayout';
+import adminApi from '../services/adminApi';
 
 const AdminDashboard = () => {
   const [statistics, setStatistics] = useState(null);
@@ -47,6 +47,13 @@ const AdminDashboard = () => {
       icon: '👥',
       color: 'bg-orange-500',
       onClick: () => navigate('/admin/english-course/users'),
+    },
+    {
+      title: 'User Management',
+      description: 'Search and manage user progress by email',
+      icon: '🔍',
+      color: 'bg-indigo-500',
+      onClick: () => navigate('/admin/english-course/user-management'),
     },
     {
       title: 'Statistics',
@@ -158,7 +165,7 @@ const AdminDashboard = () => {
         <h2 className="text-xl font-semibold text-copilot-text-primary mb-6">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {quickActions.map((action, index) => (
             <div
               key={index}

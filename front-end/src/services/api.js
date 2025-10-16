@@ -264,6 +264,35 @@ class ApiService {
   async getAnswerHistory(userId, limit = 50) {
     return this.request(`/english-course/users/${userId}/answer-history?limit=${limit}`);
   }
+
+  // Admin user management methods
+  async getUserByEmail(email) {
+    return this.request(`/users/email/${email}`);
+  }
+
+  async getAllUsers() {
+    return this.request('/users');
+  }
+
+  async getUserProgress(userId) {
+    return this.request(`/english-course/users/${userId}/progress`);
+  }
+
+  async getAllUserReviews(userId) {
+    return this.request(`/english-course/users/${userId}/reviews`);
+  }
+
+  async resetLessonProgress(userId, lessonId) {
+    return this.request(`/english-course/users/${userId}/lessons/${lessonId}/reset-progress`, {
+      method: 'POST',
+    });
+  }
+
+  async resetAllUserProgress(userId) {
+    return this.request(`/english-course/users/${userId}/reset-all-progress`, {
+      method: 'POST',
+    });
+  }
 }
 
 // Create and export a singleton instance

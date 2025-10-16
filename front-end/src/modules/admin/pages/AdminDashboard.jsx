@@ -20,6 +20,7 @@ const AdminDashboard = () => {
         { label: 'Manage Lessons', href: '/admin/english-course/lessons', icon: '📖' },
         { label: 'View Statistics', href: '/admin/english-course/statistics', icon: '📊' },
         { label: 'Manage Users', href: '/admin/english-course/users', icon: '👥' },
+        { label: 'User Management', href: '/admin/english-course/user-management', icon: '🔍' },
       ]
     },
     {

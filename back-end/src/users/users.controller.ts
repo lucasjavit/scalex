@@ -1,20 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  HttpCode,
-  HttpStatus,
-  Query,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Patch,
+    Post
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateAddressDto } from './dto/create-address.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -36,8 +35,8 @@ export class UsersController {
     return this.usersService.findByFirebaseUid(firebaseUid);
   }
 
-  @Get('email')
-  findByEmail(@Query('email') email: string) {
+  @Get('email/:email')
+  findByEmail(@Param('email') email: string) {
     return this.usersService.findByEmail(email);
   }
 

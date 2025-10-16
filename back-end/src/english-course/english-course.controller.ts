@@ -210,4 +210,28 @@ export class EnglishCourseController {
   testEndpoint() {
     return { message: 'Test endpoint working', timestamp: new Date() };
   }
+
+  // ============================================
+  // ADMIN USER MANAGEMENT ENDPOINTS
+  // ============================================
+
+  @Get('users/:userId/reviews')
+  getAllUserReviews(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.englishCourseService.getAllUserReviews(userId);
+  }
+
+  @Post('users/:userId/lessons/:lessonId/reset-progress')
+  @HttpCode(HttpStatus.OK)
+  resetLessonProgress(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('lessonId', ParseUUIDPipe) lessonId: string,
+  ) {
+    return this.englishCourseService.resetLessonProgress(userId, lessonId);
+  }
+
+  @Post('users/:userId/reset-all-progress')
+  @HttpCode(HttpStatus.OK)
+  resetAllUserProgress(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.englishCourseService.resetAllUserProgress(userId);
+  }
 }

@@ -921,4 +921,62 @@ export class EnglishCourseService {
       averageProgress: Number(averageProgress.toFixed(2)),
     };
   }
+
+  // ============================================
+  // ADMIN USER MANAGEMENT METHODS
+  // ============================================
+
+  async getAllUserReviews(userId: string) {
+    return await this.reviewRepository
+      .createQueryBuilder('review')
+      .leftJoinAndSelect('review.question', 'question')
+      .leftJoinAndSelect('review.lesson', 'lesson')
+      .where('review.userId = :userId', { userId })
+      .orderBy('review.lastReviewedAt', 'DESC')
+      .getMany();
+  }
+
+  async resetLessonProgress(userId: string, lessonId: string) {
+    // Reset progress
+    await this.progressRepository.update(
+      { userId, lessonId },
+      {
+        status: ProgressStatus.NOT_STARTED,
+        correctAnswers: 0,
+        totalAttempts: 0,
+        accuracyPercentage: 0,
+        completedAt: undefined,
+      }
+    );
+
+    // Delete all reviews for this lesson
+    await this.reviewRepository.delete({ userId, lessonId });
+
+    // Delete answer history for this lesson
+    await this.answerHistoryRepository.delete({ userId });
+
+    return { success: true, message: 'Lesson progress reset successfully' };
+  }
+
+  async resetAllUserProgress(userId: string) {
+    // Reset all progress
+    await this.progressRepository.update(
+      { userId },
+      {
+        status: ProgressStatus.NOT_STARTED,
+        correctAnswers: 0,
+        totalAttempts: 0,
+        accuracyPercentage: 0,
+        completedAt: undefined,
+      }
+    );
+
+    // Delete all reviews
+    await this.reviewRepository.delete({ userId });
+
+    // Delete all answer history
+    await this.answerHistoryRepository.delete({ userId });
+
+    return { success: true, message: 'All user progress reset successfully' };
+  }
 }
