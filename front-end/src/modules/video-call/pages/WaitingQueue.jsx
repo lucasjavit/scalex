@@ -14,6 +14,7 @@ export default function WaitingQueue() {
   const [error, setError] = useState(null);
   const [showPeriodWarning, setShowPeriodWarning] = useState(false);
 
+
   // Poll queue status every 2 seconds
   useEffect(() => {
     if (!user?.uid) {
@@ -154,7 +155,7 @@ export default function WaitingQueue() {
 
   if (loading && !queueStatus) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Checking queue status...</p>
@@ -165,7 +166,7 @@ export default function WaitingQueue() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Error</h2>
@@ -182,15 +183,16 @@ export default function WaitingQueue() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full relative">
         {/* Back Button */}
         <button
-          onClick={() => navigate('/video-call')}
-          className="absolute top-4 left-4 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors bg-white px-3 py-1 rounded-lg border border-gray-200 hover:border-gray-300"
+          onClick={handleLeaveQueue}
+          disabled={loading}
+          className="absolute top-4 left-4 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors bg-white px-3 py-1 rounded-lg border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span>←</span>
-          <span className="text-sm">Back</span>
+          <span className="text-sm">{loading ? 'Leaving...' : 'Back'}</span>
         </button>
 
         {/* Header */}

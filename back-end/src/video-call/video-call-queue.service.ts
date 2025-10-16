@@ -867,5 +867,24 @@ export class VideoCallQueueService {
       clearTimeout(this.cleanupTimer);
     }
   }
+
+  /**
+   * Limpa a fila manualmente (para admin)
+   */
+  clearQueue(): { success: boolean; message: string; removedCount: number } {
+    const removedCount = this.queue.size;
+    const removedUsers = Array.from(this.queue.keys());
+    
+    this.queue.clear();
+    
+    this.logger.log(`=== FILA LIMPA MANUALMENTE (ADMIN) ===`);
+    this.logger.log(`Usuários removidos: ${removedUsers.join(', ')}`);
+    
+    return {
+      success: true,
+      message: `Queue cleared. ${removedCount} users removed.`,
+      removedCount
+    };
+  }
 }
 

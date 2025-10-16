@@ -536,5 +536,23 @@ export class VideoCallController {
       );
     }
   }
+
+  // POST /video-call/admin/queue/clear - Clear queue manually (admin only)
+  @Post('admin/queue/clear')
+  async clearQueue() {
+    try {
+      const result = this.queueService.clearQueue();
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to clear queue',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
 

@@ -18,6 +18,7 @@ const VideoCallAdmin = () => {
     endHour: '',
     endMinute: ''
   });
+  const [clearingQueue, setClearingQueue] = useState(false);
   const baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
 
   useEffect(() => {
@@ -179,6 +180,33 @@ const VideoCallAdmin = () => {
     } catch (error) {
       console.error('Error removing period:', error);
       alert('❌ Error removing period');
+    }
+  };
+
+  const handleClearQueue = async () => {
+    if (!confirm('Are you sure you want to clear the waiting queue?\n\nThis will remove ALL users currently waiting for a session.')) {
+      return;
+    }
+
+    try {
+      setClearingQueue(true);
+      const response = await fetch(`${baseURL}/video-call/admin/queue/clear`, {
+        method: 'POST',
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        alert(`✅ Queue cleared successfully!\n\nRemoved ${result.removedCount} users from the queue.`);
+        loadData(); // Reload data to update queue count
+      } else {
+        alert(`❌ Error clearing queue: ${result.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error clearing queue:', error);
+      alert('❌ Error clearing queue');
+    } finally {
+      setClearingQueue(false);
     }
   };
 
@@ -484,6 +512,70 @@ const VideoCallAdmin = () => {
             </div>
           </div>
         )}
+
+        {/* Manual Controls */}
+        <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8">
+          <h2 className="text-2xl font-bold text-copilot-text-primary mb-6">
+            Manual Controls
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* System Controls */}
+            <div className="bg-copilot-bg-primary border border-copilot-border-default rounded-copilot p-6">
+              <h3 className="text-lg font-semibold text-copilot-text-primary mb-4 flex items-center gap-2">
+                <span>⚙️</span>
+                System Controls
+              </h3>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={handleDisableSystem}
+                  className="w-full bg-red-500 text-white px-4 py-3 rounded-copilot hover:bg-red-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                >
+                  <span>🛑</span>
+                  <span>Disable System</span>
+                </button>
+                
+                <button
+                  onClick={handleEnableSystem}
+                  className="w-full bg-green-500 text-white px-4 py-3 rounded-copilot hover:bg-green-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                >
+                  <span>✅</span>
+                  <span>Enable System</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Queue Controls */}
+            <div className="bg-copilot-bg-primary border border-copilot-border-default rounded-copilot p-6">
+              <h3 className="text-lg font-semibold text-copilot-text-primary mb-4 flex items-center gap-2">
+                <span>👥</span>
+                Queue Controls
+              </h3>
+              
+              <div className="space-y-3">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-copilot p-3 mb-4">
+                  <div className="text-sm text-yellow-800">
+                    <strong>Current Queue:</strong> {adminStats?.queueCount || 0} users waiting
+                  </div>
+                </div>
+                
+                <button
+                  onClick={handleClearQueue}
+                  disabled={clearingQueue || (adminStats?.queueCount || 0) === 0}
+                  className="w-full bg-orange-500 text-white px-4 py-3 rounded-copilot hover:bg-orange-600 transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span>{clearingQueue ? '⏳' : '🗑️'}</span>
+                  <span>{clearingQueue ? 'Clearing...' : 'Clear Queue'}</span>
+                </button>
+                
+                <div className="text-xs text-copilot-text-secondary">
+                  ⚠️ This will remove all users currently waiting for a session
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </AdminLayout>
   );
