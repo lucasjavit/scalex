@@ -54,7 +54,7 @@ class ApiService {
   }
 
   async getUserByEmail(email) {
-    return this.request(`/users/email?email=${encodeURIComponent(email)}`);
+    return this.request(`/users/email/${encodeURIComponent(email)}`);
   }
 
   async updateUser(userId, userData) {
@@ -266,16 +266,8 @@ class ApiService {
   }
 
   // Admin user management methods
-  async getUserByEmail(email) {
-    return this.request(`/users/email/${email}`);
-  }
-
   async getAllUsers() {
     return this.request('/users');
-  }
-
-  async getUserProgress(userId) {
-    return this.request(`/english-course/users/${userId}/progress`);
   }
 
   async getAllUserReviews(userId) {

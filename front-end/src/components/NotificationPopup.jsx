@@ -115,6 +115,23 @@ const NotificationPopup = ({ notification, onClose }) => {
         </div>
       </div>
       
+      {/* Action buttons */}
+      {notification.actions && notification.actions.length > 0 && (
+        <div className="px-4 pb-4">
+          <div className="flex gap-2 justify-end">
+            {notification.actions.map((action, index) => (
+              <button
+                key={index}
+                onClick={action.onClick}
+                className={`px-4 py-2 rounded-copilot text-sm font-medium transition-colors duration-200 ${action.className || 'bg-gray-600 hover:bg-gray-700 text-white'}`}
+              >
+                {action.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      
       {/* Progress bar for auto-dismiss */}
       {notification.duration > 0 && (
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20 rounded-b-copilot-lg overflow-hidden">

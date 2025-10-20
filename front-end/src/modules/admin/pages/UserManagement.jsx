@@ -13,10 +13,12 @@ const UserManagement = () => {
   const [userStatistics, setUserStatistics] = useState(null);
   const [userReviews, setUserReviews] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingReviews, setLoadingReviews] = useState(false);
   const [error, setError] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
 
   // Load all users on component mount
   useEffect(() => {
@@ -81,9 +83,9 @@ const UserManagement = () => {
         const statsData = await apiService.getUserStatistics(userData.id);
         setUserStatistics(statsData);
         
-        // Get user reviews
-        const reviewsData = await apiService.getAllUserReviews(userData.id);
-        setUserReviews(reviewsData);
+        // Reset reviews state when searching for new user
+        setUserReviews([]);
+        setReviewsLoaded(false);
       }
     } catch (err) {
       setError('User not found or error loading data');
@@ -138,6 +140,22 @@ const UserManagement = () => {
     } catch (err) {
       showError('Error resetting all progress');
       console.error('Error resetting all progress:', err);
+    }
+  };
+
+  const loadUserReviews = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setLoadingReviews(true);
+      const reviewsData = await apiService.getAllUserReviews(user.id);
+      setUserReviews(reviewsData);
+      setReviewsLoaded(true);
+    } catch (err) {
+      showError('Error loading user reviews');
+      console.error('Error loading reviews:', err);
+    } finally {
+      setLoadingReviews(false);
     }
   };
 
@@ -222,14 +240,14 @@ const UserManagement = () => {
                 <div>
                   <h3 className="text-lg font-semibold text-copilot-text-primary mb-2">Basic Info</h3>
                   <div className="space-y-2">
-                    <p><strong>Name:</strong> {user.fullName || 'N/A'}</p>
+                    <p><strong>Name:</strong> {user.full_name || user.fullName || 'N/A'}</p>
                     <p><strong>Email:</strong> {user.email}</p>
-                    <p><strong>Preferred Language:</strong> {user.preferredLanguage || 'N/A'}</p>
+                    <p><strong>Preferred Language:</strong> {user.preferred_language || user.preferredLanguage || 'N/A'}</p>
                     <p><strong>Status:</strong> 
                       <span className={`ml-2 px-2 py-1 rounded text-sm ${
-                        user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        (user.is_active || user.isActive) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
-                        {user.isActive ? 'Active' : 'Inactive'}
+                        {(user.is_active || user.isActive) ? 'Active' : 'Inactive'}
                       </span>
                     </p>
                   </div>
@@ -239,8 +257,8 @@ const UserManagement = () => {
                   <h3 className="text-lg font-semibold text-copilot-text-primary mb-2">Account Details</h3>
                   <div className="space-y-2">
                     <p><strong>User ID:</strong> {user.id}</p>
-                    <p><strong>Created:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
-                    <p><strong>Last Updated:</strong> {new Date(user.updatedAt).toLocaleDateString()}</p>
+                    <p><strong>Created:</strong> {new Date(user.created_at || user.createdAt).toLocaleDateString()}</p>
+                    <p><strong>Last Updated:</strong> {new Date(user.updated_at || user.updatedAt).toLocaleDateString()}</p>
                   </div>
                 </div>
               </div>
@@ -298,10 +316,10 @@ const UserManagement = () => {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <h3 className="text-lg font-semibold text-copilot-text-primary">
-                            {progress.lessonTitle}
+                            {progress.lesson?.title || 'Unknown Lesson'}
                           </h3>
                           <p className="text-sm text-copilot-text-secondary mb-2">
-                            Level: {progress.level} • Lesson {progress.lessonNumber}
+                            Level: {progress.lesson?.level || 'Unknown'} • Lesson {progress.lesson?.lessonNumber || 'Unknown'}
                           </p>
                           
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -350,41 +368,62 @@ const UserManagement = () => {
             )}
 
             {/* Recent Reviews */}
-            {userReviews && userReviews.length > 0 && (
-              <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8">
-                <h2 className="text-2xl font-bold text-copilot-text-primary mb-6">
+            <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-copilot-text-primary">
                   Recent Reviews
                 </h2>
-                
-                <div className="space-y-3">
-                  {userReviews.slice(0, 10).map((review) => (
-                    <div key={review.id} className="bg-copilot-bg-primary border border-copilot-border-default rounded-copilot p-3">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="font-semibold text-copilot-text-primary">
-                            {review.question?.frontText || 'Question not found'}
-                          </p>
-                          <p className="text-sm text-copilot-text-secondary">
-                            Lesson: {review.lesson?.title || 'Unknown'} • 
-                            Ease Factor: {review.easeFactor} • 
-                            Interval: {review.intervalDays} days
-                          </p>
-                        </div>
-                        
-                        <div className="text-right">
-                          <p className="text-sm text-copilot-text-secondary">
-                            {new Date(review.lastReviewedAt).toLocaleDateString()}
-                          </p>
-                          <p className="text-xs text-copilot-text-secondary">
-                            Review #{review.reviewCount}
-                          </p>
+                {!reviewsLoaded && (
+                  <button
+                    onClick={loadUserReviews}
+                    disabled={loadingReviews}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-copilot hover:bg-blue-600 transition-colors disabled:opacity-50"
+                  >
+                    {loadingReviews ? 'Loading...' : 'Load Reviews'}
+                  </button>
+                )}
+              </div>
+              
+              {reviewsLoaded ? (
+                userReviews && userReviews.length > 0 ? (
+                  <div className="space-y-3">
+                    {userReviews.slice(0, 10).map((review) => (
+                      <div key={review.id} className="bg-copilot-bg-primary border border-copilot-border-default rounded-copilot p-3">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-semibold text-copilot-text-primary">
+                              {review.question?.frontText || 'Question not found'}
+                            </p>
+                            <p className="text-sm text-copilot-text-secondary">
+                              Lesson: {review.lesson?.title || 'Unknown'} • 
+                              Ease Factor: {review.easeFactor} • 
+                              Interval: {review.intervalDays} days
+                            </p>
+                          </div>
+                          
+                          <div className="text-right">
+                            <p className="text-sm text-copilot-text-secondary">
+                              {new Date(review.lastReviewedAt).toLocaleDateString()}
+                            </p>
+                            <p className="text-xs text-copilot-text-secondary">
+                              Review #{review.reviewCount}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-copilot-text-secondary">No reviews found for this user.</p>
+                  </div>
+                )
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-copilot-text-secondary">Click "Load Reviews" to view recent reviews for this user.</p>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>
