@@ -51,12 +51,21 @@ const resources = {
   },
 };
 
+// Clear any existing preferences to force defaults
+if (typeof window !== 'undefined') {
+  // Clear theme preference to force night theme
+  localStorage.removeItem('theme');
+  // Clear language preference to force English
+  localStorage.removeItem('i18nextLng');
+}
+
 i18n
   .use(LanguageDetector) // Detect user language
   .use(initReactI18next) // Pass i18n to react-i18next
   .init({
     resources,
     fallbackLng: 'en', // Default language
+    lng: 'en', // Set English as default language
     defaultNS: 'common', // Default namespace
     ns: ['common', 'auth', 'admin', 'videoCall', 'landing', 'englishCourse'],
     
@@ -72,8 +81,11 @@ i18n
       lookupLocalStorage: 'i18nextLng',
     },
     
-    // Force reload for debugging
-    debug: true,
+    // Clear any existing language preference to force default
+    initImmediate: false,
+    
+    // Debug mode disabled for production
+    debug: false,
   });
 
 export default i18n;

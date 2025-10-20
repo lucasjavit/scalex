@@ -180,6 +180,12 @@ const Practice = () => {
               </button>
               <button
                 className="btn-copilot-secondary"
+                onClick={() => navigate(`/english-course/progress/${lessonId}`)}
+              >
+                📊 View Progress
+              </button>
+              <button
+                className="btn-copilot-secondary"
                 onClick={() => navigate('/english-course/review')}
               >
                 Review All Lessons
@@ -218,6 +224,12 @@ const Practice = () => {
                 onClick={() => navigate('/english-course')}
               >
                 ← Back to Dashboard
+              </button>
+              <button
+                className="btn-copilot-secondary"
+                onClick={() => navigate(`/english-course/progress/${lessonId}`)}
+              >
+                📊 View Progress
               </button>
               <button
                 className="btn-copilot-secondary"
@@ -267,6 +279,13 @@ const Practice = () => {
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
+              <button
+                className="btn-copilot-secondary text-sm px-3 py-1.5"
+                onClick={() => navigate(`/english-course/progress/${lessonId}`)}
+                title="View detailed progress for this lesson"
+              >
+                📊 Progress
+              </button>
             </div>
           </div>
         </div>
