@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function Card({ 
   question, 
@@ -14,27 +14,7 @@ export default function Card({
   const [speechRate, setSpeechRate] = useState(0.75); // Velocidade padrão
   const [showSpeedControls, setShowSpeedControls] = useState(false);
 
-  // Carregar vozes disponíveis quando o componente monta
-  useEffect(() => {
-    const loadVoices = () => {
-      const availableVoices = speechSynthesis.getVoices();
-      setVoices(availableVoices);
-    };
-
-    // Carregar vozes imediatamente
-    loadVoices();
-
-    // Carregar vozes quando elas estiverem disponíveis (alguns navegadores carregam assincronamente)
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = loadVoices;
-    }
-  }, []);
-
-  const handleFlip = () => {
-    setIsFlipped(!isFlipped);
-  };
-
-  const speakText = (text, language = 'en-US') => {
+  const speakText = useCallback((text, language = 'en-US') => {
     if ('speechSynthesis' in window) {
       // Parar qualquer fala em andamento
       speechSynthesis.cancel();
@@ -113,6 +93,39 @@ export default function Card({
     } else {
       console.warn('Speech synthesis not supported');
     }
+  }, [voices, speechRate]);
+
+  // Carregar vozes disponíveis quando o componente monta
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = speechSynthesis.getVoices();
+      setVoices(availableVoices);
+    };
+
+    // Carregar vozes imediatamente
+    loadVoices();
+
+    // Carregar vozes quando elas estiverem disponíveis (alguns navegadores carregam assincronamente)
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+
+  // Tocar áudio automaticamente quando o cartão é aberto
+  useEffect(() => {
+    if (question?.frontText && voices.length > 0) {
+      // Aguardar um pouco para garantir que as vozes estão carregadas
+      const timer = setTimeout(() => {
+        speakText(question.frontText, 'en-US');
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [question?.frontText, voices.length, speakText]);
+
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
   };
 
   const handleSpeak = (e) => {
@@ -291,30 +304,6 @@ export default function Card({
               <div className="mt-4 text-sm opacity-80">
                 Click to flip card
               </div>
-            </div>
-            {/* Audio controls */}
-            <div className="absolute top-4 right-4 flex gap-2">
-              {/* Speed control button */}
-              <button
-                onClick={toggleSpeedControls}
-                className="w-8 h-8 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition-all duration-200 group"
-                title="Speed control"
-              >
-                <span className="text-white text-sm group-hover:scale-110 transition-transform duration-200">⚡</span>
-              </button>
-              
-              {/* Audio button */}
-              <button
-                onClick={handleSpeak}
-                className="w-10 h-10 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition-all duration-200 group"
-                title={`Play audio ${isSpeaking ? '(click to stop)' : '(high quality TTS)'}`}
-              >
-                {isSpeaking ? (
-                  <span className="text-white text-lg animate-pulse">⏹️</span>
-                ) : (
-                  <span className="text-white text-lg group-hover:scale-110 transition-transform duration-200">🔊</span>
-                )}
-              </button>
             </div>
           </div>
         </div>
