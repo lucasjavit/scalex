@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import adminApi from '../services/adminApi';
 import AdminLayout from './AdminLayout';
 
 export default function UsersList() {
+  const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -165,7 +167,7 @@ export default function UsersList() {
                   id="search"
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  placeholder="Type email, name or phone..."
+                  placeholder={t('common:placeholders.searchUserEmailName', 'Type email, name or phone...')}
                   className="w-full pl-10 pr-4 py-2 border border-copilot-border-default rounded-copilot bg-copilot-bg-primary text-copilot-text-primary placeholder-copilot-text-secondary focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

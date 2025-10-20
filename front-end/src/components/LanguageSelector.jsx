@@ -4,9 +4,9 @@ export default function LanguageSelector() {
   const { i18n } = useTranslation();
 
   const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'pt-BR', name: 'Português', flag: '🇧🇷' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'en', name: 'EN', flag: '🇺🇸' },
+    { code: 'pt-BR', name: 'BR', flag: '🇧🇷' },
+    { code: 'es', name: 'ES', flag: '🇪🇸' },
   ];
 
   const handleLanguageChange = (languageCode) => {
@@ -19,7 +19,6 @@ export default function LanguageSelector() {
     <div className="relative group">
       <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-copilot-text-primary hover:bg-copilot-bg-tertiary transition-colors duration-200">
         <span className="text-lg">{currentLanguage.flag}</span>
-        <span className="hidden sm:inline">{currentLanguage.name}</span>
         <span className="text-xs">▼</span>
       </button>
       
@@ -35,7 +34,6 @@ export default function LanguageSelector() {
             }`}
           >
             <span className="text-lg">{language.flag}</span>
-            <span>{language.name}</span>
             {i18n.language === language.code && (
               <span className="ml-auto text-xs">✓</span>
             )}

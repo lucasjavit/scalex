@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import adminApi from '../../services/adminApi';
 import AdminLayout from '../AdminLayout';
@@ -7,6 +8,7 @@ const LessonForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     lessonNumber: '',
@@ -219,7 +221,7 @@ const LessonForm = () => {
               type="text"
               value={vocabularyInput}
               onChange={(e) => setVocabularyInput(e.target.value)}
-              placeholder="Type a word or phrase"
+              placeholder={t('englishCourse:placeholders.wordOrPhrase', 'Type a word or phrase')}
               className="flex-1 px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleVocabularyAdd())}
             />

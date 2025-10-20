@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -35,6 +36,8 @@ export default function UserProfile() {
 
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [editAddress, setEditAddress] = useState(null);
+
+  const { t } = useTranslation();
 
   // Load user profile data
   useEffect(() => {
@@ -378,7 +381,7 @@ export default function UserProfile() {
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
-                  placeholder="+55 (11) 99999-9999"
+                  placeholder={t('common:placeholders.phoneExampleBR', '+55 (11) 99999-9999')}
                   className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
                 />
               </div>

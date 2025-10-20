@@ -216,6 +216,7 @@ const Review = () => {
               onDifficultySubmit={handleCardDifficultySubmit}
               isLastCard={currentReviewIndex === reviews.length - 1}
               onComplete={handleComplete}
+              srsLabels={currentReview.srsCandidateLabels}
             />
           </div>
         </div>

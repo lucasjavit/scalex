@@ -70,7 +70,10 @@
     "unauthorized": "You are not authorized to access this resource."
   },
   "tooltips": {
-    "clickToViewProfile": "Click to view profile"
+    "clickToViewProfile": "Click to view profile",
+    "switchToNight": "Switch to night theme",
+    "switchToDay": "Switch to day theme",
+    "logout": "Sign out"
   },
   "home": {
     "welcomeBack": "Welcome back",

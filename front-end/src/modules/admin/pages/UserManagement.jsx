@@ -168,7 +168,7 @@ const UserManagement = () => {
                 onChange={(e) => handleInputChange(e.target.value)}
                 onFocus={() => email.length > 0 && setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                placeholder="Search by email or name..."
+                placeholder={t('common:placeholders.searchUserEmailName', 'Search by email or name...')}
                 className="w-full px-4 py-3 border border-copilot-border-default rounded-copilot focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
                 required
               />

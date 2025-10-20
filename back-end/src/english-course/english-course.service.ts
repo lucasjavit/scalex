@@ -335,17 +335,26 @@ export class EnglishCourseService {
     switch (difficulty.toLowerCase()) {
       case 'again':
         // Forgot the card - reset to beginning
-        review.intervalDays = 0.000694; // 1 minute
+        review.intervalDays = 0; // minute-based step
         review.easeFactor = Math.max(1.3, review.easeFactor - 0.2);
         review.isDue = true; // Show again in this session
+        {
+          const next = new Date();
+          next.setMinutes(next.getMinutes() + 1); // 1 minute
+          review.nextReviewDate = next;
+        }
         break;
 
       case 'hard':
         // Difficult but remembered
         if (review.reviewCount === 1) {
-          review.intervalDays = 0.00694; // 10 minutes
+          review.intervalDays = 0; // minute-based step
+          const next = new Date();
+          next.setMinutes(next.getMinutes() + 10); // 10 minutes
+          review.nextReviewDate = next;
         } else {
           review.intervalDays = Math.max(1, review.intervalDays * 1.2);
+          review.nextReviewDate = this.calculateNextReviewDate(review.intervalDays, review.easeFactor);
         }
         review.easeFactor = Math.max(1.3, review.easeFactor - 0.15);
         review.isDue = false; // Not due until next review date
@@ -355,10 +364,13 @@ export class EnglishCourseService {
         // Standard Anki SM-2 progression
         if (review.reviewCount === 1) {
           review.intervalDays = 1; // 1 day
+          review.nextReviewDate = this.calculateNextReviewDate(review.intervalDays, review.easeFactor);
         } else if (review.reviewCount === 2) {
           review.intervalDays = 4; // 4 days
+          review.nextReviewDate = this.calculateNextReviewDate(review.intervalDays, review.easeFactor);
         } else {
           review.intervalDays = Math.round(review.intervalDays * review.easeFactor);
+          review.nextReviewDate = this.calculateNextReviewDate(review.intervalDays, review.easeFactor);
         }
         review.isDue = false; // Not due until next review date
         break;
@@ -367,8 +379,10 @@ export class EnglishCourseService {
         // Easy - longer interval
         if (review.reviewCount === 1) {
           review.intervalDays = 4; // 4 days
+          review.nextReviewDate = this.calculateNextReviewDate(review.intervalDays, review.easeFactor);
         } else {
           review.intervalDays = Math.round(review.intervalDays * review.easeFactor * 1.3);
+          review.nextReviewDate = this.calculateNextReviewDate(review.intervalDays, review.easeFactor);
         }
         review.easeFactor = Math.min(3.0, review.easeFactor + 0.15);
         review.isDue = false; // Not due until next review date
@@ -378,7 +392,6 @@ export class EnglishCourseService {
         throw new BadRequestException('Invalid difficulty value. Must be: again, hard, good, or easy');
     }
 
-    review.nextReviewDate = this.calculateNextReviewDate(review.intervalDays, review.easeFactor);
     await this.reviewRepository.save(review);
 
     // Update lesson progress
@@ -510,7 +523,7 @@ export class EnglishCourseService {
     
     const now = new Date();
     
-    return await this.reviewRepository.find({
+    const reviews = await this.reviewRepository.find({
       where: {
         userId,
         isDue: true,
@@ -520,6 +533,13 @@ export class EnglishCourseService {
       order: { nextReviewDate: 'ASC' },
       take: limit,
     });
+    
+    // Attach Anki-style label previews and raw values (non-persistent)
+    return reviews.map((r) => ({
+      ...r,
+      srsCandidateLabels: this.computeSrsCandidateLabels(r),
+      srsCandidateValues: this.computeSrsCandidateValues(r),
+    })) as any;
   }
 
 
@@ -580,6 +600,82 @@ export class EnglishCourseService {
     return now;
   }
 
+  // ============================================
+  // SRS PREVIEW LABELS (Anki-style, non-persistent)
+  // ============================================
+
+  public computeSrsCandidateLabels(review: Review) {
+    const intervalDays = Number(review.intervalDays) || 0;
+    const easeFactor = Number(review.easeFactor) || 2.5;
+    const reviewCount = Number(review.reviewCount) ?? 0;
+
+    const labelMinutes = (m: number) => `<${m}min(s)`;
+    const labelDays = (d: number) => `${d}dia(s)`;
+
+    // Learning / relearning style labels
+    const learningLabels = {
+      again: labelMinutes(10),
+      hard: labelMinutes(15),
+      good: labelDays(1),
+      easy: labelDays(2),
+    };
+
+    // If still in early phase or last interval was sub-day, use learning labels
+    if (reviewCount <= 1 || intervalDays < 1) {
+      return learningLabels;
+    }
+
+    // Review phase labels derived from current interval/ease
+    const nextGood = (() => {
+      if (reviewCount === 1) return 1; // first review day
+      if (reviewCount === 2) return 4; // second review day
+      return Math.max(1, Math.round(intervalDays * easeFactor));
+    })();
+
+    const nextEasy = Math.max(1, Math.round(nextGood * 1.3));
+    const nextHard = Math.max(1, Math.min(nextGood - 1, Math.round(intervalDays * 1.2)));
+
+    return {
+      again: labelMinutes(10),
+      hard: labelDays(nextHard),
+      good: labelDays(nextGood),
+      easy: labelDays(nextEasy),
+    };
+  }
+
+  public computeSrsCandidateValues(review: Review) {
+    const intervalDays = Number(review.intervalDays) || 0;
+    const easeFactor = Number(review.easeFactor) || 2.5;
+    const reviewCount = Number(review.reviewCount) ?? 0;
+
+    // Learning / relearning: minutes for Again/Hard, days for Good/Easy
+    if (reviewCount <= 1 || intervalDays < 1) {
+      return {
+        againMinutes: 10,
+        hardMinutes: 15,
+        goodDays: 1,
+        easyDays: 2,
+      };
+    }
+
+    // Review phase: minutes for Again, days for others
+    const goodDays = (() => {
+      if (reviewCount === 1) return 1;
+      if (reviewCount === 2) return 4;
+      return Math.max(1, Math.round(intervalDays * easeFactor));
+    })();
+
+    const easyDays = Math.max(1, Math.round(goodDays * 1.3));
+    const hardDays = Math.max(1, Math.min(goodDays - 1, Math.round(intervalDays * 1.2)));
+
+    return {
+      againMinutes: 10,
+      hardDays,
+      goodDays,
+      easyDays,
+    };
+  }
+
   async markReviewsAsDue(): Promise<void> {
     const now = new Date();
     await this.reviewRepository
@@ -628,7 +724,7 @@ export class EnglishCourseService {
     
     const now = new Date();
     
-    return await this.reviewRepository.find({
+    const reviews = await this.reviewRepository.find({
       where: {
         userId,
         lessonId,
@@ -639,6 +735,13 @@ export class EnglishCourseService {
       order: { nextReviewDate: 'ASC' },
       take: limit,
     });
+
+    // Attach Anki-style label previews and raw values (non-persistent)
+    return reviews.map((r) => ({
+      ...r,
+      srsCandidateLabels: this.computeSrsCandidateLabels(r),
+      srsCandidateValues: this.computeSrsCandidateValues(r),
+    })) as any;
   }
 
   // Create initial reviews for all questions in a lesson when completed

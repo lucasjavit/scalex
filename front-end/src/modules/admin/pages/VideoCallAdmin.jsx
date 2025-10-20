@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useIsAdmin } from '../../../hooks/useIsAdmin';
 import { useNotification } from '../../../hooks/useNotification';
@@ -22,6 +23,7 @@ const VideoCallAdmin = () => {
   });
   const [clearingQueue, setClearingQueue] = useState(false);
   const baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
+  const { t } = useTranslation();
 
   useEffect(() => {
     // console.log('🔐 Admin Page - isAdmin status:', isAdmin);
@@ -443,25 +445,21 @@ const VideoCallAdmin = () => {
                     </label>
                     <div className="flex gap-2">
                       <input
-                        type="number"
-                        min="0"
-                        max="23"
-                        placeholder="HH"
+                        type="text"
+                        maxLength={2}
                         value={newPeriod.startHour}
-                        onChange={(e) => setNewPeriod({ ...newPeriod, startHour: e.target.value })}
-                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
+                        onChange={(e) => setNewPeriod({ ...newPeriod, startHour: e.target.value.replace(/\D/g, '') })}
+                        className="input-copilot w-20 text-center"
+                        placeholder={t('common:placeholders.hours', 'HH')}
                       />
                       <span className="text-2xl text-gray-500">:</span>
                       <input
-                        type="number"
-                        min="0"
-                        max="59"
-                        placeholder="MM"
+                        type="text"
+                        maxLength={2}
                         value={newPeriod.startMinute}
-                        onChange={(e) => setNewPeriod({ ...newPeriod, startMinute: e.target.value })}
-                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
+                        onChange={(e) => setNewPeriod({ ...newPeriod, startMinute: e.target.value.replace(/\D/g, '') })}
+                        className="input-copilot w-20 text-center"
+                        placeholder={t('common:placeholders.minutes', 'MM')}
                       />
                     </div>
                   </div>
@@ -472,25 +470,21 @@ const VideoCallAdmin = () => {
                     </label>
                     <div className="flex gap-2">
                       <input
-                        type="number"
-                        min="0"
-                        max="23"
-                        placeholder="HH"
+                        type="text"
+                        maxLength={2}
                         value={newPeriod.endHour}
-                        onChange={(e) => setNewPeriod({ ...newPeriod, endHour: e.target.value })}
-                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
+                        onChange={(e) => setNewPeriod({ ...newPeriod, endHour: e.target.value.replace(/\D/g, '') })}
+                        className="input-copilot w-20 text-center"
+                        placeholder={t('common:placeholders.hours', 'HH')}
                       />
                       <span className="text-2xl text-gray-500">:</span>
                       <input
-                        type="number"
-                        min="0"
-                        max="59"
-                        placeholder="MM"
+                        type="text"
+                        maxLength={2}
                         value={newPeriod.endMinute}
-                        onChange={(e) => setNewPeriod({ ...newPeriod, endMinute: e.target.value })}
-                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
+                        onChange={(e) => setNewPeriod({ ...newPeriod, endMinute: e.target.value.replace(/\D/g, '') })}
+                        className="input-copilot w-20 text-center"
+                        placeholder={t('common:placeholders.minutes', 'MM')}
                       />
                     </div>
                   </div>

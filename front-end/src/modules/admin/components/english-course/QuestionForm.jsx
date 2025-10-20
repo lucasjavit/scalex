@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import adminApi from '../../services/adminApi';
 import AdminLayout from '../AdminLayout';
@@ -6,6 +7,7 @@ import AdminLayout from '../AdminLayout';
 const QuestionForm = () => {
   const { lessonId, questionId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation(['englishCourse', 'common']);
   const isEdit = Boolean(questionId);
 
   const [formData, setFormData] = useState({
@@ -193,7 +195,7 @@ const QuestionForm = () => {
             required
             rows={3}
             className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-            placeholder="Type the question or instruction..."
+            placeholder={t('englishCourse:placeholders.questionText', 'Type the question or instruction...')}
           />
         </div>
 
@@ -208,7 +210,7 @@ const QuestionForm = () => {
             required
             rows={2}
             className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-            placeholder="Type the correct answer..."
+            placeholder={t('englishCourse:placeholders.expectedAnswer', 'Type the correct answer...')}
           />
         </div>
 
@@ -221,7 +223,7 @@ const QuestionForm = () => {
               type="text"
               value={alternativeInput}
               onChange={(e) => setAlternativeInput(e.target.value)}
-              placeholder="Type an alternative answer"
+              placeholder={t('englishCourse:placeholders.alternativeAnswer', 'Type an alternative answer')}
               className="flex-1 px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAlternativeAdd())}
             />
@@ -262,7 +264,7 @@ const QuestionForm = () => {
             value={formData.grammarPoint}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-            placeholder="Ex: Present Simple, Past Continuous, etc."
+            placeholder={t('englishCourse:placeholders.grammarPoint', 'Ex: Present Simple, Past Continuous, etc.')}
           />
         </div>
 
@@ -276,7 +278,7 @@ const QuestionForm = () => {
             value={formData.audioUrl}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
-            placeholder="https://exemplo.com/audio.mp3"
+            placeholder={t('englishCourse:placeholders.audioUrl', 'https://exemplo.com/audio.mp3')}
           />
         </div>
 

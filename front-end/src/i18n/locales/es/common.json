@@ -70,7 +70,10 @@
     "unauthorized": "No está autorizado para acceder a este recurso."
   },
   "tooltips": {
-    "clickToViewProfile": "Haz clic para ver el perfil"
+    "clickToViewProfile": "Haz clic para ver el perfil",
+    "switchToNight": "Cambiar al tema nocturno",
+    "switchToDay": "Cambiar al tema diurno",
+    "logout": "Cerrar sesión"
   },
   "home": {
     "welcomeBack": "Bienvenido de vuelta",

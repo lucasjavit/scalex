@@ -59,6 +59,49 @@
   }
 }
 
+/* ============================================
+   Day Theme Overrides (comfortable daylight)
+   Apply by adding class "theme-day" to <body>
+   ============================================ */
+.theme-day {
+  background-color: #F6F7F6;
+  color: #1A1A1A;
+}
+
+/* Backgrounds */
+.theme-day .bg-copilot-bg-primary { background-color: #F6F7F6 !important; }
+.theme-day .bg-copilot-bg-secondary { background-color: #FFFFFF !important; }
+.theme-day .bg-copilot-bg-tertiary { background-color: #FAFAFA !important; }
+.theme-day .bg-copilot-bg-hover { background-color: #F0F2F1 !important; }
+.theme-day .bg-copilot-bg-surface, .theme-day .card-copilot { background-color: #FFFFFF !important; }
+.theme-day .bg-copilot-bg-input { background-color: #FFFFFF !important; }
+
+/* Text */
+.theme-day .text-copilot-text-primary { color: #1A1A1A !important; }
+.theme-day .text-copilot-text-secondary { color: #4A4A4A !important; }
+.theme-day .text-copilot-text-tertiary { color: #6B6B6B !important; }
+.theme-day .text-copilot-text-inverse { color: #FFFFFF !important; }
+.theme-day .text-copilot-text-link { color: #2E7D6B !important; }
+
+/* Borders */
+.theme-day .border-copilot-border-default { border-color: #E6E6E6 !important; }
+.theme-day .border-copilot-border-subtle { border-color: #EFEFEF !important; }
+.theme-day .border-copilot-border-focus { border-color: #5BB5A2 !important; }
+.theme-day .border-copilot-border-input { border-color: #D9D9D9 !important; }
+
+/* Buttons/Accents */
+.theme-day .bg-copilot-accent-primary { background-color: #2E7D6B !important; }
+.theme-day .hover\:bg-\[\#005a9e\]:hover { background-color: #256B5B !important; }
+.theme-day .active\:bg-\[\#004578\]:active { background-color: #1F5A4D !important; }
+
+/* Inputs */
+.theme-day .input-copilot { color: #1A1A1A; }
+.theme-day .placeholder\:text-copilot-text-tertiary::placeholder { color: #6B6B6B; }
+
+/* Focus & selection */
+.theme-day *:focus-visible { outline: 1px solid #5BB5A2; }
+.theme-day ::selection { background: #CDEAE3; color: #1A1A1A; }
+
 @layer components {
   /* Button base styles - Microsoft Copilot Style */
   .btn-copilot {

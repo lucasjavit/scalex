@@ -4,7 +4,8 @@ export default function Card({
   question, 
   onDifficultySubmit, 
   isLastCard = false,
-  onComplete 
+  onComplete,
+  srsLabels
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -420,7 +421,7 @@ export default function Card({
               className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-4 py-3 rounded-copilot font-semibold transition-colors duration-200 disabled:cursor-not-allowed flex flex-col items-center"
             >
               <span className="font-bold">Again</span>
-              <span className="text-xs opacity-90">1 min</span>
+              <span className="text-xs opacity-90">{srsLabels?.again || '<10min(s)'}</span>
             </button>
             
             <button
@@ -429,7 +430,7 @@ export default function Card({
               className="bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white px-4 py-3 rounded-copilot font-semibold transition-colors duration-200 disabled:cursor-not-allowed flex flex-col items-center"
             >
               <span className="font-bold">Hard</span>
-              <span className="text-xs opacity-90">10 min</span>
+              <span className="text-xs opacity-90">{srsLabels?.hard || '1dia(s)'}</span>
             </button>
             
             <button
@@ -438,7 +439,7 @@ export default function Card({
               className="bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white px-4 py-3 rounded-copilot font-semibold transition-colors duration-200 disabled:cursor-not-allowed flex flex-col items-center"
             >
               <span className="font-bold">Good</span>
-              <span className="text-xs opacity-90">4 days</span>
+              <span className="text-xs opacity-90">{srsLabels?.good || '2dia(s)'}</span>
             </button>
             
             <button
@@ -447,7 +448,7 @@ export default function Card({
               className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-4 py-3 rounded-copilot font-semibold transition-colors duration-200 disabled:cursor-not-allowed flex flex-col items-center"
             >
               <span className="font-bold">Easy</span>
-              <span className="text-xs opacity-90">7 days</span>
+              <span className="text-xs opacity-90">{srsLabels?.easy || '3dia(s)'}</span>
             </button>
           </div>
 

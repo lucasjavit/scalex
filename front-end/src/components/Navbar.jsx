@@ -86,6 +86,21 @@ export default function Navbar() {
     }
   }, [user, hasGlowed]);
 
+  // Theme toggle state (persisted)
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'night';
+    return localStorage.getItem('theme') || 'night';
+  });
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const body = document.body;
+    if (theme === 'day') body.classList.add('theme-day'); else body.classList.remove('theme-day');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((prev) => (prev === 'day' ? 'night' : 'day'));
+
   // Don't render navbar if user is not logged in or on landing/login pages
   if (!user || location.pathname === '/' || location.pathname === '/login') {
     return null;
@@ -153,47 +168,48 @@ export default function Navbar() {
               </button>
             )}
 
-            {/* User Avatar - Clickable */}
-            <div className="flex items-center space-x-3">
-              {user.photoURL ? (
-                <img
-                  src={user.photoURL}
-                  alt={user.displayName || 'User'}
-                  onClick={handleProfileClick}
-                  className="w-9 h-9 rounded-full border-2 border-copilot-border-default hover:border-copilot-border-focus transition-colors duration-150 cursor-pointer"
-                  title="Click to view profile"
-                />
-              ) : (
-                <div
-                  onClick={handleProfileClick}
-                  className="w-9 h-9 rounded-full bg-copilot-gradient flex items-center justify-center border-2 border-copilot-border-default hover:border-copilot-border-focus transition-colors duration-150 cursor-pointer"
-                  title="Click to view profile"
-                >
-                  <span className="text-white text-sm font-bold">
-                    {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
-
-              {/* User Name - Clickable */}
-              <span 
-                onClick={handleProfileClick}
-                className="text-copilot-text-primary text-sm font-medium cursor-pointer hover:text-copilot-accent-primary transition-colors duration-150"
-                title={t('tooltips.clickToViewProfile')}
-              >
-                {user.displayName || user.email}
-              </span>
-            </div>
-
             {/* Language Selector */}
             <LanguageSelector />
+
+            {/* User Avatar - Clickable (moved to left of logout) */}
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={user.displayName || 'User'}
+                onClick={handleProfileClick}
+                className="w-9 h-9 rounded-full border-2 border-copilot-border-default hover:border-copilot-border-focus transition-colors duration-150 cursor-pointer"
+                title="Click to view profile"
+              />
+            ) : (
+              <div
+                onClick={handleProfileClick}
+                className="w-9 h-9 rounded-full bg-copilot-gradient flex items-center justify-center border-2 border-copilot-border-default hover:border-copilot-border-focus transition-colors duration-150 cursor-pointer"
+                title="Click to view profile"
+              >
+                <span className="text-white text-sm font-bold">
+                  {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
 
             {/* Logout Button */}
             <button
               onClick={handleLogout}
               className="btn-copilot-secondary text-sm"
+              title={t('tooltips.logout')}
+              aria-label={t('tooltips.logout')}
             >
               {t('navigation.logout')}
+            </button>
+
+            {/* Theme Toggle (emoji only) */}
+            <button
+              onClick={toggleTheme}
+              className="btn-copilot-secondary text-sm w-9 h-9 flex items-center justify-center"
+              title={theme === 'day' ? t('tooltips.switchToNight') : t('tooltips.switchToDay')}
+              aria-label={theme === 'day' ? t('tooltips.switchToNight') : t('tooltips.switchToDay')}
+            >
+              {theme === 'day' ? '🌙' : '🌤️'}
             </button>
           </div>
         </div>
