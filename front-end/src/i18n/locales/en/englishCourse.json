@@ -74,32 +74,33 @@
       }
     },
     "difficultyButtons": {
-      "title": "Difficulty Buttons",
+      "title": "Dynamic Difficulty Buttons",
+      "description": "The buttons dynamically show when the card will appear again, based on the spaced repetition algorithm. Intervals change according to your progress!",
       "again": {
         "title": "Again",
-        "description": "Didn't know the answer. Appears in 1 minute."
+        "description": "Didn't know the answer. Appears in less than 10 minutes - always in minutes to relearn."
       },
       "hard": {
         "title": "Hard",
-        "description": "Knew it, but it was difficult. Appears in 6 minutes."
+        "description": "Knew it, but it was difficult. First time: less than 15 minutes, then: N days based on progress."
       },
       "good": {
         "title": "Good",
-        "description": "Knew it well. Appears in 10 minutes (first time) or 1 day (second time)."
+        "description": "Knew it well. First time: 1 day, second: 4 days, then: N days based on ease factor."
       },
       "easy": {
         "title": "Easy",
-        "description": "Very easy. Appears in 3 days."
+        "description": "Very easy. First time: 2 days, then: N days with longer interval than Good."
       }
     },
     "reviewSystem": {
-      "title": "Review System",
+      "title": "Intelligent Review System",
       "howItWorks": {
         "title": "How It Works",
-        "description": "After completing a lesson, cards enter the review system. The algorithm calculates when each card should appear again based on your difficulty rating."
+        "description": "Our system uses an intelligent spaced repetition algorithm to calculate review intervals. Each card has an ease factor that increases or decreases based on your performance. Intervals are dynamic and shown on the buttons!"
       },
       "intervals": {
-        "title": "Review Intervals"
+        "title": "Real System Intervals"
       }
     },
     "progressTracking": {
@@ -117,6 +118,25 @@
         "description": "How many cards are ready for review"
       }
     },
+    "features": {
+      "title": "System Features",
+      "reviewAll": {
+        "title": "Review All Lessons",
+        "description": "Review all due cards from all lessons in a single session"
+      },
+      "audio": {
+        "title": "Audio System",
+        "description": "Listen to pronunciation in English and Portuguese with speed control"
+      },
+      "progress": {
+        "title": "Detailed Tracking",
+        "description": "View accuracy statistics, completed lessons, and pending reviews"
+      },
+      "theme": {
+        "title": "Customizable Themes",
+        "description": "Choose between light and dark theme for better visual comfort"
+      }
+    },
     "tips": {
       "title": "Tips for Better Results",
       "consistency": {
@@ -124,16 +144,24 @@
         "description": "Practice a little every day instead of a lot at once"
       },
       "honest": {
-        "title": "Be Honest",
-        "description": "Rate your difficulty correctly to optimize the system"
+        "title": "Be Honest with Buttons",
+        "description": "Rate your difficulty correctly - the intervals shown on buttons are calculated based on your performance"
+      },
+      "audio": {
+        "title": "Use the Audio System",
+        "description": "Listen to pronunciation in English and Portuguese to improve your listening comprehension"
       },
       "timing": {
-        "title": "Respect the Intervals",
-        "description": "Don't force reviews before time - the system is optimized"
+        "title": "Trust Dynamic Intervals",
+        "description": "The intervals shown on buttons are calculated in real-time - trust the spaced repetition system"
       },
       "review": {
-        "title": "Review Regularly",
-        "description": "Use the \"Review All Lessons\" button to review due cards"
+        "title": "Use Review All Lessons",
+        "description": "Review all due cards at once using the \"Review All Lessons\" button"
+      },
+      "theme": {
+        "title": "Customize Your Experience",
+        "description": "Choose the theme that most comforts your eyes - light or dark"
       }
     },
     "startLearning": "Start Learning Now"

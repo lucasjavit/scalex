@@ -74,32 +74,33 @@
       }
     },
     "difficultyButtons": {
-      "title": "Botões de Dificuldade",
+      "title": "Botões de Dificuldade Dinâmicos",
+      "description": "Os botões mostram dinamicamente quando a carta aparecerá novamente, baseado no algoritmo de repetição espaçada. Os intervalos mudam conforme seu progresso!",
       "again": {
         "title": "Again (Novamente)",
-        "description": "Não soube a resposta. Aparece em 1 minuto."
+        "description": "Não soube a resposta. Aparece em menos de 10 minutos - sempre em minutos para relembrar."
       },
       "hard": {
         "title": "Hard (Difícil)",
-        "description": "Soube, mas foi difícil. Aparece em 6 minutos."
+        "description": "Soube, mas foi difícil. Primeira vez: menos de 15 minutos, depois: N dias baseado no progresso."
       },
       "good": {
         "title": "Good (Bom)",
-        "description": "Soube bem. Aparece em 10 minutos (primeira vez) ou 1 dia (segunda vez)."
+        "description": "Soube bem. Primeira vez: 1 dia, segunda: 4 dias, depois: N dias baseado no fator de facilidade."
       },
       "easy": {
         "title": "Easy (Fácil)",
-        "description": "Muito fácil. Aparece em 3 dias."
+        "description": "Muito fácil. Primeira vez: 2 dias, depois: N dias com intervalo maior que Good."
       }
     },
     "reviewSystem": {
-      "title": "Sistema de Revisão",
+      "title": "Sistema de Revisão Inteligente",
       "howItWorks": {
         "title": "Como Funciona",
-        "description": "Após completar uma lição, as cartas entram no sistema de revisão. O algoritmo calcula quando cada carta deve aparecer novamente baseado na sua dificuldade."
+        "description": "Nosso sistema usa um algoritmo inteligente de repetição espaçada para calcular intervalos de revisão. Cada carta tem um fator de facilidade que aumenta ou diminui baseado na sua performance. Os intervalos são dinâmicos e mostrados nos botões!"
       },
       "intervals": {
-        "title": "Intervalos de Revisão"
+        "title": "Intervalos Reais do Sistema"
       }
     },
     "progressTracking": {
@@ -117,6 +118,25 @@
         "description": "Quantas cartas estão prontas para revisão"
       }
     },
+    "features": {
+      "title": "Funcionalidades do Sistema",
+      "reviewAll": {
+        "title": "Review All Lessons",
+        "description": "Revise todas as cartas devidas de todas as lições em uma única sessão"
+      },
+      "audio": {
+        "title": "Sistema de Áudio",
+        "description": "Ouça a pronúncia em inglês e português com controle de velocidade"
+      },
+      "progress": {
+        "title": "Acompanhamento Detalhado",
+        "description": "Veja estatísticas de precisão, lições completadas e revisões pendentes"
+      },
+      "theme": {
+        "title": "Temas Personalizáveis",
+        "description": "Escolha entre tema claro e escuro para melhor conforto visual"
+      }
+    },
     "tips": {
       "title": "Dicas para Melhor Aproveitamento",
       "consistency": {
@@ -124,16 +144,24 @@
         "description": "Pratique um pouco todos os dias em vez de muito de uma vez"
       },
       "honest": {
-        "title": "Seja Honesto",
-        "description": "Avalie corretamente sua dificuldade para otimizar o sistema"
+        "title": "Seja Honesto com os Botões",
+        "description": "Avalie corretamente sua dificuldade - os intervalos mostrados nos botões são calculados baseado na sua performance"
+      },
+      "audio": {
+        "title": "Use o Sistema de Áudio",
+        "description": "Ouça a pronúncia em inglês e português para melhorar sua compreensão auditiva"
       },
       "timing": {
-        "title": "Respeite os Intervalos",
-        "description": "Não force revisões antes do tempo - o sistema é otimizado"
+        "title": "Confie nos Intervalos Dinâmicos",
+        "description": "Os intervalos mostrados nos botões são calculados em tempo real - confie no sistema de repetição espaçada"
       },
       "review": {
-        "title": "Revise Regularmente",
-        "description": "Use o botão \"Review All Lessons\" para revisar cartas devidas"
+        "title": "Use Review All Lessons",
+        "description": "Revise todas as cartas devidas de uma vez usando o botão \"Review All Lessons\""
+      },
+      "theme": {
+        "title": "Personalize sua Experiência",
+        "description": "Escolha o tema que mais conforta seus olhos - claro ou escuro"
       }
     },
     "startLearning": "Começar a Aprender Agora"

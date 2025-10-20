@@ -74,32 +74,33 @@
       }
     },
     "difficultyButtons": {
-      "title": "Botones de Dificultad",
+      "title": "Botones de Dificultad Dinámicos",
+      "description": "Los botones muestran dinámicamente cuándo aparecerá la tarjeta nuevamente, basado en el algoritmo de repetición espaciada. ¡Los intervalos cambian según tu progreso!",
       "again": {
         "title": "Again (Otra vez)",
-        "description": "No supe la respuesta. Aparece en 1 minuto."
+        "description": "No supe la respuesta. Aparece en menos de 10 minutos - siempre en minutos para reaprender."
       },
       "hard": {
         "title": "Hard (Difícil)",
-        "description": "Lo supe, pero fue difícil. Aparece en 6 minutos."
+        "description": "Lo supe, pero fue difícil. Primera vez: menos de 15 minutos, después: N días basado en el progreso."
       },
       "good": {
         "title": "Good (Bueno)",
-        "description": "Lo supe bien. Aparece en 10 minutos (primera vez) o 1 día (segunda vez)."
+        "description": "Lo supe bien. Primera vez: 1 día, segunda: 4 días, después: N días basado en el factor de facilidad."
       },
       "easy": {
         "title": "Easy (Fácil)",
-        "description": "Muy fácil. Aparece en 3 días."
+        "description": "Muy fácil. Primera vez: 2 días, después: N días con intervalo mayor que Good."
       }
     },
     "reviewSystem": {
-      "title": "Sistema de Revisión",
+      "title": "Sistema de Revisión Inteligente",
       "howItWorks": {
         "title": "Cómo Funciona",
-        "description": "Después de completar una lección, las tarjetas entran al sistema de revisión. El algoritmo calcula cuándo cada tarjeta debe aparecer nuevamente basado en tu calificación de dificultad."
+        "description": "Nuestro sistema usa un algoritmo inteligente de repetición espaciada para calcular intervalos de revisión. Cada tarjeta tiene un factor de facilidad que aumenta o disminuye basado en tu rendimiento. ¡Los intervalos son dinámicos y se muestran en los botones!"
       },
       "intervals": {
-        "title": "Intervalos de Revisión"
+        "title": "Intervalos Reales del Sistema"
       }
     },
     "progressTracking": {
@@ -117,6 +118,25 @@
         "description": "Cuántas tarjetas están listas para revisión"
       }
     },
+    "features": {
+      "title": "Funcionalidades del Sistema",
+      "reviewAll": {
+        "title": "Review All Lessons",
+        "description": "Revisa todas las tarjetas pendientes de todas las lecciones en una sola sesión"
+      },
+      "audio": {
+        "title": "Sistema de Audio",
+        "description": "Escucha la pronunciación en inglés y portugués con control de velocidad"
+      },
+      "progress": {
+        "title": "Seguimiento Detallado",
+        "description": "Ve estadísticas de precisión, lecciones completadas y revisiones pendientes"
+      },
+      "theme": {
+        "title": "Temas Personalizables",
+        "description": "Elige entre tema claro y oscuro para mejor comodidad visual"
+      }
+    },
     "tips": {
       "title": "Consejos para Mejores Resultados",
       "consistency": {
@@ -124,16 +144,24 @@
         "description": "Practica un poco todos los días en lugar de mucho de una vez"
       },
       "honest": {
-        "title": "Sé Honesto",
-        "description": "Evalúa tu dificultad correctamente para optimizar el sistema"
+        "title": "Sé Honesto con los Botones",
+        "description": "Evalúa tu dificultad correctamente - los intervalos mostrados en los botones se calculan basado en tu rendimiento"
+      },
+      "audio": {
+        "title": "Usa el Sistema de Audio",
+        "description": "Escucha la pronunciación en inglés y portugués para mejorar tu comprensión auditiva"
       },
       "timing": {
-        "title": "Respeta los Intervalos",
-        "description": "No fuerces revisiones antes de tiempo - el sistema está optimizado"
+        "title": "Confía en los Intervalos Dinámicos",
+        "description": "Los intervalos mostrados en los botones se calculan en tiempo real - confía en el sistema de repetición espaciada"
       },
       "review": {
-        "title": "Revisa Regularmente",
-        "description": "Usa el botón \"Review All Lessons\" para revisar tarjetas pendientes"
+        "title": "Usa Review All Lessons",
+        "description": "Revisa todas las tarjetas pendientes de una vez usando el botón \"Review All Lessons\""
+      },
+      "theme": {
+        "title": "Personaliza tu Experiencia",
+        "description": "Elige el tema que más conforte tus ojos - claro u oscuro"
       }
     },
     "startLearning": "Comenzar a Aprender Ahora"
