@@ -202,11 +202,18 @@ const Dashboard = () => {
             </Link>
           </div>
 
+        </div>
+
+        {/* Statistics */}
+        <ProgressStats statistics={statistics} />
+
+        {/* Review Button */}
+        <div className="mt-8 text-center">
           <Link
             to="/english-course/review"
-            className={`inline-flex items-center gap-2 px-6 py-3 rounded-copilot font-semibold transition-all duration-200 shadow-copilot-lg ${
+            className={`inline-flex items-center gap-3 px-8 py-4 rounded-copilot text-lg font-bold transition-all duration-200 shadow-copilot-xl ${
               statistics?.dueReviews > 0
-                ? 'bg-gradient-to-br from-yellow-500 to-orange-500 text-white hover:opacity-90 cursor-pointer'
+                ? 'bg-gradient-to-br from-yellow-500 to-orange-500 text-white hover:opacity-90 cursor-pointer hover:scale-105'
                 : 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
             }`}
             onClick={(e) => {
@@ -215,16 +222,13 @@ const Dashboard = () => {
               }
             }}
           >
-            <span>⚡</span>
+            <span className="text-2xl">⚡</span>
             {statistics?.dueReviews > 0 
               ? t('dashboard.reviewQuestions', { count: statistics.dueReviews })
               : t('dashboard.noReviewsAvailable', 'No reviews available')
             }
           </Link>
         </div>
-
-        {/* Statistics */}
-        <ProgressStats statistics={statistics} />
 
         {/* Lesson Decks by Level */}
         <div className="mt-12">
