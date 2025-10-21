@@ -251,7 +251,7 @@ export default function Card({
       
       {/* Card */}
       <div 
-        className={`card-container relative w-full h-48 cursor-pointer ${
+        className={`card-container relative w-full h-64 cursor-pointer ${
           isFlipped ? 'flipped' : ''
         }`}
         onClick={handleFlip}
@@ -260,7 +260,7 @@ export default function Card({
         <div className="card-face card-front">
           <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-copilot-lg shadow-copilot-xl h-full flex items-center justify-center p-6 relative">
             <div className="text-center text-white">
-              <p className="text-lg leading-relaxed px-2">
+              <p className="text-xl leading-relaxed px-2">
                 {question.frontText}
               </p>
               <div className="mt-4 text-sm opacity-80">
@@ -298,7 +298,7 @@ export default function Card({
         <div className="card-face card-back">
           <div className="bg-gradient-to-br from-green-500 to-teal-600 rounded-copilot-lg shadow-copilot-xl h-full flex items-center justify-center p-6 relative">
             <div className="text-center text-white">
-              <p className="text-lg leading-relaxed px-2">
+              <p className="text-xl leading-relaxed px-2">
                 {question.backText}
               </p>
               <div className="mt-4 text-sm opacity-80">

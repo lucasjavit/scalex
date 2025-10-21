@@ -210,7 +210,7 @@ const Review = () => {
 
         {/* Card */}
         <div className="flex justify-center">
-          <div className="w-full max-w-2xl">
+          <div className="w-full max-w-4xl">
             <Card
               question={currentQuestion}
               onDifficultySubmit={handleCardDifficultySubmit}

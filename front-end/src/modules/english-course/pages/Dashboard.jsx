@@ -204,6 +204,61 @@ const Dashboard = () => {
 
         </div>
 
+        {/* Overall Progress Bar */}
+        {statistics && (
+          <div className="mb-8">
+            <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-copilot-text-primary mb-1">
+                    Overall Course Progress
+                  </h3>
+                  <p className="text-copilot-text-secondary text-sm">
+                    {statistics.completedLessons} of {statistics.totalLessons} lessons completed
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-copilot-accent-primary">
+                    {statistics.progressPercentage}%
+                  </div>
+                  <div className="text-sm text-copilot-text-secondary">
+                    Complete
+                  </div>
+                </div>
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="w-full bg-copilot-bg-tertiary rounded-full h-4 overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-1000 ease-out"
+                  style={{ width: `${statistics.progressPercentage}%` }}
+                ></div>
+              </div>
+              
+              {/* Progress Details */}
+              <div className="flex justify-between items-center mt-4 text-sm">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-copilot-text-secondary">Completed: {statistics.completedLessons}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <span className="text-copilot-text-secondary">In Progress: {statistics.inProgressLessons}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                    <span className="text-copilot-text-secondary">Not Started: {statistics.totalLessons - statistics.completedLessons - statistics.inProgressLessons}</span>
+                  </div>
+                </div>
+                <div className="text-copilot-text-primary font-semibold">
+                  {statistics.overallAccuracy}% Accuracy
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Statistics */}
         <ProgressStats statistics={statistics} />
 
