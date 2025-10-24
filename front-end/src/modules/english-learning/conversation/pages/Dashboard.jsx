@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { useNotification } from '../../../hooks/useNotification';
-import { useAuth } from '../../auth-social/context/AuthContext';
+import { useNotification } from '../../../../hooks/useNotification';
+import { useAuth } from '../../../auth-social/context/AuthContext';
 import videoCallService from '../services/videoCallService';
 
 const VideoCallDashboard = () => {

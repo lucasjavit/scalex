@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../../../users/entities/user.entity';
 import { Question } from './question.entity';
 
 @Entity('english_answer_history')

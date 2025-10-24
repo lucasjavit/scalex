@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiService from '../../../services/api';
-import { useAuth } from '../../auth-social/context/AuthContext';
+import apiService from '../../../../services/api';
+import { useAuth } from '../../../auth-social/context/AuthContext';
 import Card from '../components/Card';
 
 const Review = () => {

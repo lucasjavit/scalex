@@ -78,13 +78,99 @@
   "home": {
     "welcomeBack": "Welcome back",
     "exploreFeatures": "Explore your features and make the most of them",
-    "englishCourse": {
-      "title": "English Course",
-      "description": "Learn English with interactive method and intelligent spaced repetition system"
+    "learning": {
+      "title": "English Learning",
+      "subtitle": "Learn and practice English",
+      "course": "English Lessons",
+      "courseDesc": "Spaced repetition system",
+      "conversation": "Conversation",
+      "conversationDesc": "Practice with other users",
+      "teachers": "Teachers",
+      "teachersDesc": "Private lessons",
+      "viewAll": "View all modules"
     },
-    "videoCall": {
-      "title": "Video Call",
-      "description": "Practice English with native speakers and learners from around the world"
+    "business": {
+      "title": "Business Suite",
+      "subtitle": "Tools to work as a contractor",
+      "accounting": "Accounting",
+      "accountingDesc": "CNPJ and accountant",
+      "career": "Consulting",
+      "careerDesc": "LinkedIn and resume",
+      "jobs": "Remote Jobs",
+      "jobsDesc": "International work",
+      "insurance": "Insurance",
+      "insuranceDesc": "Plans and protection",
+      "banking": "Digital Bank",
+      "bankingDesc": "International payments",
+      "viewAll": "View all modules"
+    },
+    "comingSoonNotice": "New modules coming soon!"
+  },
+  "learning": {
+    "title": "English Learning",
+    "subtitle": "Learn and practice English efficiently",
+    "howItWorks": "How It Works",
+    "step1": {
+      "title": "Learn",
+      "description": "Study with our spaced repetition system"
+    },
+    "step2": {
+      "title": "Practice",
+      "description": "Converse with other users or teachers"
+    },
+    "step3": {
+      "title": "Evolve",
+      "description": "Track your progress and achieve fluency"
+    },
+    "course": {
+      "title": "English Lessons",
+      "description": "Spaced repetition system with lessons by levels"
+    },
+    "conversation": {
+      "title": "Conversation",
+      "description": "Practice English with other users via Zoom"
+    },
+    "teachers": {
+      "title": "Teachers",
+      "description": "Private lessons with qualified teachers"
+    }
+  },
+  "business": {
+    "title": "Business Suite",
+    "subtitle": "Complete tools to work as a contractor abroad",
+    "comingSoon": "Modules in Development",
+    "comingSoonDescription": "We are working to bring all these features soon. Stay tuned for updates!",
+    "feature1": {
+      "title": "Complete Ecosystem",
+      "description": "Everything you need to work as a contractor"
+    },
+    "feature2": {
+      "title": "Certified Professionals",
+      "description": "Qualified accountants and consultants"
+    },
+    "feature3": {
+      "title": "International Integration",
+      "description": "Receive from abroad easily"
+    },
+    "accounting": {
+      "title": "Accounting",
+      "description": "Create your CNPJ and choose your accountant"
+    },
+    "career": {
+      "title": "Career Consulting",
+      "description": "Improve your LinkedIn and Resume"
+    },
+    "jobs": {
+      "title": "Remote Jobs",
+      "description": "Find remote work in Brazil and abroad"
+    },
+    "insurance": {
+      "title": "Insurance",
+      "description": "Health plans and disability insurance"
+    },
+    "banking": {
+      "title": "Digital Bank",
+      "description": "Receive from abroad and request loans"
     }
   }
 }

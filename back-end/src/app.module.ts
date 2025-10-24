@@ -3,9 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { EnglishCourseModule } from './english-course/english-course.module';
+import { EnglishCourseModule } from './modules/english-learning/course/english-course.module';
 import { UsersModule } from './users/users.module';
-import { VideoCallModule } from './video-call/video-call.module';
+import { VideoCallModule } from './modules/english-learning/conversation/video-call.module';
 
 @Module({
   imports: [

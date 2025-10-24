@@ -78,13 +78,99 @@
   "home": {
     "welcomeBack": "Bienvenido de vuelta",
     "exploreFeatures": "Explora tus funciones y aprovéchalas al máximo",
-    "englishCourse": {
-      "title": "Curso de Inglés",
-      "description": "Aprende inglés con método interactivo y sistema inteligente de repetición espaciada"
+    "learning": {
+      "title": "English Learning",
+      "subtitle": "Aprende y practica inglés",
+      "course": "Clases de Inglés",
+      "courseDesc": "Sistema de repetición espaciada",
+      "conversation": "Conversación",
+      "conversationDesc": "Practica con otros usuarios",
+      "teachers": "Profesores",
+      "teachersDesc": "Clases particulares",
+      "viewAll": "Ver todos los módulos"
     },
-    "videoCall": {
-      "title": "Videollamada",
-      "description": "Practica inglés con nativos y estudiantes de todo el mundo"
+    "business": {
+      "title": "Business Suite",
+      "subtitle": "Herramientas para trabajar como autónomo",
+      "accounting": "Contabilidad",
+      "accountingDesc": "CNPJ y contador",
+      "career": "Consultoría",
+      "careerDesc": "LinkedIn y currículum",
+      "jobs": "Trabajos Remotos",
+      "jobsDesc": "Trabajo internacional",
+      "insurance": "Seguros",
+      "insuranceDesc": "Planes y protección",
+      "banking": "Banco Digital",
+      "bankingDesc": "Pagos internacionales",
+      "viewAll": "Ver todos los módulos"
+    },
+    "comingSoonNotice": "¡Nuevos módulos próximamente!"
+  },
+  "learning": {
+    "title": "English Learning",
+    "subtitle": "Aprende y practica inglés de forma eficiente",
+    "howItWorks": "Cómo Funciona",
+    "step1": {
+      "title": "Aprende",
+      "description": "Estudia con nuestro sistema de repetición espaciada"
+    },
+    "step2": {
+      "title": "Practica",
+      "description": "Conversa con otros usuarios o profesores"
+    },
+    "step3": {
+      "title": "Evoluciona",
+      "description": "Sigue tu progreso y alcanza la fluidez"
+    },
+    "course": {
+      "title": "Clases de Inglés",
+      "description": "Sistema de repetición espaciada con lecciones por niveles"
+    },
+    "conversation": {
+      "title": "Conversación",
+      "description": "Practica inglés con otros usuarios vía Zoom"
+    },
+    "teachers": {
+      "title": "Profesores",
+      "description": "Clases particulares con profesores calificados"
+    }
+  },
+  "business": {
+    "title": "Business Suite",
+    "subtitle": "Herramientas completas para trabajar como autónomo en el extranjero",
+    "comingSoon": "Módulos en Desarrollo",
+    "comingSoonDescription": "¡Estamos trabajando para traer todas estas funcionalidades pronto. Mantente atento a las actualizaciones!",
+    "feature1": {
+      "title": "Ecosistema Completo",
+      "description": "Todo lo que necesitas para trabajar como autónomo"
+    },
+    "feature2": {
+      "title": "Profesionales Certificados",
+      "description": "Contadores y consultores calificados"
+    },
+    "feature3": {
+      "title": "Integración Internacional",
+      "description": "Recibe del extranjero fácilmente"
+    },
+    "accounting": {
+      "title": "Contabilidad",
+      "description": "Crea tu CNPJ y elige tu contador"
+    },
+    "career": {
+      "title": "Consultoría de Carrera",
+      "description": "Mejora tu LinkedIn y Currículum"
+    },
+    "jobs": {
+      "title": "Trabajos Remotos",
+      "description": "Encuentra trabajo remoto en Brasil y el extranjero"
+    },
+    "insurance": {
+      "title": "Seguros",
+      "description": "Planes de salud y seguros de incapacidad"
+    },
+    "banking": {
+      "title": "Banco Digital",
+      "description": "Recibe del extranjero y solicita préstamos"
     }
   }
 }

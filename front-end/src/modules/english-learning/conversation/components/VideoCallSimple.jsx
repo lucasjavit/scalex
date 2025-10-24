@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useAuth } from '../../auth-social/context/AuthContext';
+import { useAuth } from '../../../auth-social/context/AuthContext';
 
 const VideoCallSimple = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
   const { user } = useAuth();

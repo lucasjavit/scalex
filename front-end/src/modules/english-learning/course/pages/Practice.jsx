@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useNotification } from '../../../hooks/useNotification';
-import apiService from '../../../services/api';
-import { useAuth } from '../../auth-social/context/AuthContext';
+import { useNotification } from '../../../../hooks/useNotification';
+import apiService from '../../../../services/api';
+import { useAuth } from '../../../auth-social/context/AuthContext';
 import Card from '../components/Card';
 
 const Practice = () => {

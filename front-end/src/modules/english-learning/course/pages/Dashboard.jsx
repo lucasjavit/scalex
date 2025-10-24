@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import apiService from '../../../services/api';
-import { useAuth } from '../../auth-social/context/AuthContext';
+import apiService from '../../../../services/api';
+import { useAuth } from '../../../auth-social/context/AuthContext';
 import ProgressStats from '../components/ProgressStats';
 
 const Dashboard = () => {

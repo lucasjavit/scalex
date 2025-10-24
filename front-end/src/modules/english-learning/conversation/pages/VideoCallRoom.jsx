@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../auth-social/context/AuthContext';
+import { useAuth } from '../../../auth-social/context/AuthContext';
 import VideoCallSimple from '../components/VideoCallSimple';
 import videoCallService from '../services/videoCallService';
 

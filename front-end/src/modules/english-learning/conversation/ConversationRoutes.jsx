@@ -1,15 +1,15 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
 import HowItWorks from './pages/HowItWorks';
 import Matching from './pages/Matching';
-import VideoCallDashboard from './pages/VideoCallDashboard';
 import VideoCallRoom from './pages/VideoCallRoom';
 import WaitingQueue from './pages/WaitingQueue';
 
-const VideoCallRoutes = () => {
+const ConversationRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<VideoCallDashboard />} />
+      <Route path="/" element={<Dashboard />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/matching" element={<Matching />} />
       <Route path="/waiting-queue" element={<WaitingQueue />} />
@@ -18,4 +18,4 @@ const VideoCallRoutes = () => {
   );
 };
 
-export default VideoCallRoutes;
+export default ConversationRoutes;

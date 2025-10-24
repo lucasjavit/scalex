@@ -5,6 +5,54 @@ import { useIsAdmin } from "../../../hooks/useIsAdmin";
 import apiService from "../../../services/api";
 import { useAuth } from "../context/AuthContext";
 
+// MacroModuleCard Component
+function MacroModuleCard({ icon, gradient, title, description, onClick, status = 'active' }) {
+  const isComingSoon = status === 'coming-soon';
+
+  return (
+    <div
+      className={`relative bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 transition-all duration-200 group ${
+        isComingSoon
+          ? 'opacity-60 cursor-not-allowed'
+          : 'hover:border-copilot-accent-primary cursor-pointer hover:shadow-copilot-xl'
+      }`}
+      onClick={isComingSoon ? undefined : onClick}
+    >
+      {/* Coming Soon Badge */}
+      {isComingSoon && (
+        <div className="absolute top-3 right-3 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-copilot">
+          Em breve
+        </div>
+      )}
+
+      {/* Icon */}
+      <div className={`w-14 h-14 bg-gradient-to-br ${gradient} rounded-copilot flex items-center justify-center mb-4 shadow-copilot ${
+        !isComingSoon && 'group-hover:scale-110'
+      } transition-transform duration-200`}>
+        <span className="text-white text-3xl">{icon}</span>
+      </div>
+
+      {/* Title */}
+      <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">
+        {title}
+      </h3>
+
+      {/* Description */}
+      <p className="text-copilot-text-secondary text-sm mb-4 min-h-[3rem]">
+        {description}
+      </p>
+
+      {/* Action */}
+      {!isComingSoon && (
+        <div className="flex items-center text-copilot-accent-primary text-sm font-medium">
+          <span>Acessar</span>
+          <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const { t } = useTranslation('common');
   const { user } = useAuth();
@@ -56,44 +104,129 @@ export default function Home() {
         </div>
 
 
-        {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* English Course Card */}
-          <div 
-            className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 hover:border-copilot-accent-primary transition-all duration-200 cursor-pointer group"
-            onClick={() => navigate('/english-course')}
-          >
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-copilot flex items-center justify-center mb-4 shadow-copilot group-hover:scale-110 transition-transform duration-200">
-              <span className="text-white text-2xl">🇬🇧</span>
+        {/* Macro-Module 1: English Learning */}
+        <section className="mb-12">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-copilot flex items-center justify-center shadow-copilot">
+              <span className="text-white text-2xl">📚</span>
             </div>
-            <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">{t('home.englishCourse.title')}</h3>
-            <p className="text-copilot-text-secondary text-sm">
-              {t('home.englishCourse.description')}
-            </p>
-            <div className="mt-4 flex items-center text-copilot-accent-primary text-sm font-medium">
-              <span>{t('buttons.getStarted')}</span>
-              <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
+            <div>
+              <h2 className="text-2xl font-bold text-copilot-text-primary">
+                {t('home.learning.title', 'English Learning')}
+              </h2>
+              <p className="text-copilot-text-secondary text-sm">
+                {t('home.learning.subtitle', 'Aprenda e pratique inglês')}
+              </p>
             </div>
           </div>
 
-          {/* Video Call Card */}
-          <div
-            className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 hover:border-copilot-accent-primary transition-all duration-200 cursor-pointer group"
-            onClick={() => navigate('/video-call')}
-          >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-copilot flex items-center justify-center mb-4 shadow-copilot group-hover:scale-110 transition-transform duration-200">
-              <span className="text-white text-2xl">🎥</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <MacroModuleCard
+              icon="📖"
+              gradient="from-green-500 to-emerald-500"
+              title={t('home.learning.course', 'Aulas de Inglês')}
+              description={t('home.learning.courseDesc', 'Sistema de spaced repetition')}
+              onClick={() => navigate('/learning/course')}
+              status="active"
+            />
+            <MacroModuleCard
+              icon="💬"
+              gradient="from-yellow-500 to-orange-500"
+              title={t('home.learning.conversation', 'Conversação')}
+              description={t('home.learning.conversationDesc', 'Pratique com outros usuários')}
+              onClick={() => navigate('/learning/conversation')}
+              status="active"
+            />
+            <MacroModuleCard
+              icon="👨‍🏫"
+              gradient="from-blue-500 to-cyan-500"
+              title={t('home.learning.teachers', 'Professores')}
+              description={t('home.learning.teachersDesc', 'Aulas particulares')}
+              onClick={() => navigate('/learning/teachers')}
+              status="coming-soon"
+            />
+          </div>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => navigate('/learning')}
+              className="btn-copilot-secondary inline-flex items-center gap-2"
+            >
+              <span>{t('home.learning.viewAll', 'Ver todos os módulos')}</span>
+              <span>→</span>
+            </button>
+          </div>
+        </section>
+
+        {/* Macro-Module 2: Business Suite */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-copilot flex items-center justify-center shadow-copilot">
+              <span className="text-white text-2xl">💼</span>
             </div>
-            <h3 className="font-bold text-lg mb-2 text-copilot-text-primary">{t('home.videoCall.title')}</h3>
-            <p className="text-copilot-text-secondary text-sm">
-              {t('home.videoCall.description')}
-            </p>
-            <div className="mt-4 flex items-center text-copilot-accent-primary text-sm font-medium">
-              <span>{t('buttons.getStarted')}</span>
-              <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
+            <div>
+              <h2 className="text-2xl font-bold text-copilot-text-primary">
+                {t('home.business.title', 'Business Suite')}
+              </h2>
+              <p className="text-copilot-text-secondary text-sm">
+                {t('home.business.subtitle', 'Ferramentas para trabalhar como PJ')}
+              </p>
             </div>
           </div>
-        </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <MacroModuleCard
+              icon="📊"
+              gradient="from-blue-500 to-cyan-500"
+              title={t('home.business.accounting', 'Contabilidade')}
+              description={t('home.business.accountingDesc', 'CNPJ e contador')}
+              onClick={() => navigate('/business/accounting')}
+              status="coming-soon"
+            />
+            <MacroModuleCard
+              icon="💼"
+              gradient="from-purple-500 to-pink-500"
+              title={t('home.business.career', 'Consultoria')}
+              description={t('home.business.careerDesc', 'LinkedIn e currículo')}
+              onClick={() => navigate('/business/career')}
+              status="coming-soon"
+            />
+            <MacroModuleCard
+              icon="🌍"
+              gradient="from-red-500 to-pink-500"
+              title={t('home.business.jobs', 'Vagas Remotas')}
+              description={t('home.business.jobsDesc', 'Trabalho internacional')}
+              onClick={() => navigate('/business/jobs')}
+              status="coming-soon"
+            />
+            <MacroModuleCard
+              icon="🛡️"
+              gradient="from-indigo-500 to-blue-500"
+              title={t('home.business.insurance', 'Seguros')}
+              description={t('home.business.insuranceDesc', 'Planos e proteção')}
+              onClick={() => navigate('/business/insurance')}
+              status="coming-soon"
+            />
+            <MacroModuleCard
+              icon="💰"
+              gradient="from-teal-500 to-cyan-500"
+              title={t('home.business.banking', 'Banco Digital')}
+              description={t('home.business.bankingDesc', 'Pagamentos internacionais')}
+              onClick={() => navigate('/business/banking')}
+              status="coming-soon"
+            />
+          </div>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => navigate('/business')}
+              className="btn-copilot-secondary inline-flex items-center gap-2"
+            >
+              <span>{t('home.business.viewAll', 'Ver todos os módulos')}</span>
+              <span>→</span>
+            </button>
+          </div>
+        </section>
       </main>
     </div>
   );

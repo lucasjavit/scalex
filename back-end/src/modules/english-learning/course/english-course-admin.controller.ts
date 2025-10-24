@@ -9,7 +9,7 @@ import {
     Post,
     Put
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../../../users/users.service';
 import { BulkCreateQuestionsDto } from './dto/bulk-create-questions.dto';
 import { BulkDeleteQuestionsDto } from './dto/bulk-delete-questions.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';

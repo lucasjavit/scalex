@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import apiService from '../../../services/api';
-import { useAuth } from '../../auth-social/context/AuthContext';
+import apiService from '../../../../services/api';
+import { useAuth } from '../../../auth-social/context/AuthContext';
 
 const Progress = () => {
   const { lessonId } = useParams();

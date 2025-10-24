@@ -78,13 +78,99 @@
   "home": {
     "welcomeBack": "Bem-vindo de volta",
     "exploreFeatures": "Explore seus recursos e aproveite ao máximo",
-    "englishCourse": {
-      "title": "Curso de Inglês",
-      "description": "Aprenda inglês com método interativo e sistema inteligente de repetição espaçada"
+    "learning": {
+      "title": "English Learning",
+      "subtitle": "Aprenda e pratique inglês",
+      "course": "Aulas de Inglês",
+      "courseDesc": "Sistema de spaced repetition",
+      "conversation": "Conversação",
+      "conversationDesc": "Pratique com outros usuários",
+      "teachers": "Professores",
+      "teachersDesc": "Aulas particulares",
+      "viewAll": "Ver todos os módulos"
     },
-    "videoCall": {
-      "title": "Videochamada",
-      "description": "Pratique inglês com nativos e estudantes do mundo todo"
+    "business": {
+      "title": "Business Suite",
+      "subtitle": "Ferramentas para trabalhar como PJ",
+      "accounting": "Contabilidade",
+      "accountingDesc": "CNPJ e contador",
+      "career": "Consultoria",
+      "careerDesc": "LinkedIn e currículo",
+      "jobs": "Vagas Remotas",
+      "jobsDesc": "Trabalho internacional",
+      "insurance": "Seguros",
+      "insuranceDesc": "Planos e proteção",
+      "banking": "Banco Digital",
+      "bankingDesc": "Pagamentos internacionais",
+      "viewAll": "Ver todos os módulos"
+    },
+    "comingSoonNotice": "Novos módulos serão lançados em breve!"
+  },
+  "learning": {
+    "title": "English Learning",
+    "subtitle": "Aprenda e pratique inglês de forma eficiente",
+    "howItWorks": "Como Funciona",
+    "step1": {
+      "title": "Aprenda",
+      "description": "Estude com nosso sistema de spaced repetition"
+    },
+    "step2": {
+      "title": "Pratique",
+      "description": "Converse com outros usuários ou professores"
+    },
+    "step3": {
+      "title": "Evolua",
+      "description": "Acompanhe seu progresso e alcance fluência"
+    },
+    "course": {
+      "title": "Aulas de Inglês",
+      "description": "Sistema de spaced repetition com lições por níveis"
+    },
+    "conversation": {
+      "title": "Conversação",
+      "description": "Pratique inglês com outros usuários via Zoom"
+    },
+    "teachers": {
+      "title": "Professores",
+      "description": "Aulas particulares com professores qualificados"
+    }
+  },
+  "business": {
+    "title": "Business Suite",
+    "subtitle": "Ferramentas completas para trabalhar como PJ no exterior",
+    "comingSoon": "Módulos em Desenvolvimento",
+    "comingSoonDescription": "Estamos trabalhando para trazer todas essas funcionalidades em breve. Fique atento às atualizações!",
+    "feature1": {
+      "title": "Ecossistema Completo",
+      "description": "Tudo que você precisa para trabalhar como PJ"
+    },
+    "feature2": {
+      "title": "Profissionais Certificados",
+      "description": "Contadores e consultores qualificados"
+    },
+    "feature3": {
+      "title": "Integração Internacional",
+      "description": "Receba do exterior com facilidade"
+    },
+    "accounting": {
+      "title": "Contabilidade",
+      "description": "Crie seu CNPJ e escolha seu contador"
+    },
+    "career": {
+      "title": "Consultoria de Carreira",
+      "description": "Melhore seu LinkedIn e Currículo"
+    },
+    "jobs": {
+      "title": "Vagas Remotas",
+      "description": "Encontre trabalho remoto no Brasil e exterior"
+    },
+    "insurance": {
+      "title": "Seguros",
+      "description": "Planos de saúde e seguros de afastamento"
+    },
+    "banking": {
+      "title": "Banco Digital",
+      "description": "Receba do exterior e solicite empréstimos"
     }
   }
 }
