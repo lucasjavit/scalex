@@ -1,0 +1,160 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: scalex-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: scalex
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./back-end/database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - scalex-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scalex"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Jitsi Meet (local dev) - self-hosted stack
+  jitsi-prosody:
+    image: jitsi/prosody:stable
+    container_name: jitsi-prosody
+    restart: unless-stopped
+    ports:
+      - "5222:5222"
+      - "5347:5347"
+      - "5280:5280"
+    environment:
+      - XMPP_DOMAIN=meet.jitsi
+      - XMPP_AUTH_DOMAIN=auth.meet.jitsi
+      - XMPP_MUC_DOMAIN=muc.meet.jitsi
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.meet.jitsi
+      - XMPP_GUEST_DOMAIN=guest.meet.jitsi
+      - XMPP_RECORDER_DOMAIN=recorder.meet.jitsi
+      - JICOFO_COMPONENT_SECRET=jicofo-secret-scalex-2025
+      - JICOFO_AUTH_USER=focus
+      - JICOFO_AUTH_PASSWORD=jicofo-password-scalex-2025
+      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_PASSWORD=jvb-password-scalex-2025
+      - JIGASI_XMPP_USER=jigasi
+      - JIGASI_XMPP_PASSWORD=jigasi-password-scalex-2025
+      - JIBRI_XMPP_USER=jibri
+      - JIBRI_XMPP_PASSWORD=jibri-password-scalex-2025
+      - JIBRI_RECORDER_USER=recorder
+      - JIBRI_RECORDER_PASSWORD=recorder-password-scalex-2025
+      - PUBLIC_URL=https://localhost:8443
+      - ENABLE_AUTH=0
+      - ENABLE_GUESTS=1
+      - JWT_ALLOW_EMPTY=1
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ./jitsi-cfg/prosody:/config:Z
+    networks:
+      - scalex-network
+
+  jitsi-web:
+    image: scalex-jitsi-web:v1
+    container_name: jitsi-web
+    restart: unless-stopped
+    ports:
+      - "8440:80"   # HTTP (optional)
+      - "8443:443"  # HTTPS (mkcert)
+    environment:
+      - XMPP_DOMAIN=meet.jitsi
+      - XMPP_AUTH_DOMAIN=auth.meet.jitsi
+      - XMPP_MUC_DOMAIN=muc.meet.jitsi
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.meet.jitsi
+      - XMPP_GUEST_DOMAIN=guest.meet.jitsi
+      - XMPP_RECORDER_DOMAIN=recorder.meet.jitsi
+      - XMPP_BOSH_URL_BASE=http://jitsi-prosody:5280
+      - XMPP_SERVER=jitsi-prosody
+      - JICOFO_AUTH_USER=focus
+      - PUBLIC_URL=https://localhost:8443
+      - ENABLE_LETSENCRYPT=0
+      - ENABLE_HTTP_REDIRECT=1
+      - ENABLE_HSTS=0
+      - ENABLE_AUTH=0
+      - ENABLE_GUESTS=1
+      - ENABLE_CSP=1
+      - CSP_FRAME_ANCESTORS=http://localhost:5173 https://localhost:8443 http://localhost:8440
+      - X_FRAME_OPTIONS=ALLOWALL
+      - ENABLE_XMPP_WEBSOCKET=1
+      - XMPP_WEBSOCKET=wss://localhost:8443/xmpp-websocket
+      - TZ=America/Sao_Paulo
+    depends_on:
+      - jitsi-prosody
+      - jitsi-jicofo
+      - jitsi-jvb
+    volumes:
+      - ./jitsi-cfg/web:/config:Z
+      - ./jitsi-cfg/web/letsencrypt:/etc/letsencrypt:Z
+      - ./jitsi-cfg/transcripts:/usr/share/jitsi-meet/transcripts:Z
+      - ./watermark.png:/usr/share/jitsi-meet/images/watermark.png
+    networks:
+      - scalex-network
+
+  jitsi-jicofo:
+    image: jitsi/jicofo:stable
+    container_name: jitsi-jicofo
+    restart: unless-stopped
+    environment:
+      - XMPP_DOMAIN=meet.jitsi
+      - XMPP_AUTH_DOMAIN=auth.meet.jitsi
+      - XMPP_MUC_DOMAIN=muc.meet.jitsi
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.meet.jitsi
+      - XMPP_SERVER=jitsi-prosody
+      - JICOFO_COMPONENT_SECRET=jicofo-secret-scalex-2025
+      - JICOFO_AUTH_USER=focus
+      - JICOFO_AUTH_PASSWORD=jicofo-password-scalex-2025
+      - JVB_BREWERY_MUC=jvbbrewery
+      - ENABLE_AUTH=0
+      - TZ=America/Sao_Paulo
+    depends_on:
+      - jitsi-prosody
+    volumes:
+      - ./jitsi-cfg/jicofo:/config:Z
+    networks:
+      - scalex-network
+
+  jitsi-jvb:
+    image: jitsi/jvb:stable
+    container_name: jitsi-jvb
+    restart: unless-stopped
+    ports:
+      - "10000:10000/udp"
+      - "8080:8080"
+    environment:
+      - DOCKER_HOST_ADDRESS=127.0.0.1
+      - XMPP_DOMAIN=meet.jitsi
+      - XMPP_AUTH_DOMAIN=auth.meet.jitsi
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.meet.jitsi
+      - XMPP_SERVER=jitsi-prosody
+      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_PASSWORD=jvb-password-scalex-2025
+      - JVB_BREWERY_MUC=jvbbrewery
+      - JVB_PORT=10000
+      - JVB_TCP_HARVESTER_DISABLED=true
+      - JVB_TCP_PORT=4443
+      - JVB_STUN_SERVERS=meet-jit-si-turnrelay.jitsi.net:443
+      - JVB_ENABLE_APIS=rest,colibri
+      - TZ=America/Sao_Paulo
+    depends_on:
+      - jitsi-prosody
+    volumes:
+      - ./jitsi-cfg/jvb:/config:Z
+    networks:
+      - scalex-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  scalex-network:
+    driver: bridge
