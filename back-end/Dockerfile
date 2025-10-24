@@ -14,6 +14,9 @@ RUN npm run build
 # Estágio de produção
 FROM node:20-alpine
 
+# Instalar curl para healthcheck
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 # Copiar dependências de produção
@@ -26,9 +29,9 @@ COPY --from=builder /app/dist ./dist
 # Expor porta
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+# Health check - verifica se a aplicação está respondendo
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:3000 || exit 1
 
 # Iniciar aplicação
 CMD ["node", "dist/main.js"]
