@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(set PGPASSWORD=postgres)",
+      "Bash(psql -U postgres -h localhost -p 5432 -d scalex -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\")",
+      "Bash(node reset-database.js)",
+      "Bash(curl -s http://localhost:3000/users/firebase/teste123)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

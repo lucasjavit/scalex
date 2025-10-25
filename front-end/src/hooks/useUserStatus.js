@@ -19,10 +19,17 @@ export const useUserStatus = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Get user data from backend to check is_active status
         const userData = await apiService.getUserByFirebaseUid(user.uid);
-        setUserStatus(userData);
+
+        // If user doesn't exist in backend, treat as new user (null status)
+        if (!userData) {
+          console.log('User not found in database - new user needs to complete registration');
+          setUserStatus(null);
+        } else {
+          setUserStatus(userData);
+        }
       } catch (err) {
         console.error('Error checking user status:', err);
         setError('Error checking user status');
@@ -40,6 +47,7 @@ export const useUserStatus = () => {
     loading,
     error,
     isActive: userStatus?.is_active === true,
-    isInactive: userStatus?.is_active === false
+    isInactive: userStatus?.is_active === false,
+    isNewUser: user && !userStatus && !loading && !error // Firebase authenticated but not in DB
   };
 };

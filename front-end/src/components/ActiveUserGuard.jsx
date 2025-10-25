@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
+import { Navigate } from 'react-router-dom';
 import { useUserStatus } from '../hooks/useUserStatus';
 import InactiveUserBlock from './InactiveUserBlock';
 
 const ActiveUserGuard = ({ children }) => {
   const { t } = useTranslation('common');
-  const { isActive, isInactive, loading, error } = useUserStatus();
+  const { isActive, isInactive, isNewUser, loading, error } = useUserStatus();
 
   // Show loading while checking user status
   if (loading) {
@@ -41,6 +42,11 @@ const ActiveUserGuard = ({ children }) => {
         </div>
       </div>
     );
+  }
+
+  // Redirect new users to complete registration
+  if (isNewUser) {
+    return <Navigate to="/complete-registration" replace />;
   }
 
   // Block access if user is inactive

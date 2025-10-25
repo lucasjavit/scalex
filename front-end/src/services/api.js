@@ -19,7 +19,7 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -30,7 +30,18 @@ class ApiService {
         return null;
       }
 
-      return await response.json();
+      // Check if response has content before parsing JSON
+      const text = await response.text();
+      if (!text || text.trim() === '') {
+        return null;
+      }
+
+      try {
+        return JSON.parse(text);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError, 'Response text:', text);
+        return null;
+      }
     } catch (error) {
       console.error('API request failed:', error);
       throw error;

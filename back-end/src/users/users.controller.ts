@@ -31,8 +31,10 @@ export class UsersController {
   }
 
   @Get('firebase/:firebaseUid')
-  findByFirebaseUid(@Param('firebaseUid') firebaseUid: string) {
-    return this.usersService.findByFirebaseUid(firebaseUid);
+  async findByFirebaseUid(@Param('firebaseUid') firebaseUid: string) {
+    const user = await this.usersService.findByFirebaseUid(firebaseUid);
+    // Return null as JSON for frontend to handle new user registration
+    return user;
   }
 
   @Get('email/:email')

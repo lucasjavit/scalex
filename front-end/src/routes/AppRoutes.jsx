@@ -5,6 +5,7 @@ import Home from "../modules/auth-social/pages/Home";
 import Login from "../modules/auth-social/pages/Login";
 import UserProfile from "../modules/auth-social/pages/UserProfile";
 import LandingPage from "../pages/LandingPage";
+import CompleteRegistration from "../pages/CompleteRegistration";
 import PrivateRoute from "./PrivateRoute";
 
 // Coming Soon Page Component
@@ -101,6 +102,7 @@ export default function AppRoutes() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/complete-registration" element={<CompleteRegistration />} />
             <Route
               path="/home"
               element={
