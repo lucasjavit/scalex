@@ -96,19 +96,14 @@ export class UsersService {
     return user;
   }
 
-  async findByFirebaseUid(firebaseUid: string): Promise<User> {
+  async findByFirebaseUid(firebaseUid: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { firebase_uid: firebaseUid },
       relations: ['addresses'],
     });
 
-    if (!user) {
-      throw new NotFoundException(
-        `User with Firebase UID ${firebaseUid} not found`,
-      );
-    }
-
-    return user;
+    // Return null instead of throwing error - frontend will handle user creation
+    return user || null;
   }
 
   async findByEmail(email: string): Promise<User> {
