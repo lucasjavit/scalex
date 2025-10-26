@@ -17,7 +17,9 @@
       "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"\\dt\")",
       "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"\\d users\")",
       "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"\\d addresses\")",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(docker exec scalex-postgres psql -U postgres -c \"CREATE DATABASE scalex;\")",
+      "Bash(npm run migration:run)"
     ],
     "deny": [],
     "ask": []
