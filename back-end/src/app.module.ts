@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { VideoCallModule } from './modules/english-learning/conversation/video-call.module';
+import { EnglishCourseModule } from './modules/english-learning/course/english-course.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -31,6 +32,7 @@ import { UsersModule } from './users/users.module';
     }),
     UsersModule,
     VideoCallModule,
+    EnglishCourseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

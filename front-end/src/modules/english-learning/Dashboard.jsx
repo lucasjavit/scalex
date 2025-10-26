@@ -7,6 +7,15 @@ export default function EnglishLearningDashboard() {
 
   const modules = [
     {
+      id: 'course',
+      icon: '📚',
+      title: t('learning.course.title', 'Curso de Inglês'),
+      description: t('learning.course.description', 'Aprenda inglês com vídeos e flashcards inteligentes'),
+      route: '/learning/course',
+      gradient: 'from-purple-500 to-pink-500',
+      status: 'active'
+    },
+    {
       id: 'conversation',
       icon: '💬',
       title: t('learning.conversation.title', 'Conversação'),

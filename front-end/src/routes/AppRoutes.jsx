@@ -79,6 +79,12 @@ import EnglishLearningDashboard from "../modules/english-learning/Dashboard";
 // English Learning - Conversation Module
 import ConversationRoutes from "../modules/english-learning/conversation/ConversationRoutes";
 
+// English Learning - Course Module
+import CourseDashboard from "../modules/english-learning/course/pages/CourseDashboard";
+import StageView from "../modules/english-learning/course/pages/StageView";
+import UnitView from "../modules/english-learning/course/pages/UnitView";
+import ReviewSession from "../modules/english-learning/course/pages/ReviewSession";
+
 // Admin Panel
 import { AdminRoutes } from "../modules/admin";
 
@@ -126,6 +132,38 @@ export default function AppRoutes() {
               element={
                 <PrivateRoute>
                   <ConversationRoutes />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/learning/course"
+              element={
+                <PrivateRoute>
+                  <CourseDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/learning/course/stages/:stageId"
+              element={
+                <PrivateRoute>
+                  <StageView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/learning/course/units/:unitId"
+              element={
+                <PrivateRoute>
+                  <UnitView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/learning/course/review"
+              element={
+                <PrivateRoute>
+                  <ReviewSession />
                 </PrivateRoute>
               }
             />

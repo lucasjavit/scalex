@@ -1,25 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(set PGPASSWORD=postgres)",
-      "Bash(psql -U postgres -h localhost -p 5432 -d scalex -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\")",
-      "Bash(node reset-database.js)",
-      "Bash(curl -s http://localhost:3000/users/firebase/teste123)",
-      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -d scalex -c \"DROP TABLE IF EXISTS english_answer_history CASCADE;\")",
-      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -d scalex -c \"DROP TABLE IF EXISTS english_reviews CASCADE;\")",
-      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -d scalex -c \"DROP TABLE IF EXISTS english_user_progress CASCADE;\")",
-      "Bash(git checkout HEAD -- src/modules/english-learning/conversation/)",
-      "Bash(git checkout HEAD -- src/modules/english-learning/Dashboard.jsx)",
-      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -c \"DROP DATABASE IF EXISTS scalex;\")",
-      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -c \"CREATE DATABASE scalex;\")",
-      "Bash(docker ps --filter \"name=postgres\" --format \"{{.Names}}\")",
-      "Bash(docker exec scalex-postgres psql -U postgres -c \"DROP DATABASE IF EXISTS scalex;\")",
-      "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"\\dt\")",
-      "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"\\d users\")",
-      "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"\\d addresses\")",
-      "Bash(npm install)",
-      "Bash(docker exec scalex-postgres psql -U postgres -c \"CREATE DATABASE scalex;\")",
-      "Bash(npm run migration:run)"
+      "Bash(curl -X POST http://localhost:3000/api/english-course/progress/units/a805dc6a-9dad-45a6-8eb1-b03638210ab0/start)",
+      "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"SELECT c.id, c.unit_id, c.front_text, c.back_text, u.title as unit_title FROM cards c LEFT JOIN units u ON c.unit_id = u.id WHERE c.deleted_at IS NULL ORDER BY u.order_index, c.order_index LIMIT 20;\")",
+      "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"SELECT COUNT(*) as total_cards FROM cards WHERE deleted_at IS NULL;\")",
+      "Bash(powershell -Command \"git show ''7214b9c^:front-end/src/modules/english-class/Dashboard.jsx'' 2>$null | Select-Object -First 400\")",
+      "Bash(git ls-tree -r --name-only 17e6f539e9aa6e55bd726f9c44fd191f431a2d55^)",
+      "Bash(findstr /I \"english-class.*Dashboard\")"
     ],
     "deny": [],
     "ask": []
