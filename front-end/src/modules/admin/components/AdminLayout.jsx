@@ -9,26 +9,15 @@ const AdminLayout = ({ children }) => {
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: '🏠', exact: true },
-    { 
-      name: 'User', 
-      icon: '👤',
-      submenu: [
-        { name: 'User Management', href: '/admin/english-course/user-management', icon: '🔍' },
-        { name: 'Manage Users', href: '/admin/english-course/users', icon: '👥' },
-      ]
+    {
+      name: 'Users',
+      href: '/admin/users',
+      icon: '👥'
     },
-    { 
-      name: 'English Course', 
-      icon: '📚',
-      submenu: [
-        { name: 'Lessons', href: '/admin/english-course/lessons', icon: '📖' },
-        { name: 'Statistics', href: '/admin/english-course/statistics', icon: '📊' },
-      ]
-    },
-    { 
-      name: 'Video Call', 
+    {
+      name: 'Video Call',
       href: '/admin/video-call',
-      icon: '🎥' 
+      icon: '🎥'
     },
   ];
 

@@ -124,7 +124,6 @@ Component "muc.meet.jitsi" "muc"
         "muc_hide_all";
         "muc_meeting_id";
         
-        "polls";
         "muc_domain_mapper";
         
         "muc_password_whitelist";
@@ -187,7 +186,6 @@ Component "breakout.meet.jitsi" "muc"
     modules_enabled = {
         "muc_hide_all";
         "muc_meeting_id";
-        "polls";
         }
 
 
@@ -197,3 +195,5 @@ Component "metadata.meet.jitsi" "room_metadata_component"
 
 
 
+
+Component "polls.meet.jitsi" "polls_component"

@@ -6,21 +6,18 @@ import { initReactI18next } from 'react-i18next';
 import enAdmin from './locales/en/admin.json';
 import enAuth from './locales/en/auth.json';
 import enCommon from './locales/en/common.json';
-import enEnglishCourse from './locales/en/englishCourse.json';
 import enLanding from './locales/en/landing.json';
 import enVideoCall from './locales/en/videoCall.json';
 
 import ptAdmin from './locales/pt-BR/admin.json';
 import ptAuth from './locales/pt-BR/auth.json';
 import ptCommon from './locales/pt-BR/common.json';
-import ptEnglishCourse from './locales/pt-BR/englishCourse.json';
 import ptLanding from './locales/pt-BR/landing.json';
 import ptVideoCall from './locales/pt-BR/videoCall.json';
 
 import esAdmin from './locales/es/admin.json';
 import esAuth from './locales/es/auth.json';
 import esCommon from './locales/es/common.json';
-import esEnglishCourse from './locales/es/englishCourse.json';
 import esLanding from './locales/es/landing.json';
 import esVideoCall from './locales/es/videoCall.json';
 
@@ -29,25 +26,22 @@ const resources = {
     common: enCommon,
     auth: enAuth,
     admin: enAdmin,
-    videoCall: enVideoCall,
     landing: enLanding,
-    englishCourse: enEnglishCourse,
+    videoCall: enVideoCall,
   },
   'pt-BR': {
     common: ptCommon,
     auth: ptAuth,
     admin: ptAdmin,
-    videoCall: ptVideoCall,
     landing: ptLanding,
-    englishCourse: ptEnglishCourse,
+    videoCall: ptVideoCall,
   },
   es: {
     common: esCommon,
     auth: esAuth,
     admin: esAdmin,
-    videoCall: esVideoCall,
     landing: esLanding,
-    englishCourse: esEnglishCourse,
+    videoCall: esVideoCall,
   },
 };
 
@@ -67,7 +61,7 @@ i18n
     fallbackLng: 'en', // Default language
     lng: 'en', // Set English as default language
     defaultNS: 'common', // Default namespace
-    ns: ['common', 'auth', 'admin', 'videoCall', 'landing', 'englishCourse'],
+    ns: ['common', 'auth', 'admin', 'landing', 'videoCall'],
     
     interpolation: {
       escapeValue: false, // React already escapes values

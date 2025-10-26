@@ -52,6 +52,11 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
+  @Patch(':id/toggle-status')
+  toggleStatus(@Param('id') id: string) {
+    return this.usersService.toggleUserStatus(id);
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {

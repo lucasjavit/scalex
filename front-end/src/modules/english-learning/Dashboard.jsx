@@ -7,15 +7,6 @@ export default function EnglishLearningDashboard() {
 
   const modules = [
     {
-      id: 'course',
-      icon: '📚',
-      title: t('learning.course.title', 'Aulas de Inglês'),
-      description: t('learning.course.description', 'Sistema de spaced repetition com lições por níveis'),
-      route: '/learning/course',
-      gradient: 'from-green-500 to-emerald-500',
-      status: 'active'
-    },
-    {
       id: 'conversation',
       icon: '💬',
       title: t('learning.conversation.title', 'Conversação'),

@@ -73,16 +73,8 @@ function FeatureItem({ text }) {
 }
 
 // Macro-Modules Dashboards
-import EnglishLearningDashboard from "../modules/english-learning/Dashboard";
 import BusinessSuiteDashboard from "../modules/business-suite/Dashboard";
-
-// English Learning - Course Module
-import EnglishCourseDashboard from "../modules/english-learning/course/pages/Dashboard";
-import CourseHowItWorks from "../modules/english-learning/course/pages/HowItWorks";
-import CourseLessonsList from "../modules/english-learning/course/pages/LessonsList";
-import CoursePractice from "../modules/english-learning/course/pages/Practice";
-import CourseProgress from "../modules/english-learning/course/pages/Progress";
-import CourseReview from "../modules/english-learning/course/pages/Review";
+import EnglishLearningDashboard from "../modules/english-learning/Dashboard";
 
 // English Learning - Conversation Module
 import ConversationRoutes from "../modules/english-learning/conversation/ConversationRoutes";
@@ -130,14 +122,6 @@ export default function AppRoutes() {
               }
             />
             <Route
-              path="/learning/course"
-              element={
-                <PrivateRoute>
-                  <EnglishCourseDashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
               path="/learning/conversation/*"
               element={
                 <PrivateRoute>
@@ -160,98 +144,6 @@ export default function AppRoutes() {
               element={
                 <PrivateRoute>
                   <BusinessSuiteDashboard />
-                </PrivateRoute>
-              }
-            />
-
-            {/* Course Sub-Routes */}
-            <Route
-              path="/learning/course/how-it-works"
-              element={
-                <PrivateRoute>
-                  <CourseHowItWorks />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/learning/course/lessons/:level"
-              element={
-                <PrivateRoute>
-                  <CourseLessonsList />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/learning/course/practice/:lessonId"
-              element={
-                <PrivateRoute>
-                  <CoursePractice />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/learning/course/review"
-              element={
-                <PrivateRoute>
-                  <CourseReview />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/learning/course/progress/:lessonId"
-              element={
-                <PrivateRoute>
-                  <CourseProgress />
-                </PrivateRoute>
-              }
-            />
-
-            {/* LEGACY ROUTES (Backward Compatibility) - Keep for now */}
-            <Route
-              path="/english-course"
-              element={
-                <PrivateRoute>
-                  <EnglishCourseDashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/english-course/how-it-works"
-              element={
-                <PrivateRoute>
-                  <CourseHowItWorks />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/english-course/lessons/:level"
-              element={
-                <PrivateRoute>
-                  <CourseLessonsList />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/english-course/practice/:lessonId"
-              element={
-                <PrivateRoute>
-                  <CoursePractice />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/english-course/review"
-              element={
-                <PrivateRoute>
-                  <CourseReview />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/english-course/progress/:lessonId"
-              element={
-                <PrivateRoute>
-                  <CourseProgress />
                 </PrivateRoute>
               }
             />

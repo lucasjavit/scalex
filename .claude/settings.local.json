@@ -4,7 +4,20 @@
       "Bash(set PGPASSWORD=postgres)",
       "Bash(psql -U postgres -h localhost -p 5432 -d scalex -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\")",
       "Bash(node reset-database.js)",
-      "Bash(curl -s http://localhost:3000/users/firebase/teste123)"
+      "Bash(curl -s http://localhost:3000/users/firebase/teste123)",
+      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -d scalex -c \"DROP TABLE IF EXISTS english_answer_history CASCADE;\")",
+      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -d scalex -c \"DROP TABLE IF EXISTS english_reviews CASCADE;\")",
+      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -d scalex -c \"DROP TABLE IF EXISTS english_user_progress CASCADE;\")",
+      "Bash(git checkout HEAD -- src/modules/english-learning/conversation/)",
+      "Bash(git checkout HEAD -- src/modules/english-learning/Dashboard.jsx)",
+      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -c \"DROP DATABASE IF EXISTS scalex;\")",
+      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -c \"CREATE DATABASE scalex;\")",
+      "Bash(docker ps --filter \"name=postgres\" --format \"{{.Names}}\")",
+      "Bash(docker exec scalex-postgres psql -U postgres -c \"DROP DATABASE IF EXISTS scalex;\")",
+      "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"\\dt\")",
+      "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"\\d users\")",
+      "Bash(docker exec scalex-postgres psql -U postgres -d scalex -c \"\\d addresses\")",
+      "Bash(npm install)"
     ],
     "deny": [],
     "ask": []

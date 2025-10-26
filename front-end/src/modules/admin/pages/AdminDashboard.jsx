@@ -7,20 +7,17 @@ const AdminDashboard = () => {
 
   const modules = [
     {
-      title: 'English Course Management',
-      description: 'Manage lessons, questions, and student progress',
-      icon: '📚',
+      title: 'User Management',
+      description: 'Manage platform users and their accounts',
+      icon: '👥',
       color: 'from-blue-500 to-cyan-500',
       stats: [
-        { label: 'Total Lessons', value: '---', icon: '📖' },
-        { label: 'Total Questions', value: '---', icon: '❓' },
-        { label: 'Active Users', value: '---', icon: '👥' },
+        { label: 'Total Users', value: '---', icon: '👤' },
+        { label: 'Active Users', value: '---', icon: '✅' },
+        { label: 'Inactive Users', value: '---', icon: '⛔' },
       ],
       actions: [
-        { label: 'Manage Lessons', href: '/admin/english-course/lessons', icon: '📖' },
-        { label: 'View Statistics', href: '/admin/english-course/statistics', icon: '📊' },
-        { label: 'Manage Users', href: '/admin/english-course/users', icon: '👥' },
-        { label: 'User Management', href: '/admin/english-course/user-management', icon: '🔍' },
+        { label: 'View All Users', href: '/admin/users', icon: '👥' },
       ]
     },
     {
@@ -123,20 +120,13 @@ const AdminDashboard = () => {
           <h3 className="text-xl font-bold text-copilot-text-primary mb-4">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
-              onClick={() => navigate('/admin/english-course/lessons')}
+              onClick={() => navigate('/admin/users')}
               className="flex flex-col items-center gap-2 p-4 bg-copilot-bg-primary hover:bg-blue-50 border border-copilot-border-default rounded-copilot transition-colors"
             >
-              <span className="text-3xl">📖</span>
-              <span className="font-medium text-copilot-text-primary">Add Lesson</span>
-            </button>
-            <button
-              onClick={() => navigate('/admin/english-course/statistics')}
-              className="flex flex-col items-center gap-2 p-4 bg-copilot-bg-primary hover:bg-green-50 border border-copilot-border-default rounded-copilot transition-colors"
-            >
-              <span className="text-3xl">📊</span>
-              <span className="font-medium text-copilot-text-primary">View Stats</span>
+              <span className="text-3xl">👥</span>
+              <span className="font-medium text-copilot-text-primary">Manage Users</span>
             </button>
             <button
               onClick={() => navigate('/admin/video-call')}
@@ -144,13 +134,6 @@ const AdminDashboard = () => {
             >
               <span className="text-3xl">🎥</span>
               <span className="font-medium text-copilot-text-primary">Video Sessions</span>
-            </button>
-            <button
-              onClick={() => navigate('/admin/english-course/users')}
-              className="flex flex-col items-center gap-2 p-4 bg-copilot-bg-primary hover:bg-orange-50 border border-copilot-border-default rounded-copilot transition-colors"
-            >
-              <span className="text-3xl">👥</span>
-              <span className="font-medium text-copilot-text-primary">Manage Users</span>
             </button>
           </div>
         </div>
@@ -163,9 +146,8 @@ const AdminDashboard = () => {
               <h4 className="font-semibold text-blue-900 mb-2">Admin Panel Information</h4>
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• All administrative functions are centralized in this panel</li>
-                <li>• English Course: Manage educational content and student progress</li>
-                <li>• Video Call: Control session schedules and monitor active calls</li>
                 <li>• User Management: View and manage all platform users</li>
+                <li>• Video Call: Control session schedules and monitor active calls</li>
               </ul>
             </div>
           </div>
