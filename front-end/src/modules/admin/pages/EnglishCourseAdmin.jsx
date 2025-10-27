@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AddButton from '../../../components/AddButton';
+import BackButton from '../../../components/BackButton';
 import { useNotification } from '../../../hooks/useNotification';
 import courseApiService from '../../english-learning/course/services/courseApi';
 import AdminLayout from '../components/AdminLayout';
@@ -244,6 +246,9 @@ const EnglishCourseAdmin = () => {
   return (
     <AdminLayout>
       <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        <BackButton to="/admin" />
+        
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-copilot-text-primary mb-2">
@@ -309,12 +314,10 @@ const EnglishCourseAdmin = () => {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-copilot-text-primary">Stages</h2>
-              <button 
+              <AddButton 
                 onClick={() => setShowStageModal(true)}
-                className="btn-copilot-primary"
-              >
-                + Add Stage
-              </button>
+                label="Add Stage"
+              />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {stages.map((stage) => (
@@ -363,25 +366,23 @@ const EnglishCourseAdmin = () => {
           </div>
         ) : activeTab === 'units' ? (
           <div>
-            <div className="flex items-center gap-4 mb-6">
-              <button
-                onClick={() => {
-                  setActiveTab('stages');
-                  setSelectedStage(null);
-                }}
-                className="btn-copilot-secondary"
-              >
-                ← Back to Stages
-              </button>
-              <h2 className="text-2xl font-bold text-copilot-text-primary">
-                Units - {selectedStage?.title}
-              </h2>
-              <button 
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <BackButton
+                  onClick={() => {
+                    setActiveTab('stages');
+                    setSelectedStage(null);
+                  }}
+                  label="Back to Stages"
+                />
+                <h2 className="text-2xl font-bold text-copilot-text-primary">
+                  Units - {selectedStage?.title}
+                </h2>
+              </div>
+              <AddButton 
                 onClick={() => setShowUnitModal(true)}
-                className="btn-copilot-primary"
-              >
-                + Add Unit
-              </button>
+                label="Add Unit"
+              />
             </div>
             <div className="space-y-4">
               {units.map((unit) => (
@@ -431,25 +432,23 @@ const EnglishCourseAdmin = () => {
           </div>
         ) : (
           <div>
-            <div className="flex items-center gap-4 mb-6">
-              <button
-                onClick={() => {
-                  setActiveTab('units');
-                  setSelectedUnit(null);
-                }}
-                className="btn-copilot-secondary"
-              >
-                ← Back to Units
-              </button>
-              <h2 className="text-2xl font-bold text-copilot-text-primary">
-                Cards - {selectedUnit?.title}
-              </h2>
-              <button 
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <BackButton
+                  onClick={() => {
+                    setActiveTab('units');
+                    setSelectedUnit(null);
+                  }}
+                  label="Back to Units"
+                />
+                <h2 className="text-2xl font-bold text-copilot-text-primary">
+                  Cards - {selectedUnit?.title}
+                </h2>
+              </div>
+              <AddButton 
                 onClick={() => setShowCardModal(true)}
-                className="btn-copilot-primary"
-              >
-                + Add Card
-              </button>
+                label="Add Card"
+              />
             </div>
             <div className="space-y-4">
               {cards.map((card) => (

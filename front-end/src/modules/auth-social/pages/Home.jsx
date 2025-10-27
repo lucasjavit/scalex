@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
+import BackButton from '../../../components/BackButton';
 import { useIsAdmin } from "../../../hooks/useIsAdmin";
 import apiService from "../../../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -148,13 +149,11 @@ export default function Home() {
           </div>
 
           <div className="mt-6 text-center">
-            <button
-              onClick={() => navigate('/learning')}
-              className="btn-copilot-secondary inline-flex items-center gap-2"
-            >
-              <span>{t('home.learning.viewAll', 'Ver todos os módulos')}</span>
-              <span>→</span>
-            </button>
+            <BackButton 
+              to="/learning" 
+              label={t('home.learning.viewAll', 'Ver todos os módulos')}
+              className="inline-flex"
+            />
           </div>
         </section>
 
@@ -218,13 +217,11 @@ export default function Home() {
           </div>
 
           <div className="mt-6 text-center">
-            <button
-              onClick={() => navigate('/business')}
-              className="btn-copilot-secondary inline-flex items-center gap-2"
-            >
-              <span>{t('home.business.viewAll', 'Ver todos os módulos')}</span>
-              <span>→</span>
-            </button>
+            <BackButton 
+              to="/business" 
+              label={t('home.business.viewAll', 'Ver todos os módulos')}
+              className="inline-flex"
+            />
           </div>
         </section>
       </main>

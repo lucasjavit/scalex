@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import courseApiService from '../services/courseApi';
 
 export default function ReviewSession() {
@@ -433,9 +433,12 @@ function SessionComplete({ stats, navigate, totalCards }) {
             </button>
             <button
               onClick={() => navigate('/learning/course')}
-              className="px-6 py-3 bg-copilot-bg-secondary border border-copilot-border-default text-copilot-text-primary rounded-copilot font-bold hover:border-copilot-accent-primary transition-all"
+              className="group inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-800 dark:text-slate-100 shadow-lg border border-slate-300 dark:border-slate-600 hover:shadow-xl hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-700 active:shadow-inner active:translate-y-0.5 transition-all duration-200"
             >
-              Voltar ao Dashboard
+              <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="font-semibold">Voltar ao Dashboard</span>
             </button>
           </div>
         </div>

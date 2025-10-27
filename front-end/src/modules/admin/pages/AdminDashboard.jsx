@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../../../components/BackButton';
 import AdminLayout from '../components/AdminLayout';
 
 const AdminDashboard = () => {
@@ -54,15 +55,7 @@ const AdminDashboard = () => {
     <AdminLayout>
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
-        <div className="mb-6">
-          <button
-            onClick={() => navigate('/home')}
-            className="btn-copilot-secondary flex items-center gap-2"
-          >
-            <span>←</span>
-            <span>Back to Home</span>
-          </button>
-        </div>
+        <BackButton to="/home" label="Back to Home" />
 
         {/* Header */}
         <div className="mb-8">

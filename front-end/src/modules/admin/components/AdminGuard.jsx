@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../../../components/BackButton';
 import { useUserStatus } from '../../../hooks/useUserStatus';
 import { useAuth } from '../../auth-social/context/AuthContext';
 
@@ -93,12 +94,9 @@ const AdminGuard = ({ children }) => {
           <p className="text-copilot-text-secondary mb-6">
             You don't have permission to access this administrative area.
           </p>
-          <button
-            onClick={() => navigate('/home')}
-            className="bg-copilot-accent-primary text-white px-6 py-3 rounded-copilot hover:bg-copilot-accent-primary/90 transition-colors"
-          >
-            Back to Home
-          </button>
+          <div className="flex justify-center">
+            <BackButton to="/home" label="Back to Home" />
+          </div>
         </div>
       </div>
     );
