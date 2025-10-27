@@ -19,6 +19,11 @@ const AdminLayout = ({ children }) => {
       href: '/admin/video-call',
       icon: '🎥'
     },
+    {
+      name: 'English Course',
+      href: '/admin/english-course',
+      icon: '📚'
+    },
   ];
 
   const isCurrentPath = (path, exact = false) => {

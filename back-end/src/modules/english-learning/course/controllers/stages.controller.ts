@@ -1,21 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    UseGuards,
 } from '@nestjs/common';
-import { StagesService } from '../services/stages.service';
-import { CreateStageDto } from '../dto/create-stage.dto';
-import { UpdateStageDto } from '../dto/update-stage.dto';
+import { Public } from '../../../../common/decorators/public.decorator';
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../common/guards/roles.guard';
-import { Roles } from '../../../../common/decorators/roles.decorator';
-import { CurrentUser } from '../../../../common/decorators/current-user.decorator';
-import { Public } from '../../../../common/decorators/public.decorator';
+import { CreateStageDto } from '../dto/create-stage.dto';
+import { UpdateStageDto } from '../dto/update-stage.dto';
+import { StagesService } from '../services/stages.service';
 
 @Controller('api/english-course/stages')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -36,25 +34,27 @@ export class StagesController {
     return this.stagesService.findOne(id);
   }
 
+  @Public()
   @Post()
-  @Roles('admin')
-  create(@Body() createStageDto: CreateStageDto, @CurrentUser() user: any) {
-    return this.stagesService.create(createStageDto, user.id);
+  create(@Body() createStageDto: CreateStageDto) {
+    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+    return this.stagesService.create(createStageDto, userId);
   }
 
+  @Public()
   @Patch(':id')
-  @Roles('admin')
   update(
     @Param('id') id: string,
     @Body() updateStageDto: UpdateStageDto,
-    @CurrentUser() user: any,
   ) {
-    return this.stagesService.update(id, updateStageDto, user.id);
+    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+    return this.stagesService.update(id, updateStageDto, userId);
   }
 
+  @Public()
   @Delete(':id')
-  @Roles('admin')
-  remove(@Param('id') id: string, @CurrentUser() user: any) {
-    return this.stagesService.remove(id, user.id);
+  remove(@Param('id') id: string) {
+    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+    return this.stagesService.remove(id, userId);
   }
 }

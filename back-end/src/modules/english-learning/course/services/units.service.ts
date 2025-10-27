@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull, In } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { Unit } from '../entities/unit.entity';
 import { UserUnitProgress } from '../entities/user-unit-progress.entity';
 
@@ -87,6 +87,26 @@ export class UnitsService {
   }
 
   async create(data: Partial<Unit>, userId: string): Promise<Unit> {
+    const orderIndex = data.orderIndex || 1;
+    const stageId = data.stageId;
+    
+    // Reorganizar units existentes do mesmo stage: incrementar os que estão >= orderIndex
+    if (stageId) {
+      const existingUnits = await this.unitsRepository.find({
+        where: { stageId, deletedAt: IsNull() },
+        order: { orderIndex: 'ASC' },
+      });
+
+      const unitsToUpdate = existingUnits.filter(u => u.orderIndex >= orderIndex);
+      
+      if (unitsToUpdate.length > 0) {
+        unitsToUpdate.forEach(u => {
+          u.orderIndex += 1;
+        });
+        await this.unitsRepository.save(unitsToUpdate);
+      }
+    }
+
     const unit = this.unitsRepository.create({
       ...data,
       createdBy: userId,
@@ -96,9 +116,52 @@ export class UnitsService {
 
   async update(id: string, data: Partial<Unit>, userId: string): Promise<Unit> {
     const unit = await this.findOne(id);
+
+    // Se está mudando o orderIndex, reorganizar outros units do mesmo stage
+    if (data.orderIndex !== undefined && data.orderIndex !== unit.orderIndex) {
+      await this.reorderUnits(id, unit.stageId, unit.orderIndex, data.orderIndex);
+    }
+
     Object.assign(unit, data);
     unit.updatedBy = userId;
     return this.unitsRepository.save(unit);
+  }
+
+  /**
+   * Reorganiza os orderIndex de todos os units de um stage quando um unit muda de posição
+   * @param unitId - ID do unit sendo movido
+   * @param stageId - ID do stage (para reorganizar apenas units do mesmo stage)
+   * @param oldIndex - Índice antigo
+   * @param newIndex - Novo índice
+   */
+  private async reorderUnits(unitId: string, stageId: string, oldIndex: number, newIndex: number): Promise<void> {
+    // Buscar todos os units do mesmo stage, não deletados, exceto o que está sendo movido
+    const units = await this.unitsRepository.find({
+      where: { stageId, deletedAt: IsNull() },
+      order: { orderIndex: 'ASC' },
+    });
+
+    // Filtrar o unit que está sendo movido
+    const otherUnits = units.filter(u => u.id !== unitId);
+
+    // Reorganizar os índices
+    if (newIndex > oldIndex) {
+      // Movendo para frente: decrementar os units entre oldIndex e newIndex
+      for (const u of otherUnits) {
+        if (u.orderIndex > oldIndex && u.orderIndex <= newIndex) {
+          u.orderIndex -= 1;
+          await this.unitsRepository.save(u);
+        }
+      }
+    } else {
+      // Movendo para trás: incrementar os units entre newIndex e oldIndex
+      for (const u of otherUnits) {
+        if (u.orderIndex >= newIndex && u.orderIndex < oldIndex) {
+          u.orderIndex += 1;
+          await this.unitsRepository.save(u);
+        }
+      }
+    }
   }
 
   async remove(id: string, userId: string): Promise<void> {

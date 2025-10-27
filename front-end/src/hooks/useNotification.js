@@ -33,27 +33,27 @@ export const useNotification = () => {
 
   const showConfirmation = (message, onConfirm, onCancel = null) => {
     const notificationId = context.addNotification({
-      type: 'info',
-      title: 'Confirmation Required',
+      type: 'warning',
+      title: '⚠️ Confirmação Necessária',
       message,
       duration: 0, // Don't auto-dismiss
       showCloseButton: true,
       actions: [
         {
-          label: 'Confirm',
-          onClick: () => {
-            context.removeNotification(notificationId);
-            onConfirm();
-          },
-          className: 'bg-green-600 hover:bg-green-700 text-white'
-        },
-        {
-          label: 'Cancel',
+          label: 'Cancelar',
           onClick: () => {
             context.removeNotification(notificationId);
             if (onCancel) onCancel();
           },
-          className: 'bg-gray-600 hover:bg-gray-700 text-white'
+          className: 'bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-all'
+        },
+        {
+          label: 'Confirmar',
+          onClick: () => {
+            context.removeNotification(notificationId);
+            onConfirm();
+          },
+          className: 'bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2 rounded-lg transition-all'
         }
       ]
     });

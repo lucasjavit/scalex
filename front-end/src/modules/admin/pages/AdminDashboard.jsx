@@ -34,6 +34,20 @@ const AdminDashboard = () => {
         { label: 'Session Management', href: '/admin/video-call', icon: '🎥' },
       ]
     },
+    {
+      title: 'English Course Management',
+      description: 'Manage stages, units, and cards for the English learning course',
+      icon: '📚',
+      color: 'from-green-500 to-teal-500',
+      stats: [
+        { label: 'Total Stages', value: '---', icon: '📂' },
+        { label: 'Total Units', value: '---', icon: '📹' },
+        { label: 'Total Cards', value: '---', icon: '🎴' },
+      ],
+      actions: [
+        { label: 'Manage Course', href: '/admin/english-course', icon: '📚' },
+      ]
+    },
   ];
 
   return (

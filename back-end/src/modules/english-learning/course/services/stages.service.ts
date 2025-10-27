@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull, In } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { Stage } from '../entities/stage.entity';
 import { Unit } from '../entities/unit.entity';
 import { UserUnitProgress } from '../entities/user-unit-progress.entity';
@@ -109,6 +109,24 @@ export class StagesService {
   }
 
   async create(data: Partial<Stage>, userId: string): Promise<Stage> {
+    const orderIndex = data.orderIndex || 1;
+    
+    // Reorganizar stages existentes: incrementar os que estão >= orderIndex
+    const existingStages = await this.stagesRepository.find({
+      where: { deletedAt: IsNull() },
+      order: { orderIndex: 'ASC' },
+    });
+
+    // Incrementar orderIndex de todos que estão >= orderIndex
+    const stagesToUpdate = existingStages.filter(s => s.orderIndex >= orderIndex);
+    
+    if (stagesToUpdate.length > 0) {
+      stagesToUpdate.forEach(s => {
+        s.orderIndex += 1;
+      });
+      await this.stagesRepository.save(stagesToUpdate);
+    }
+
     const stage = this.stagesRepository.create({
       ...data,
       createdBy: userId,
@@ -118,9 +136,51 @@ export class StagesService {
 
   async update(id: string, data: Partial<Stage>, userId: string): Promise<Stage> {
     const stage = await this.findOne(id);
+
+    // Se está mudando o orderIndex, reorganizar outros stages
+    if (data.orderIndex !== undefined && data.orderIndex !== stage.orderIndex) {
+      await this.reorderStages(id, stage.orderIndex, data.orderIndex);
+    }
+
     Object.assign(stage, data);
     stage.updatedBy = userId;
     return this.stagesRepository.save(stage);
+  }
+
+  /**
+   * Reorganiza os orderIndex de todos os stages quando um stage muda de posição
+   * @param stageId - ID do stage sendo movido
+   * @param oldIndex - Índice antigo
+   * @param newIndex - Novo índice
+   */
+  private async reorderStages(stageId: string, oldIndex: number, newIndex: number): Promise<void> {
+    // Buscar todos os stages não deletados, exceto o que está sendo movido
+    const stages = await this.stagesRepository.find({
+      where: { deletedAt: IsNull() },
+      order: { orderIndex: 'ASC' },
+    });
+
+    // Filtrar o stage que está sendo movido
+    const otherStages = stages.filter(s => s.id !== stageId);
+
+    // Reorganizar os índices
+    if (newIndex > oldIndex) {
+      // Movendo para frente: decrementar os stages entre oldIndex e newIndex
+      for (const s of otherStages) {
+        if (s.orderIndex > oldIndex && s.orderIndex <= newIndex) {
+          s.orderIndex -= 1;
+          await this.stagesRepository.save(s);
+        }
+      }
+    } else {
+      // Movendo para trás: incrementar os stages entre newIndex e oldIndex
+      for (const s of otherStages) {
+        if (s.orderIndex >= newIndex && s.orderIndex < oldIndex) {
+          s.orderIndex += 1;
+          await this.stagesRepository.save(s);
+        }
+      }
+    }
   }
 
   async remove(id: string, userId: string): Promise<void> {

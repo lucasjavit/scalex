@@ -49,7 +49,7 @@ const NotificationPopup = ({ notification, onClose }) => {
       case 'error':
         return 'bg-red-900/20 border-red-500/30';
       case 'warning':
-        return 'bg-yellow-900/20 border-yellow-500/30';
+        return 'bg-red-900 border-red-600';
       case 'info':
       default:
         return 'bg-blue-900/20 border-blue-500/30';

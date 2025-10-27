@@ -31,6 +31,9 @@ export class Card extends AuditEntity {
   @Column({ type: 'varchar', length: 500, nullable: true, name: 'audio_url' })
   audioUrl: string;
 
+  @Column({ type: 'int', default: 0, name: 'order_index' })
+  orderIndex: number;
+
   // Relations
   @ManyToOne(() => Unit, (unit) => unit.cards, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'unit_id' })
