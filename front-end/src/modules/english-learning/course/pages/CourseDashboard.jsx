@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../../../../components/BackButton';
@@ -11,6 +11,8 @@ export default function CourseDashboard() {
   const [stages, setStages] = useState([]);
   const [dashboardStats, setDashboardStats] = useState(null);
   const [error, setError] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const carouselRef = useRef(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -29,7 +31,15 @@ export default function CourseDashboard() {
       console.log('📊 Stages data received:', stagesData);
       console.log('📏 Stages length:', stagesData?.length);
       console.log('📦 Stages type:', typeof stagesData, Array.isArray(stagesData));
-      setStages(stagesData || []);
+      const stagesArray = stagesData || [];
+      setStages(stagesArray);
+      
+      // Find the first stage in progress (unlocked but not completed)
+      const inProgressIndex = stagesArray.findIndex(stage => stage.isUnlocked && !stage.isCompleted);
+      if (inProgressIndex !== -1) {
+        setCurrentIndex(Math.max(0, Math.floor(inProgressIndex / 3)));
+      }
+      
       console.log('✅ Stages set to state');
 
       // Load dashboard stats (optional - can fail without breaking UI)
@@ -57,6 +67,17 @@ export default function CourseDashboard() {
     if (stage.isUnlocked) {
       navigate(`/learning/course/stages/${stage.id}`);
     }
+  };
+
+  const handleNext = () => {
+    if (carouselRef.current) {
+      const maxIndex = stages.length - 3; // Show 3 cards at a time
+      setCurrentIndex(prev => Math.min(prev + 1, maxIndex));
+    }
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex(prev => Math.max(prev - 1, 0));
   };
 
   if (loading) {
@@ -90,28 +111,28 @@ export default function CourseDashboard() {
         <BackButton to="/learning" />
 
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-block bg-copilot-gradient p-4 rounded-copilot-lg mb-6 shadow-copilot-lg">
+        <div className="text-center mb-8">
+          <div className="inline-block bg-copilot-gradient p-4 rounded-copilot-lg mb-4 shadow-copilot-lg">
             <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
               <span className="text-5xl">📚</span>
             </div>
           </div>
 
-          <h1 className="text-4xl font-bold text-copilot-text-primary mb-3">
+          <h1 className="text-4xl font-bold text-copilot-text-primary mb-2">
             English Course
           </h1>
 
-          <p className="text-copilot-text-secondary text-lg mb-6">
+          <p className="text-copilot-text-secondary text-lg">
             Aprenda inglês com vídeos e flashcards inteligentes
           </p>
-
-          {/* Course Progress Bar - Alternative Design */}
-          <div className="max-w-7xl mx-auto">
-            <div className="relative overflow-hidden bg-white dark:bg-copilot-bg-secondary rounded-2xl border border-copilot-border-default shadow-xl">
+        </div>
+        
+        {/* Course Progress Bar - Alternative Design */}
+        <div className="mb-8">
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl border border-slate-600 shadow-xl p-1">
+              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8">
               {/* Background accent */}
               <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-400 via-sky-400 to-purple-500"></div>
-              
-              <div className="p-8">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -178,11 +199,10 @@ export default function CourseDashboard() {
               </div>
             </div>
           </div>
-        </div>
 
         {/* Stats Section */}
         {dashboardStats?.cardsDue && (
-          <div className="mb-12">
+          <div className="mb-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <StatsCard
                 title="Novos Cards"
@@ -244,20 +264,67 @@ export default function CourseDashboard() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {stages.map((stage) => (
-                <StageCard
-                  key={stage.id}
-                  stage={stage}
-                  onClick={() => handleStageClick(stage)}
-                />
-              ))}
+            <div className="relative">
+              {/* Carousel Container */}
+              <div className="overflow-hidden">
+                <div 
+                  ref={carouselRef}
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateX(-${currentIndex * 33.333}%)` }}
+                >
+                  {stages.map((stage) => (
+                    <div key={stage.id} className="w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-3">
+                      <StageCard
+                        stage={stage}
+                        onClick={() => handleStageClick(stage)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="flex items-center justify-center gap-4 mt-6">
+                <button
+                  onClick={handlePrev}
+                  disabled={currentIndex === 0}
+                  className="p-3 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 active:shadow-inner active:translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <div className="flex gap-2">
+                  {stages.slice(0, Math.ceil(stages.length / 3)).map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        Math.floor(currentIndex) === index
+                          ? 'w-8 bg-copilot-accent-primary'
+                          : 'w-2 bg-gray-600'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleNext}
+                  disabled={currentIndex >= stages.length - 3}
+                  className="p-3 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 active:shadow-inner active:translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
         </div>
 
         {/* Features Section */}
-        <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8">
+        <div className="mt-8 bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-lg shadow-lg p-8">
           <h3 className="text-2xl font-bold text-copilot-text-primary mb-6 text-center">
             ✨ Como Funciona
           </h3>
@@ -310,10 +377,10 @@ function StageCard({ stage, onClick }) {
   return (
     <div
       onClick={onClick}
-      className={`relative bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 transition-all duration-200 ${
+      className={`relative rounded-lg p-6 transition-all duration-200 ${
         isLocked
-          ? 'opacity-60 cursor-not-allowed'
-          : 'cursor-pointer hover:border-copilot-accent-primary hover:shadow-copilot-xl group'
+          ? 'opacity-60 cursor-not-allowed bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600 shadow-lg'
+          : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 active:shadow-inner active:translate-y-0.5 group'
       }`}
     >
       <div className="flex items-center gap-6">

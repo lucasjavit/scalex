@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useNotification } from '../../../../hooks/useNotification';
 import courseApiService from '../services/courseApi';
 
 export default function ReviewSession() {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
+  const { showSuccess, showError, showInfo, showConfirmation } = useNotification();
   const [loading, setLoading] = useState(true);
   const [cards, setCards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -92,26 +94,19 @@ export default function ReviewSession() {
   const loadCards = async () => {
     try {
       setLoading(true);
-      console.log('📚 Buscando cards para revisar...');
       const dueCardsData = await courseApiService.getDueCards(20);
 
-      console.log('📦 Dados recebidos:', dueCardsData);
-      console.log('📏 Total de cards:', dueCardsData?.length);
-
       if (!dueCardsData || !Array.isArray(dueCardsData) || dueCardsData.length === 0) {
-        console.log('⚠️ Nenhum card disponível para revisar');
         setSessionComplete(true);
         setLoading(false);
         return;
       }
 
-      console.log('✅ Cards carregados com sucesso:', dueCardsData.length);
       setCards(dueCardsData);
       setStartTime(Date.now());
     } catch (err) {
       console.error('❌ Error loading cards:', err);
-      alert('Erro ao carregar cards');
-      navigate('/learning/course');
+      setTimeout(() => navigate('/learning/course'), 2000);
     } finally {
       setLoading(false);
     }
@@ -157,7 +152,6 @@ export default function ReviewSession() {
       }
     } catch (err) {
       console.error('Error submitting review:', err);
-      alert('Erro ao enviar revisão');
     }
   };
 
@@ -186,11 +180,7 @@ export default function ReviewSession() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => {
-                if (confirm('Tem certeza que deseja sair da sessão de revisão?')) {
-                  navigate('/learning/course');
-                }
-              }}
+              onClick={() => navigate('/learning/course')}
               className="btn-copilot-secondary flex items-center gap-2"
             >
               <span>←</span>

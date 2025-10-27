@@ -12,10 +12,10 @@ function MacroModuleCard({ icon, gradient, title, description, onClick, status =
 
   return (
     <div
-      className={`relative bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 transition-all duration-200 group ${
+      className={`relative rounded-lg p-6 transition-all duration-200 group ${
         isComingSoon
-          ? 'opacity-60 cursor-not-allowed'
-          : 'hover:border-copilot-accent-primary cursor-pointer hover:shadow-copilot-xl'
+          ? 'opacity-60 cursor-not-allowed bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600 shadow-lg'
+          : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 active:shadow-inner active:translate-y-0.5'
       }`}
       onClick={isComingSoon ? undefined : onClick}
     >

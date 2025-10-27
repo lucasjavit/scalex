@@ -199,6 +199,21 @@ export default function UnitView() {
           </p>
         </div>
 
+         {/* Unit Status Badge */}
+         {canComplete && (
+           <div className="mb-4">
+             <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3">
+               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+               </svg>
+               <div>
+                 <span className="font-bold">Unit Completa!</span>
+                 <p className="text-sm opacity-90">Você já completou esta unit anteriormente</p>
+               </div>
+             </div>
+           </div>
+         )}
+
          {/* Video Player */}
           <div className={`bg-copilot-bg-secondary rounded-copilot mb-8 p-4 transition-all duration-500 ${
             canComplete ? 'border-4 border-green-500' : 'border border-copilot-border-default'
@@ -219,49 +234,16 @@ export default function UnitView() {
            )}
          </div>
 
-         {/* Progress Bar */}
-         {videoDuration > 0 && (
-           <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 mb-6">
-             <div className="flex items-center justify-between mb-3">
-               <div className="flex items-center gap-3">
-                 <span className="text-xl">🎯</span>
-                 <div className="text-left">
-                   <h3 className="text-lg font-bold text-copilot-text-primary">Progresso do Vídeo</h3>
-                   <p className="text-sm text-copilot-text-secondary">
-                     {Math.round((watchTime / videoDuration) * 100)}% assistido de {Math.ceil(videoDuration)}s
-                   </p>
-                 </div>
-               </div>
-             </div>
-
-             <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-               <div
-                 className={`h-4 rounded-full transition-all duration-500 ease-out ${
-                   canComplete 
-                     ? 'bg-gradient-to-r from-green-500 via-green-400 to-green-500' 
-                     : 'bg-gradient-to-r from-green-500 via-blue-500 to-purple-500'
-                 }`}
-                 style={{ width: `${Math.min((watchTime / videoDuration) * 100, 100)}%` }}
-               ></div>
-             </div>
-
-             {canComplete && (
-               <div className="mt-4 text-center">
-                 <span className="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-copilot font-bold text-sm">
-                   ✅ Unit completada automaticamente!
-                 </span>
-               </div>
-             )}
-           </div>
-         )}
-
          {/* Action Buttons */}
         <div className="flex gap-4">
           <button
             onClick={handleSkipUnit}
-            className="w-full px-6 py-4 bg-copilot-bg-secondary border border-copilot-border-default text-copilot-text-secondary rounded-copilot font-bold hover:border-copilot-accent-primary transition-all"
+            className="w-full px-6 py-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-700 dark:to-emerald-800 text-green-800 dark:text-green-100 shadow-lg border border-green-300 dark:border-emerald-600 hover:shadow-xl hover:from-green-200 hover:to-emerald-200 dark:hover:from-green-600 dark:hover:to-emerald-700 active:shadow-inner active:translate-y-0.5 rounded-lg font-bold transition-all duration-200 flex items-center justify-center gap-3 group"
           >
-            Pular
+            <span>Pular</span>
+            <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </button>
         </div>
 

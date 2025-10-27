@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../../components/BackButton';
 
 export default function BusinessSuiteDashboard() {
   const { t } = useTranslation('common');
@@ -57,15 +58,7 @@ export default function BusinessSuiteDashboard() {
     <div className="bg-copilot-bg-primary min-h-screen">
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Back Button */}
-        <div className="mb-6">
-          <button
-            onClick={() => navigate('/home')}
-            className="btn-copilot-secondary flex items-center gap-2"
-          >
-            <span>←</span>
-            <span>{t('common:navigation.backToHome', 'Voltar para Home')}</span>
-          </button>
-        </div>
+        <BackButton to="/home" label={t('common:navigation.backToHome', 'Voltar para Home')} />
 
         {/* Header */}
         <div className="text-center mb-12">
@@ -92,7 +85,7 @@ export default function BusinessSuiteDashboard() {
         </div>
 
         {/* Info Section */}
-        <div className="mt-12 bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8">
+        <div className="mt-12 bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-lg shadow-lg p-8">
           <h3 className="text-xl font-bold text-copilot-text-primary mb-4">
             {t('business.comingSoon', '🚀 Módulos em Desenvolvimento')}
           </h3>
@@ -126,10 +119,10 @@ function ModuleCard({ icon, gradient, title, description, onClick, status }) {
 
   return (
     <div
-      className={`relative bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot shadow-copilot p-6 transition-all duration-200 group ${
+      className={`relative rounded-lg p-6 transition-all duration-200 group ${
         isComingSoon
-          ? 'opacity-60 cursor-not-allowed'
-          : 'hover:border-copilot-accent-primary cursor-pointer hover:shadow-copilot-xl'
+          ? 'opacity-60 cursor-not-allowed bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600 shadow-lg'
+          : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 active:shadow-inner active:translate-y-0.5'
       }`}
       onClick={isComingSoon ? undefined : onClick}
     >

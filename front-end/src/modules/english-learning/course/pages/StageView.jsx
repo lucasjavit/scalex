@@ -41,6 +41,10 @@ export default function StageView() {
     }
   };
 
+  const handleStartReview = () => {
+    navigate('/learning/course/review');
+  };
+
   if (loading) {
     return (
       <div className="bg-copilot-bg-primary min-h-screen flex items-center justify-center">
@@ -68,18 +72,28 @@ export default function StageView() {
 
         {/* Stage Header */}
         <div className="mb-12">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="bg-copilot-gradient w-16 h-16 rounded-copilot flex items-center justify-center text-white text-3xl font-bold shadow-copilot-lg">
-              {stage.orderIndex}
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div className="flex items-center gap-4 flex-1">
+              <div className="bg-copilot-gradient w-16 h-16 rounded-copilot flex items-center justify-center text-white text-3xl font-bold shadow-copilot-lg">
+                {stage.orderIndex}
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold text-copilot-text-primary">
+                  {stage.title}
+                </h1>
+                <p className="text-copilot-text-secondary text-lg mt-2">
+                  {stage.description || 'Learn essential English skills'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-bold text-copilot-text-primary">
-                {stage.title}
-              </h1>
-              <p className="text-copilot-text-secondary text-lg mt-2">
-                {stage.description || 'Learn essential English skills'}
-              </p>
-            </div>
+            <button
+              onClick={handleStartReview}
+              className="group relative inline-flex items-center justify-center gap-3 px-6 py-3 text-base font-bold text-white bg-gradient-to-br from-orange-400 via-orange-500 to-amber-600 hover:from-orange-500 hover:via-orange-600 hover:to-amber-700 rounded-xl shadow-2xl hover:shadow-[0_20px_25px_-5px_rgba(249,115,22,0.3)] active:shadow-inner active:translate-y-1 transition-all duration-200 whitespace-nowrap"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-white/10 to-transparent rounded-xl opacity-80"></div>
+              <span className="text-xl relative z-10" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>⚡</span>
+              <span className="relative z-10">Iniciar Revisão</span>
+            </button>
           </div>
         </div>
 
