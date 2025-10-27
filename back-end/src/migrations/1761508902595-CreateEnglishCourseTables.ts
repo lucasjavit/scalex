@@ -151,9 +151,9 @@ export class CreateEnglishCourseTables1761508902595 implements MigrationInterfac
         // Insert Stages
         await queryRunner.query(`
             INSERT INTO stages (id, title, description, order_index) VALUES
-            (gen_random_uuid(), 'Beginner', 'Learn the basics of English', 1),
-            (gen_random_uuid(), 'Intermediate', 'Improve your English skills', 2),
-            (gen_random_uuid(), 'Advanced', 'Master advanced English concepts', 3);
+            (gen_random_uuid(), 'Foundation: Essential Communication', 'Build your core vocabulary and master fundamental communication skills', 1),
+            (gen_random_uuid(), 'Professional: Advanced Communication', 'Develop professional language skills for business and academic contexts', 2),
+            (gen_random_uuid(), 'Mastery: Native-Level Fluency', 'Achieve native-level proficiency with complex grammar and idiomatic expressions', 3);
         `);
 
         console.log('✓ Seeded 3 stages');

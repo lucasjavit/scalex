@@ -119,11 +119,11 @@ export default function CourseDashboard() {
           </div>
 
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-2">
-            English Course
+            English Mastery Program
           </h1>
 
           <p className="text-copilot-text-secondary text-lg">
-            Aprenda inglês com vídeos e flashcards inteligentes
+            Sistema profissional de aprendizado para atingir fluência em inglês
           </p>
         </div>
         
@@ -377,32 +377,32 @@ function StageCard({ stage, onClick }) {
   return (
     <div
       onClick={onClick}
-      className={`relative rounded-copilot p-6 transition-all duration-200 ${
+      className={`relative rounded-copilot p-6 transition-all duration-300 h-[220px] flex ${
         isLocked
           ? 'opacity-60 cursor-not-allowed bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600'
-          : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 group'
+          : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-2xl hover:from-slate-600 hover:to-slate-700 hover:scale-[1.02] group'
       }`}
     >
-      <div className="flex items-center gap-6">
+      <div className="flex items-start gap-4 flex-1 h-full">
         {/* Stage Number Icon */}
-        <div className={`w-20 h-20 flex-shrink-0 bg-gradient-to-br ${
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-gradient-to-br ${
           isLocked ? 'from-gray-400 to-gray-500' : 'from-purple-500 to-indigo-600'
-        } rounded-xl flex items-center justify-center shadow-lg ${
+        } rounded-lg flex items-center justify-center shadow-lg ${
           !isLocked && 'group-hover:scale-105'
         } transition-transform duration-200`}>
-          <span className="text-white font-bold text-3xl">{stage.orderIndex}</span>
+          <span className="text-white font-bold text-base sm:text-lg">{stage.orderIndex}</span>
         </div>
 
         {/* Content */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0 w-full sm:w-auto flex flex-col justify-between">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <h3 className={`font-bold text-xl mb-1 ${
+            <div className="flex-1 min-w-0">
+              <h3 className={`font-bold text-base sm:text-lg md:text-xl mb-1 break-words line-clamp-2 ${
                 isLocked ? 'text-copilot-text-secondary' : 'text-copilot-text-primary'
               }`}>
                 {stage.title}
               </h3>
-              <p className="text-copilot-text-secondary text-sm">
+              <p className="text-copilot-text-secondary text-xs sm:text-sm break-words line-clamp-2">
                 {stage.description || 'Aprenda habilidades essenciais de inglês'}
               </p>
             </div>
