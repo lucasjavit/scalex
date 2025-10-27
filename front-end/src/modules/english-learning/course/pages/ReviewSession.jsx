@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../../../../components/BackButton';
 import { useNotification } from '../../../../hooks/useNotification';
 import courseApiService from '../services/courseApi';
 
@@ -176,21 +177,14 @@ export default function ReviewSession() {
   return (
     <div className="bg-copilot-bg-primary min-h-screen">
       <main className="max-w-4xl mx-auto px-6 py-8">
+        {/* Back Button */}
+        <BackButton to="/learning/course" />
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/learning/course')}
-              className="btn-copilot-secondary flex items-center gap-2"
-            >
-              <span>←</span>
-              <span>Voltar</span>
-            </button>
-            <div className="h-8 w-px bg-copilot-border-default"></div>
-            <div>
-              <h1 className="text-2xl font-bold text-copilot-text-primary">Sessão de Revisão</h1>
-              <p className="text-copilot-text-secondary text-sm">Revisando seus cards</p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-copilot-text-primary">Sessão de Revisão</h1>
+            <p className="text-copilot-text-secondary text-sm">Revisando seus cards</p>
           </div>
           <div className="flex items-center gap-3">
             <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full border border-yellow-200">
