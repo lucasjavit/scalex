@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../../components/BackButton';
 
 export default function EnglishLearningDashboard() {
   const { t } = useTranslation('common');
@@ -39,15 +40,7 @@ export default function EnglishLearningDashboard() {
     <div className="bg-copilot-bg-primary min-h-screen">
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Back Button */}
-        <div className="mb-6">
-          <button
-            onClick={() => navigate('/home')}
-            className="btn-copilot-secondary flex items-center gap-2"
-          >
-            <span>←</span>
-            <span>{t('common:navigation.backToHome', 'Voltar para Home')}</span>
-          </button>
-        </div>
+        <BackButton to="/home" label={t('common:navigation.backToHome', 'Voltar para Home')} />
 
         {/* Header */}
         <div className="text-center mb-12">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import BackButton from '../../../../components/BackButton';
 import { useNotification } from '../../../../hooks/useNotification';
 import { useAuth } from '../../../auth-social/context/AuthContext';
 import videoCallService from '../services/videoCallService';
@@ -181,15 +182,7 @@ const VideoCallDashboard = () => {
     <div className="bg-copilot-bg-primary min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-12">
         {/* Back Button */}
-        <div className="mb-6">
-          <button
-            onClick={() => navigate('/home')}
-            className="btn-copilot-secondary flex items-center gap-2"
-          >
-            <span>←</span>
-            <span>{t('common:navigation.backToHome', { ns: 'common' })}</span>
-          </button>
-        </div>
+        <BackButton to="/home" label={t('common:navigation.backToHome', { ns: 'common' })} />
 
         {/* Header */}
         <div className="text-center mb-12">
@@ -373,10 +366,10 @@ const VideoCallDashboard = () => {
                   <button
                     onClick={handleFindPartner}
                     disabled={!systemStatus?.isActive || !systemStatus?.canAcceptSessions}
-                    className={`text-lg px-8 py-4 w-full font-semibold rounded-lg transition-colors ${
+                    className={`text-lg px-8 py-4 w-full font-semibold rounded-lg transition-all duration-200 ${
                       systemStatus?.isActive && systemStatus?.canAcceptSessions
-                        ? 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ? 'bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-700 dark:to-blue-800 text-green-800 dark:text-green-100 shadow-lg border border-green-300 dark:border-blue-600 hover:shadow-xl hover:from-green-200 hover:to-blue-200 dark:hover:from-green-600 dark:hover:to-blue-700 active:shadow-inner active:translate-y-0.5'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-400'
                     }`}
                   >
                     {systemStatus?.isActive && systemStatus?.canAcceptSessions
@@ -401,13 +394,13 @@ const VideoCallDashboard = () => {
               <div className="space-y-3">
                 <button
                   onClick={handleCreateRoom}
-                  className="btn-copilot-primary text-lg px-8 py-4 w-full"
+                  className="text-lg px-8 py-4 w-full font-semibold rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-800 dark:text-slate-100 shadow-lg border border-slate-300 dark:border-slate-600 hover:shadow-xl hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-700 active:shadow-inner active:translate-y-0.5 transition-all duration-200"
                 >
                   {t('dashboard.actions.joinRoom.createRoom')}
                 </button>
                 <button
                   onClick={handleJoinRoom}
-                  className="btn-copilot-secondary text-lg px-8 py-4 w-full"
+                  className="text-lg px-8 py-4 w-full font-semibold rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-800 dark:text-slate-100 shadow-lg border border-slate-300 dark:border-slate-600 hover:shadow-xl hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-700 active:shadow-inner active:translate-y-0.5 transition-all duration-200"
                 >
                   {t('dashboard.actions.joinRoom.joinWithId')}
                 </button>
