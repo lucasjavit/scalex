@@ -1,12 +1,12 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, In, LessThanOrEqual } from 'typeorm';
+import { In, MoreThanOrEqual, Repository } from 'typeorm';
+import { UserCardProgress } from '../entities/user-card-progress.entity';
 import { UserStageProgress } from '../entities/user-stage-progress.entity';
 import { UserUnitProgress } from '../entities/user-unit-progress.entity';
-import { UserCardProgress } from '../entities/user-card-progress.entity';
-import { UnitsService } from './units.service';
 import { CardsService } from './cards.service';
 import { Sm2Service } from './sm2.service';
+import { UnitsService } from './units.service';
 
 @Injectable()
 export class ProgressService {
@@ -219,5 +219,58 @@ export class ProgressService {
         total: newCards + learningCards + reviewCards,
       },
     };
+  }
+
+  // ========================================
+  // ADMIN MANAGEMENT METHODS
+  // ========================================
+
+  async resetUserProgress(userId: string): Promise<void> {
+    await this.userStageProgressRepository.delete({ userId });
+    await this.userUnitProgressRepository.delete({ userId });
+    await this.userCardProgressRepository.delete({ userId });
+  }
+
+  async deleteUnitProgress(userId: string, unitId: string): Promise<void> {
+    await this.userUnitProgressRepository.delete({ userId, unitId });
+  }
+
+  async deleteStageProgress(userId: string, stageId: string): Promise<void> {
+    await this.userStageProgressRepository.delete({ userId, stageId });
+  }
+
+  async forceCompleteUnit(userId: string, unitId: string): Promise<UserUnitProgress> {
+    let progress = await this.userUnitProgressRepository.findOne({
+      where: { userId, unitId },
+    });
+
+    if (!progress) {
+      progress = this.userUnitProgressRepository.create({
+        userId,
+        unitId,
+        isCompleted: true,
+        watchTime: 100,
+      });
+    } else {
+      progress.isCompleted = true;
+    }
+
+    return this.userUnitProgressRepository.save(progress);
+  }
+
+  async forceCompleteStage(userId: string, stageId: string): Promise<UserStageProgress> {
+    let progress = await this.userStageProgressRepository.findOne({
+      where: { userId, stageId },
+    });
+
+    if (!progress) {
+      progress = this.userStageProgressRepository.create({
+        userId,
+        stageId,
+      });
+    }
+
+    progress.isCompleted = true;
+    return this.userStageProgressRepository.save(progress);
   }
 }

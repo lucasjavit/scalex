@@ -24,6 +24,11 @@ const AdminLayout = ({ children }) => {
       href: '/admin/english-course',
       icon: '📚'
     },
+    {
+      name: 'Course Progress',
+      href: '/admin/english-course-progress',
+      icon: '📊'
+    },
   ];
 
   const isCurrentPath = (path, exact = false) => {

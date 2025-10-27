@@ -97,43 +97,138 @@
    Apply by adding class "theme-day" to <body>
    ============================================ */
 .theme-day {
-  background-color: #F6F7F6;
-  color: #1A1A1A;
+  background: #F5F7FA;
+  background-attachment: fixed;
+  color: #1E293B;
+}
+
+/* Theme day background effects */
+.theme-day body::before {
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+}
+
+.theme-day body::after {
+  background-image: 
+    linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+}
+
+.theme-day ::-webkit-scrollbar-track {
+  background: #F0F4FF;
+}
+
+.theme-day ::-webkit-scrollbar-thumb {
+  background: #D0D5DD;
+  border: 3px solid #F0F4FF;
+}
+
+.theme-day ::-webkit-scrollbar-thumb:hover {
+  background: #B8BCC5;
+}
+
+.theme-day ::-webkit-scrollbar-corner {
+  background: #F0F4FF;
 }
 
 /* Backgrounds */
-.theme-day .bg-copilot-bg-primary { background-color: #F6F7F6 !important; }
-.theme-day .bg-copilot-bg-secondary { background-color: #FFFFFF !important; }
-.theme-day .bg-copilot-bg-tertiary { background-color: #FAFAFA !important; }
-.theme-day .bg-copilot-bg-hover { background-color: #F0F2F1 !important; }
-.theme-day .bg-copilot-bg-surface, .theme-day .card-copilot { background-color: #FFFFFF !important; }
-.theme-day .bg-copilot-bg-input { background-color: #FFFFFF !important; }
+.theme-day .bg-copilot-bg-primary { 
+  background: #F5F7FA !important; 
+}
+.theme-day .bg-copilot-bg-secondary { 
+  background: #FFFFFF !important; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+.theme-day .bg-copilot-bg-tertiary { 
+  background: #FAFAFA !important; 
+}
+.theme-day .bg-copilot-bg-hover { 
+  background: #F1F5F9 !important; 
+  transition: all 0.3s ease !important;
+}
+.theme-day .bg-copilot-bg-surface, .theme-day .card-copilot { 
+  background: #FFFFFF !important; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+.theme-day .bg-copilot-bg-input { 
+  background: #FFFFFF !important; 
+}
 
 /* Text */
-.theme-day .text-copilot-text-primary { color: #1A1A1A !important; }
-.theme-day .text-copilot-text-secondary { color: #4A4A4A !important; }
-.theme-day .text-copilot-text-tertiary { color: #6B6B6B !important; }
+.theme-day .text-copilot-text-primary { color: #0F1729 !important; }
+.theme-day .text-copilot-text-secondary { color: #475569 !important; }
+.theme-day .text-copilot-text-tertiary { color: #64748B !important; }
 .theme-day .text-copilot-text-inverse { color: #FFFFFF !important; }
-.theme-day .text-copilot-text-link { color: #2E7D6B !important; }
+.theme-day .text-copilot-text-link { color: #2563EB !important; }
 
 /* Borders */
-.theme-day .border-copilot-border-default { border-color: #E6E6E6 !important; }
-.theme-day .border-copilot-border-subtle { border-color: #EFEFEF !important; }
-.theme-day .border-copilot-border-focus { border-color: #5BB5A2 !important; }
-.theme-day .border-copilot-border-input { border-color: #D9D9D9 !important; }
+.theme-day .border-copilot-border-default { 
+  border-color: #E5E7EB !important; 
+  border-width: 1px !important;
+}
+.theme-day .border-copilot-border-subtle { 
+  border-color: #F3F4F6 !important; 
+}
+.theme-day .border-copilot-border-focus { 
+  border-color: #2563EB !important; 
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+}
+.theme-day .border-copilot-border-input { 
+  border-color: #D1D5DB !important; 
+}
 
 /* Buttons/Accents */
-.theme-day .bg-copilot-accent-primary { background-color: #2E7D6B !important; }
-.theme-day .hover\:bg-\[\#005a9e\]:hover { background-color: #256B5B !important; }
-.theme-day .active\:bg-\[\#004578\]:active { background-color: #1F5A4D !important; }
+.theme-day .bg-copilot-accent-primary { 
+  background: #2563EB !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+.theme-day .bg-copilot-accent-primary:hover {
+  background: #1D4ED8 !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4), 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+.theme-day .hover\:bg-\[\#005a9e\]:hover { 
+  background: #1D4ED8 !important; 
+}
+.theme-day .active\:bg-\[\#004578\]:active { 
+  background: #1E40AF !important; 
+}
 
 /* Inputs */
-.theme-day .input-copilot { color: #1A1A1A; }
-.theme-day .placeholder\:text-copilot-text-tertiary::placeholder { color: #6B6B6B; }
+.theme-day .input-copilot { 
+  color: #0F1729; 
+  background: linear-gradient(to bottom, #FFFFFF 0%, #FAFAFA 100%) !important;
+}
+.theme-day .placeholder\:text-copilot-text-tertiary::placeholder { 
+  color: #94A3B8; 
+}
+
+/* Card hover and interaction states for light theme */
+.theme-day .hover\\:border-copilot-accent-primary:hover {
+  border-color: #6366F1 !important;
+}
+
+.theme-day .hover\\:shadow-copilot-xl:hover {
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Transition effects */
+.theme-day .transition-all {
+  transition-property: all;
+  transition-duration: 200ms;
+}
 
 /* Focus & selection */
-.theme-day *:focus-visible { outline: 1px solid #5BB5A2; }
-.theme-day ::selection { background: #CDEAE3; color: #1A1A1A; }
+.theme-day *:focus-visible { 
+  outline: 2px solid #6366F1; 
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+.theme-day ::selection { 
+  background: linear-gradient(135deg, #C7D2FE 0%, #DDD6FE 100%); 
+  color: #0F1729; 
+}
 
 @layer components {
   /* Button base styles - Microsoft Copilot Style */

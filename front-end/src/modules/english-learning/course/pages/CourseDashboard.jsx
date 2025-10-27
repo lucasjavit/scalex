@@ -129,8 +129,8 @@ export default function CourseDashboard() {
         
         {/* Course Progress Bar - Alternative Design */}
         <div className="mb-8">
-            <div className="relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl border border-slate-600 shadow-xl p-1">
-              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8">
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-copilot-xl shadow-xl p-1">
+              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-copilot-lg p-8">
               {/* Background accent */}
               <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-400 via-sky-400 to-purple-500"></div>
                 <div className="flex items-start justify-between mb-6">
@@ -377,10 +377,10 @@ function StageCard({ stage, onClick }) {
   return (
     <div
       onClick={onClick}
-      className={`relative rounded-lg p-6 transition-all duration-200 ${
+      className={`relative rounded-copilot p-6 transition-all duration-200 ${
         isLocked
-          ? 'opacity-60 cursor-not-allowed bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600 shadow-lg'
-          : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 active:shadow-inner active:translate-y-0.5 group'
+          ? 'opacity-60 cursor-not-allowed bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600'
+          : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 group'
       }`}
     >
       <div className="flex items-center gap-6">
