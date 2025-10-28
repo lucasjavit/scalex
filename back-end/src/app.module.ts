@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { VideoCallModule } from './modules/english-learning/conversation/video-call.module';
 import { EnglishCourseModule } from './modules/english-learning/course/english-course.module';
 import { UsersModule } from './users/users.module';
+import { FirebaseModule } from './common/firebase/firebase.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     VideoCallModule,
     EnglishCourseModule,
+    FirebaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,12 +8,12 @@ const AdminGuard = ({ children }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const { isActive, isInactive, loading: userStatusLoading, error: userStatusError } = useUserStatus();
+  const [hasAccess, setHasAccess] = useState(false);
+  const { userStatus, isActive, isInactive, loading: userStatusLoading, error: userStatusError } = useUserStatus();
 
   useEffect(() => {
     checkAdminAccess();
-  }, [user, isActive, isInactive, userStatusLoading]);
+  }, [user, userStatus, isActive, isInactive, userStatusLoading]);
 
   const checkAdminAccess = async () => {
     if (!user) {
@@ -32,21 +32,22 @@ const AdminGuard = ({ children }) => {
       return;
     }
 
-    // Check admin emails
-    const adminEmails = [
-      'admin@scalex.com',
-      'lucas@scalex.com',
-      'vyeiralucas@gmail.com',
-    ];
+    // Check if user data is available
+    if (!userStatus) {
+      navigate('/home');
+      return;
+    }
 
-    const hasAdminAccess = adminEmails.includes(user.email);
-    
+    // Allow access to admin and partner_english_course roles
+    const allowedRoles = ['admin', 'partner_english_course'];
+    const hasAdminAccess = allowedRoles.includes(userStatus.role);
+
     if (!hasAdminAccess) {
       navigate('/home');
       return;
     }
 
-    setIsAdmin(true);
+    setHasAccess(true);
     setIsLoading(false);
   };
 
@@ -83,7 +84,7 @@ const AdminGuard = ({ children }) => {
     );
   }
 
-  if (!isAdmin) {
+  if (!hasAccess) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="text-center">

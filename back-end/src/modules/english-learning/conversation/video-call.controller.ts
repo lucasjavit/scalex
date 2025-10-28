@@ -8,6 +8,7 @@ import {
     Param,
     Post,
     Put,
+    UseGuards,
 } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinQueueDto } from './dto/join-queue.dto';
@@ -15,8 +16,11 @@ import { JoinRoomDto } from './dto/join-room.dto';
 import { ActivePeriod } from './entities/active-period.entity';
 import { VideoCallQueueService } from './video-call-queue.service';
 import { VideoCallService } from './video-call.service';
+import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
+import { EnglishLearningAccessGuard } from '../../../common/guards/english-learning-access.guard';
 
-@Controller('video-call')
+@Controller('api/english-learning/admin/video-call')
+@UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class VideoCallController {
   constructor(
     private readonly videoCallService: VideoCallService,

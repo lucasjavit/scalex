@@ -1,12 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../../../components/BackButton';
+import { useUserStatus } from '../../../hooks/useUserStatus';
 import AdminLayout from '../components/AdminLayout';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { userStatus } = useUserStatus();
 
-  const modules = [
+  const allModules = [
     {
       title: 'User Management',
       description: 'Manage platform users and their accounts',
@@ -19,37 +21,36 @@ const AdminDashboard = () => {
       ],
       actions: [
         { label: 'View All Users', href: '/admin/users', icon: '👥' },
-      ]
+        { label: 'Manage User Roles', href: '/admin/roles', icon: '🔑' },
+      ],
+      roles: ['admin'] // Only admin can see this
     },
     {
-      title: 'Video Call Management',
-      description: 'Manage video call sessions, schedules, and queues',
-      icon: '🎥',
+      title: 'English Learning Module',
+      description: 'Manage all aspects of the English learning system',
+      icon: '📖',
       color: 'from-purple-500 to-pink-500',
       stats: [
-        { label: 'Users in Queue', value: '---', icon: '⏳' },
-        { label: 'Active Sessions', value: '---', icon: '🟢' },
-        { label: 'Total Sessions', value: '---', icon: '📊' },
-      ],
-      actions: [
-        { label: 'Session Management', href: '/admin/video-call', icon: '🎥' },
-      ]
-    },
-    {
-      title: 'English Course Management',
-      description: 'Manage stages, units, and cards for the English learning course',
-      icon: '📚',
-      color: 'from-green-500 to-teal-500',
-      stats: [
         { label: 'Total Stages', value: '---', icon: '📂' },
-        { label: 'Total Units', value: '---', icon: '📹' },
-        { label: 'Total Cards', value: '---', icon: '🎴' },
+        { label: 'Active Sessions', value: '---', icon: '🟢' },
+        { label: 'Total Users', value: '---', icon: '👥' },
       ],
       actions: [
-        { label: 'Manage Course', href: '/admin/english-course', icon: '📚' },
+        { label: 'Manage Course', href: '/admin/english-learning/course', icon: '📚' },
+        { label: 'Course Progress', href: '/admin/english-learning/progress', icon: '📊' },
+        { label: 'Video Call Sessions', href: '/admin/english-learning/video-call', icon: '🎥' },
       ]
+      // No roles restriction - both admin and partner_english_course can see this
     },
   ];
+
+  // Filter modules based on user role
+  const modules = allModules.filter(module => {
+    if (module.roles && userStatus) {
+      return module.roles.includes(userStatus.role);
+    }
+    return true;
+  });
 
   return (
     <AdminLayout>
@@ -127,20 +128,31 @@ const AdminDashboard = () => {
           <h3 className="text-xl font-bold text-copilot-text-primary mb-4">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {userStatus?.role === 'admin' && (
+              <>
+                <button
+                  onClick={() => navigate('/admin/users')}
+                  className="flex flex-col items-center gap-2 p-4 bg-copilot-bg-primary hover:bg-blue-50 border border-copilot-border-default rounded-copilot transition-colors"
+                >
+                  <span className="text-3xl">👥</span>
+                  <span className="font-medium text-copilot-text-primary">Manage Users</span>
+                </button>
+                <button
+                  onClick={() => navigate('/admin/roles')}
+                  className="flex flex-col items-center gap-2 p-4 bg-copilot-bg-primary hover:bg-green-50 border border-copilot-border-default rounded-copilot transition-colors"
+                >
+                  <span className="text-3xl">🔑</span>
+                  <span className="font-medium text-copilot-text-primary">Manage Roles</span>
+                </button>
+              </>
+            )}
             <button
-              onClick={() => navigate('/admin/users')}
-              className="flex flex-col items-center gap-2 p-4 bg-copilot-bg-primary hover:bg-blue-50 border border-copilot-border-default rounded-copilot transition-colors"
-            >
-              <span className="text-3xl">👥</span>
-              <span className="font-medium text-copilot-text-primary">Manage Users</span>
-            </button>
-            <button
-              onClick={() => navigate('/admin/video-call')}
+              onClick={() => navigate('/admin/english-learning/course')}
               className="flex flex-col items-center gap-2 p-4 bg-copilot-bg-primary hover:bg-purple-50 border border-copilot-border-default rounded-copilot transition-colors"
             >
-              <span className="text-3xl">🎥</span>
-              <span className="font-medium text-copilot-text-primary">Video Sessions</span>
+              <span className="text-3xl">📖</span>
+              <span className="font-medium text-copilot-text-primary">English Learning</span>
             </button>
           </div>
         </div>

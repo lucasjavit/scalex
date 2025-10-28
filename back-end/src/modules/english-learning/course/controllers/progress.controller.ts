@@ -6,10 +6,13 @@ import {
     Param,
     Patch,
     Post,
-    Req
+    Req,
+    UseGuards,
 } from '@nestjs/common';
 import { UpdateWatchTimeDto } from '../dto/update-watch-time.dto';
 import { ProgressService } from '../services/progress.service';
+import { FirebaseAuthGuard } from '../../../../common/guards/firebase-auth.guard';
+import { EnglishLearningAccessGuard } from '../../../../common/guards/english-learning-access.guard';
 
 @Controller('api/english-course/progress')
 export class ProgressController {
@@ -107,26 +110,31 @@ export class ProgressController {
 
   // Admin management endpoints
   @Post('admin/users/:userId/reset')
+  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
   resetUserProgress(@Param('userId') userId: string) {
     return this.progressService.resetUserProgress(userId);
   }
 
   @Delete('admin/users/:userId/stages/:stageId')
+  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
   deleteStageProgress(@Param('userId') userId: string, @Param('stageId') stageId: string) {
     return this.progressService.deleteStageProgress(userId, stageId);
   }
 
   @Delete('admin/users/:userId/units/:unitId')
+  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
   deleteUnitProgress(@Param('userId') userId: string, @Param('unitId') unitId: string) {
     return this.progressService.deleteUnitProgress(userId, unitId);
   }
 
   @Post('admin/users/:userId/units/:unitId/force-complete')
+  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
   forceCompleteUnit(@Param('userId') userId: string, @Param('unitId') unitId: string) {
     return this.progressService.forceCompleteUnit(userId, unitId);
   }
 
   @Post('admin/users/:userId/stages/:stageId/force-complete')
+  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
   forceCompleteStage(@Param('userId') userId: string, @Param('stageId') stageId: string) {
     return this.progressService.forceCompleteStage(userId, stageId);
   }

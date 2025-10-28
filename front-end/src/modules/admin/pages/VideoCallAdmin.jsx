@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { useIsAdmin } from '../../../hooks/useIsAdmin';
 import { useNotification } from '../../../hooks/useNotification';
 import { useAuth } from '../../auth-social/context/AuthContext';
 import AdminLayout from '../components/AdminLayout';
 
 const VideoCallAdmin = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const { isAdmin } = useIsAdmin();
   const { showSuccess, showError, showConfirmation } = useNotification();
   const [loading, setLoading] = useState(true);
   const [systemStatus, setSystemStatus] = useState(null);
@@ -26,49 +22,45 @@ const VideoCallAdmin = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // console.log('🔐 Admin Page - isAdmin status:', isAdmin);
-    // console.log('👤 User:', user);
-    
-    // Redirect if not admin
-    if (isAdmin === false) {
-      // console.log('❌ Not admin, redirecting to /video-call');
-      navigate('/video-call');
-      return;
-    }
-
-    if (isAdmin === true) {
-      // console.log('✅ Is admin, loading data...');
+    // Load data on mount
+    if (user) {
       loadData();
       // Poll every 5 seconds
       const interval = setInterval(loadData, 5000);
       return () => clearInterval(interval);
     }
-  }, [isAdmin, navigate]);
+  }, [user]);
+
+  // Helper function to get auth headers
+  const getAuthHeaders = async () => {
+    if (!user) return {};
+    const token = await user.getIdToken();
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+  };
 
   const loadData = async () => {
     try {
-      // console.log('🔍 Admin: Loading data from API...');
-      // console.log('📡 Base URL:', baseURL);
-      
-      const [statusRes, statsRes] = await Promise.all([
-        fetch(`${baseURL}/video-call/system-status`),
-        fetch(`${baseURL}/video-call/admin/statistics`)
-      ]);
+      if (!user) {
+        console.log('⚠️ User not authenticated yet');
+        return;
+      }
 
-      // console.log('📊 Status Response:', statusRes.status, statusRes.statusText);
-      // console.log('📊 Stats Response:', statsRes.status, statsRes.statusText);
+      const headers = await getAuthHeaders();
+
+      const [statusRes, statsRes] = await Promise.all([
+        fetch(`${baseURL}/api/english-learning/admin/video-call/system-status`, { headers }),
+        fetch(`${baseURL}/api/english-learning/admin/video-call/admin/statistics`, { headers })
+      ]);
 
       const statusData = await statusRes.json();
       const statsData = await statsRes.json();
 
-      // console.log('✅ Status Data:', statusData);
-      // console.log('✅ Stats Data:', statsData);
-
       setSystemStatus(statusData.data);
       setAdminStats(statsData.data);
       setLoading(false);
-      
-      // console.log('✅ Data loaded successfully!');
     } catch (error) {
       console.error('❌ Error loading admin data:', error);
       setLoading(false);
@@ -86,9 +78,10 @@ const VideoCallAdmin = () => {
 
   const disableSystem = async () => {
     try {
-      const response = await fetch(`${baseURL}/video-call/admin/disable`, {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${baseURL}/api/english-learning/admin/video-call/admin/disable`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
       });
 
       const result = await response.json();
@@ -116,9 +109,10 @@ const VideoCallAdmin = () => {
 
   const enableSystem = async () => {
     try {
-      const response = await fetch(`${baseURL}/video-call/admin/enable`, {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${baseURL}/api/english-learning/admin/video-call/admin/enable`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
       });
 
       const result = await response.json();
@@ -150,9 +144,10 @@ const VideoCallAdmin = () => {
     };
 
     try {
-      const response = await fetch(`${baseURL}/video-call/admin/add-period`, {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${baseURL}/api/english-learning/admin/video-call/admin/add-period`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(period),
       });
 
@@ -183,9 +178,10 @@ const VideoCallAdmin = () => {
 
   const removePeriod = async (index) => {
     try {
-      const response = await fetch(`${baseURL}/video-call/admin/remove-period/${index}`, {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${baseURL}/api/english-learning/admin/video-call/admin/remove-period/${index}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
       });
 
       const result = await response.json();
@@ -214,8 +210,10 @@ const VideoCallAdmin = () => {
   const clearQueue = async () => {
     try {
       setClearingQueue(true);
-      const response = await fetch(`${baseURL}/video-call/admin/queue/clear`, {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${baseURL}/api/english-learning/admin/video-call/admin/queue/clear`, {
         method: 'POST',
+        headers,
       });
 
       const result = await response.json();
@@ -234,14 +232,16 @@ const VideoCallAdmin = () => {
     }
   };
 
-  if (loading || isAdmin === null) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-copilot-accent-primary mx-auto mb-4"></div>
-          <p className="text-copilot-text-secondary">Loading...</p>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-copilot-accent-primary mx-auto mb-4"></div>
+            <p className="text-copilot-text-secondary">Loading...</p>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 

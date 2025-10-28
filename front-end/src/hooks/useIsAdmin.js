@@ -1,17 +1,11 @@
-import { useAuth } from '../modules/auth-social/context/AuthContext';
+import { useUserStatus } from './useUserStatus';
 
 export const useIsAdmin = () => {
-  const { user } = useAuth();
+  const { userStatus, loading } = useUserStatus();
 
-  // Admin emails list
-  const adminEmails = [
-    'admin@scalex.com',
-    'lucas@scalex.com',
-    'vyeiralucas@gmail.com',
-    // Add more admin emails as needed
-  ];
+  // Allow access to admin and partner_english_course roles
+  const allowedRoles = ['admin', 'partner_english_course'];
+  const isAdmin = userStatus && !loading ? allowedRoles.includes(userStatus.role) : false;
 
-  const isAdmin = user ? adminEmails.includes(user.email) : false;
-
-  return { isAdmin };
+  return { isAdmin, loading };
 };

@@ -25,6 +25,10 @@ import { CardsController } from './controllers/cards.controller';
 import { ProgressController } from './controllers/progress.controller';
 import { ReviewController } from './controllers/review.controller';
 
+// Guards dependencies
+import { FirebaseModule } from '../../../common/firebase/firebase.module';
+import { UsersModule } from '../../../users/users.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -36,6 +40,8 @@ import { ReviewController } from './controllers/review.controller';
       UserCardProgress,
       ReviewSession,
     ]),
+    FirebaseModule,
+    UsersModule,
   ],
   controllers: [
     StagesController,

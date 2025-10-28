@@ -10,6 +10,7 @@ import { CreateAddressDto } from './dto/create-address.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { Address } from './entities/address.entity';
 import { User } from './entities/user.entity';
 
@@ -210,5 +211,28 @@ export class UsersService {
     const user = await this.findOne(userId);
     user.is_active = !user.is_active;
     return await this.userRepository.save(user);
+  }
+
+  // Admin: Update user role
+  async updateUserRole(userId: string, updateUserRoleDto: UpdateUserRoleDto): Promise<User> {
+    const user = await this.findOne(userId);
+
+    const oldRole = user.role;
+    user.role = updateUserRoleDto.role;
+
+    const updatedUser = await this.userRepository.save(user);
+
+    console.log(`[Admin] User ${userId} role changed: ${oldRole} → ${updateUserRoleDto.role}`);
+
+    return updatedUser;
+  }
+
+  // Admin: Get all users with specific role
+  async findUsersByRole(role: string): Promise<User[]> {
+    return await this.userRepository.find({
+      where: { role: role as any },
+      relations: ['addresses'],
+      order: { created_at: 'DESC' },
+    });
   }
 }

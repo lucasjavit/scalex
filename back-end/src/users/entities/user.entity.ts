@@ -8,6 +8,8 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { Address } from './address.entity';
+import type { UserRole } from '../../common/types/user-roles.type';
+import { USER_ROLES } from '../../common/types/user-roles.type';
 
 @Entity('users')
 @Check(`"email" ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'`)
@@ -66,12 +68,20 @@ export class User {
   })
   preferred_language: string;
 
-  @Column({ 
-    type: 'boolean', 
+  @Column({
+    type: 'boolean',
     default: true,
     comment: 'Soft delete flag - false means user is deactivated'
   })
   is_active: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: USER_ROLES,
+    default: 'user',
+    comment: 'User role: user (default), admin, or partner_* (specific module partner)'
+  })
+  role: UserRole;
 
   @OneToMany(() => Address, (address) => address.user, {
     cascade: true,

@@ -1,35 +1,60 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useUserStatus } from '../../../hooks/useUserStatus';
 import AdminGuard from './AdminGuard';
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { userStatus } = useUserStatus();
 
-  const navigation = [
+  // Full navigation for admin
+  const fullNavigation = [
     { name: 'Dashboard', href: '/admin', icon: '🏠', exact: true },
     {
       name: 'Users',
       href: '/admin/users',
-      icon: '👥'
+      icon: '👥',
+      roles: ['admin'] // Only admin can see this
     },
     {
-      name: 'Video Call',
-      href: '/admin/video-call',
-      icon: '🎥'
-    },
-    {
-      name: 'English Course',
-      href: '/admin/english-course',
-      icon: '📚'
-    },
-    {
-      name: 'Course Progress',
-      href: '/admin/english-course-progress',
-      icon: '📊'
+      name: 'English Learning',
+      icon: '📖',
+      roles: ['admin', 'partner_english_course'], // Admin and English Course Partner
+      submenu: [
+        {
+          name: 'English Course',
+          href: '/admin/english-learning/course',
+          icon: '📚'
+        },
+        {
+          name: 'Course Progress',
+          href: '/admin/english-learning/progress',
+          icon: '📊'
+        },
+        {
+          name: 'Video Call',
+          href: '/admin/english-learning/video-call',
+          icon: '🎥'
+        },
+      ]
     },
   ];
+
+  // Filter navigation based on user role
+  const navigation = fullNavigation.filter(item => {
+    // If item has roles restriction, check if user has required role
+    if (item.roles && userStatus) {
+      return item.roles.includes(userStatus.role);
+    }
+    // If no role restriction, show to everyone
+    return true;
+  });
+
+  // Debug: log user role and navigation
+  console.log('👤 AdminLayout - User Role:', userStatus?.role);
+  console.log('📋 AdminLayout - Navigation items:', navigation.length);
 
   const isCurrentPath = (path, exact = false) => {
     if (exact) {

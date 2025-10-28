@@ -7,28 +7,48 @@ import {
     HttpStatus,
     Param,
     Patch,
-    Post
+    Post,
+    UseGuards,
 } from '@nestjs/common';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UsersService } from './users.service';
+import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  // ========================================
+  // ADMIN ENDPOINTS (Must be BEFORE generic :id routes)
+  // ========================================
+
+  @Patch('admin/:userId/role')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('admin')
+  @HttpCode(HttpStatus.OK)
+  updateUserRole(
+    @Param('userId') userId: string,
+    @Body() updateUserRoleDto: UpdateUserRoleDto,
+  ) {
+    return this.usersService.updateUserRole(userId, updateUserRoleDto);
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Get('admin/roles/:role')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('admin')
+  getUsersByRole(@Param('role') role: string) {
+    return this.usersService.findUsersByRole(role);
   }
+
+  // ========================================
+  // SPECIFIC ROUTES (Before generic :id)
+  // ========================================
 
   @Get('firebase/:firebaseUid')
   async findByFirebaseUid(@Param('firebaseUid') firebaseUid: string) {
@@ -41,6 +61,25 @@ export class UsersController {
   findByEmail(@Param('email') email: string) {
     return this.usersService.findByEmail(email);
   }
+
+  // ========================================
+  // GENERAL ROUTES
+  // ========================================
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
+  }
+
+  // ========================================
+  // GENERIC :id ROUTES (Must be LAST)
+  // ========================================
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -63,7 +102,10 @@ export class UsersController {
     return this.usersService.remove(id);
   }
 
-  // Address management endpoints
+  // ========================================
+  // ADDRESS MANAGEMENT
+  // ========================================
+
   @Get(':id/addresses')
   getUserAddresses(@Param('id') id: string) {
     return this.usersService.getUserAddresses(id);

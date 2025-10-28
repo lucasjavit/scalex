@@ -1,9 +1,10 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import UsersList from '../components/UsersList';
 import AdminDashboard from './AdminDashboard';
 import EnglishCourseAdmin from './EnglishCourseAdmin';
 import EnglishCourseProgressAdmin from './EnglishCourseProgressAdmin';
 import VideoCallAdmin from './VideoCallAdmin';
+import AdminUserManagement from '../../../pages/admin/AdminUserManagement';
 
 const AdminRoutes = () => {
   return (
@@ -14,14 +15,18 @@ const AdminRoutes = () => {
       {/* User Management */}
       <Route path="/users" element={<UsersList />} />
 
-      {/* Video Call Admin */}
-      <Route path="/video-call" element={<VideoCallAdmin />} />
+      {/* Role Management */}
+      <Route path="/roles" element={<AdminUserManagement />} />
 
-      {/* English Course Admin */}
-      <Route path="/english-course" element={<EnglishCourseAdmin />} />
+      {/* English Learning Module - Hierarchical Routes */}
+      <Route path="/english-learning/video-call" element={<VideoCallAdmin />} />
+      <Route path="/english-learning/course" element={<EnglishCourseAdmin />} />
+      <Route path="/english-learning/progress" element={<EnglishCourseProgressAdmin />} />
 
-      {/* English Course Progress Admin */}
-      <Route path="/english-course-progress" element={<EnglishCourseProgressAdmin />} />
+      {/* Legacy Routes - Redirect to new structure */}
+      <Route path="/english-course" element={<Navigate to="/admin/english-learning/course" replace />} />
+      <Route path="/english-course-progress" element={<Navigate to="/admin/english-learning/progress" replace />} />
+      <Route path="/video-call-admin" element={<Navigate to="/admin/english-learning/video-call" replace />} />
     </Routes>
   );
 };
