@@ -9,9 +9,14 @@ class ApiService {
   // Generic request method
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
+    
+    // Get userId from localStorage (set by auth context)
+    const userId = localStorage.getItem('userId');
+    
     const config = {
       headers: {
         'Content-Type': 'application/json',
+        ...(userId && { 'x-user-id': userId }), // Add userId header if available
         ...options.headers,
       },
       ...options,

@@ -27,8 +27,13 @@ export const useUserStatus = () => {
         if (!userData) {
           console.log('User not found in database - new user needs to complete registration');
           setUserStatus(null);
+          localStorage.removeItem('userId'); // Remove userId if user doesn't exist
         } else {
           setUserStatus(userData);
+          // Store userId in localStorage for API requests
+          if (userData.id) {
+            localStorage.setItem('userId', userData.id);
+          }
         }
       } catch (err) {
         console.error('Error checking user status:', err);

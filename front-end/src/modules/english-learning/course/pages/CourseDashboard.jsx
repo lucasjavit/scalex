@@ -99,10 +99,12 @@ export default function CourseDashboard() {
     );
   }
 
-  // Calculate overall course progress
-  const totalStages = stages.length;
+  // Calculate overall course progress based on completed units
+  const totalUnits = stages.reduce((sum, stage) => sum + (stage.totalUnits || 0), 0);
+  const completedUnits = stages.reduce((sum, stage) => sum + (stage.completedUnits || 0), 0);
+  const courseProgress = totalUnits > 0 ? Math.round((completedUnits / totalUnits) * 100) : 0;
+  
   const completedStages = stages.filter(stage => stage.isCompleted).length;
-  const courseProgress = totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
 
   return (
     <div className="bg-copilot-bg-primary min-h-screen">
@@ -156,10 +158,10 @@ export default function CourseDashboard() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-copilot-text-secondary font-medium">
-                      {completedStages} de {totalStages} estágios completos
+                      {completedUnits} de {totalUnits} units completas
                     </span>
                   </div>
-                  <div className="relative w-full h-4 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div className="relative w-full h-4 bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="absolute inset-y-0 left-0 bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 rounded-full transition-all duration-1000 ease-out"
                       style={{ width: `${courseProgress}%` }}

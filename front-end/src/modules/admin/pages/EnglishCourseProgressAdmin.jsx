@@ -59,20 +59,25 @@ export default function EnglishCourseProgressAdmin() {
   const handleResetProgress = async () => {
     if (!user) return;
     
+    console.log('🔄 Resetting progress for user:', { id: user.id, email: user.email });
+    
     showConfirmation(
-      'Reset Progress',
-      `Are you sure you want to reset all progress for ${user.email}? This action cannot be undone.`,
+      `Tem certeza que deseja resetar todo o progresso de ${user.email}? Esta ação não pode ser desfeita.`,
       async () => {
         try {
           setLoading(true);
-          await apiService.request(`/api/english-course/progress/admin/users/${user.id}/reset`, 'POST');
-          showSuccess('User progress has been reset successfully');
+          console.log('📤 Sending reset request to:', `/api/english-course/progress/admin/users/${user.id}/reset`);
+          await apiService.request(`/api/english-course/progress/admin/users/${user.id}/reset`, {
+            method: 'POST'
+          });
+          console.log('✅ Reset successful');
+          showSuccess('O progresso do usuário foi resetado com sucesso');
           
           // Reload user progress
           await loadUserProgress(user.id);
         } catch (err) {
-          console.error('Error resetting user progress:', err);
-          showError('Failed to reset user progress');
+          console.error('❌ Error resetting user progress:', err);
+          showError('Falha ao resetar o progresso do usuário');
         } finally {
           setLoading(false);
         }

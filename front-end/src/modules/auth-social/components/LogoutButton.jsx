@@ -3,6 +3,9 @@ import { auth } from "../services/firebaseAuth";
 
 export default function LogoutButton() {
   const handleLogout = () => {
+    // Clear userId from localStorage on logout
+    localStorage.removeItem('userId');
+    
     signOut(auth)
       .then(() => // console.log("Logout successful"))
       .catch((error) => console.error("Logout error:", error));

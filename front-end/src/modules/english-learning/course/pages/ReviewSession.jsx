@@ -174,6 +174,43 @@ export default function ReviewSession() {
   const currentCard = cards[currentCardIndex];
   const progress = ((currentCardIndex + 1) / cards.length) * 100;
 
+  // Helper function to calculate next interval based on card state
+  const getNextInterval = (result) => {
+    const cardState = currentCard?.state || 'new';
+    const currentInterval = currentCard?.interval || 0;
+    const easeFactor = currentCard?.easeFactor || 2.5;
+    const repetitions = currentCard?.repetitions || 0;
+
+    if (result === 'wrong') return '<1 min';
+    if (result === 'hard') return '<10 min';
+    
+    if (result === 'good') {
+      if (cardState === 'new') return '<1 min';
+      if (cardState === 'learning') {
+        if (repetitions === 0) return '<10 min';
+        if (repetitions === 1) return '1 dia';
+        return '5 dias';
+      }
+      // review state
+      const nextInterval = Math.round(currentInterval * easeFactor);
+      if (nextInterval < 1440) return '<1 dia';
+      if (nextInterval < 7200) return Math.round(nextInterval / 1440) + ' dias';
+      return 'Mais que 5 dias';
+    }
+    
+    if (result === 'easy') {
+      if (cardState === 'new') return '5 dias';
+      if (cardState === 'learning') return '5 dias';
+      // review state
+      const nextInterval = Math.round(currentInterval * easeFactor * 1.3);
+      if (nextInterval < 1440) return '<1 dia';
+      if (nextInterval < 7200) return Math.round(nextInterval / 1440) + ' dias';
+      return 'Mais que 5 dias';
+    }
+    
+    return '';
+  };
+
   return (
     <div className="bg-copilot-bg-primary min-h-screen">
       <main className="max-w-4xl mx-auto px-6 py-8">
@@ -344,7 +381,7 @@ export default function ReviewSession() {
                 className="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-copilot font-semibold transition-colors duration-200 flex flex-col items-center"
               >
                 <span className="font-bold">De novo</span>
-                <span className="text-xs opacity-90">&lt;1 min</span>
+                <span className="text-xs opacity-90">{getNextInterval('wrong')}</span>
               </button>
 
               <button
@@ -352,7 +389,7 @@ export default function ReviewSession() {
                 className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-copilot font-semibold transition-colors duration-200 flex flex-col items-center"
               >
                 <span className="font-bold">Difícil</span>
-                <span className="text-xs opacity-90">&lt;10 min</span>
+                <span className="text-xs opacity-90">{getNextInterval('hard')}</span>
               </button>
 
               <button
@@ -360,7 +397,7 @@ export default function ReviewSession() {
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-copilot font-semibold transition-colors duration-200 flex flex-col items-center"
               >
                 <span className="font-bold">Bom</span>
-                <span className="text-xs opacity-90">1 dia</span>
+                <span className="text-xs opacity-90">{getNextInterval('good')}</span>
               </button>
 
               <button
@@ -368,7 +405,7 @@ export default function ReviewSession() {
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-copilot font-semibold transition-colors duration-200 flex flex-col items-center"
               >
                 <span className="font-bold">Fácil</span>
-                <span className="text-xs opacity-90">5 dias</span>
+                <span className="text-xs opacity-90">{getNextInterval('easy')}</span>
               </button>
             </div>
           </div>

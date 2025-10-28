@@ -40,8 +40,13 @@ export default function UnitView() {
       const unitData = await courseApiService.getUnit(unitId);
       setUnit(unitData);
 
-      // Start unit progress
-      await courseApiService.startUnit(unitId);
+      // Start unit progress (optional, don't block UI if it fails)
+      try {
+        await courseApiService.startUnit(unitId);
+      } catch (err) {
+        console.warn('Failed to start unit progress:', err);
+        // Don't show error to user, just continue
+      }
 
       // Check if unit is already completed
       try {
@@ -135,8 +140,35 @@ export default function UnitView() {
 
   const handleSkipUnit = async () => {
     try {
-      await courseApiService.skipUnit(unitId);
-      showSuccess('Unit pulada com sucesso');
+      // Skip should complete the unit (same as watching 80%)
+      const result = await courseApiService.completeUnit(unitId);
+      
+      if (result?.cardsCreated) {
+        showSuccess(`Unit completada! ${result.cardsCreated} flashcards adicionados ao seu deck.`);
+      } else {
+        showSuccess('Unit completada com sucesso');
+      }
+      
+      // Set canComplete to show the green border
+      setCanComplete(true);
+      
+      // Navigate to next unit or back to stage
+      try {
+        // Get all units from the same stage
+        const units = await courseApiService.getUnitsByStage(unit.stageId);
+        const currentIndex = units.findIndex(u => u.id === unitId);
+        const nextUnit = units[currentIndex + 1];
+        
+        if (nextUnit) {
+          // Navigate to next unit
+          navigate(`/learning/course/units/${nextUnit.id}`);
+        } else {
+          // No more units, go back to stage
+          navigate(`/learning/course/stages/${unit.stageId}`);
+        }
+      } catch (navErr) {
+        console.error('Error navigating to next unit:', navErr);
+      }
     } catch (err) {
       showError(err.message || 'Erro ao pular unit');
     }

@@ -64,7 +64,12 @@ export default function CompleteRegistration() {
       };
 
       // Create user in backend
-      await apiService.createUser(userData);
+      const newUser = await apiService.createUser(userData);
+
+      // Store userId in localStorage
+      if (newUser?.id) {
+        localStorage.setItem('userId', newUser.id);
+      }
 
       // Redirect to home after successful registration
       navigate('/home');
