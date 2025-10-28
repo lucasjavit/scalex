@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual } from 'typeorm';
+import { IsNull, LessThanOrEqual, Repository } from 'typeorm';
+import { ReviewResult, ReviewSession } from '../entities/review-session.entity';
 import { UserCardProgress } from '../entities/user-card-progress.entity';
-import { ReviewSession, ReviewResult } from '../entities/review-session.entity';
 import { Sm2Service } from './sm2.service';
 
 @Injectable()
@@ -23,13 +23,23 @@ export class ReviewService {
    */
   async getDueCards(userId: string, limit: number = this.CARDS_PER_SESSION): Promise<UserCardProgress[]> {
     const now = new Date();
+    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
 
     // Busca cards que estão prontos para revisão
+    // Só retorna cards que não foram revisados recentemente (últimos 5 minutos)
     const dueCards = await this.userCardProgressRepository.find({
-      where: {
-        userId,
-        nextReviewDate: LessThanOrEqual(now),
-      },
+      where: [
+        {
+          userId,
+          nextReviewDate: LessThanOrEqual(now),
+          lastReviewedAt: IsNull(),
+        },
+        {
+          userId,
+          nextReviewDate: LessThanOrEqual(now),
+          lastReviewedAt: LessThanOrEqual(fiveMinutesAgo),
+        },
+      ],
       relations: ['card', 'card.unit'],
       order: {
         state: 'ASC', // Prioriza: new > learning > review

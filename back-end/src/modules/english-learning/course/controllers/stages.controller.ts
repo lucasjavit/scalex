@@ -6,6 +6,7 @@ import {
     Param,
     Patch,
     Post,
+    Req,
     UseGuards,
 } from '@nestjs/common';
 import { Public } from '../../../../common/decorators/public.decorator';
@@ -20,11 +21,18 @@ import { StagesService } from '../services/stages.service';
 export class StagesController {
   constructor(private readonly stagesService: StagesService) {}
 
+  // Helper method to get userId from request
+  private getUserId(request: any): string {
+    if (request?.user?.id) return request.user.id;
+    const userId = request?.headers?.['x-user-id'];
+    if (userId) return userId;
+    throw new Error('UserId not found. User must be authenticated.');
+  }
+
   @Public()
   @Get()
-  findAll() {
-    // TODO: Get userId from authenticated user
-    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+  findAll(@Req() request: any) {
+    const userId = this.getUserId(request);
     return this.stagesService.findAllWithProgress(userId);
   }
 
@@ -36,8 +44,8 @@ export class StagesController {
 
   @Public()
   @Post()
-  create(@Body() createStageDto: CreateStageDto) {
-    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+  create(@Body() createStageDto: CreateStageDto, @Req() request: any) {
+    const userId = this.getUserId(request);
     return this.stagesService.create(createStageDto, userId);
   }
 
@@ -46,15 +54,16 @@ export class StagesController {
   update(
     @Param('id') id: string,
     @Body() updateStageDto: UpdateStageDto,
+    @Req() request: any,
   ) {
-    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+    const userId = this.getUserId(request);
     return this.stagesService.update(id, updateStageDto, userId);
   }
 
   @Public()
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+  remove(@Param('id') id: string, @Req() request: any) {
+    const userId = this.getUserId(request);
     return this.stagesService.remove(id, userId);
   }
 }

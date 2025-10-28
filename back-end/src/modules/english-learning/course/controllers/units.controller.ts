@@ -6,6 +6,7 @@ import {
     Param,
     Patch,
     Post,
+    Req,
     UseGuards,
 } from '@nestjs/common';
 import { Public } from '../../../../common/decorators/public.decorator';
@@ -20,11 +21,18 @@ import { UnitsService } from '../services/units.service';
 export class UnitsController {
   constructor(private readonly unitsService: UnitsService) {}
 
+  // Helper method to get userId from request
+  private getUserId(request: any): string {
+    if (request?.user?.id) return request.user.id;
+    const userId = request?.headers?.['x-user-id'];
+    if (userId) return userId;
+    throw new Error('UserId not found. User must be authenticated.');
+  }
+
   @Public()
   @Get('stages/:stageId/units')
-  findByStage(@Param('stageId') stageId: string) {
-    // TODO: Get userId from authenticated user
-    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+  findByStage(@Param('stageId') stageId: string, @Req() request: any) {
+    const userId = this.getUserId(request);
     return this.unitsService.findByStageWithProgress(stageId, userId);
   }
 
@@ -36,8 +44,8 @@ export class UnitsController {
 
   @Public()
   @Post('units')
-  create(@Body() createUnitDto: CreateUnitDto) {
-    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+  create(@Body() createUnitDto: CreateUnitDto, @Req() request: any) {
+    const userId = this.getUserId(request);
     return this.unitsService.create(createUnitDto, userId);
   }
 
@@ -46,15 +54,16 @@ export class UnitsController {
   update(
     @Param('id') id: string,
     @Body() updateUnitDto: UpdateUnitDto,
+    @Req() request: any,
   ) {
-    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+    const userId = this.getUserId(request);
     return this.unitsService.update(id, updateUnitDto, userId);
   }
 
   @Public()
   @Delete('units/:id')
-  remove(@Param('id') id: string) {
-    const userId = 'd7da30e5-8c5a-4916-bac2-34dc92e63ffd';
+  remove(@Param('id') id: string, @Req() request: any) {
+    const userId = this.getUserId(request);
     return this.unitsService.remove(id, userId);
   }
 }

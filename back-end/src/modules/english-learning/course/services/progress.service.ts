@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, MoreThanOrEqual, Repository } from 'typeorm';
+import { ReviewSession } from '../entities/review-session.entity';
 import { UserCardProgress } from '../entities/user-card-progress.entity';
 import { UserStageProgress } from '../entities/user-stage-progress.entity';
 import { UserUnitProgress } from '../entities/user-unit-progress.entity';
@@ -17,6 +18,8 @@ export class ProgressService {
     private userUnitProgressRepository: Repository<UserUnitProgress>,
     @InjectRepository(UserCardProgress)
     private userCardProgressRepository: Repository<UserCardProgress>,
+    @InjectRepository(ReviewSession)
+    private reviewSessionRepository: Repository<ReviewSession>,
     private unitsService: UnitsService,
     private cardsService: CardsService,
     private sm2Service: Sm2Service,
@@ -68,20 +71,33 @@ export class ProgressService {
   // ========================================
 
   async startUnit(userId: string, unitId: string): Promise<UserUnitProgress> {
-    const existing = await this.userUnitProgressRepository.findOne({
-      where: { userId, unitId },
-    });
+    try {
+      console.log('🔍 Looking for existing progress for:', { userId, unitId });
+      
+      const existing = await this.userUnitProgressRepository.findOne({
+        where: { userId, unitId },
+      });
 
-    if (existing) {
-      return existing;
+      if (existing) {
+        console.log('✅ Found existing progress, returning it');
+        return existing;
+      }
+
+      console.log('📝 Creating new progress...');
+      const progress = this.userUnitProgressRepository.create({
+        userId,
+        unitId,
+      });
+
+      console.log('💾 Saving progress...');
+      const saved = await this.userUnitProgressRepository.save(progress);
+      console.log('✅ Progress saved successfully');
+      
+      return saved;
+    } catch (error) {
+      console.error('❌ Error in startUnit:', error);
+      throw error;
     }
-
-    const progress = this.userUnitProgressRepository.create({
-      userId,
-      unitId,
-    });
-
-    return this.userUnitProgressRepository.save(progress);
   }
 
   async updateWatchTime(
@@ -226,9 +242,25 @@ export class ProgressService {
   // ========================================
 
   async resetUserProgress(userId: string): Promise<void> {
-    await this.userStageProgressRepository.delete({ userId });
-    await this.userUnitProgressRepository.delete({ userId });
-    await this.userCardProgressRepository.delete({ userId });
+    console.log('🔄 Resetting progress for user:', userId);
+    
+    // Delete user stage progress
+    const stagesResult = await this.userStageProgressRepository.delete({ userId });
+    console.log('📊 Deleted stage progress:', stagesResult.affected || 0);
+    
+    // Delete user unit progress
+    const unitsResult = await this.userUnitProgressRepository.delete({ userId });
+    console.log('📊 Deleted unit progress:', unitsResult.affected || 0);
+    
+    // Delete user card progress
+    const cardsResult = await this.userCardProgressRepository.delete({ userId });
+    console.log('📊 Deleted card progress:', cardsResult.affected || 0);
+    
+    // Delete review sessions for this user
+    const reviewsResult = await this.reviewSessionRepository.delete({ userId });
+    console.log('📊 Deleted review sessions:', reviewsResult.affected || 0);
+    
+    console.log('✅ Reset completed successfully');
   }
 
   async deleteUnitProgress(userId: string, unitId: string): Promise<void> {
@@ -249,7 +281,7 @@ export class ProgressService {
         userId,
         unitId,
         isCompleted: true,
-        watchTime: 100,
+        watchTimeSeconds: 100,
       });
     } else {
       progress.isCompleted = true;
