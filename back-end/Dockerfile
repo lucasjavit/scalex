@@ -19,19 +19,27 @@ RUN apk add --no-cache curl
 
 WORKDIR /app
 
-# Copiar dependências de produção
+# Copiar dependências (incluindo devDependencies para migrations)
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copiar build do estágio anterior
 COPY --from=builder /app/dist ./dist
+
+# Copiar código fonte necessário para migrations
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+
+# Copiar script de inicialização
+COPY start.sh ./
+RUN chmod +x start.sh
 
 # Expor porta
 EXPOSE 3000
 
 # Health check - verifica se a aplicação está respondendo
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3000 || exit 1
 
-# Iniciar aplicação
-CMD ["node", "dist/main.js"]
+# Iniciar aplicação com migrations
+CMD ["./start.sh"]
