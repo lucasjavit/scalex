@@ -7,7 +7,7 @@ import {
 
 /**
  * Guard para controlar acesso ao módulo English Learning
- * Permite: admin + partner_english_course
+ * Permite: user + admin + partner_english_course
  */
 @Injectable()
 export class EnglishLearningAccessGuard implements CanActivate {
@@ -29,8 +29,13 @@ export class EnglishLearningAccessGuard implements CanActivate {
       return true;
     }
 
+    // Usuário comum também tem acesso
+    if (userRole === 'user') {
+      return true;
+    }
+
     throw new ForbiddenException(
-      'Access denied. Only admins and English course partners can access this resource.',
+      'Access denied. Only authenticated users can access this resource.',
     );
   }
 }

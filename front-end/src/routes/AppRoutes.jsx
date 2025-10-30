@@ -7,6 +7,7 @@ import UserProfile from "../modules/auth-social/pages/UserProfile";
 import LandingPage from "../pages/LandingPage";
 import CompleteRegistration from "../pages/CompleteRegistration";
 import PrivateRoute from "./PrivateRoute";
+import EnglishLearningRoute from "../components/EnglishLearningRoute";
 
 // Coming Soon Page Component
 function ComingSoonPage({ moduleName, moduleIcon }) {
@@ -122,57 +123,57 @@ export default function AppRoutes() {
             <Route
               path="/learning"
               element={
-                <PrivateRoute>
+                <EnglishLearningRoute>
                   <EnglishLearningDashboard />
-                </PrivateRoute>
+                </EnglishLearningRoute>
               }
             />
             <Route
               path="/learning/conversation/*"
               element={
-                <PrivateRoute>
+                <EnglishLearningRoute>
                   <ConversationRoutes />
-                </PrivateRoute>
+                </EnglishLearningRoute>
               }
             />
             <Route
               path="/learning/course"
               element={
-                <PrivateRoute>
+                <EnglishLearningRoute>
                   <CourseDashboard />
-                </PrivateRoute>
+                </EnglishLearningRoute>
               }
             />
             <Route
               path="/learning/course/stages/:stageId"
               element={
-                <PrivateRoute>
+                <EnglishLearningRoute>
                   <StageView />
-                </PrivateRoute>
+                </EnglishLearningRoute>
               }
             />
             <Route
               path="/learning/course/units/:unitId"
               element={
-                <PrivateRoute>
+                <EnglishLearningRoute>
                   <UnitView />
-                </PrivateRoute>
+                </EnglishLearningRoute>
               }
             />
             <Route
               path="/learning/course/review"
               element={
-                <PrivateRoute>
+                <EnglishLearningRoute>
                   <ReviewSession />
-                </PrivateRoute>
+                </EnglishLearningRoute>
               }
             />
             <Route
               path="/learning/teachers"
               element={
-                <PrivateRoute>
+                <EnglishLearningRoute>
                   <ComingSoonPage moduleName="Professores de Inglês" moduleIcon="👨‍🏫" />
-                </PrivateRoute>
+                </EnglishLearningRoute>
               }
             />
 
@@ -190,9 +191,9 @@ export default function AppRoutes() {
             <Route
               path="/video-call/*"
               element={
-                <PrivateRoute>
+                <EnglishLearningRoute>
                   <ConversationRoutes />
-                </PrivateRoute>
+                </EnglishLearningRoute>
               }
             />
 

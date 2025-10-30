@@ -45,6 +45,10 @@ export const isAdminRole = (role: UserRole): boolean => {
   return role === 'admin';
 };
 
+export const canAccessAdminRoutes = (role: UserRole): boolean => {
+  return role !== 'user';
+};
+
 export const getModuleFromPartnerRole = (role: PartnerRole): string => {
   return role.replace('partner_', '');
 };

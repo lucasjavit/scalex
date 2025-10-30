@@ -17,8 +17,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UsersService } from './users.service';
 import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { AdminAccessGuard } from '../common/guards/admin-access.guard';
 
 @Controller('users')
 export class UsersController {
@@ -29,8 +28,7 @@ export class UsersController {
   // ========================================
 
   @Patch('admin/:userId/role')
-  @UseGuards(FirebaseAuthGuard, RolesGuard)
-  @Roles('admin')
+  @UseGuards(FirebaseAuthGuard, AdminAccessGuard)
   @HttpCode(HttpStatus.OK)
   updateUserRole(
     @Param('userId') userId: string,
@@ -40,8 +38,7 @@ export class UsersController {
   }
 
   @Get('admin/roles/:role')
-  @UseGuards(FirebaseAuthGuard, RolesGuard)
-  @Roles('admin')
+  @UseGuards(FirebaseAuthGuard, AdminAccessGuard)
   getUsersByRole(@Param('role') role: string) {
     return this.usersService.findUsersByRole(role);
   }

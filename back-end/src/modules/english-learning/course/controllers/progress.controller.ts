@@ -6,61 +6,54 @@ import {
   Param,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
+import { CurrentUser } from '../../../../common/decorators/current-user.decorator';
 import { UpdateWatchTimeDto } from '../dto/update-watch-time.dto';
 import { ProgressService } from '../services/progress.service';
 import { FirebaseAuthGuard } from '../../../../common/guards/firebase-auth.guard';
 import { EnglishLearningAccessGuard } from '../../../../common/guards/english-learning-access.guard';
 
 @Controller('api/english-course/progress')
+@UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class ProgressController {
   constructor(private readonly progressService: ProgressService) {}
 
-  // Helper method to get userId from request (headers or user object)
-  private getUserId(request: any): string {
-    // Try to get from user object (if authenticated)
-    if (request?.user?.id) {
-      return request.user.id;
-    }
-    // Try to get from headers
-    const userId = request?.headers?.['x-user-id'];
-    if (userId) {
-      return userId;
-    }
-    // Throw error if userId is not found - this should not happen in production
-    throw new Error('UserId not found. User must be authenticated.');
-  }
-
   @Get('dashboard')
-  getDashboard(@Req() request: any) {
-    const userId = this.getUserId(request);
+  getDashboard(@CurrentUser('id') userId: string) {
     return this.progressService.getDashboardStats(userId);
   }
 
   @Get('stages/:stageId')
-  getStageProgress(@Param('stageId') stageId: string, @Req() request: any) {
-    const userId = this.getUserId(request);
+  getStageProgress(
+    @Param('stageId') stageId: string,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.progressService.getStageProgress(userId, stageId);
   }
 
   @Post('stages/:stageId/start')
-  startStage(@Param('stageId') stageId: string, @Req() request: any) {
-    const userId = this.getUserId(request);
+  startStage(
+    @Param('stageId') stageId: string,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.progressService.startStage(userId, stageId);
   }
 
   @Get('units/:unitId')
-  getUnitProgress(@Param('unitId') unitId: string, @Req() request: any) {
-    const userId = this.getUserId(request);
+  getUnitProgress(
+    @Param('unitId') unitId: string,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.progressService.getUnitProgress(userId, unitId);
   }
 
   @Post('units/:unitId/start')
-  async startUnit(@Param('unitId') unitId: string, @Req() request: any) {
+  async startUnit(
+    @Param('unitId') unitId: string,
+    @CurrentUser('id') userId: string,
+  ) {
     try {
-      const userId = this.getUserId(request);
       console.log('🚀 Starting unit:', { userId, unitId });
       const result = await this.progressService.startUnit(userId, unitId);
       console.log('✅ Unit started successfully');
@@ -75,9 +68,8 @@ export class ProgressController {
   updateWatchTime(
     @Param('unitId') unitId: string,
     @Body() updateWatchTimeDto: UpdateWatchTimeDto,
-    @Req() request: any,
+    @CurrentUser('id') userId: string,
   ) {
-    const userId = this.getUserId(request);
     return this.progressService.updateWatchTime(
       userId,
       unitId,
@@ -86,19 +78,21 @@ export class ProgressController {
   }
 
   @Post('units/:unitId/complete')
-  completeUnit(@Param('unitId') unitId: string, @Req() request: any) {
-    const userId = this.getUserId(request);
+  completeUnit(
+    @Param('unitId') unitId: string,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.progressService.completeUnit(userId, unitId);
   }
 
   @Post('units/:unitId/skip')
-  skipUnit(@Param('unitId') unitId: string, @Req() request: any) {
-    const userId = this.getUserId(request);
+  skipUnit(@Param('unitId') unitId: string, @CurrentUser('id') userId: string) {
     return this.progressService.skipUnit(userId, unitId);
   }
 
   // Admin endpoints to get any user's progress
   @Get('users/:userId/stages/:stageId')
+  @UseGuards(EnglishLearningAccessGuard)
   getStageProgressByUser(
     @Param('userId') userId: string,
     @Param('stageId') stageId: string,
@@ -107,6 +101,7 @@ export class ProgressController {
   }
 
   @Get('users/:userId/units/:unitId')
+  @UseGuards(EnglishLearningAccessGuard)
   getUnitProgressByUser(
     @Param('userId') userId: string,
     @Param('unitId') unitId: string,
@@ -116,13 +111,13 @@ export class ProgressController {
 
   // Admin management endpoints
   @Post('admin/users/:userId/reset')
-  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
+  @UseGuards(EnglishLearningAccessGuard)
   resetUserProgress(@Param('userId') userId: string) {
     return this.progressService.resetUserProgress(userId);
   }
 
   @Delete('admin/users/:userId/stages/:stageId')
-  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
+  @UseGuards(EnglishLearningAccessGuard)
   deleteStageProgress(
     @Param('userId') userId: string,
     @Param('stageId') stageId: string,
@@ -131,7 +126,7 @@ export class ProgressController {
   }
 
   @Delete('admin/users/:userId/units/:unitId')
-  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
+  @UseGuards(EnglishLearningAccessGuard)
   deleteUnitProgress(
     @Param('userId') userId: string,
     @Param('unitId') unitId: string,
@@ -140,7 +135,7 @@ export class ProgressController {
   }
 
   @Post('admin/users/:userId/units/:unitId/force-complete')
-  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
+  @UseGuards(EnglishLearningAccessGuard)
   forceCompleteUnit(
     @Param('userId') userId: string,
     @Param('unitId') unitId: string,
@@ -149,7 +144,7 @@ export class ProgressController {
   }
 
   @Post('admin/users/:userId/stages/:stageId/force-complete')
-  @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
+  @UseGuards(EnglishLearningAccessGuard)
   forceCompleteStage(
     @Param('userId') userId: string,
     @Param('stageId') stageId: string,

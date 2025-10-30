@@ -106,12 +106,13 @@ export const getCurrentUserData = async () => {
 
 /**
  * Verificar se o usuário atual é admin
+ * All roles except 'user' can access admin routes
  * @returns {Promise<boolean>}
  */
 export const isCurrentUserAdmin = async () => {
   try {
     const userData = await getCurrentUserData();
-    return userData && userData.role === 'admin';
+    return userData && userData.role !== 'user';
   } catch (error) {
     console.error('Error checking admin status:', error);
     return false;

@@ -26,7 +26,8 @@
       "Bash(npm run build:*)",
       "Bash(npm run migration:show:*)",
       "Bash(npm install:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(timeout /t 3 /nobreak)"
     ],
     "deny": [],
     "ask": []

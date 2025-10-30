@@ -1,29 +1,29 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { CurrentUser } from '../../../../common/decorators/current-user.decorator';
+import { FirebaseAuthGuard } from '../../../../common/guards/firebase-auth.guard';
+import { EnglishLearningAccessGuard } from '../../../../common/guards/english-learning-access.guard';
 import { SubmitReviewDto } from '../dto/submit-review.dto';
 import { ReviewService } from '../services/review.service';
 
 @Controller('api/english-course/review')
+@UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
-  // Helper method to get userId from request
-  private getUserId(request: any): string {
-    if (request?.user?.id) return request.user.id;
-    const userId = request?.headers?.['x-user-id'];
-    if (userId) return userId;
-    throw new Error('UserId not found. User must be authenticated.');
-  }
-
   @Get('due')
-  getDueCards(@Query('limit') limit?: string, @Req() request?: any) {
-    const userId = this.getUserId(request);
+  getDueCards(
+    @Query('limit') limit: string | undefined,
+    @CurrentUser('id') userId: string,
+  ) {
     const limitNum = limit ? parseInt(limit, 10) : undefined;
     return this.reviewService.getDueCards(userId, limitNum);
   }
 
   @Post('submit')
-  submitReview(@Body() submitReviewDto: SubmitReviewDto, @Req() request: any) {
-    const userId = this.getUserId(request);
+  submitReview(
+    @Body() submitReviewDto: SubmitReviewDto,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.reviewService.submitReview(
       userId,
       submitReviewDto.cardId,
@@ -34,10 +34,9 @@ export class ReviewController {
 
   @Get('stats')
   getStats(
-    @Query('period') period?: 'today' | 'week' | 'month',
-    @Req() request?: any,
+    @Query('period') period: 'today' | 'week' | 'month' | undefined,
+    @CurrentUser('id') userId: string,
   ) {
-    const userId = this.getUserId(request);
     return this.reviewService.getReviewStats(userId, period);
   }
 }

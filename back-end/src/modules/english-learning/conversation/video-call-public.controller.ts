@@ -14,14 +14,15 @@ import { ActivePeriod } from './entities/active-period.entity';
 import { VideoCallQueueService } from './video-call-queue.service';
 import { VideoCallService } from './video-call.service';
 import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
+import { EnglishLearningAccessGuard } from '../../../common/guards/english-learning-access.guard';
 
 /**
  * Controller público para funcionalidades de video call acessíveis por usuários comuns
  * Rota: /api/english-learning/video-call
- * Guard: Apenas FirebaseAuthGuard (sem restrição de role)
+ * Guard: FirebaseAuthGuard + EnglishLearningAccessGuard
  */
 @Controller('api/english-learning/video-call')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class VideoCallPublicController {
   constructor(
     private readonly queueService: VideoCallQueueService,

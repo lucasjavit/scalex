@@ -38,9 +38,8 @@ const AdminGuard = ({ children }) => {
       return;
     }
 
-    // Allow access to admin and partner_english_course roles
-    const allowedRoles = ['admin', 'partner_english_course'];
-    const hasAdminAccess = allowedRoles.includes(userStatus.role);
+    // Allow access to ALL roles except 'user'
+    const hasAdminAccess = userStatus.role && userStatus.role !== 'user';
 
     if (!hasAdminAccess) {
       navigate('/home');

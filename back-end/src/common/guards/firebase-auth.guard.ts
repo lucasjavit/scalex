@@ -71,6 +71,7 @@ export class FirebaseAuthGuard implements CanActivate {
 
       // Injetar usuário completo no request
       request.user = {
+        id: user.id, // Para compatibilidade com @CurrentUser('id')
         userId: user.id,
         firebaseUid: user.firebase_uid,
         email: user.email,
