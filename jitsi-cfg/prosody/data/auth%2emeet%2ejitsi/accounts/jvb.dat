@@ -1,8 +1,8 @@
 return {
-	["created"] = 1761504138;
+	["server_key"] = "e0b374c1c0d4d7e44a5c1f95153dad0263575e62";
+	["created"] = 1761738688;
 	["iteration_count"] = 10000;
-	["updated"] = 1761504138;
-	["salt"] = "a75b6496-7e89-4049-ab55-3804f3ed8c7f";
-	["stored_key"] = "bccb9fb6458df3e59674a64d16baa0bb616da67b";
-	["server_key"] = "a04ef449a52c571a5a45b8f24b229199e865fd9f";
+	["salt"] = "3607b010-4a93-4988-a444-a29a29fb782f";
+	["updated"] = 1761738688;
+	["stored_key"] = "401257f1866c60db08c42398dedcd9edb51899a7";
 };
