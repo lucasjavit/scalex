@@ -47,17 +47,20 @@ export class FirebaseAuthGuard implements CanActivate {
       // Verificar token com Firebase Admin
       const decodedToken = await this.firebaseAdminService.verifyIdToken(token);
 
-      // Buscar ou criar usuário no PostgreSQL
-      let user = await this.usersService.findByFirebaseUid(decodedToken.uid);
+      // Buscar usuário por Firebase UID ou email (para primeiro login do admin)
+      const firebaseUser = await this.firebaseAdminService.getUserByUid(
+        decodedToken.uid,
+      );
+      const email = firebaseUser.email || `${firebaseUser.uid}@firebase.user`;
+
+      // Tentar encontrar por UID ou vincular email com pending-first-login
+      let user = await this.usersService.findByFirebaseUidOrEmail(
+        decodedToken.uid,
+        email,
+      );
 
       if (!user) {
-        // Se usuário não existe, buscar info do Firebase e criar
-        const firebaseUser = await this.firebaseAdminService.getUserByUid(
-          decodedToken.uid,
-        );
-
-        // Criar usuário no banco (você pode precisar ajustar os campos obrigatórios)
-        const email = firebaseUser.email || `${firebaseUser.uid}@firebase.user`;
+        // Se usuário não existe, criar novo
         user = await this.usersService.create({
           firebase_uid: firebaseUser.uid,
           email: email,

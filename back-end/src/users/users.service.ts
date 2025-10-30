@@ -107,6 +107,43 @@ export class UsersService {
     return user || null;
   }
 
+  /**
+   * Finds user by Firebase UID or email, and updates firebase_uid if pending
+   * Used for first-time admin login
+   */
+  async findByFirebaseUidOrEmail(
+    firebaseUid: string,
+    email: string,
+  ): Promise<User | null> {
+    // First try to find by firebase_uid
+    let user = await this.userRepository.findOne({
+      where: { firebase_uid: firebaseUid },
+      relations: ['addresses'],
+    });
+
+    if (user) {
+      return user;
+    }
+
+    // Try to find by email with pending first login
+    user = await this.userRepository.findOne({
+      where: { email, firebase_uid: 'pending-first-login' },
+      relations: ['addresses'],
+    });
+
+    if (user) {
+      // Update firebase_uid for first-time login
+      user.firebase_uid = firebaseUid;
+      await this.userRepository.save(user);
+      console.log(
+        `✅ First admin login completed: ${email} linked to Firebase UID`,
+      );
+      return user;
+    }
+
+    return null;
+  }
+
   async findByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { email },
