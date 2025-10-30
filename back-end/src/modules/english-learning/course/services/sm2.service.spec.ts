@@ -218,12 +218,20 @@ describe('Sm2Service', () => {
       expect(result.interval).toBe(18000); // ~12.5 days
 
       // Second review: GOOD
-      card = { ...reviewCard, interval: result.interval, repetitions: result.repetitions };
+      card = {
+        ...reviewCard,
+        interval: result.interval,
+        repetitions: result.repetitions,
+      };
       result = service.calculateNextReview(card, 'good');
       expect(result.interval).toBe(45000); // ~31 days
 
       // Third review: GOOD
-      card = { ...reviewCard, interval: result.interval, repetitions: result.repetitions };
+      card = {
+        ...reviewCard,
+        interval: result.interval,
+        repetitions: result.repetitions,
+      };
       result = service.calculateNextReview(card, 'good');
       expect(result.interval).toBe(112500); // ~78 days
 

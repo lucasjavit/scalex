@@ -39,13 +39,13 @@ describe('UserRoles Type System', () => {
     it('should have correct module to partner role mappings', () => {
       expect(MODULE_TO_PARTNER_ROLE).toEqual({
         'english-course': 'partner_english_course',
-        'cnpj': 'partner_cnpj',
-        'remittance': 'partner_remittance',
-        'resume': 'partner_resume',
-        'interview': 'partner_interview',
-        'networking': 'partner_networking',
+        cnpj: 'partner_cnpj',
+        remittance: 'partner_remittance',
+        resume: 'partner_resume',
+        interview: 'partner_interview',
+        networking: 'partner_networking',
         'job-marketplace': 'partner_job_marketplace',
-        'community': 'partner_community',
+        community: 'partner_community',
       });
     });
   });

@@ -28,7 +28,12 @@ export class Unit extends AuditEntity {
   @Column({ type: 'varchar', length: 500, name: 'youtube_url' })
   youtubeUrl: string;
 
-  @Column({ type: 'varchar', length: 500, nullable: true, name: 'thumbnail_url' })
+  @Column({
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+    name: 'thumbnail_url',
+  })
   thumbnailUrl: string;
 
   @Column({ type: 'int', nullable: true, name: 'video_duration' })

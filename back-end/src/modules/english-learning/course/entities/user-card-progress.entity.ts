@@ -24,7 +24,13 @@ export class UserCardProgress {
   @Column({ type: 'uuid', name: 'card_id' })
   cardId: string;
 
-  @Column({ type: 'decimal', precision: 3, scale: 2, default: 2.5, name: 'ease_factor' })
+  @Column({
+    type: 'decimal',
+    precision: 3,
+    scale: 2,
+    default: 2.5,
+    name: 'ease_factor',
+  })
   easeFactor: number;
 
   @Column({ type: 'int', default: 0 })

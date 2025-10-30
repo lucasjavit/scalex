@@ -7,10 +7,7 @@ import { Address } from './entities/address.entity';
 import { FirebaseModule } from '../common/firebase/firebase.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Address]),
-    FirebaseModule,
-  ],
+  imports: [TypeOrmModule.forFeature([User, Address]), FirebaseModule],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

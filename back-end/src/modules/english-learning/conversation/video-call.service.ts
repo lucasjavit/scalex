@@ -139,10 +139,13 @@ export class VideoCallService {
     console.log(`Ended room: ${roomName}, Duration: ${room.duration}s`);
 
     // Keep room in memory for statistics (delete after 24 hours)
-    setTimeout(() => {
-      this.rooms.delete(roomName);
-      console.log(`Deleted room from memory: ${roomName}`);
-    }, 24 * 60 * 60 * 1000); // Delete after 24 hours
+    setTimeout(
+      () => {
+        this.rooms.delete(roomName);
+        console.log(`Deleted room from memory: ${roomName}`);
+      },
+      24 * 60 * 60 * 1000,
+    ); // Delete after 24 hours
 
     return room;
   }
@@ -166,7 +169,9 @@ export class VideoCallService {
     // Get statistics from manual rooms (Create Room / Join Room)
     const manualRooms = Array.from(this.rooms.values()).filter(
       (room) =>
-        room.participants.includes(userId) && room.status === 'ended' && room.duration > 0,
+        room.participants.includes(userId) &&
+        room.status === 'ended' &&
+        room.duration > 0,
     );
 
     // Get statistics from queue sessions (Find Partner)
@@ -174,11 +179,15 @@ export class VideoCallService {
 
     // Combine both statistics
     const manualCalls = manualRooms.length;
-    const manualDuration = manualRooms.reduce((sum, room) => sum + room.duration, 0);
+    const manualDuration = manualRooms.reduce(
+      (sum, room) => sum + room.duration,
+      0,
+    );
 
     const totalCalls = manualCalls + queueStats.totalCalls;
     const totalDuration = manualDuration + queueStats.totalDuration;
-    const averageDuration = totalCalls > 0 ? Math.round(totalDuration / totalCalls) : 0;
+    const averageDuration =
+      totalCalls > 0 ? Math.round(totalDuration / totalCalls) : 0;
 
     // Format duration
     const formatDuration = (seconds: number): string => {
@@ -192,14 +201,14 @@ export class VideoCallService {
 
     // Get last call from both sources
     const allEndedDates: Date[] = [];
-    
+
     // Add manual room dates
     manualRooms.forEach((room) => {
       if (room.endedAt) {
         allEndedDates.push(new Date(room.endedAt));
       }
     });
-    
+
     // Add queue session dates
     queueStats.sessions.forEach((session) => {
       if (session.endedAt) {
@@ -209,38 +218,42 @@ export class VideoCallService {
 
     // Sort and get most recent
     allEndedDates.sort((a, b) => b.getTime() - a.getTime());
-    const lastCall = allEndedDates.length > 0 ? allEndedDates[0].toISOString() : null;
+    const lastCall =
+      allEndedDates.length > 0 ? allEndedDates[0].toISOString() : null;
 
     // Get calls from this week
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    
+
     const manualWeekCalls = manualRooms.filter(
       (room) => room.endedAt && new Date(room.endedAt) >= oneWeekAgo,
     ).length;
-    
+
     const queueWeekCalls = queueStats.sessions.filter(
       (session) => session.endedAt && new Date(session.endedAt) >= oneWeekAgo,
     ).length;
-    
+
     const thisWeekCalls = manualWeekCalls + queueWeekCalls;
 
     // Get calls from this month
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    
+
     const manualMonthCalls = manualRooms.filter(
       (room) => room.endedAt && new Date(room.endedAt) >= firstDayOfMonth,
     ).length;
-    
+
     const queueMonthCalls = queueStats.sessions.filter(
-      (session) => session.endedAt && new Date(session.endedAt) >= firstDayOfMonth,
+      (session) =>
+        session.endedAt && new Date(session.endedAt) >= firstDayOfMonth,
     ).length;
-    
+
     const thisMonthCalls = manualMonthCalls + queueMonthCalls;
 
     console.log(`=== USER STATISTICS for ${userId} ===`);
     console.log(`Manual Rooms: ${manualCalls} calls, ${manualDuration}s`);
-    console.log(`Queue Sessions: ${queueStats.totalCalls} calls, ${queueStats.totalDuration}s`);
+    console.log(
+      `Queue Sessions: ${queueStats.totalCalls} calls, ${queueStats.totalDuration}s`,
+    );
     console.log(`Total: ${totalCalls} calls, ${totalDuration}s`);
 
     return {
@@ -255,4 +268,3 @@ export class VideoCallService {
     };
   }
 }
-

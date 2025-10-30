@@ -201,15 +201,15 @@ export async function seedCourseData(dataSource: DataSource) {
     {
       unitId: unit3.id,
       question: 'Como se diz "De nada" em inglês?',
-      answer: 'You\'re welcome',
-      exampleSentence: 'You\'re welcome! Anytime.',
+      answer: "You're welcome",
+      exampleSentence: "You're welcome! Anytime.",
       orderIndex: 3,
     },
     {
       unitId: unit3.id,
       question: 'Como se diz "Desculpe" em inglês?',
       answer: 'Sorry / Excuse me',
-      exampleSentence: 'Sorry, I didn\'t mean to interrupt.',
+      exampleSentence: "Sorry, I didn't mean to interrupt.",
       orderIndex: 4,
     },
     {
@@ -236,8 +236,8 @@ export async function seedCourseData(dataSource: DataSource) {
     {
       unitId: unit4.id,
       question: 'Complete: She ____ (not finish) her homework yet.',
-      answer: 'hasn\'t finished',
-      exampleSentence: 'She hasn\'t finished her homework yet.',
+      answer: "hasn't finished",
+      exampleSentence: "She hasn't finished her homework yet.",
       orderIndex: 2,
     },
     {
@@ -258,7 +258,7 @@ export async function seedCourseData(dataSource: DataSource) {
       unitId: unit5.id,
       question: 'O que significa "give up"?',
       answer: 'Desistir',
-      exampleSentence: 'Don\'t give up on your dreams!',
+      exampleSentence: "Don't give up on your dreams!",
       orderIndex: 1,
     },
     {
@@ -279,7 +279,7 @@ export async function seedCourseData(dataSource: DataSource) {
       unitId: unit5.id,
       question: 'O que significa "turn off"?',
       answer: 'Desligar (aparelho)',
-      exampleSentence: 'Don\'t forget to turn off the TV.',
+      exampleSentence: "Don't forget to turn off the TV.",
       orderIndex: 4,
     },
   ];

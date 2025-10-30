@@ -8,4 +8,3 @@ export interface SessionRoom {
   endedAt: Date | null;
   status: 'active' | 'ended';
 }
-

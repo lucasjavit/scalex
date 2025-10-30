@@ -171,13 +171,23 @@ export class InitialSchema1700000000000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Drop triggers
-    await queryRunner.query(`DROP TRIGGER IF EXISTS ensure_one_primary_address_trigger ON addresses`);
-    await queryRunner.query(`DROP TRIGGER IF EXISTS update_addresses_updated_at ON addresses`);
-    await queryRunner.query(`DROP TRIGGER IF EXISTS update_users_updated_at ON users`);
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS ensure_one_primary_address_trigger ON addresses`,
+    );
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS update_addresses_updated_at ON addresses`,
+    );
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS update_users_updated_at ON users`,
+    );
 
     // Drop functions
-    await queryRunner.query(`DROP FUNCTION IF EXISTS ensure_one_primary_address()`);
-    await queryRunner.query(`DROP FUNCTION IF EXISTS update_updated_at_column()`);
+    await queryRunner.query(
+      `DROP FUNCTION IF EXISTS ensure_one_primary_address()`,
+    );
+    await queryRunner.query(
+      `DROP FUNCTION IF EXISTS update_updated_at_column()`,
+    );
 
     // Drop indexes
     await queryRunner.query(`DROP INDEX IF EXISTS idx_addresses_country`);

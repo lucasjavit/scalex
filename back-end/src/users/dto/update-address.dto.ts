@@ -1,14 +1,16 @@
 import {
-    IsBoolean,
-    IsEnum,
-    IsOptional,
-    IsString,
-    MaxLength,
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
 } from 'class-validator';
 import { AddressType } from '../entities/address.entity';
 
 export class UpdateAddressDto {
-  @IsEnum(AddressType, { message: 'Address type must be one of: primary, billing, shipping, other' })
+  @IsEnum(AddressType, {
+    message: 'Address type must be one of: primary, billing, shipping, other',
+  })
   @IsOptional()
   address_type?: AddressType;
 

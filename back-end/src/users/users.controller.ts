@@ -1,14 +1,14 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Param,
-    Patch,
-    Post,
-    UseGuards,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -131,7 +131,10 @@ export class UsersController {
 
   @Delete(':id/addresses/:addressId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeAddress(@Param('id') id: string, @Param('addressId') addressId: string) {
+  removeAddress(
+    @Param('id') id: string,
+    @Param('addressId') addressId: string,
+  ) {
     return this.usersService.removeAddress(id, addressId);
   }
 }

@@ -11,10 +11,12 @@ export class FirebaseAdminService {
 
     try {
       // Opção 1: Usar variáveis de ambiente (RECOMENDADO para produção)
-      if (process.env.FIREBASE_PROJECT_ID &&
-          process.env.FIREBASE_CLIENT_EMAIL &&
-          process.env.FIREBASE_PRIVATE_KEY &&
-          !process.env.FIREBASE_PROJECT_ID.includes('your-project-id')) {
+      if (
+        process.env.FIREBASE_PROJECT_ID &&
+        process.env.FIREBASE_CLIENT_EMAIL &&
+        process.env.FIREBASE_PRIVATE_KEY &&
+        !process.env.FIREBASE_PROJECT_ID.includes('your-project-id')
+      ) {
         this.firebaseApp = admin.initializeApp({
           credential: admin.credential.cert({
             projectId: process.env.FIREBASE_PROJECT_ID,
@@ -31,10 +33,16 @@ export class FirebaseAdminService {
           this.firebaseApp = admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
           });
-          console.log('✅ Firebase Admin inicializado com serviceAccountKey.json');
+          console.log(
+            '✅ Firebase Admin inicializado com serviceAccountKey.json',
+          );
         } catch (error) {
-          console.warn('⚠️  Firebase Admin não configurado. Configure as credenciais em .env ou serviceAccountKey.json');
-          console.warn('⚠️  O servidor continuará rodando mas a autenticação não funcionará!');
+          console.warn(
+            '⚠️  Firebase Admin não configurado. Configure as credenciais em .env ou serviceAccountKey.json',
+          );
+          console.warn(
+            '⚠️  O servidor continuará rodando mas a autenticação não funcionará!',
+          );
           // Não inicializar o Firebase - deixar como undefined
           // Isso impedirá que o servidor quebre
           this.firebaseApp = null;
@@ -48,14 +56,18 @@ export class FirebaseAdminService {
 
   getAuth(): admin.auth.Auth {
     if (!this.firebaseApp) {
-      throw new Error('Firebase Admin SDK is not initialized. Please configure Firebase credentials.');
+      throw new Error(
+        'Firebase Admin SDK is not initialized. Please configure Firebase credentials.',
+      );
     }
     return this.firebaseApp.auth();
   }
 
   async verifyIdToken(idToken: string): Promise<admin.auth.DecodedIdToken> {
     if (!this.firebaseApp) {
-      throw new Error('Firebase Admin SDK is not initialized. Please configure Firebase credentials.');
+      throw new Error(
+        'Firebase Admin SDK is not initialized. Please configure Firebase credentials.',
+      );
     }
     try {
       return await this.firebaseApp.auth().verifyIdToken(idToken);
@@ -66,7 +78,9 @@ export class FirebaseAdminService {
 
   async getUserByUid(uid: string): Promise<admin.auth.UserRecord> {
     if (!this.firebaseApp) {
-      throw new Error('Firebase Admin SDK is not initialized. Please configure Firebase credentials.');
+      throw new Error(
+        'Firebase Admin SDK is not initialized. Please configure Firebase credentials.',
+      );
     }
     try {
       return await this.firebaseApp.auth().getUser(uid);
@@ -77,7 +91,9 @@ export class FirebaseAdminService {
 
   async getUserByEmail(email: string): Promise<admin.auth.UserRecord> {
     if (!this.firebaseApp) {
-      throw new Error('Firebase Admin SDK is not initialized. Please configure Firebase credentials.');
+      throw new Error(
+        'Firebase Admin SDK is not initialized. Please configure Firebase credentials.',
+      );
     }
     try {
       return await this.firebaseApp.auth().getUserByEmail(email);

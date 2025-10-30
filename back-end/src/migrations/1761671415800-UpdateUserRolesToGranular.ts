@@ -1,6 +1,8 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class UpdateUserRolesToGranular1761671415800 implements MigrationInterface {
+export class UpdateUserRolesToGranular1761671415800
+  implements MigrationInterface
+{
   name = 'UpdateUserRolesToGranular1761671415800';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -41,7 +43,9 @@ export class UpdateUserRolesToGranular1761671415800 implements MigrationInterfac
     await queryRunner.query(`DROP TYPE user_role_enum;`);
 
     // 5. Renomear novo enum para o nome original
-    await queryRunner.query(`ALTER TYPE user_role_enum_new RENAME TO user_role_enum;`);
+    await queryRunner.query(
+      `ALTER TYPE user_role_enum_new RENAME TO user_role_enum;`,
+    );
 
     // 6. Restaurar default com novo enum
     await queryRunner.query(`
@@ -76,7 +80,9 @@ export class UpdateUserRolesToGranular1761671415800 implements MigrationInterfac
     await queryRunner.query(`DROP TYPE user_role_enum;`);
 
     // 4. Renomear enum antigo de volta
-    await queryRunner.query(`ALTER TYPE user_role_enum_old RENAME TO user_role_enum;`);
+    await queryRunner.query(
+      `ALTER TYPE user_role_enum_old RENAME TO user_role_enum;`,
+    );
 
     // 5. Restaurar comentário original
     await queryRunner.query(`

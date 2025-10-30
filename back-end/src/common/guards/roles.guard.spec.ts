@@ -179,11 +179,7 @@ describe('RolesGuard', () => {
       it('should allow access when user has one of three required roles', () => {
         jest
           .spyOn(reflector, 'getAllAndOverride')
-          .mockReturnValue([
-            'partner_english_course',
-            'partner_cnpj',
-            'user',
-          ]);
+          .mockReturnValue(['partner_english_course', 'partner_cnpj', 'user']);
         const context = createMockExecutionContext({ role: 'user' });
 
         expect(guard.canActivate(context)).toBe(true);

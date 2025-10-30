@@ -99,10 +99,7 @@ describe('FirebaseAuthGuard', () => {
     });
 
     it('should throw UnauthorizedException when authorization header does not start with Bearer', async () => {
-      const context = createMockExecutionContext(
-        'Basic invalid-token',
-        false,
-      );
+      const context = createMockExecutionContext('Basic invalid-token', false);
 
       await expect(guard.canActivate(context)).rejects.toThrow(
         UnauthorizedException,

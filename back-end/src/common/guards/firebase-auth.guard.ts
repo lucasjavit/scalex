@@ -52,7 +52,9 @@ export class FirebaseAuthGuard implements CanActivate {
 
       if (!user) {
         // Se usuário não existe, buscar info do Firebase e criar
-        const firebaseUser = await this.firebaseAdminService.getUserByUid(decodedToken.uid);
+        const firebaseUser = await this.firebaseAdminService.getUserByUid(
+          decodedToken.uid,
+        );
 
         // Criar usuário no banco (você pode precisar ajustar os campos obrigatórios)
         const email = firebaseUser.email || `${firebaseUser.uid}@firebase.user`;

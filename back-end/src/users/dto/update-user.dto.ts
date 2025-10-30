@@ -27,6 +27,8 @@ export class UpdateUserDto {
 
   @IsString()
   @IsOptional()
-  @Length(2, 10, { message: 'Preferred language must be between 2 and 10 characters' })
+  @Length(2, 10, {
+    message: 'Preferred language must be between 2 and 10 characters',
+  })
   preferred_language?: string;
 }

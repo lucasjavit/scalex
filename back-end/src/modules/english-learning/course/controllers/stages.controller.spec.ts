@@ -175,7 +175,11 @@ describe('StagesController', () => {
       const result = await controller.update(stageId, updateStageDto, mockUser);
 
       expect(result).toEqual(updatedStage);
-      expect(service.update).toHaveBeenCalledWith(stageId, updateStageDto, mockUser.id);
+      expect(service.update).toHaveBeenCalledWith(
+        stageId,
+        updateStageDto,
+        mockUser.id,
+      );
     });
 
     it('should allow partial updates', async () => {
@@ -196,7 +200,11 @@ describe('StagesController', () => {
 
       const result = await controller.update(stageId, updateStageDto, mockUser);
 
-      expect(service.update).toHaveBeenCalledWith(stageId, updateStageDto, mockUser.id);
+      expect(service.update).toHaveBeenCalledWith(
+        stageId,
+        updateStageDto,
+        mockUser.id,
+      );
     });
 
     it('should throw NotFoundException if stage to update not found', async () => {

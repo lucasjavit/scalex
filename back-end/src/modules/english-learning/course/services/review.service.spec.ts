@@ -49,7 +49,9 @@ describe('ReviewService', () => {
     }).compile();
 
     service = module.get<ReviewService>(ReviewService);
-    userCardProgressRepository = module.get(getRepositoryToken(UserCardProgress));
+    userCardProgressRepository = module.get(
+      getRepositoryToken(UserCardProgress),
+    );
     reviewSessionRepository = module.get(getRepositoryToken(ReviewSession));
     sm2Service = module.get<Sm2Service>(Sm2Service);
 

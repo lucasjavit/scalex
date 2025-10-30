@@ -15,4 +15,3 @@ export class JoinQueueDto {
   @IsString()
   language?: string;
 }
-

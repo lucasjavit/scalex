@@ -39,23 +39,21 @@ export class StagesService {
     });
 
     // Get user progress for all units
-    const allUnitIds = allUnits.map(u => u.id);
+    const allUnitIds = allUnits.map((u) => u.id);
     const progressRecords = await this.userUnitProgressRepository.find({
       where: { userId, unitId: In(allUnitIds) },
     });
 
     // Create a map for quick lookup
-    const progressMap = new Map(
-      progressRecords.map(p => [p.unitId, p])
-    );
+    const progressMap = new Map(progressRecords.map((p) => [p.unitId, p]));
 
     // Helper function to check if a stage is completed
     const isStageCompleted = (stage: Stage): boolean => {
-      const stageUnits = allUnits.filter(u => u.stageId === stage.id);
+      const stageUnits = allUnits.filter((u) => u.stageId === stage.id);
       if (stageUnits.length === 0) return false;
 
       // All units must be completed
-      return stageUnits.every(unit => {
+      return stageUnits.every((unit) => {
         const progress = progressMap.get(unit.id);
         return progress?.isCompleted || false;
       });
@@ -63,8 +61,8 @@ export class StagesService {
 
     // Calculate stats for each stage
     const stagesWithProgress = stages.map((stage, index) => {
-      const stageUnits = allUnits.filter(u => u.stageId === stage.id);
-      const completedUnits = stageUnits.filter(unit => {
+      const stageUnits = allUnits.filter((u) => u.stageId === stage.id);
+      const completedUnits = stageUnits.filter((unit) => {
         const progress = progressMap.get(unit.id);
         return progress?.isCompleted || false;
       });
@@ -86,9 +84,10 @@ export class StagesService {
         isCompleted,
         totalUnits: stageUnits.length,
         completedUnits: completedUnits.length,
-        progress: stageUnits.length > 0
-          ? Math.round((completedUnits.length / stageUnits.length) * 100)
-          : 0,
+        progress:
+          stageUnits.length > 0
+            ? Math.round((completedUnits.length / stageUnits.length) * 100)
+            : 0,
       };
     });
 
@@ -110,7 +109,7 @@ export class StagesService {
 
   async create(data: Partial<Stage>, userId: string): Promise<Stage> {
     const orderIndex = data.orderIndex || 1;
-    
+
     // Reorganizar stages existentes: incrementar os que estão >= orderIndex
     const existingStages = await this.stagesRepository.find({
       where: { deletedAt: IsNull() },
@@ -118,10 +117,12 @@ export class StagesService {
     });
 
     // Incrementar orderIndex de todos que estão >= orderIndex
-    const stagesToUpdate = existingStages.filter(s => s.orderIndex >= orderIndex);
-    
+    const stagesToUpdate = existingStages.filter(
+      (s) => s.orderIndex >= orderIndex,
+    );
+
     if (stagesToUpdate.length > 0) {
-      stagesToUpdate.forEach(s => {
+      stagesToUpdate.forEach((s) => {
         s.orderIndex += 1;
       });
       await this.stagesRepository.save(stagesToUpdate);
@@ -134,7 +135,11 @@ export class StagesService {
     return this.stagesRepository.save(stage);
   }
 
-  async update(id: string, data: Partial<Stage>, userId: string): Promise<Stage> {
+  async update(
+    id: string,
+    data: Partial<Stage>,
+    userId: string,
+  ): Promise<Stage> {
     const stage = await this.findOne(id);
 
     // Se está mudando o orderIndex, reorganizar outros stages
@@ -153,7 +158,11 @@ export class StagesService {
    * @param oldIndex - Índice antigo
    * @param newIndex - Novo índice
    */
-  private async reorderStages(stageId: string, oldIndex: number, newIndex: number): Promise<void> {
+  private async reorderStages(
+    stageId: string,
+    oldIndex: number,
+    newIndex: number,
+  ): Promise<void> {
     // Buscar todos os stages não deletados, exceto o que está sendo movido
     const stages = await this.stagesRepository.find({
       where: { deletedAt: IsNull() },
@@ -161,7 +170,7 @@ export class StagesService {
     });
 
     // Filtrar o stage que está sendo movido
-    const otherStages = stages.filter(s => s.id !== stageId);
+    const otherStages = stages.filter((s) => s.id !== stageId);
 
     // Reorganizar os índices
     if (newIndex > oldIndex) {

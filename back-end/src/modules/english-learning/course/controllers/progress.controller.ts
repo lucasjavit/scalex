@@ -1,13 +1,13 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Patch,
-    Post,
-    Req,
-    UseGuards,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { UpdateWatchTimeDto } from '../dto/update-watch-time.dto';
 import { ProgressService } from '../services/progress.service';
@@ -99,12 +99,18 @@ export class ProgressController {
 
   // Admin endpoints to get any user's progress
   @Get('users/:userId/stages/:stageId')
-  getStageProgressByUser(@Param('userId') userId: string, @Param('stageId') stageId: string) {
+  getStageProgressByUser(
+    @Param('userId') userId: string,
+    @Param('stageId') stageId: string,
+  ) {
     return this.progressService.getStageProgress(userId, stageId);
   }
 
   @Get('users/:userId/units/:unitId')
-  getUnitProgressByUser(@Param('userId') userId: string, @Param('unitId') unitId: string) {
+  getUnitProgressByUser(
+    @Param('userId') userId: string,
+    @Param('unitId') unitId: string,
+  ) {
     return this.progressService.getUnitProgress(userId, unitId);
   }
 
@@ -117,25 +123,37 @@ export class ProgressController {
 
   @Delete('admin/users/:userId/stages/:stageId')
   @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
-  deleteStageProgress(@Param('userId') userId: string, @Param('stageId') stageId: string) {
+  deleteStageProgress(
+    @Param('userId') userId: string,
+    @Param('stageId') stageId: string,
+  ) {
     return this.progressService.deleteStageProgress(userId, stageId);
   }
 
   @Delete('admin/users/:userId/units/:unitId')
   @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
-  deleteUnitProgress(@Param('userId') userId: string, @Param('unitId') unitId: string) {
+  deleteUnitProgress(
+    @Param('userId') userId: string,
+    @Param('unitId') unitId: string,
+  ) {
     return this.progressService.deleteUnitProgress(userId, unitId);
   }
 
   @Post('admin/users/:userId/units/:unitId/force-complete')
   @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
-  forceCompleteUnit(@Param('userId') userId: string, @Param('unitId') unitId: string) {
+  forceCompleteUnit(
+    @Param('userId') userId: string,
+    @Param('unitId') unitId: string,
+  ) {
     return this.progressService.forceCompleteUnit(userId, unitId);
   }
 
   @Post('admin/users/:userId/stages/:stageId/force-complete')
   @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
-  forceCompleteStage(@Param('userId') userId: string, @Param('stageId') stageId: string) {
+  forceCompleteStage(
+    @Param('userId') userId: string,
+    @Param('stageId') stageId: string,
+  ) {
     return this.progressService.forceCompleteStage(userId, stageId);
   }
 }

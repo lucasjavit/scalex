@@ -8,4 +8,3 @@ export interface Session {
   rooms: SessionRoom[];
   createdAt: Date;
 }
-

@@ -27,7 +27,13 @@ export class ReviewSession {
   @Column({ type: 'int', nullable: true, name: 'time_taken_seconds' })
   timeTakenSeconds: number;
 
-  @Column({ type: 'decimal', precision: 3, scale: 2, nullable: true, name: 'ease_factor_after' })
+  @Column({
+    type: 'decimal',
+    precision: 3,
+    scale: 2,
+    nullable: true,
+    name: 'ease_factor_after',
+  })
   easeFactorAfter: number;
 
   @Column({ type: 'int', nullable: true, name: 'interval_after' })

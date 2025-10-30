@@ -1,11 +1,4 @@
-import {
-    Body,
-    Controller,
-    Get,
-    Post,
-    Query,
-    Req,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { SubmitReviewDto } from '../dto/submit-review.dto';
 import { ReviewService } from '../services/review.service';
 
@@ -40,7 +33,10 @@ export class ReviewController {
   }
 
   @Get('stats')
-  getStats(@Query('period') period?: 'today' | 'week' | 'month', @Req() request?: any) {
+  getStats(
+    @Query('period') period?: 'today' | 'week' | 'month',
+    @Req() request?: any,
+  ) {
     const userId = this.getUserId(request);
     return this.reviewService.getReviewStats(userId, period);
   }

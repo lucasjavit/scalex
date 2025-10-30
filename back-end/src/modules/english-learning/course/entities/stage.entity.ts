@@ -1,9 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { AuditEntity } from '../../../../common/entities/audit.entity';
 import { Unit } from './unit.entity';
 import { UserStageProgress } from './user-stage-progress.entity';

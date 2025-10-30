@@ -1,11 +1,11 @@
 import {
-    Check,
-    Column,
-    CreateDateColumn,
-    Entity,
-    OneToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  Check,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Address } from './address.entity';
 import type { UserRole } from '../../common/types/user-roles.type';
@@ -19,59 +19,59 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ 
-    type: 'varchar', 
-    length: 128, 
-    unique: true, 
+  @Column({
+    type: 'varchar',
+    length: 128,
+    unique: true,
     nullable: false,
-    comment: 'Firebase Authentication UID - unique identifier'
+    comment: 'Firebase Authentication UID - unique identifier',
   })
   firebase_uid: string;
 
-  @Column({ 
-    type: 'varchar', 
-    length: 255, 
-    unique: true, 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    unique: true,
     nullable: false,
-    comment: 'User email from Firebase Auth'
+    comment: 'User email from Firebase Auth',
   })
   email: string;
 
-  @Column({ 
-    type: 'varchar', 
-    length: 255, 
+  @Column({
+    type: 'varchar',
+    length: 255,
     nullable: false,
-    comment: 'User full name'
+    comment: 'User full name',
   })
   full_name: string;
 
-  @Column({ 
-    type: 'date', 
+  @Column({
+    type: 'date',
     nullable: false,
-    comment: 'User date of birth'
+    comment: 'User date of birth',
   })
   birth_date: Date;
 
-  @Column({ 
-    type: 'varchar', 
-    length: 50, 
+  @Column({
+    type: 'varchar',
+    length: 50,
     nullable: false,
-    comment: 'Primary contact phone number'
+    comment: 'Primary contact phone number',
   })
   phone: string;
 
-  @Column({ 
-    type: 'varchar', 
-    length: 10, 
+  @Column({
+    type: 'varchar',
+    length: 10,
     nullable: false,
-    comment: 'User preferred language code (e.g., pt-BR, en-US)'
+    comment: 'User preferred language code (e.g., pt-BR, en-US)',
   })
   preferred_language: string;
 
   @Column({
     type: 'boolean',
     default: true,
-    comment: 'Soft delete flag - false means user is deactivated'
+    comment: 'Soft delete flag - false means user is deactivated',
   })
   is_active: boolean;
 
@@ -79,7 +79,8 @@ export class User {
     type: 'enum',
     enum: USER_ROLES,
     default: 'user',
-    comment: 'User role: user (default), admin, or partner_* (specific module partner)'
+    comment:
+      'User role: user (default), admin, or partner_* (specific module partner)',
   })
   role: UserRole;
 
@@ -89,15 +90,15 @@ export class User {
   })
   addresses: Address[];
 
-  @CreateDateColumn({ 
+  @CreateDateColumn({
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => 'CURRENT_TIMESTAMP',
   })
   created_at: Date;
 
-  @UpdateDateColumn({ 
+  @UpdateDateColumn({
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => 'CURRENT_TIMESTAMP',
   })
   updated_at: Date;
 }

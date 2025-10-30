@@ -29,7 +29,10 @@ export class ProgressService {
   // STAGE PROGRESS
   // ========================================
 
-  async startStage(userId: string, stageId: string): Promise<UserStageProgress> {
+  async startStage(
+    userId: string,
+    stageId: string,
+  ): Promise<UserStageProgress> {
     const existing = await this.userStageProgressRepository.findOne({
       where: { userId, stageId },
     });
@@ -46,14 +49,20 @@ export class ProgressService {
     return this.userStageProgressRepository.save(progress);
   }
 
-  async getStageProgress(userId: string, stageId: string): Promise<UserStageProgress | null> {
+  async getStageProgress(
+    userId: string,
+    stageId: string,
+  ): Promise<UserStageProgress | null> {
     return this.userStageProgressRepository.findOne({
       where: { userId, stageId },
       relations: ['stage'],
     });
   }
 
-  async completeStage(userId: string, stageId: string): Promise<UserStageProgress> {
+  async completeStage(
+    userId: string,
+    stageId: string,
+  ): Promise<UserStageProgress> {
     let progress = await this.getStageProgress(userId, stageId);
 
     if (!progress) {
@@ -73,7 +82,7 @@ export class ProgressService {
   async startUnit(userId: string, unitId: string): Promise<UserUnitProgress> {
     try {
       console.log('🔍 Looking for existing progress for:', { userId, unitId });
-      
+
       const existing = await this.userUnitProgressRepository.findOne({
         where: { userId, unitId },
       });
@@ -92,7 +101,7 @@ export class ProgressService {
       console.log('💾 Saving progress...');
       const saved = await this.userUnitProgressRepository.save(progress);
       console.log('✅ Progress saved successfully');
-      
+
       return saved;
     } catch (error) {
       console.error('❌ Error in startUnit:', error);
@@ -117,12 +126,15 @@ export class ProgressService {
     return this.userUnitProgressRepository.save(progress);
   }
 
-  async completeUnit(userId: string, unitId: string): Promise<{ cardsCreated: number }> {
+  async completeUnit(
+    userId: string,
+    unitId: string,
+  ): Promise<{ cardsCreated: number }> {
     // 1. Buscar unit e verificar se existe
     const unit = await this.unitsService.findOne(unitId);
 
     // 2. Buscar ou criar progresso
-    let progress = await this.userUnitProgressRepository.findOne({
+    const progress = await this.userUnitProgressRepository.findOne({
       where: { userId, unitId },
     });
 
@@ -148,12 +160,16 @@ export class ProgressService {
     let cardsCreated = 0;
 
     for (const card of cards) {
-      const existingCardProgress = await this.userCardProgressRepository.findOne({
-        where: { userId, cardId: card.id },
-      });
+      const existingCardProgress =
+        await this.userCardProgressRepository.findOne({
+          where: { userId, cardId: card.id },
+        });
 
       if (!existingCardProgress) {
-        const initialProgress = this.sm2Service.createInitialProgress(userId, card.id);
+        const initialProgress = this.sm2Service.createInitialProgress(
+          userId,
+          card.id,
+        );
         await this.userCardProgressRepository.save(initialProgress);
         cardsCreated++;
       }
@@ -189,7 +205,10 @@ export class ProgressService {
     await this.userUnitProgressRepository.save(progress);
   }
 
-  async getUnitProgress(userId: string, unitId: string): Promise<UserUnitProgress | null> {
+  async getUnitProgress(
+    userId: string,
+    unitId: string,
+  ): Promise<UserUnitProgress | null> {
     return this.userUnitProgressRepository.findOne({
       where: { userId, unitId },
       relations: ['unit'],
@@ -243,23 +262,29 @@ export class ProgressService {
 
   async resetUserProgress(userId: string): Promise<void> {
     console.log('🔄 Resetting progress for user:', userId);
-    
+
     // Delete user stage progress
-    const stagesResult = await this.userStageProgressRepository.delete({ userId });
+    const stagesResult = await this.userStageProgressRepository.delete({
+      userId,
+    });
     console.log('📊 Deleted stage progress:', stagesResult.affected || 0);
-    
+
     // Delete user unit progress
-    const unitsResult = await this.userUnitProgressRepository.delete({ userId });
+    const unitsResult = await this.userUnitProgressRepository.delete({
+      userId,
+    });
     console.log('📊 Deleted unit progress:', unitsResult.affected || 0);
-    
+
     // Delete user card progress
-    const cardsResult = await this.userCardProgressRepository.delete({ userId });
+    const cardsResult = await this.userCardProgressRepository.delete({
+      userId,
+    });
     console.log('📊 Deleted card progress:', cardsResult.affected || 0);
-    
+
     // Delete review sessions for this user
     const reviewsResult = await this.reviewSessionRepository.delete({ userId });
     console.log('📊 Deleted review sessions:', reviewsResult.affected || 0);
-    
+
     console.log('✅ Reset completed successfully');
   }
 
@@ -271,7 +296,10 @@ export class ProgressService {
     await this.userStageProgressRepository.delete({ userId, stageId });
   }
 
-  async forceCompleteUnit(userId: string, unitId: string): Promise<UserUnitProgress> {
+  async forceCompleteUnit(
+    userId: string,
+    unitId: string,
+  ): Promise<UserUnitProgress> {
     let progress = await this.userUnitProgressRepository.findOne({
       where: { userId, unitId },
     });
@@ -290,7 +318,10 @@ export class ProgressService {
     return this.userUnitProgressRepository.save(progress);
   }
 
-  async forceCompleteStage(userId: string, stageId: string): Promise<UserStageProgress> {
+  async forceCompleteStage(
+    userId: string,
+    stageId: string,
+  ): Promise<UserStageProgress> {
     let progress = await this.userStageProgressRepository.findOne({
       where: { userId, stageId },
     });

@@ -1,8 +1,8 @@
 import {
-    BadRequestException,
-    ConflictException,
-    Injectable,
-    NotFoundException,
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -28,7 +28,7 @@ export class UsersService {
     const birthDate = new Date(createUserDto.birth_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
-    
+
     if (birthDate > today) {
       throw new BadRequestException('Birth date cannot be in the future');
     }
@@ -214,7 +214,10 @@ export class UsersService {
   }
 
   // Admin: Update user role
-  async updateUserRole(userId: string, updateUserRoleDto: UpdateUserRoleDto): Promise<User> {
+  async updateUserRole(
+    userId: string,
+    updateUserRoleDto: UpdateUserRoleDto,
+  ): Promise<User> {
     const user = await this.findOne(userId);
 
     const oldRole = user.role;
@@ -222,7 +225,9 @@ export class UsersService {
 
     const updatedUser = await this.userRepository.save(user);
 
-    console.log(`[Admin] User ${userId} role changed: ${oldRole} → ${updateUserRoleDto.role}`);
+    console.log(
+      `[Admin] User ${userId} role changed: ${oldRole} → ${updateUserRoleDto.role}`,
+    );
 
     return updatedUser;
   }

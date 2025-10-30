@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { UserCardProgress, CardState } from '../entities/user-card-progress.entity';
+import {
+  UserCardProgress,
+  CardState,
+} from '../entities/user-card-progress.entity';
 import { ReviewResult } from '../entities/review-session.entity';
 
 interface Sm2Result {
@@ -18,10 +21,10 @@ export class Sm2Service {
   private readonly INITIAL_EASE_FACTOR = 2.5;
 
   // Intervalos em MINUTOS
-  private readonly WRONG_INTERVAL = 1;           // 1 minuto
-  private readonly HARD_INTERVAL = 10;           // 10 minutos
-  private readonly GOOD_INTERVAL_FIRST = 1440;   // 1 dia
-  private readonly EASY_INTERVAL_FIRST = 7200;   // 5 dias
+  private readonly WRONG_INTERVAL = 1; // 1 minuto
+  private readonly HARD_INTERVAL = 10; // 10 minutos
+  private readonly GOOD_INTERVAL_FIRST = 1440; // 1 dia
+  private readonly EASY_INTERVAL_FIRST = 7200; // 5 dias
 
   // Ajustes do ease_factor
   private readonly EASE_BONUS_EASY = 0.1;
@@ -141,7 +144,10 @@ export class Sm2Service {
   /**
    * Cria um novo progresso de card para um usuário
    */
-  createInitialProgress(userId: string, cardId: string): Partial<UserCardProgress> {
+  createInitialProgress(
+    userId: string,
+    cardId: string,
+  ): Partial<UserCardProgress> {
     return {
       userId,
       cardId,

@@ -21,7 +21,10 @@ export class ReviewService {
   /**
    * Busca cards disponíveis para revisão
    */
-  async getDueCards(userId: string, limit: number = this.CARDS_PER_SESSION): Promise<UserCardProgress[]> {
+  async getDueCards(
+    userId: string,
+    limit: number = this.CARDS_PER_SESSION,
+  ): Promise<UserCardProgress[]> {
     const now = new Date();
     const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
 
@@ -117,7 +120,10 @@ export class ReviewService {
   /**
    * Retorna estatísticas de revisão
    */
-  async getReviewStats(userId: string, period: 'today' | 'week' | 'month' = 'today'): Promise<any> {
+  async getReviewStats(
+    userId: string,
+    period: 'today' | 'week' | 'month' = 'today',
+  ): Promise<any> {
     const now = new Date();
     let startDate: Date;
 
@@ -153,8 +159,12 @@ export class ReviewService {
     };
 
     // Tempo médio por card
-    const timeTakenSum = reviews.reduce((sum, r) => sum + (r.timeTakenSeconds || 0), 0);
-    const averageTime = reviews.length > 0 ? Math.round(timeTakenSum / reviews.length) : 0;
+    const timeTakenSum = reviews.reduce(
+      (sum, r) => sum + (r.timeTakenSeconds || 0),
+      0,
+    );
+    const averageTime =
+      reviews.length > 0 ? Math.round(timeTakenSum / reviews.length) : 0;
 
     return {
       totalReviews: reviews.length,

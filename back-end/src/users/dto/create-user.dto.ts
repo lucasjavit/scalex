@@ -1,15 +1,15 @@
 import { Type } from 'class-transformer';
 import {
-    IsArray,
-    IsDateString,
-    IsEmail,
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    Length,
-    Matches,
-    MaxLength,
-    ValidateNested,
+  IsArray,
+  IsDateString,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  MaxLength,
+  ValidateNested,
 } from 'class-validator';
 import { CreateAddressDto } from './create-address.dto';
 
@@ -46,7 +46,9 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @Length(2, 10, { message: 'Preferred language must be between 2 and 10 characters' })
+  @Length(2, 10, {
+    message: 'Preferred language must be between 2 and 10 characters',
+  })
   preferred_language: string;
 
   @IsArray()

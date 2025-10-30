@@ -19,4 +19,3 @@ export class CreateRoomDto {
   @IsOptional()
   duration?: number;
 }
-

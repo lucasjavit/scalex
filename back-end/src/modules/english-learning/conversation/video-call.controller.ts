@@ -1,14 +1,14 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpException,
-    HttpStatus,
-    Param,
-    Post,
-    Put,
-    UseGuards,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinQueueDto } from './dto/join-queue.dto';
@@ -261,7 +261,7 @@ export class VideoCallController {
   @Post('queue/join')
   async joinQueue(@Body() joinQueueDto: JoinQueueDto) {
     try {
-      const result = this.queueService.joinQueue(joinQueueDto);
+      const result = await this.queueService.joinQueue(joinQueueDto);
       return {
         success: result.success,
         message: result.message,
@@ -286,7 +286,7 @@ export class VideoCallController {
   @Delete('queue/leave/:userId')
   async leaveQueue(@Param('userId') userId: string) {
     try {
-      const result = this.queueService.leaveQueue(userId);
+      const result = await this.queueService.leaveQueue(userId);
       return {
         success: result.success,
         message: result.message,
@@ -307,7 +307,7 @@ export class VideoCallController {
   @Get('queue/status/:userId')
   async getQueueStatus(@Param('userId') userId: string) {
     try {
-      const status = this.queueService.getQueueStatus(userId);
+      const status = await this.queueService.getQueueStatus(userId);
       return {
         success: true,
         data: status,
@@ -328,7 +328,7 @@ export class VideoCallController {
   @Get('queue')
   async getQueue() {
     try {
-      const queue = this.queueService.getQueue();
+      const queue = await this.queueService.getQueue();
       return {
         success: true,
         data: queue,
@@ -350,7 +350,7 @@ export class VideoCallController {
   @Get('sessions')
   async getSessions() {
     try {
-      const sessions = this.queueService.getAllSessions();
+      const sessions = await this.queueService.getAllSessions();
       return {
         success: true,
         data: sessions,
@@ -501,9 +501,15 @@ export class VideoCallController {
 
   // POST /video-call/admin/add-period - Add custom period
   @Post('admin/add-period')
-  async addCustomPeriod(@Body() body: { start: { hour: number; minute: number }; end: { hour: number; minute: number } }) {
+  async addCustomPeriod(
+    @Body()
+    body: {
+      start: { hour: number; minute: number };
+      end: { hour: number; minute: number };
+    },
+  ) {
     try {
-      const result = this.queueService.addCustomPeriod(body);
+      const result = await this.queueService.addCustomPeriod(body);
       return {
         success: result.success,
         message: result.message,
@@ -524,7 +530,7 @@ export class VideoCallController {
   @Delete('admin/remove-period/:index')
   async removeCustomPeriod(@Param('index') index: string) {
     try {
-      const result = this.queueService.removeCustomPeriod(parseInt(index, 10));
+      const result = await this.queueService.removeCustomPeriod(parseInt(index, 10));
       return {
         success: result.success,
         message: result.message,
@@ -559,4 +565,3 @@ export class VideoCallController {
     }
   }
 }
-

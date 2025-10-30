@@ -15,4 +15,3 @@ export interface VideoCallRoom {
   status: 'waiting' | 'active' | 'ended';
   duration: number;
 }
-

@@ -84,9 +84,15 @@ describe('ProgressService', () => {
     }).compile();
 
     service = module.get<ProgressService>(ProgressService);
-    userStageProgressRepository = module.get(getRepositoryToken(UserStageProgress));
-    userUnitProgressRepository = module.get(getRepositoryToken(UserUnitProgress));
-    userCardProgressRepository = module.get(getRepositoryToken(UserCardProgress));
+    userStageProgressRepository = module.get(
+      getRepositoryToken(UserStageProgress),
+    );
+    userUnitProgressRepository = module.get(
+      getRepositoryToken(UserUnitProgress),
+    );
+    userCardProgressRepository = module.get(
+      getRepositoryToken(UserCardProgress),
+    );
     unitsService = module.get<UnitsService>(UnitsService);
     cardsService = module.get<CardsService>(CardsService);
     sm2Service = module.get<Sm2Service>(Sm2Service);
@@ -141,7 +147,9 @@ describe('ProgressService', () => {
         startedAt: new Date(),
       };
 
-      mockUserStageProgressRepository.findOne.mockResolvedValue(existingProgress);
+      mockUserStageProgressRepository.findOne.mockResolvedValue(
+        existingProgress,
+      );
 
       const result = await service.startStage(userId, stageId);
 
@@ -166,13 +174,19 @@ describe('ProgressService', () => {
         watchTimeSeconds: 60,
       };
 
-      mockUserUnitProgressRepository.findOne.mockResolvedValue(existingProgress);
+      mockUserUnitProgressRepository.findOne.mockResolvedValue(
+        existingProgress,
+      );
       mockUserUnitProgressRepository.save.mockResolvedValue({
         ...existingProgress,
         watchTimeSeconds,
       });
 
-      const result = await service.updateWatchTime(userId, unitId, watchTimeSeconds);
+      const result = await service.updateWatchTime(
+        userId,
+        unitId,
+        watchTimeSeconds,
+      );
 
       expect(result.watchTimeSeconds).toBe(watchTimeSeconds);
       expect(mockUserUnitProgressRepository.save).toHaveBeenCalled();
@@ -195,7 +209,11 @@ describe('ProgressService', () => {
         watchTimeSeconds,
       });
 
-      const result = await service.updateWatchTime(userId, unitId, watchTimeSeconds);
+      const result = await service.updateWatchTime(
+        userId,
+        unitId,
+        watchTimeSeconds,
+      );
 
       expect(result.watchTimeSeconds).toBe(watchTimeSeconds);
     });
@@ -346,7 +364,9 @@ describe('ProgressService', () => {
         stageId,
         isCompleted: false,
       };
-      mockUserStageProgressRepository.findOne.mockResolvedValue(mockStageProgress);
+      mockUserStageProgressRepository.findOne.mockResolvedValue(
+        mockStageProgress,
+      );
       mockUserStageProgressRepository.save.mockResolvedValue({
         ...mockStageProgress,
         isCompleted: true,

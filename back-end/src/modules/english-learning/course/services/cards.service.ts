@@ -41,7 +41,7 @@ export class CardsService {
   async create(data: Partial<Card>, userId: string): Promise<Card> {
     const orderIndex = data.orderIndex || 1;
     const unitId = data.unitId;
-    
+
     // Reorganizar cards existentes do mesmo unit: incrementar os que estão >= orderIndex
     if (unitId) {
       const existingCards = await this.cardsRepository.find({
@@ -49,10 +49,12 @@ export class CardsService {
         order: { orderIndex: 'ASC' },
       });
 
-      const cardsToUpdate = existingCards.filter(c => c.orderIndex >= orderIndex);
-      
+      const cardsToUpdate = existingCards.filter(
+        (c) => c.orderIndex >= orderIndex,
+      );
+
       if (cardsToUpdate.length > 0) {
-        cardsToUpdate.forEach(c => {
+        cardsToUpdate.forEach((c) => {
           c.orderIndex += 1;
         });
         await this.cardsRepository.save(cardsToUpdate);
@@ -71,7 +73,12 @@ export class CardsService {
 
     // Se está mudando o orderIndex, reorganizar outros cards do mesmo unit
     if (data.orderIndex !== undefined && data.orderIndex !== card.orderIndex) {
-      await this.reorderCards(id, card.unitId, card.orderIndex, data.orderIndex);
+      await this.reorderCards(
+        id,
+        card.unitId,
+        card.orderIndex,
+        data.orderIndex,
+      );
     }
 
     Object.assign(card, data);
@@ -86,7 +93,12 @@ export class CardsService {
    * @param oldIndex - Índice antigo
    * @param newIndex - Novo índice
    */
-  private async reorderCards(cardId: string, unitId: string, oldIndex: number, newIndex: number): Promise<void> {
+  private async reorderCards(
+    cardId: string,
+    unitId: string,
+    oldIndex: number,
+    newIndex: number,
+  ): Promise<void> {
     // Buscar todos os cards do mesmo unit, não deletados, exceto o que está sendo movido
     const cards = await this.cardsRepository.find({
       where: { unitId, deletedAt: IsNull() },
@@ -94,7 +106,7 @@ export class CardsService {
     });
 
     // Filtrar o card que está sendo movido
-    const otherCards = cards.filter(c => c.id !== cardId);
+    const otherCards = cards.filter((c) => c.id !== cardId);
 
     // Reorganizar os índices
     if (newIndex > oldIndex) {

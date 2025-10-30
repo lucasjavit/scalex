@@ -31,7 +31,9 @@ export class UserStageProgress {
   completedAt: Date;
 
   // Relations
-  @ManyToOne(() => Stage, (stage) => stage.userProgress, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Stage, (stage) => stage.userProgress, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'stage_id' })
   stage: Stage;
 }
