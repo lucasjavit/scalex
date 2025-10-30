@@ -152,7 +152,7 @@ class VideoCallService {
       // console.log('User ID:', userId);
 
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/statistics/${userId}`, {
+      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/statistics/${userId}`, {
         method: 'GET',
         headers,
       });
@@ -195,7 +195,7 @@ class VideoCallService {
       // console.log('Preferences:', preferences);
 
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/queue/join`, {
+      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/queue/join`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -230,7 +230,7 @@ class VideoCallService {
       // console.log('User ID:', userId);
 
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/queue/leave/${userId}`, {
+      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/queue/leave/${userId}`, {
         method: 'DELETE',
         headers,
       });
@@ -256,7 +256,7 @@ class VideoCallService {
   async getQueueStatus(userId) {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/queue/status/${userId}`, {
+      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/queue/status/${userId}`, {
         method: 'GET',
         headers,
       });
@@ -279,7 +279,7 @@ class VideoCallService {
   async getQueue() {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/queue`, {
+      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/queue`, {
         method: 'GET',
         headers,
       });
@@ -348,7 +348,7 @@ class VideoCallService {
   async getSystemStatus() {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/system-status`, {
+      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/system-status`, {
         method: 'GET',
         headers,
       });
