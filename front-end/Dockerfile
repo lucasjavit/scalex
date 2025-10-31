@@ -47,8 +47,19 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Expor porta 80
 EXPOSE 80
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+# Health check mais robusto
+HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+# Adicionar script de inicialização para debug
+RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
+    echo 'echo "Starting Nginx..."' >> /docker-entrypoint.sh && \
+    echo 'echo "Checking if files exist..."' >> /docker-entrypoint.sh && \
+    echo 'ls -la /usr/share/nginx/html/' >> /docker-entrypoint.sh && \
+    echo 'echo "Testing nginx configuration..."' >> /docker-entrypoint.sh && \
+    echo 'nginx -t' >> /docker-entrypoint.sh && \
+    echo 'echo "Starting nginx daemon..."' >> /docker-entrypoint.sh && \
+    echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint.sh && \
+    chmod +x /docker-entrypoint.sh
+
+CMD ["/docker-entrypoint.sh"]
