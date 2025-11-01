@@ -1,23 +1,23 @@
 # 🎥 Video Call Module
 
-Módulo de videochamada para prática de inglês usando Jitsi Meet.
+Módulo de videochamada para prática de inglês usando Daily.co.
 
 ## 🚀 Funcionalidades
 
 ### ✅ Implementadas
 - **Dashboard**: Página principal com estatísticas e ações
 - **Matching**: Sistema de busca de parceiros de conversa
-- **Video Call**: Interface de videochamada com Jitsi Meet
+- **Video Call**: Interface de videochamada com Daily.co
 - **Tópicos de Conversa**: 8 categorias diferentes de tópicos
 - **Estatísticas**: Contagem de chamadas e tempo de prática
 - **Responsivo**: Design adaptável para mobile e desktop
 
 ### 🔧 Tecnologias Utilizadas
-- **Jitsi Meet**: Plataforma de videochamada open source
+- **Daily.co**: Plataforma de videochamada SaaS (30k minutos/mês grátis)
 - **React**: Interface de usuário
 - **React Router**: Navegação
 - **Tailwind CSS**: Estilização
-- **LocalStorage**: Armazenamento local de sessões
+- **@daily-co/daily-js**: SDK oficial do Daily.co
 
 ## 📁 Estrutura do Módulo
 
@@ -65,20 +65,21 @@ video-call/
 7. **📚 Books & Literature** - Livros e literatura
 8. **💼 Career & Work** - Carreira e trabalho
 
-## ⚙️ Configuração do Jitsi Meet
+## ⚙️ Configuração do Daily.co
 
 ### Configurações Aplicadas
 - **Áudio**: Habilitado por padrão
 - **Vídeo**: Habilitado por padrão
-- **Qualidade**: 720p
-- **Controles**: Interface personalizada
-- **Branding**: Removido (sem marca d'água)
+- **Screen Share**: Habilitado
+- **Chat**: Habilitado
+- **Máximo de Participantes**: 4 (plano gratuito)
+- **Interface**: Personalizada com controles customizados
 
 ### Personalizações
-- Interface em português
-- Controles customizados
-- Tema personalizado
-- Sem página de boas-vindas
+- Botão de sair customizado
+- Contador de participantes
+- Interface integrada com o tema da aplicação
+- Gerenciamento automático de salas via backend
 
 ## 📊 Estatísticas
 
@@ -98,14 +99,16 @@ const topics = [
 ];
 ```
 
-### Personalizando Jitsi Meet
+### Personalizando Daily.co
 ```javascript
-// Em VideoCall.jsx
-const options = {
-  configOverwrite: {
-    // Suas configurações aqui
-  }
-};
+// Em VideoCallDaily.jsx
+await dailyFrameRef.current.join({
+  url: roomUrl,
+  token: token,
+  showFullscreenButton: true,
+  showLocalVideo: true,
+  // Outras opções...
+});
 ```
 
 ## 🚀 Próximas Funcionalidades
@@ -130,17 +133,19 @@ const options = {
 ### Logs de Debug
 ```javascript
 // Ativar logs detalhados
-console.log('Jitsi API loaded:', window.JitsiMeetExternalAPI);
+console.log('Daily.co room URL:', roomUrl);
+console.log('Daily.co token:', token);
 console.log('Room name:', roomName);
 console.log('User info:', user);
 ```
 
 ## 📝 Notas Importantes
 
-- **Gratuito**: Usa Jitsi Meet gratuito (meet.jit.si)
-- **Sem Limitações**: Sem restrições de tempo ou usuários
-- **Privacidade**: Dados armazenados localmente
+- **Gratuito**: Usa Daily.co com plano gratuito (30.000 minutos/mês)
+- **Limite Gratuito**: Até 30.000 minutos/mês, depois é necessário upgrade
+- **Privacidade**: Salas privadas criadas sob demanda
 - **Compatibilidade**: Funciona em todos os navegadores modernos
+- **Infraestrutura**: Gerenciada pelo Daily.co (não requer servidores próprios)
 
 ## 🤝 Contribuição
 

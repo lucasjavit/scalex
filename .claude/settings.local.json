@@ -27,7 +27,16 @@
       "Bash(npm run migration:show:*)",
       "Bash(npm install:*)",
       "Bash(git log:*)",
-      "Bash(timeout /t 3 /nobreak)"
+      "Bash(timeout /t 3 /nobreak)",
+      "Bash(cmd /c taskkill /PID 26188 /F)",
+      "Bash(cmd /c \"netstat -ano | findstr :3000\")",
+      "Bash(cmd //c taskkill //IM node.exe //F)",
+      "Bash(powershell -Command \"Stop-Process -Id 26188 -Force\")",
+      "Bash(powershell -Command:*)",
+      "Bash(timeout 5 bash:*)",
+      "Bash(docker logs:*)",
+      "Bash(timeout /t 2 /nobreak)",
+      "Bash(npm run migration:generate:*)"
     ],
     "deny": [],
     "ask": []

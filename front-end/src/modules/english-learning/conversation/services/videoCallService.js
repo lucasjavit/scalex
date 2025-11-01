@@ -242,10 +242,41 @@ class VideoCallService {
       const result = await response.json();
       // console.log('Queue leave result:', result);
       // console.log('=== END LEAVING QUEUE ===');
-      
+
       return result;
     } catch (error) {
       console.error('Error leaving queue:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Leave current active session
+   */
+  async leaveSession(userId, shouldRejoinQueue = false) {
+    try {
+      console.log('=== LEAVING SESSION VIA API ===');
+      console.log('User ID:', userId);
+      console.log('Should rejoin queue:', shouldRejoinQueue);
+
+      const headers = await this.getAuthHeaders();
+      const url = `${this.baseURL}/api/english-learning/video-call/session/leave/${userId}?shouldRejoinQueue=${shouldRejoinQueue}`;
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Session leave result:', result);
+      console.log('=== END LEAVING SESSION ===');
+
+      return result;
+    } catch (error) {
+      console.error('Error leaving session:', error);
       throw error;
     }
   }
@@ -362,6 +393,29 @@ class VideoCallService {
     } catch (error) {
       console.error('Error getting system status:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Check if user's session is still active
+   */
+  async checkSessionStatus(userId) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/session/check/${userId}`, {
+        method: 'GET',
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result.data.isActive;
+    } catch (error) {
+      console.error('Error checking session status:', error);
+      return false;
     }
   }
 }

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../auth-social/context/AuthContext';
-import VideoCallSimple from '../components/VideoCallSimple';
+import VideoCall from '../components/VideoCall';
 import videoCallService from '../services/videoCallService';
 
 const VideoCallRoom = () => {
@@ -18,6 +18,9 @@ const VideoCallRoom = () => {
   const [callStarted, setCallStarted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes in seconds
   const [showTimeWarning, setShowTimeWarning] = useState(false);
+  const isEndingCallRef = useRef(false); // Prevent multiple calls to handleEndCall
+  const durationIntervalRef = useRef(null); // Store interval reference
+  const sessionCheckIntervalRef = useRef(null); // Store interval reference
 
   useEffect(() => {
     // Get data from navigation state
@@ -27,43 +30,49 @@ const VideoCallRoom = () => {
       setRandomTopic(location.state.randomTopic);
     }
 
-    // Start call tracking when component mounts
-    const startCallTracking = async () => {
-      if (user && !callStarted) {
-        try {
-          await videoCallService.startVideoCallSession(roomId, user.uid);
-          setCallStarted(true);
-        } catch (error) {
-          console.error('Error starting call tracking:', error);
-        }
-      }
-    };
-
-    startCallTracking();
+    // Mark that call has started (no API call needed for queue-created rooms)
+    if (user && !callStarted) {
+      setCallStarted(true);
+    }
 
     // Start call duration timer
-    const interval = setInterval(() => {
+    durationIntervalRef.current = setInterval(() => {
       setCallDuration(prev => prev + 1);
       setTimeRemaining(prev => {
         const newTime = prev - 1;
-        
+
         // Show warning when 5 minutes (300 seconds) remaining
         if (newTime === 300 && !showTimeWarning) {
           setShowTimeWarning(true);
         }
-        
+
         // Auto-end call when time runs out
         if (newTime <= 0) {
           handleEndCall();
           return 0;
         }
-        
+
         return newTime;
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [location.state, user, roomId, callStarted]);
+    // Poll every 2 seconds to check if session is still active
+    // If partner left, backend will have removed both users from session
+    sessionCheckIntervalRef.current = setInterval(async () => {
+      if (user && callStarted && !isEndingCallRef.current) {
+        const isActive = await videoCallService.checkSessionStatus(user.uid);
+        if (!isActive && !isEndingCallRef.current) {
+          console.log('Session no longer active - partner left. Redirecting to queue...');
+          handlePartnerLeft();
+        }
+      }
+    }, 2000);
+
+    return () => {
+      if (durationIntervalRef.current) clearInterval(durationIntervalRef.current);
+      if (sessionCheckIntervalRef.current) clearInterval(sessionCheckIntervalRef.current);
+    };
+  }, [location.state, user, callStarted]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -77,19 +86,67 @@ const VideoCallRoom = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleEndCall = async () => {
+  // Called when partner leaves - this user was automatically added to queue by backend
+  const handlePartnerLeft = useCallback(async () => {
+    // Prevent multiple calls
+    if (isEndingCallRef.current) {
+      console.log('Already handling partner left, skipping...');
+      return;
+    }
+
+    isEndingCallRef.current = true;
+
+    // IMMEDIATELY clear intervals to prevent them from running after navigation
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+      durationIntervalRef.current = null;
+    }
+    if (sessionCheckIntervalRef.current) {
+      clearInterval(sessionCheckIntervalRef.current);
+      sessionCheckIntervalRef.current = null;
+    }
+
+    // Partner who did NOT click "End Call" was automatically added to queue by backend
+    // So just redirect to waiting-queue without calling leaveSession
+    console.log('Partner left - you were automatically added to queue. Redirecting to waiting-queue...');
+    navigate('/video-call/waiting-queue');
+  }, [navigate]);
+
+  const handleEndCall = useCallback(async () => {
+    // Prevent multiple calls
+    if (isEndingCallRef.current) {
+      console.log('Already ending call, skipping...');
+      return;
+    }
+
+    isEndingCallRef.current = true;
+
+    // IMMEDIATELY clear intervals to prevent them from running after navigation
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+      durationIntervalRef.current = null;
+    }
+    if (sessionCheckIntervalRef.current) {
+      clearInterval(sessionCheckIntervalRef.current);
+      sessionCheckIntervalRef.current = null;
+    }
+
     try {
-      // End call tracking
+      // Remove user from active session
+      // shouldRejoinQueue=false means this user clicked "End Call" and goes to dashboard
+      // The backend will automatically add the PARTNER to the queue
       if (user && callStarted) {
-        await videoCallService.endVideoCallSession(roomId, callDuration);
+        await videoCallService.leaveSession(user.uid, false);
+        console.log('Successfully left session - redirecting to dashboard');
       }
     } catch (error) {
-      console.error('Error ending call tracking:', error);
+      console.error('Error leaving session:', error);
+      // Continue navigation even if API call fails
     }
-    
-    // Return to dashboard
+
+    // User who clicked "End Call" returns to dashboard
     navigate('/video-call');
-  };
+  }, [user, callStarted, navigate]);
 
   const handleUserJoined = (participant) => {
     setParticipants(prev => prev + 1);
@@ -256,7 +313,7 @@ const VideoCallRoom = () => {
 
       {/* Video Call Component */}
       <div className="flex-1 relative">
-        <VideoCallSimple
+        <VideoCall
           roomName={roomId}
           onEndCall={handleEndCall}
           onUserJoined={handleUserJoined}

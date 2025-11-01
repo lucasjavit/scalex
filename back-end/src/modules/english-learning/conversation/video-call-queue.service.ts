@@ -17,6 +17,7 @@ import {
   SessionStatus,
 } from './entities/video-call-session.entity';
 import { VideoCallActivePeriod } from './entities/video-call-active-period.entity';
+import { VideoCallDailyService } from './video-call-daily.service';
 
 @Injectable()
 export class VideoCallQueueService implements OnModuleInit {
@@ -51,18 +52,28 @@ export class VideoCallQueueService implements OnModuleInit {
     private sessionRepository: Repository<VideoCallSession>,
     @InjectRepository(VideoCallActivePeriod)
     private periodRepository: Repository<VideoCallActivePeriod>,
+    private readonly dailyService: VideoCallDailyService,
   ) {
-    this.loadPeriodsFromDatabase(); // Load periods on startup
-    this.startSessionTimer();
+    // Constructor should not call async functions or start timers
+    // These will be initialized in onModuleInit
   }
 
   /**
    * Hook executado quando o módulo é inicializado
-   * Limpa sessões expiradas que podem ter ficado ativas após restart
+   * Carrega períodos do banco e limpa sessões expiradas
    */
   async onModuleInit() {
     this.logger.log('🔧 Initializing VideoCallQueueService...');
+
+    // Load periods from database FIRST
+    await this.loadPeriodsFromDatabase();
+
+    // Then clean up expired sessions
     await this.cleanupExpiredSessions();
+
+    // Finally start the session timer with correct periods
+    this.startSessionTimer();
+
     this.logger.log('✅ VideoCallQueueService initialized');
   }
 
@@ -113,7 +124,9 @@ export class VideoCallQueueService implements OnModuleInit {
           this.userSessions.delete(session.user2Id);
         }
 
-        this.logger.log(`✅ Cleaned up ${expiredSessions.length} expired sessions`);
+        this.logger.log(
+          `✅ Cleaned up ${expiredSessions.length} expired sessions`,
+        );
       }
     } catch (error) {
       this.logger.error('❌ Error cleaning up expired sessions:', error);
@@ -403,9 +416,7 @@ export class VideoCallQueueService implements OnModuleInit {
       const queueSize = await this.queueRepository.count({
         where: { status: QueueStatus.WAITING },
       });
-      this.logger.log(
-        `👋 User ${userId} left queue. Queue size: ${queueSize}`,
-      );
+      this.logger.log(`👋 User ${userId} left queue. Queue size: ${queueSize}`);
 
       return {
         success: true,
@@ -418,6 +429,139 @@ export class VideoCallQueueService implements OnModuleInit {
         message: 'Erro ao sair da fila. Tente novamente.',
       };
     }
+  }
+
+  /**
+   * Remove um usuário de uma sessão ativa manualmente
+   */
+  async leaveSession(
+    userId: string,
+    shouldRejoinQueue: boolean = false,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    partnerId?: string;
+    partnerLevel?: string;
+    roomName?: string;
+  }> {
+    const sessionId = this.userSessions.get(userId);
+
+    if (!sessionId) {
+      this.logger.log(
+        `❌ User ${userId} tried to leave session but is not in any session`,
+      );
+      return {
+        success: false,
+        message: 'Você não está em uma sessão ativa',
+      };
+    }
+
+    const session = this.sessions.get(sessionId);
+    if (!session) {
+      // Session doesn't exist, just remove user mapping
+      this.userSessions.delete(userId);
+      return {
+        success: true,
+        message: 'Você saiu da sessão',
+      };
+    }
+
+    try {
+      // Find the room for this user
+      const room = session.rooms.find(
+        (r) => r.user1 === userId || r.user2 === userId,
+      );
+
+      if (room) {
+        // Get partner ID
+        const partnerId = room.user1 === userId ? room.user2 : room.user1;
+        const partnerLevel = room.level;
+
+        // Mark room as ended
+        room.status = 'ended';
+        room.endedAt = new Date();
+        this.sessionRooms.set(room.roomName, room);
+
+        // Remove both users from the session
+        this.userSessions.delete(room.user1);
+        this.userSessions.delete(room.user2);
+
+        // Update session in database
+        await this.sessionRepository.update(
+          { roomName: room.roomName },
+          { status: SessionStatus.COMPLETED, expiresAt: new Date() },
+        );
+
+        this.logger.log(
+          `👋 User ${userId} left session ${sessionId}. Room ${room.roomName} ended. Partner: ${partnerId}`,
+        );
+
+        // If this user should NOT rejoin queue, but partner should
+        if (!shouldRejoinQueue) {
+          // Add partner to queue automatically
+          this.logger.log(
+            `🔄 Auto-adding partner ${partnerId} to queue (level: ${partnerLevel})`,
+          );
+          await this.joinQueue({
+            userId: partnerId,
+            level: partnerLevel,
+            topic: 'random',
+            language: 'en',
+          });
+        }
+
+        // Check if all rooms in session are ended
+        const allRoomsEnded = session.rooms.every((r) => r.status === 'ended');
+        if (allRoomsEnded) {
+          session.status = 'ended';
+          session.endTime = new Date();
+          this.logger.log(`Session ${sessionId} fully ended`);
+        }
+
+        // Delete Daily.co room
+        try {
+          await this.dailyService.deleteRoom(room.roomName);
+          this.logger.log(`🗑️ Deleted Daily.co room: ${room.roomName}`);
+        } catch (error) {
+          this.logger.warn(
+            `Failed to delete Daily.co room ${room.roomName}:`,
+            error.message,
+          );
+        }
+
+        return {
+          success: true,
+          message: 'Você saiu da sessão',
+          partnerId,
+          partnerLevel,
+          roomName: room.roomName,
+        };
+      }
+
+      return {
+        success: true,
+        message: 'Você saiu da sessão',
+      };
+    } catch (error) {
+      this.logger.error(`Error removing user ${userId} from session:`, error);
+      return {
+        success: false,
+        message: 'Erro ao sair da sessão. Tente novamente.',
+      };
+    }
+  }
+
+  /**
+   * Verifica se a sessão do usuário ainda está ativa
+   */
+  isUserInActiveSession(userId: string): boolean {
+    const sessionId = this.userSessions.get(userId);
+    if (!sessionId) {
+      return false;
+    }
+
+    const session = this.sessions.get(sessionId);
+    return session?.status === 'active';
   }
 
   /**
@@ -604,6 +748,26 @@ export class VideoCallQueueService implements OnModuleInit {
         const user2 = users[i + 1];
 
         const roomName = `room_${sessionId}_${level}_${i / 2}`;
+
+        // Create Daily.co room for scheduled session
+        try {
+          await this.dailyService.createRoom(roomName, {
+            maxParticipants: 2,
+            enableScreenshare: true,
+            enableChat: true,
+            expiresIn: this.SESSION_DURATION / 1000, // Convert ms to seconds
+          });
+          this.logger.log(
+            `✅ Created Daily.co room for scheduled session: ${roomName}`,
+          );
+        } catch (error) {
+          this.logger.error(
+            `❌ Failed to create Daily.co room ${roomName}:`,
+            error.message,
+          );
+          // Continue anyway - session will be created but video might not work
+        }
+
         const room: SessionRoom = {
           roomName,
           sessionId,
@@ -987,6 +1151,25 @@ export class VideoCallQueueService implements OnModuleInit {
 
         const sessionId = `session_${Date.now()}`;
         const roomName = `room_${sessionId}_${level}_immediate`;
+
+        // Create Daily.co room for immediate match
+        try {
+          await this.dailyService.createRoom(roomName, {
+            maxParticipants: 2,
+            enableScreenshare: true,
+            enableChat: true,
+            expiresIn: this.SESSION_DURATION / 1000, // Convert ms to seconds
+          });
+          this.logger.log(
+            `✅ Created Daily.co room for immediate match: ${roomName}`,
+          );
+        } catch (error) {
+          this.logger.error(
+            `❌ Failed to create Daily.co room ${roomName}:`,
+            error.message,
+          );
+          // Continue anyway - session will be created but video might not work
+        }
 
         const room: SessionRoom = {
           roomName,
@@ -1421,5 +1604,116 @@ export class VideoCallQueueService implements OnModuleInit {
       };
     }
   }
-}
 
+  /**
+   * Cleanup orphaned Daily.co rooms
+   * Runs every 6 hours at :00 minutes
+   */
+  @Cron('0 */6 * * *')
+  async cleanupOrphanedRooms(): Promise<void> {
+    this.logger.log('🧹 Starting orphaned room cleanup job...');
+
+    try {
+      // Get all active sessions from database
+      const activeSessions = await this.sessionRepository.find({
+        where: { status: SessionStatus.ACTIVE },
+        select: ['roomName'],
+      });
+
+      const activeRoomNames = new Set(
+        activeSessions.map((session) => session.roomName),
+      );
+
+      this.logger.log(
+        `Found ${activeRoomNames.size} active rooms in database`,
+      );
+
+      // Get all rooms from Daily.co (Note: Daily.co API might paginate, but for now we'll keep it simple)
+      // In production, you might want to implement pagination
+      const allDailyRooms = await this.dailyService.getAllRooms();
+
+      if (!allDailyRooms || allDailyRooms.length === 0) {
+        this.logger.log('No rooms found in Daily.co');
+        return;
+      }
+
+      this.logger.log(`Found ${allDailyRooms.length} rooms in Daily.co`);
+
+      // Find orphaned rooms (rooms in Daily.co but not in our active sessions)
+      const orphanedRooms = allDailyRooms.filter(
+        (room) => !activeRoomNames.has(room.name),
+      );
+
+      if (orphanedRooms.length === 0) {
+        this.logger.log('✅ No orphaned rooms found');
+        return;
+      }
+
+      this.logger.log(
+        `🗑️  Found ${orphanedRooms.length} orphaned rooms to delete`,
+      );
+
+      // Delete orphaned rooms
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const room of orphanedRooms) {
+        try {
+          await this.dailyService.deleteRoom(room.name);
+          successCount++;
+          this.logger.log(`🗑️  Deleted orphaned room: ${room.name}`);
+        } catch (error) {
+          errorCount++;
+          this.logger.warn(
+            `Failed to delete orphaned room ${room.name}:`,
+            error.message,
+          );
+        }
+      }
+
+      this.logger.log(
+        `✅ Orphaned room cleanup completed: ${successCount} deleted, ${errorCount} errors`,
+      );
+    } catch (error) {
+      this.logger.error('Error during orphaned room cleanup:', error.message);
+    }
+  }
+
+  /**
+   * Garbage collection for old data (>30 days)
+   * Runs daily at 3 AM
+   */
+  @Cron('0 3 * * *')
+  async cleanupOldData(): Promise<void> {
+    this.logger.log('🧹 Starting old data garbage collection...');
+
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      // Delete old completed/expired sessions
+      const deletedSessions = await this.sessionRepository.delete({
+        status: In([SessionStatus.COMPLETED, SessionStatus.EXPIRED]),
+        createdAt: LessThan(thirtyDaysAgo),
+      });
+
+      this.logger.log(
+        `🗑️  Deleted ${deletedSessions.affected || 0} old sessions (>30 days)`,
+      );
+
+      // Delete old expired queue entries
+      const deletedQueueEntries = await this.queueRepository.delete({
+        status: In([QueueStatus.EXPIRED, QueueStatus.MATCHED]),
+        createdAt: LessThan(thirtyDaysAgo),
+      });
+
+      this.logger.log(
+        `🗑️  Deleted ${deletedQueueEntries.affected || 0} old queue entries (>30 days)`,
+      );
+
+      this.logger.log('✅ Old data garbage collection completed');
+    } catch (error) {
+      this.logger.error('Error during old data cleanup:', error.message);
+    }
+  }
+}

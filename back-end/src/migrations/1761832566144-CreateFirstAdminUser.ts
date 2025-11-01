@@ -58,7 +58,9 @@ export class CreateFirstAdminUser1761832566144 implements MigrationInterface {
     `);
 
     console.log('✅ Email vyeiralucas@gmail.com configurado como admin');
-    console.log('📧 O usuário será criado/atualizado no primeiro login via Firebase');
+    console.log(
+      '📧 O usuário será criado/atualizado no primeiro login via Firebase',
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

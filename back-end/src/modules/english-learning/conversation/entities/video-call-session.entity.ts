@@ -14,6 +14,8 @@ export enum SessionStatus {
 }
 
 @Entity('video_call_sessions')
+@Index('IDX_VIDEO_CALL_SESSIONS_STATUS_CREATED', ['status', 'createdAt'])
+@Index('IDX_VIDEO_CALL_SESSIONS_STATUS_EXPIRES', ['status', 'expiresAt'])
 export class VideoCallSession {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -30,6 +32,7 @@ export class VideoCallSession {
   user2Id: string;
 
   @Column({ name: 'room_name' })
+  @Index('IDX_VIDEO_CALL_SESSIONS_ROOM_NAME')
   roomName: string;
 
   @Column()
@@ -49,6 +52,7 @@ export class VideoCallSession {
   startedAt: Date;
 
   @Column({ name: 'expires_at', type: 'timestamp' })
+  @Index('IDX_VIDEO_CALL_SESSIONS_EXPIRES_AT')
   expiresAt: Date;
 
   @Column({

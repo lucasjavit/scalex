@@ -10,14 +10,15 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { EnglishLearningAccessGuard } from '../../../common/guards/english-learning-access.guard';
+import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinQueueDto } from './dto/join-queue.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { ActivePeriod } from './entities/active-period.entity';
+import { VideoCallDailyService } from './video-call-daily.service';
 import { VideoCallQueueService } from './video-call-queue.service';
 import { VideoCallService } from './video-call.service';
-import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
-import { EnglishLearningAccessGuard } from '../../../common/guards/english-learning-access.guard';
 
 @Controller('api/english-learning/admin/video-call')
 @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
@@ -25,6 +26,7 @@ export class VideoCallController {
   constructor(
     private readonly videoCallService: VideoCallService,
     private readonly queueService: VideoCallQueueService,
+    private readonly dailyService: VideoCallDailyService,
   ) {}
 
   // POST /video-call/rooms - Create a new room
@@ -530,7 +532,9 @@ export class VideoCallController {
   @Delete('admin/remove-period/:index')
   async removeCustomPeriod(@Param('index') index: string) {
     try {
-      const result = await this.queueService.removeCustomPeriod(parseInt(index, 10));
+      const result = await this.queueService.removeCustomPeriod(
+        parseInt(index, 10),
+      );
       return {
         success: result.success,
         message: result.message,
@@ -558,6 +562,37 @@ export class VideoCallController {
         {
           success: false,
           message: 'Failed to clear queue',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // POST /video-call/daily/token - Generate Daily.co access token for a room
+  @Post('daily/token')
+  async generateDailyToken(
+    @Body() body: { roomName: string; userId: string; isOwner?: boolean },
+  ) {
+    try {
+      const token = await this.dailyService.createMeetingToken(
+        body.roomName,
+        body.userId,
+        body.isOwner || false,
+        3600, // 1 hour
+      );
+      return {
+        success: true,
+        data: {
+          token,
+          roomUrl: this.dailyService.getRoomUrl(body.roomName),
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to generate Daily.co token',
           error: error.message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,

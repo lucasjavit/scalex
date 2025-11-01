@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { VideoCallRoom } from './entities/video-call-room.entity';
+import { VideoCallDailyService } from './video-call-daily.service';
 import { VideoCallQueueService } from './video-call-queue.service';
 
 @Injectable()
@@ -9,7 +10,10 @@ export class VideoCallService {
   // In-memory storage for rooms (in production, use a database)
   private rooms: Map<string, VideoCallRoom> = new Map();
 
-  constructor(private readonly queueService: VideoCallQueueService) {}
+  constructor(
+    private readonly queueService: VideoCallQueueService,
+    private readonly dailyService: VideoCallDailyService,
+  ) {}
 
   // Generate a unique room name
   private generateRoomName(): string {
@@ -19,8 +23,19 @@ export class VideoCallService {
   }
 
   // Create a new video call room
-  async createRoom(createRoomDto: CreateRoomDto): Promise<VideoCallRoom> {
+  async createRoom(
+    createRoomDto: CreateRoomDto,
+  ): Promise<VideoCallRoom & { dailyRoomUrl: string; dailyRoomId: string }> {
     const roomName = this.generateRoomName();
+
+    // Create Daily.co room
+    const dailyRoom = await this.dailyService.createRoom(roomName, {
+      maxParticipants: 4,
+      enableScreenshare: true,
+      enableChat: true,
+      expiresIn: 3600 * (createRoomDto.duration || 1), // Expires based on duration
+    });
+
     const room: VideoCallRoom = {
       roomName,
       userId: createRoomDto.userId,
@@ -40,8 +55,15 @@ export class VideoCallService {
     };
 
     this.rooms.set(roomName, room);
-    console.log(`Created room: ${roomName}`, room);
-    return room;
+    console.log(
+      `Created room: ${roomName} with Daily.co room: ${dailyRoom.id}`,
+    );
+
+    return {
+      ...room,
+      dailyRoomUrl: dailyRoom.url,
+      dailyRoomId: dailyRoom.id,
+    };
   }
 
   // Get all available rooms (status: waiting)
@@ -133,6 +155,16 @@ export class VideoCallService {
       const start = new Date(room.startedAt);
       const end = new Date(room.endedAt);
       room.duration = Math.round((end.getTime() - start.getTime()) / 1000);
+    }
+
+    // Delete Daily.co room (optional - Daily.co will auto-delete after expiration)
+    try {
+      await this.dailyService.deleteRoom(roomName);
+    } catch (error) {
+      console.warn(
+        `Could not delete Daily.co room ${roomName}:`,
+        error.message,
+      );
     }
 
     this.rooms.set(roomName, room);

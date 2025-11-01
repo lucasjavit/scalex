@@ -14,6 +14,8 @@ export enum QueueStatus {
 }
 
 @Entity('video_call_queue')
+@Index('IDX_VIDEO_CALL_QUEUE_STATUS_JOINED', ['status', 'joinedAt'])
+@Index('IDX_VIDEO_CALL_QUEUE_LEVEL_STATUS', ['level', 'status'])
 export class VideoCallQueue {
   @PrimaryGeneratedColumn('uuid')
   id: string;
