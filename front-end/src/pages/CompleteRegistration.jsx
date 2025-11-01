@@ -133,8 +133,13 @@ export default function CompleteRegistration() {
                   type="email"
                   value={user?.email || ''}
                   disabled
+                  pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+                  title="Por favor, insira um email válido"
                   className="w-full px-4 py-3 bg-gray-100 border border-copilot-border-default rounded-copilot text-gray-500 cursor-not-allowed"
                 />
+                <p className="mt-1 text-xs text-copilot-text-secondary">
+                  Email fornecido pelo Firebase Authentication
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -149,8 +154,12 @@ export default function CompleteRegistration() {
                     onChange={handleChange}
                     required
                     max={new Date().toISOString().split('T')[0]}
+                    title="A data de nascimento não pode ser uma data futura"
                     className="w-full px-4 py-3 bg-copilot-bg-primary border border-copilot-border-default rounded-copilot text-copilot-text-primary focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary"
                   />
+                  <p className="mt-1 text-xs text-copilot-text-secondary">
+                    Não pode ser data futura
+                  </p>
                 </div>
 
                 <div>
@@ -163,9 +172,14 @@ export default function CompleteRegistration() {
                     value={formData.phone}
                     onChange={handleChange}
                     required
+                    pattern="^[\d\s\-\+\(\)]+$"
+                    title="Por favor, insira apenas números e caracteres válidos: espaços, -, +, ( e )"
                     className="w-full px-4 py-3 bg-copilot-bg-primary border border-copilot-border-default rounded-copilot text-copilot-text-primary focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary"
                     placeholder="(11) 99999-9999"
                   />
+                  <p className="mt-1 text-xs text-copilot-text-secondary">
+                    Formato: apenas números, espaços e símbolos: - + ( )
+                  </p>
                 </div>
               </div>
 

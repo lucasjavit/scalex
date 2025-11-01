@@ -14,7 +14,7 @@ import { USER_ROLES } from '../../common/types/user-roles.type';
 @Entity('users')
 @Check(`"email" ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'`)
 @Check(`"birth_date" <= CURRENT_DATE`)
-@Check(`"phone" ~* '^[\\d\\s\\-\\+\\(\\)]+$'`)
+@Check(`"phone" = 'N/A' OR "phone" ~* '^[\\d\\s\\-\\+\\(\\)]+$'`)
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
