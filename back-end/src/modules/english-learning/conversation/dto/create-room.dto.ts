@@ -34,7 +34,7 @@ export class CreateRoomDto {
 
   @IsOptional()
   @IsInt({ message: 'Duration must be an integer' })
-  @Min(60, { message: 'Duration must be at least 60 seconds' })
-  @Max(3600, { message: 'Duration must not exceed 3600 seconds (1 hour)' })
-  duration?: number;
+  @Min(1, { message: 'Duration must be at least 1 minute' })
+  @Max(60, { message: 'Duration must not exceed 60 minutes (1 hour)' })
+  duration?: number; // Duration in MINUTES (not seconds)
 }

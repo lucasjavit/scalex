@@ -15,6 +15,7 @@ const VideoCallDashboard = () => {
   const [systemStatus, setSystemStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [timeUntilNextPeriod, setTimeUntilNextPeriod] = useState(null);
+  const [showAllPeriods, setShowAllPeriods] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -129,7 +130,11 @@ const VideoCallDashboard = () => {
     let roomId = videoCallService.extractRoomNameFromUrl(input) || input.trim();
 
     if (videoCallService.isValidRoomName(roomId)) {
-      navigate(`/video-call/room/${roomId}`);
+      navigate(`/video-call/room/${roomId}`, {
+        state: {
+          createdByMe: true  // Manual room join - disable queue monitoring
+        }
+      });
     } else {
       showError(t('dashboard.messages.invalidRoomId'));
     }
@@ -332,18 +337,146 @@ const VideoCallDashboard = () => {
                   </div>
                   
                   {/* Available Periods */}
-                  <div className="ml-6">
-                    <p className="text-sm font-semibold text-gray-700 mb-2">{t('dashboard.systemStatus.availableTimes')}</p>
-                    <div className="space-y-1 text-xs text-gray-600">
-                      {systemStatus.activePeriods?.map((period, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <span>📅</span>
-                          <span>
-                            {String(period.start.hour).padStart(2, '0')}:{String(period.start.minute).padStart(2, '0')} - {String(period.end.hour).padStart(2, '0')}:{String(period.end.minute).padStart(2, '0')}
-                          </span>
-                        </div>
-                      ))}
+                  <div className="ml-6 min-w-[240px]">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-semibold text-gray-700">{t('dashboard.systemStatus.availableTimes')}</p>
+                      <button
+                        onClick={() => setShowAllPeriods(!showAllPeriods)}
+                        className="text-gray-600 hover:text-gray-900 transition-all p-1.5 hover:bg-gray-100 rounded-full"
+                        title={showAllPeriods ? 'Show available only' : 'Show all periods'}
+                      >
+                        <svg
+                          className={`w-5 h-5 transition-transform duration-200 ${showAllPeriods ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
                     </div>
+                    {(() => {
+                      // Sort periods by start time
+                      const sortedPeriods = [...(systemStatus.activePeriods || [])].sort((a, b) => {
+                        const timeA = a.start.hour * 60 + a.start.minute;
+                        const timeB = b.start.hour * 60 + b.start.minute;
+                        return timeA - timeB;
+                      });
+
+                      // Get current time in minutes
+                      const now = new Date();
+                      const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+                      // Filter periods based on showAllPeriods state
+                      const displayPeriods = showAllPeriods
+                        ? sortedPeriods
+                        : sortedPeriods.filter(p => {
+                            const periodEndTime = p.end.hour * 60 + p.end.minute;
+                            // Show if period hasn't ended yet
+                            return periodEndTime >= currentTimeInMinutes;
+                          });
+
+                      // Divide into AM (00:00-11:59) and PM (12:00-23:59)
+                      const amPeriods = displayPeriods.filter(p => p.start.hour < 12);
+                      const pmPeriods = displayPeriods.filter(p => p.start.hour >= 12);
+
+                      // Format time to 12-hour format with AM/PM
+                      const formatTime12h = (hour, minute) => {
+                        const h = hour % 12 || 12;
+                        const m = String(minute).padStart(2, '0');
+                        const period = hour < 12 ? 'AM' : 'PM';
+                        return `${h}:${m} ${period}`;
+                      };
+
+                      // Check if period is currently active
+                      const isCurrentPeriod = (period) => {
+                        if (!systemStatus.currentPeriod) return false;
+                        return period.start.hour === systemStatus.currentPeriod.start.hour &&
+                               period.start.minute === systemStatus.currentPeriod.start.minute;
+                      };
+
+                      // Check if period has already passed
+                      const isPastPeriod = (period) => {
+                        const periodEndTime = period.end.hour * 60 + period.end.minute;
+                        return periodEndTime < currentTimeInMinutes;
+                      };
+
+                      return (
+                        <div className="space-y-1.5">
+                          {/* AM Periods */}
+                          {amPeriods.map((period, idx) => {
+                            const isCurrent = isCurrentPeriod(period);
+                            const isPast = isPastPeriod(period);
+                            return (
+                              <div
+                                key={`am-${idx}`}
+                                className={`
+                                  flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-all
+                                  ${isCurrent
+                                    ? 'bg-green-100 text-green-800 border border-green-300 shadow-sm'
+                                    : isPast
+                                    ? 'bg-gray-100 text-gray-400 border border-gray-200 opacity-60'
+                                    : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
+                                  }
+                                `}
+                              >
+                                <span className="text-sm">{isCurrent ? '▶️' : isPast ? '✓' : '🕐'}</span>
+                                <span className="font-mono">
+                                  {formatTime12h(period.start.hour, period.start.minute)}
+                                </span>
+                                <span className="text-gray-400">→</span>
+                                <span className="font-mono">
+                                  {formatTime12h(period.end.hour, period.end.minute)}
+                                </span>
+                              </div>
+                            );
+                          })}
+
+                          {/* Divider between AM and PM */}
+                          {amPeriods.length > 0 && pmPeriods.length > 0 && (
+                            <div className="flex items-center gap-2 py-1">
+                              <div className="flex-1 h-px bg-gray-300"></div>
+                            </div>
+                          )}
+
+                          {/* PM Periods */}
+                          {pmPeriods.map((period, idx) => {
+                            const isCurrent = isCurrentPeriod(period);
+                            const isPast = isPastPeriod(period);
+                            return (
+                              <div
+                                key={`pm-${idx}`}
+                                className={`
+                                  flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-all
+                                  ${isCurrent
+                                    ? 'bg-green-100 text-green-800 border border-green-300 shadow-sm'
+                                    : isPast
+                                    ? 'bg-gray-100 text-gray-400 border border-gray-200 opacity-60'
+                                    : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
+                                  }
+                                `}
+                              >
+                                <span className="text-sm">{isCurrent ? '▶️' : isPast ? '✓' : '🕐'}</span>
+                                <span className="font-mono">
+                                  {formatTime12h(period.start.hour, period.start.minute)}
+                                </span>
+                                <span className="text-gray-400">→</span>
+                                <span className="font-mono">
+                                  {formatTime12h(period.end.hour, period.end.minute)}
+                                </span>
+                              </div>
+                            );
+                          })}
+
+                          {/* No available periods message */}
+                          {!showAllPeriods && displayPeriods.length === 0 && (
+                            <div className="text-xs text-gray-500 italic py-2">
+                              No periods available now. Click "Show all" to see past periods.
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

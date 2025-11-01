@@ -204,22 +204,25 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
         </div>
       )}
 
-      {/* Custom controls overlay */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+      {/* Top right controls */}
+      <div className="absolute top-20 right-4 flex items-center gap-3 z-10">
+        {/* Participants count badge */}
+        {participantsCount > 0 && (
+          <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm">
+            {participantsCount} {participantsCount === 1 ? 'participant' : 'participants'}
+          </div>
+        )}
+
+        {/* End Call button */}
         <button
           onClick={handleEndCall}
-          className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-copilot font-semibold shadow-copilot-lg transition-colors duration-200"
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-200 flex items-center gap-2 hover:shadow-xl"
+          title="End Call"
         >
-          End Call
+          <span className="text-lg">📞</span>
+          <span>End Call</span>
         </button>
       </div>
-
-      {/* Participants count badge */}
-      {participantsCount > 0 && (
-        <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
-          {participantsCount} {participantsCount === 1 ? 'participant' : 'participants'}
-        </div>
-      )}
     </div>
   );
 };

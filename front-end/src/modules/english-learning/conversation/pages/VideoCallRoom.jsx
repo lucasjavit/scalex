@@ -21,6 +21,7 @@ const VideoCallRoom = () => {
   const isEndingCallRef = useRef(false); // Prevent multiple calls to handleEndCall
   const durationIntervalRef = useRef(null); // Store interval reference
   const sessionCheckIntervalRef = useRef(null); // Store interval reference
+  const isManualRoomRef = useRef(false); // Track if this is a manually created room (not from queue)
 
   useEffect(() => {
     // Get data from navigation state
@@ -28,6 +29,11 @@ const VideoCallRoom = () => {
       setMatchedUser(location.state.matchedUser);
       setTopic(location.state.topic);
       setRandomTopic(location.state.randomTopic);
+      // Check if this is a manually created room (Create Room button)
+      if (location.state.createdByMe === true) {
+        isManualRoomRef.current = true;
+        console.log('This is a manually created room - queue monitoring disabled');
+      }
     }
 
     // Mark that call has started (no API call needed for queue-created rooms)
@@ -57,16 +63,20 @@ const VideoCallRoom = () => {
     }, 1000);
 
     // Poll every 2 seconds to check if session is still active
-    // If partner left, backend will have removed both users from session
-    sessionCheckIntervalRef.current = setInterval(async () => {
-      if (user && callStarted && !isEndingCallRef.current) {
-        const isActive = await videoCallService.checkSessionStatus(user.uid);
-        if (!isActive && !isEndingCallRef.current) {
-          console.log('Session no longer active - partner left. Redirecting to queue...');
-          handlePartnerLeft();
+    // ONLY for queue-based rooms (Find Partner), NOT for manually created rooms (Create Room)
+    if (!isManualRoomRef.current) {
+      sessionCheckIntervalRef.current = setInterval(async () => {
+        if (user && callStarted && !isEndingCallRef.current) {
+          const isActive = await videoCallService.checkSessionStatus(user.uid);
+          if (!isActive && !isEndingCallRef.current) {
+            console.log('Session no longer active - partner left. Redirecting to queue...');
+            handlePartnerLeft();
+          }
         }
-      }
-    }, 2000);
+      }, 2000);
+    } else {
+      console.log('Manual room - session monitoring disabled');
+    }
 
     return () => {
       if (durationIntervalRef.current) clearInterval(durationIntervalRef.current);
@@ -189,30 +199,35 @@ const VideoCallRoom = () => {
             <h1 className="text-lg font-semibold text-copilot-text-primary">
               Video Call Practice
             </h1>
-            <p className="text-sm text-copilot-text-secondary">
-              Room: {roomId}
-            </p>
+            {/* Only show Room ID for manually created rooms (not from queue) */}
+            {isManualRoomRef.current && (
+              <p className="text-sm text-copilot-text-secondary">
+                Room: {roomId}
+              </p>
+            )}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          {/* Share Room ID */}
-          <div className="hidden md:flex items-center gap-2 bg-copilot-bg-primary border border-copilot-border-default rounded-copilot px-3 py-2">
-            <span className="text-xs text-copilot-text-secondary">Room ID:</span>
-            <span className="text-xs font-mono text-copilot-text-primary font-semibold">
-              {roomId}
-            </span>
-            <button
-              onClick={() => { 
-                navigator.clipboard.writeText(roomId);
-                alert('Room ID copied!');
-              }}
-              className="text-xs text-copilot-accent-primary font-semibold hover:text-copilot-accent-secondary"
-              title="Copy Room ID"
-            >
-              Copy
-            </button>
-          </div>
+          {/* Share Room ID - Only show for manually created rooms */}
+          {isManualRoomRef.current && (
+            <div className="hidden md:flex items-center gap-2 bg-copilot-bg-primary border border-copilot-border-default rounded-copilot px-3 py-2">
+              <span className="text-xs text-copilot-text-secondary">Room ID:</span>
+              <span className="text-xs font-mono text-copilot-text-primary font-semibold">
+                {roomId}
+              </span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(roomId);
+                  alert('Room ID copied!');
+                }}
+                className="text-xs text-copilot-accent-primary font-semibold hover:text-copilot-accent-secondary"
+                title="Copy Room ID"
+              >
+                Copy
+              </button>
+            </div>
+          )}
 
           <div className="flex items-center gap-4">
             {/* Call Duration */}
