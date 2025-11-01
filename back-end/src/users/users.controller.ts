@@ -70,6 +70,7 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(FirebaseAuthGuard)
   findAll() {
     return this.usersService.findAll();
   }
