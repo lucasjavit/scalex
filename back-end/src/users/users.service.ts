@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,10 +8,11 @@ import { Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { Address } from './entities/address.entity';
 import { User } from './entities/user.entity';
+import { FirebaseAdminService } from '../common/firebase/firebase-admin.service';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +21,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Address)
     private readonly addressRepository: Repository<Address>,
+    private readonly firebaseAdminService: FirebaseAdminService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -191,7 +192,22 @@ export class UsersService {
 
   async remove(id: string): Promise<void> {
     const user = await this.findOne(id);
+
+    // Delete from Firebase Authentication first
+    try {
+      const auth = this.firebaseAdminService.getAuth();
+      await auth.deleteUser(user.firebase_uid);
+      console.log(`✅ User ${user.email} deleted from Firebase Authentication`);
+    } catch (error) {
+      console.error(
+        `⚠️ Error deleting user from Firebase: ${error.message}`,
+      );
+      // Continue with database deletion even if Firebase deletion fails
+    }
+
+    // Delete from database
     await this.userRepository.remove(user);
+    console.log(`✅ User ${user.email} deleted from database`);
   }
 
   // Address management methods

@@ -94,6 +94,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(FirebaseAuthGuard, AdminAccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);

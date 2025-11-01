@@ -143,3 +143,49 @@ export const AVAILABLE_ROLES = [
 export const getRoleInfo = (roleValue) => {
   return AVAILABLE_ROLES.find(role => role.value === roleValue) || null;
 };
+
+/**
+ * Alternar status de um usuário (ativo/inativo)
+ * @param {string} userId - ID do usuário
+ * @returns {Promise<Object>} Usuário atualizado
+ */
+export const toggleUserStatus = async (userId) => {
+  const token = await getAuthToken();
+
+  const response = await fetch(`${API_URL}/users/${userId}/toggle-status`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to toggle user status');
+  }
+
+  return response.json();
+};
+
+/**
+ * Deletar um usuário fisicamente (apenas admin)
+ * Remove o usuário do Firebase e do banco de dados
+ * @param {string} userId - ID do usuário
+ * @returns {Promise<void>}
+ */
+export const deleteUser = async (userId) => {
+  const token = await getAuthToken();
+
+  const response = await fetch(`${API_URL}/users/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to delete user' }));
+    throw new Error(error.message || 'Failed to delete user');
+  }
+};

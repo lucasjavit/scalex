@@ -12,6 +12,8 @@ export default function UsersList() {
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -90,6 +92,33 @@ export default function UsersList() {
     } catch (error) {
       console.error('Error toggling user status:', error);
       setError('Error changing user status');
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      setDeleting(true);
+      setError(null);
+      await adminApi.deleteUser(userId);
+      setDeleteConfirmation(null);
+      // Reload users to get updated data
+      await loadUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setError(error.message || 'Error deleting user');
+      setDeleteConfirmation(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const openDeleteConfirmation = (user) => {
+    setDeleteConfirmation(user);
+  };
+
+  const closeDeleteConfirmation = () => {
+    if (!deleting) {
+      setDeleteConfirmation(null);
     }
   };
 
@@ -227,6 +256,9 @@ export default function UsersList() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-copilot-text-secondary uppercase tracking-wider">
                     Status
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-copilot-text-secondary uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-copilot-bg-secondary divide-y divide-copilot-border-default">
@@ -270,6 +302,16 @@ export default function UsersList() {
                         title={user.is_active ? 'Click to deactivate' : 'Click to activate'}
                       >
                         {user.is_active ? 'Active' : 'Inactive'}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => openDeleteConfirmation(user)}
+                        className="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-copilot transition-colors duration-200"
+                        title="Delete user permanently"
+                      >
+                        <span className="mr-1">🗑️</span>
+                        Delete
                       </button>
                     </td>
                   </tr>
@@ -366,6 +408,74 @@ export default function UsersList() {
                 Clear filters
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+          <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot-lg max-w-md w-full p-6 shadow-copilot-xl">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">⚠️</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-copilot-text-primary mb-2">
+                  Delete User Permanently
+                </h3>
+                <div className="text-sm text-copilot-text-secondary space-y-2">
+                  <p>
+                    Are you sure you want to permanently delete this user?
+                  </p>
+                  <div className="bg-copilot-bg-tertiary border border-copilot-border-default rounded-copilot p-3">
+                    <p className="font-medium text-copilot-text-primary">
+                      {deleteConfirmation.full_name}
+                    </p>
+                    <p className="text-xs text-copilot-text-secondary">
+                      {deleteConfirmation.email}
+                    </p>
+                  </div>
+                  <p className="text-red-600 font-semibold">
+                    This action will:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 text-red-600">
+                    <li>Delete the user from Firebase Authentication</li>
+                    <li>Remove all user data from the database</li>
+                    <li>Cannot be undone</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                onClick={closeDeleteConfirmation}
+                disabled={deleting}
+                className="px-4 py-2 bg-copilot-bg-tertiary text-copilot-text-primary border border-copilot-border-default rounded-copilot hover:bg-copilot-bg-primary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteUser(deleteConfirmation.id)}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-copilot hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              >
+                {deleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <span className="mr-1">🗑️</span>
+                    Delete Permanently
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
