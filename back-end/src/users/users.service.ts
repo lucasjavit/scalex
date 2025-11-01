@@ -33,22 +33,45 @@ export class UsersService {
       throw new BadRequestException('Birth date cannot be in the future');
     }
 
-    // Check if user already exists by Firebase UID
+    // Check if user already exists by Firebase UID or email
     const existingUserByUid = await this.userRepository.findOne({
       where: { firebase_uid: createUserDto.firebase_uid },
     });
 
-    if (existingUserByUid) {
-      throw new ConflictException('User with this Firebase UID already exists');
-    }
-
-    // Check if user already exists by email
     const existingUserByEmail = await this.userRepository.findOne({
       where: { email: createUserDto.email },
     });
 
-    if (existingUserByEmail) {
-      throw new ConflictException('User with this email already exists');
+    // Se usuário já existe (por UID ou email), faz UPDATE dos dados
+    const existingUser = existingUserByUid || existingUserByEmail;
+
+    if (existingUser) {
+      // Atualiza todos os dados
+      existingUser.firebase_uid = createUserDto.firebase_uid;
+      existingUser.email = createUserDto.email;
+      existingUser.full_name = createUserDto.full_name;
+      existingUser.birth_date = birthDate;
+      existingUser.phone = createUserDto.phone;
+      existingUser.preferred_language = createUserDto.preferred_language;
+
+      const updatedUser = await this.userRepository.save(existingUser);
+
+      // Atualizar endereços se fornecidos
+      if (createUserDto.addresses && createUserDto.addresses.length > 0) {
+        // Remove endereços antigos
+        await this.addressRepository.delete({ user: { id: updatedUser.id } });
+
+        // Adiciona novos endereços
+        const addresses = createUserDto.addresses.map((addressDto) =>
+          this.addressRepository.create({
+            ...addressDto,
+            user: updatedUser,
+          }),
+        );
+        await this.addressRepository.save(addresses);
+      }
+
+      return this.findOne(updatedUser.id);
     }
 
     // Create user
