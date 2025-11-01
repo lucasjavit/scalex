@@ -58,6 +58,13 @@ export class VideoCallQueueService implements OnModuleInit {
     // These will be initialized in onModuleInit
   }
 
+  // Inject VideoCallService later to avoid circular dependency
+  private videoCallService: any; // Will be injected manually
+
+  setVideoCallService(service: any) {
+    this.videoCallService = service;
+  }
+
   /**
    * Hook executado quando o módulo é inicializado
    * Carrega períodos do banco e limpa sessões expiradas
@@ -117,11 +124,32 @@ export class VideoCallQueueService implements OnModuleInit {
           },
         );
 
-        // Remove da memória
+        // Remove da memória (sessions, sessionRooms, userSessions)
         for (const session of expiredSessions) {
+          // Find the session ID by room name
+          let sessionIdToDelete: string | null = null;
+          for (const [sessId, sess] of this.sessions.entries()) {
+            const hasRoom = sess.rooms.some((r) => r.roomName === session.roomName);
+            if (hasRoom) {
+              sessionIdToDelete = sessId;
+              break;
+            }
+          }
+
+          // Remove session from memory
+          if (sessionIdToDelete) {
+            this.sessions.delete(sessionIdToDelete);
+            this.logger.log(`🗑️ Removed expired session ${sessionIdToDelete} from memory`);
+          }
+
+          // Remove from session rooms and user sessions
           this.sessionRooms.delete(session.roomName);
           this.userSessions.delete(session.user1Id);
           this.userSessions.delete(session.user2Id);
+
+          // Remove users from queue (if they're still there)
+          await this.queueRepository.delete({ userId: session.user1Id });
+          await this.queueRepository.delete({ userId: session.user2Id });
         }
 
         this.logger.log(
@@ -348,6 +376,10 @@ export class VideoCallQueueService implements OnModuleInit {
             queuePosition: -1,
             nextSessionTime: this.nextSessionTime,
           };
+        } else {
+          // Session is not active or doesn't exist, clean up the user mapping
+          this.logger.log(`🧹 Cleaning up stale user session mapping for ${dto.userId}`);
+          this.userSessions.delete(dto.userId);
         }
       }
     }
@@ -458,8 +490,23 @@ export class VideoCallQueueService implements OnModuleInit {
 
     const session = this.sessions.get(sessionId);
     if (!session) {
-      // Session doesn't exist, just remove user mapping
+      // Session doesn't exist in memory, just remove user mapping and clean up database
       this.userSessions.delete(userId);
+
+      // Try to clean up any database sessions for this user
+      try {
+        await this.sessionRepository.update(
+          { user1Id: userId, status: SessionStatus.ACTIVE },
+          { status: SessionStatus.COMPLETED },
+        );
+        await this.sessionRepository.update(
+          { user2Id: userId, status: SessionStatus.ACTIVE },
+          { status: SessionStatus.COMPLETED },
+        );
+      } catch (error) {
+        this.logger.warn(`Failed to clean up database session for user ${userId}:`, error.message);
+      }
+
       return {
         success: true,
         message: 'Você saiu da sessão',
@@ -480,11 +527,17 @@ export class VideoCallQueueService implements OnModuleInit {
         // Mark room as ended
         room.status = 'ended';
         room.endedAt = new Date();
-        this.sessionRooms.set(room.roomName, room);
 
         // Remove both users from the session
         this.userSessions.delete(room.user1);
         this.userSessions.delete(room.user2);
+
+        // Remove room from memory
+        this.sessionRooms.delete(room.roomName);
+
+        // Remove both users from queue (if they're still there)
+        await this.queueRepository.delete({ userId: room.user1 });
+        await this.queueRepository.delete({ userId: room.user2 });
 
         // Update session in database
         await this.sessionRepository.update(
@@ -515,7 +568,8 @@ export class VideoCallQueueService implements OnModuleInit {
         if (allRoomsEnded) {
           session.status = 'ended';
           session.endTime = new Date();
-          this.logger.log(`Session ${sessionId} fully ended`);
+          this.sessions.delete(sessionId);
+          this.logger.log(`Session ${sessionId} fully ended and removed from memory`);
         }
 
         // Delete Daily.co room
@@ -751,6 +805,17 @@ export class VideoCallQueueService implements OnModuleInit {
 
         // Create Daily.co room for scheduled session
         try {
+          // Check usage limits before creating room
+          if (this.videoCallService) {
+            const canCreate = await this.videoCallService.checkAndIncrementRoomUsage();
+            if (!canCreate) {
+              this.logger.error(
+                `❌ Cannot create room ${roomName}: Usage limit reached`,
+              );
+              continue; // Skip this pair
+            }
+          }
+
           await this.dailyService.createRoom(roomName, {
             maxParticipants: 2,
             enableScreenshare: true,
@@ -928,7 +993,7 @@ export class VideoCallQueueService implements OnModuleInit {
   /**
    * Finaliza uma sessão
    */
-  private endSession(sessionId: string) {
+  private async endSession(sessionId: string) {
     const session = this.sessions.get(sessionId);
     if (!session) {
       return;
@@ -938,6 +1003,23 @@ export class VideoCallQueueService implements OnModuleInit {
 
     session.status = 'ended';
     session.endTime = new Date();
+
+    // Calculate total minutes used in this session
+    const startTime = session.startTime.getTime();
+    const endTime = session.endTime.getTime();
+    const durationMs = endTime - startTime;
+    const durationMinutes = Math.ceil(durationMs / (60 * 1000)); // Round up to nearest minute
+
+    this.logger.log(`Session duration: ${durationMinutes} minutes`);
+
+    // Track minutes usage (if videoCallService is available)
+    if (this.videoCallService && durationMinutes > 0) {
+      try {
+        await this.videoCallService.addMinutesUsed(durationMinutes);
+      } catch (error) {
+        this.logger.error(`Failed to track minutes usage: ${error.message}`);
+      }
+    }
 
     // Finaliza todas as rooms
     for (const room of session.rooms) {
@@ -952,7 +1034,7 @@ export class VideoCallQueueService implements OnModuleInit {
       this.logger.log(`Ended room: ${room.roomName}`);
     }
 
-    this.logger.log(`Session ${sessionId} ended`);
+    this.logger.log(`Session ${sessionId} ended - ${durationMinutes} minutes tracked`);
   }
 
   /**
@@ -1154,6 +1236,20 @@ export class VideoCallQueueService implements OnModuleInit {
 
         // Create Daily.co room for immediate match
         try {
+          // Check usage limits before creating room
+          if (this.videoCallService) {
+            const canCreate = await this.videoCallService.checkAndIncrementRoomUsage();
+            if (!canCreate) {
+              this.logger.error(
+                `❌ Cannot create room ${roomName}: Usage limit reached`,
+              );
+              // Keep both users in queue (they're already there, don't remove them)
+              this.logger.log(`Users ${user1.userId} and ${user2.userId} will remain in queue`);
+              releaseLock();
+              return;
+            }
+          }
+
           await this.dailyService.createRoom(roomName, {
             maxParticipants: 2,
             enableScreenshare: true,

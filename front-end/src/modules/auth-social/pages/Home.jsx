@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import BackButton from '../../../components/BackButton';
@@ -7,17 +7,19 @@ import apiService from "../../../services/api";
 import { useAuth } from "../context/AuthContext";
 
 // MacroModuleCard Component
-function MacroModuleCard({ icon, gradient, title, description, onClick, status = 'active' }) {
+function MacroModuleCard({ icon, gradient, title, description, onClick, status = 'active', disabledReason }) {
   const isComingSoon = status === 'coming-soon';
+  const isDisabled = status === 'disabled';
 
   return (
     <div
       className={`relative rounded-copilot p-6 transition-all duration-200 group ${
-        isComingSoon
+        isComingSoon || isDisabled
           ? 'opacity-60 cursor-not-allowed bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600'
           : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700'
       }`}
-      onClick={isComingSoon ? undefined : onClick}
+      onClick={isComingSoon || isDisabled ? undefined : onClick}
+      title={isDisabled ? disabledReason : undefined}
     >
       {/* Coming Soon Badge */}
       {isComingSoon && (
@@ -26,9 +28,16 @@ function MacroModuleCard({ icon, gradient, title, description, onClick, status =
         </div>
       )}
 
+      {/* Disabled Badge */}
+      {isDisabled && (
+        <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-copilot">
+          Indisponível
+        </div>
+      )}
+
       {/* Icon */}
       <div className={`w-14 h-14 bg-gradient-to-br ${gradient} rounded-copilot flex items-center justify-center mb-4 shadow-copilot ${
-        !isComingSoon && 'group-hover:scale-110'
+        !isComingSoon && !isDisabled && 'group-hover:scale-110'
       } transition-transform duration-200`}>
         <span className="text-white text-3xl">{icon}</span>
       </div>
@@ -43,8 +52,15 @@ function MacroModuleCard({ icon, gradient, title, description, onClick, status =
         {description}
       </p>
 
+      {/* Disabled Reason */}
+      {isDisabled && disabledReason && (
+        <p className="text-red-400 text-xs mb-2 italic">
+          {disabledReason}
+        </p>
+      )}
+
       {/* Action */}
-      {!isComingSoon && (
+      {!isComingSoon && !isDisabled && (
         <div className="flex items-center text-copilot-accent-primary text-sm font-medium">
           <span>Acessar</span>
           <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
@@ -59,6 +75,8 @@ export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
+  const [conversationAvailable, setConversationAvailable] = useState(true);
+  const [conversationDisabledReason, setConversationDisabledReason] = useState('');
 
   // Check if user has profile data and redirect accordingly
   useEffect(() => {
@@ -80,6 +98,39 @@ export default function Home() {
 
     checkUserProfile();
   }, [user, navigate]);
+
+  // Check if video call feature is available (not at usage limit)
+  useEffect(() => {
+    const checkFeatureAvailability = async () => {
+      try {
+        const baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
+        const token = await user?.getIdToken();
+
+        const response = await fetch(`${baseURL}/api/english-learning/video-call/feature-availability`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          setConversationAvailable(result.data.available);
+          if (!result.data.available) {
+            setConversationDisabledReason(result.data.reason || 'Limite de uso atingido');
+          }
+        }
+      } catch (error) {
+        console.error('Error checking feature availability:', error);
+        // On error, assume it's available to not block users unnecessarily
+        setConversationAvailable(true);
+      }
+    };
+
+    if (user) {
+      checkFeatureAvailability();
+    }
+  }, [user]);
 
   return (
     <div className="bg-copilot-bg-primary">
@@ -136,7 +187,8 @@ export default function Home() {
               title={t('home.learning.conversation', 'Conversação')}
               description={t('home.learning.conversationDesc', 'Pratique com outros usuários')}
               onClick={() => navigate('/learning/conversation')}
-              status="active"
+              status={conversationAvailable ? 'active' : 'disabled'}
+              disabledReason={conversationDisabledReason}
             />
             <MacroModuleCard
               icon="👨‍🏫"

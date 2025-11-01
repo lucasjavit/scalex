@@ -204,15 +204,8 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
         </div>
       )}
 
-      {/* Top right controls */}
-      <div className="absolute top-20 right-4 flex items-center gap-3 z-10">
-        {/* Participants count badge */}
-        {participantsCount > 0 && (
-          <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm">
-            {participantsCount} {participantsCount === 1 ? 'participant' : 'participants'}
-          </div>
-        )}
-
+      {/* Top left controls */}
+      <div className="absolute top-20 left-4 flex items-center gap-3 z-10">
         {/* End Call button */}
         <button
           onClick={handleEndCall}
@@ -222,6 +215,13 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           <span className="text-lg">📞</span>
           <span>End Call</span>
         </button>
+
+        {/* Participants count badge */}
+        {participantsCount > 0 && (
+          <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm">
+            {participantsCount} {participantsCount === 1 ? 'participant' : 'participants'}
+          </div>
+        )}
       </div>
     </div>
   );

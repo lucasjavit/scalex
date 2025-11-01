@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { VideoCallRoom } from './entities/video-call-room.entity';
+import { VideoCallUsageLimits } from './entities/usage-limits.entity';
 import { VideoCallDailyService } from './video-call-daily.service';
 import { VideoCallQueueService } from './video-call-queue.service';
 
@@ -13,7 +16,14 @@ export class VideoCallService {
   constructor(
     private readonly queueService: VideoCallQueueService,
     private readonly dailyService: VideoCallDailyService,
-  ) {}
+    @InjectRepository(VideoCallUsageLimits)
+    private readonly usageLimitsRepository: Repository<VideoCallUsageLimits>,
+  ) {
+    // Inject this service into queueService to avoid circular dependency
+    setTimeout(() => {
+      this.queueService.setVideoCallService(this);
+    }, 0);
+  }
 
   // Generate a unique room name
   private generateRoomName(): string {
@@ -22,10 +32,109 @@ export class VideoCallService {
     return `scalex-${timestamp}-${random}`;
   }
 
+  // Check if usage limits have been reached
+  private async checkUsageLimits(): Promise<void> {
+    let limits = await this.usageLimitsRepository.findOne({ where: { id: 1 } });
+
+    // If no record exists, create one with default values
+    if (!limits) {
+      limits = this.usageLimitsRepository.create({
+        totalRoomsCreated: 0,
+        totalMinutesUsed: 0,
+        maxRoomsAllowed: 100000,
+        maxMinutesAllowed: 10000,
+      });
+      await this.usageLimitsRepository.save(limits);
+    }
+
+    // Check if room limit reached
+    if (limits.totalRoomsCreated >= limits.maxRoomsAllowed) {
+      throw new HttpException(
+        `Daily.co usage limit reached: Maximum of ${limits.maxRoomsAllowed} rooms allowed. Please contact support.`,
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    // Check if minutes limit reached
+    if (limits.totalMinutesUsed >= limits.maxMinutesAllowed) {
+      throw new HttpException(
+        `Daily.co usage limit reached: Maximum of ${limits.maxMinutesAllowed} minutes allowed. Please contact support.`,
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+  }
+
+  // Check limits and increment room counter if OK (used by queue service)
+  async checkAndIncrementRoomUsage(): Promise<boolean> {
+    try {
+      let limits = await this.usageLimitsRepository.findOne({ where: { id: 1 } });
+
+      if (!limits) {
+        limits = this.usageLimitsRepository.create({
+          totalRoomsCreated: 0,
+          totalMinutesUsed: 0,
+          maxRoomsAllowed: 100000,
+          maxMinutesAllowed: 10000,
+        });
+        await this.usageLimitsRepository.save(limits);
+      }
+
+      // Check if limits reached
+      if (limits.totalRoomsCreated >= limits.maxRoomsAllowed) {
+        console.log(`⚠️ Room limit reached: ${limits.totalRoomsCreated}/${limits.maxRoomsAllowed}`);
+        return false;
+      }
+
+      if (limits.totalMinutesUsed >= limits.maxMinutesAllowed) {
+        console.log(`⚠️ Minutes limit reached: ${limits.totalMinutesUsed}/${limits.maxMinutesAllowed}`);
+        return false;
+      }
+
+      // Increment room counter
+      await this.incrementRoomCounter();
+      return true;
+    } catch (error) {
+      console.error('Error checking usage limits:', error);
+      return false;
+    }
+  }
+
+  // Increment room counter
+  private async incrementRoomCounter(): Promise<void> {
+    await this.usageLimitsRepository.increment({ id: 1 }, 'totalRoomsCreated', 1);
+    console.log('✅ Incremented total rooms created counter');
+  }
+
+  // Add minutes to usage counter
+  async addMinutesUsed(minutes: number): Promise<void> {
+    await this.usageLimitsRepository.increment({ id: 1 }, 'totalMinutesUsed', minutes);
+    console.log(`✅ Added ${minutes} minutes to total usage`);
+  }
+
+  // Get current usage stats
+  async getUsageStats(): Promise<VideoCallUsageLimits> {
+    let limits = await this.usageLimitsRepository.findOne({ where: { id: 1 } });
+
+    if (!limits) {
+      limits = this.usageLimitsRepository.create({
+        totalRoomsCreated: 0,
+        totalMinutesUsed: 0,
+        maxRoomsAllowed: 100000,
+        maxMinutesAllowed: 10000,
+      });
+      await this.usageLimitsRepository.save(limits);
+    }
+
+    return limits;
+  }
+
   // Create a new video call room
   async createRoom(
     createRoomDto: CreateRoomDto,
   ): Promise<VideoCallRoom & { dailyRoomUrl: string; dailyRoomId: string }> {
+    // CHECK USAGE LIMITS BEFORE CREATING ROOM
+    await this.checkUsageLimits();
+
     const roomName = this.generateRoomName();
 
     // Create Daily.co room
@@ -58,6 +167,9 @@ export class VideoCallService {
     console.log(
       `Created room: ${roomName} with Daily.co room: ${dailyRoom.id}`,
     );
+
+    // INCREMENT ROOM COUNTER AFTER SUCCESSFUL CREATION
+    await this.incrementRoomCounter();
 
     return {
       ...room,

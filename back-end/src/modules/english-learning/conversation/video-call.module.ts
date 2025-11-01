@@ -7,6 +7,7 @@ import { UsersModule } from '../../../users/users.module';
 import { VideoCallActivePeriod } from './entities/video-call-active-period.entity';
 import { VideoCallQueue } from './entities/video-call-queue.entity';
 import { VideoCallSession } from './entities/video-call-session.entity';
+import { VideoCallUsageLimits } from './entities/usage-limits.entity';
 import { VideoCallDailyService } from './video-call-daily.service';
 import { VideoCallPublicController } from './video-call-public.controller';
 import { VideoCallQueueService } from './video-call-queue.service';
@@ -26,6 +27,7 @@ import { VideoCallService } from './video-call.service';
       VideoCallQueue,
       VideoCallSession,
       VideoCallActivePeriod,
+      VideoCallUsageLimits,
     ]),
     FirebaseModule,
     UsersModule,

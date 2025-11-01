@@ -33,6 +33,59 @@ export class VideoCallPublicController {
     private readonly dailyService: VideoCallDailyService,
   ) {}
 
+  // GET /video-call/feature-availability - Check if video call feature is available (not at usage limit)
+  @Get('feature-availability')
+  async getFeatureAvailability(): Promise<{
+    success: boolean;
+    data: {
+      available: boolean;
+      reason?: string;
+      limits?: {
+        totalRoomsCreated: number;
+        maxRoomsAllowed: number;
+        totalMinutesUsed: number;
+        maxMinutesAllowed: number;
+      };
+    };
+  }> {
+    try {
+      const stats = await this.videoCallService.getUsageStats();
+
+      const roomsLimitReached = stats.totalRoomsCreated >= stats.maxRoomsAllowed;
+      const minutesLimitReached = stats.totalMinutesUsed >= stats.maxMinutesAllowed;
+
+      let reason: string | undefined;
+      if (roomsLimitReached) {
+        reason = `Room limit reached: ${stats.totalRoomsCreated}/${stats.maxRoomsAllowed} rooms created`;
+      } else if (minutesLimitReached) {
+        reason = `Minutes limit reached: ${stats.totalMinutesUsed}/${stats.maxMinutesAllowed} minutes used`;
+      }
+
+      return {
+        success: true,
+        data: {
+          available: !roomsLimitReached && !minutesLimitReached,
+          reason,
+          limits: {
+            totalRoomsCreated: stats.totalRoomsCreated,
+            maxRoomsAllowed: stats.maxRoomsAllowed,
+            totalMinutesUsed: stats.totalMinutesUsed,
+            maxMinutesAllowed: stats.maxMinutesAllowed,
+          },
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to check feature availability',
+          error: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   // GET /video-call/system-status - Get system status (available for all authenticated users)
   @Get('system-status')
   async getSystemStatus(): Promise<{
