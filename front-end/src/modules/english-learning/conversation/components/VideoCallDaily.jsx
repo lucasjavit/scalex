@@ -54,18 +54,14 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           return;
         }
 
-        // Create a promise to wait for iframe to be loaded
-        const waitForLoaded = new Promise((resolve) => {
-          callFrame.on('loaded', () => {
-            console.log('Daily.co iframe loaded');
-            resolve();
-          });
-        });
-
-        // Set up event listeners
+        // Set up event listeners BEFORE joining
         callFrame
           .on('loading', () => {
             if (isSubscribed) setIsLoading(true);
+          })
+          .on('loaded', () => {
+            console.log('Daily.co iframe loaded');
+            if (isSubscribed) setIsLoading(false);
           })
           .on('started-camera', () => {
             if (isSubscribed) setIsLoading(false);
@@ -114,7 +110,7 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           return;
         }
 
-        // Join the meeting - this will trigger 'loading' and then 'loaded' events
+        // Join the meeting - this will trigger event listeners
         await callFrame.join({
           url: roomUrl,
           token: token || undefined,
@@ -122,14 +118,6 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           showLocalVideo: true,
           showParticipantsBar: true,
         });
-
-        // Wait for iframe to be fully loaded before proceeding
-        // This ensures all audio/video elements are initialized
-        await waitForLoaded;
-
-        if (isSubscribed) {
-          setIsLoading(false);
-        }
       } catch (err) {
         console.error('Error initializing Daily.co:', err);
         if (isSubscribed) {
