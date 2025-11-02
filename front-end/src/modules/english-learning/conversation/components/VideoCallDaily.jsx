@@ -49,12 +49,38 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
 
         dailyFrameRef.current = callFrame;
 
-        // CRITICAL: Wait for iframe DOM to be fully mounted
+        // CRITICAL: Wait for iframe DOM to be fully mounted and accessible
         // Production builds are highly optimized and execute much faster than dev,
         // causing a race condition where AudioTracks tries to access DOM elements
-        // before they exist. This delay ensures the iframe has time to render.
+        // before they exist. We need to ensure the iframe is actually ready.
         console.log('Waiting for iframe to mount...');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        
+        // Wait for the iframe element to exist in the DOM
+        let iframeElement = null;
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds max
+        
+        while (!iframeElement && attempts < maxAttempts) {
+          iframeElement = containerRef.current?.querySelector('iframe');
+          if (!iframeElement) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            attempts++;
+          }
+        }
+        
+        if (!iframeElement) {
+          throw new Error('Iframe element not found after waiting');
+        }
+
+        // Additional wait to ensure iframe content is accessible
+        // Use requestAnimationFrame to wait for the next paint cycle
+        await new Promise((resolve) => requestAnimationFrame(() => {
+          requestAnimationFrame(resolve);
+        }));
+        
+        // Small additional delay to ensure Daily.co internals are ready
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        
         console.log('Iframe mount wait complete');
 
         if (!isSubscribed) {
@@ -63,13 +89,27 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
         }
 
         // Set up event listeners BEFORE joining
+        // First, set up a promise to wait for the 'loaded' event
+        // This must be done BEFORE any other listeners to catch the event if it fires early
+        let loadedResolver = null;
+        const loadedPromise = new Promise((resolve) => {
+          loadedResolver = resolve;
+        });
+        
+        // Set up the loaded listener first to catch the event early
+        callFrame.on('loaded', () => {
+          console.log('Daily.co iframe loaded');
+          if (isSubscribed) setIsLoading(false);
+          if (loadedResolver) {
+            loadedResolver();
+            loadedResolver = null;
+          }
+        });
+
+        // Set up all other event listeners
         callFrame
           .on('loading', () => {
             if (isSubscribed) setIsLoading(true);
-          })
-          .on('loaded', () => {
-            console.log('Daily.co iframe loaded');
-            if (isSubscribed) setIsLoading(false);
           })
           .on('started-camera', () => {
             if (isSubscribed) setIsLoading(false);
@@ -112,6 +152,31 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
             setError(error.errorMsg || 'Failed to connect to video call');
             setIsLoading(false);
           });
+
+        if (!isSubscribed) {
+          await callFrame.destroy();
+          return;
+        }
+
+        // Wait for the 'loaded' event before joining to ensure DOM is ready
+        // This prevents the AudioTracks error in production
+        // Use Promise.race with a timeout to prevent infinite waiting
+        await Promise.race([
+          loadedPromise,
+          new Promise((resolve) => {
+            setTimeout(() => {
+              if (loadedResolver) {
+                console.warn('Loaded event timeout - proceeding anyway');
+                loadedResolver();
+                loadedResolver = null;
+              }
+              resolve();
+            }, 5000);
+          })
+        ]);
+
+        // Additional small delay after loaded event to ensure internal DOM is ready
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
         if (!isSubscribed) {
           await callFrame.destroy();
