@@ -109,6 +109,18 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           return;
         }
 
+        // Preload to ensure Daily.co initializes properly and avoid race conditions
+        try {
+          await callFrame.preAuth({ url: roomUrl, token: token || undefined });
+        } catch (preAuthError) {
+          console.warn('PreAuth failed, continuing with join:', preAuthError);
+        }
+
+        if (!isSubscribed) {
+          await callFrame.destroy();
+          return;
+        }
+
         // Join the meeting
         await callFrame.join({
           url: roomUrl,
