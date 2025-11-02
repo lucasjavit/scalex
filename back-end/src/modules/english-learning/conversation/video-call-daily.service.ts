@@ -174,6 +174,10 @@ export class VideoCallDailyService {
             is_owner: isOwner,
             exp,
             user_id: userId,
+            // Enable admin permissions for room access
+            enable_screenshare: true,
+            start_video_off: false,
+            start_audio_off: false,
           },
         },
       );
