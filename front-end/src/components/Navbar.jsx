@@ -65,7 +65,7 @@ export default function Navbar() {
   // Control glow effect - glow for 30 seconds after login, then stop permanently
   useEffect(() => {
     if (user && !hasGlowed) {
-      // console.log('🔥 Starting glow effect for ScaleX');
+      // console.log('🔥 Starting glow effect for Scallex');
       // Start glowing when user logs in
       setShouldGlow(true);
       setHasGlowed(true);
@@ -145,7 +145,7 @@ export default function Navbar() {
                 fontSize: '1.125rem', // text-lg equivalent
               }}
             >
-              ScaleX
+              Scallex
             </span>
 
           </div>

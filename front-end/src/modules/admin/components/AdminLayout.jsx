@@ -128,7 +128,7 @@ const AdminLayout = ({ children }) => {
                       Admin Panel
                     </h1>
                     <p className="text-xs text-copilot-text-secondary mt-1">
-                      ScaleX Management
+                      Scallex Management
                     </p>
                   </div>
                   <button
@@ -155,7 +155,7 @@ const AdminLayout = ({ children }) => {
                   Admin Panel
                 </h1>
                 <p className="text-sm text-copilot-text-secondary mt-1">
-                  ScaleX Management
+                  Scallex Management
                 </p>
               </div>
               <nav className="space-y-2">

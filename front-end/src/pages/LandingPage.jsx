@@ -73,7 +73,7 @@ export default function LandingPage() {
                   MozOsxFontSmoothing: 'grayscale'
                 }}
               >
-                ScaleX
+                Scallex
               </h1>
             <p className="text-xl text-copilot-text-secondary font-medium">
               {t('hero.tagline')}
