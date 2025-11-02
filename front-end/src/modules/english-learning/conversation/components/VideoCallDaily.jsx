@@ -49,6 +49,10 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
 
         dailyFrameRef.current = callFrame;
 
+        // Wait for iframe DOM to be fully mounted (critical for production)
+        // This prevents AudioTracks from trying to access undefined elements
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
         if (!isSubscribed) {
           await callFrame.destroy();
           return;
