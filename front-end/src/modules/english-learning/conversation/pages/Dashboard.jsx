@@ -16,6 +16,8 @@ const VideoCallDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [timeUntilNextPeriod, setTimeUntilNextPeriod] = useState(null);
   const [showAllPeriods, setShowAllPeriods] = useState(false);
+  const [showJoinRoomModal, setShowJoinRoomModal] = useState(false);
+  const [roomIdInput, setRoomIdInput] = useState('');
 
   useEffect(() => {
     loadData();
@@ -123,11 +125,17 @@ const VideoCallDashboard = () => {
       };
 
   const handleJoinRoom = () => {
-    const input = prompt('Enter room ID or paste room URL:');
-    if (!input) return;
+    setShowJoinRoomModal(true);
+  };
+
+  const handleJoinRoomSubmit = () => {
+    if (!roomIdInput) {
+      setShowJoinRoomModal(false);
+      return;
+    }
 
     // Extract room name from URL or use as-is
-    let roomId = videoCallService.extractRoomNameFromUrl(input) || input.trim();
+    let roomId = videoCallService.extractRoomNameFromUrl(roomIdInput) || roomIdInput.trim();
 
     if (videoCallService.isValidRoomName(roomId)) {
       navigate(`/video-call/room/${roomId}`, {
@@ -138,6 +146,9 @@ const VideoCallDashboard = () => {
     } else {
       showError(t('dashboard.messages.invalidRoomId'));
     }
+
+    setShowJoinRoomModal(false);
+    setRoomIdInput('');
   };
 
       const handleCreateRoom = async () => {
@@ -607,6 +618,50 @@ const VideoCallDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Join Room Modal */}
+      {showJoinRoomModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-copilot-bg-secondary rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-copilot-text-primary mb-4">
+              {t('dashboard.actions.joinRoom.title')}
+            </h3>
+            <p className="text-copilot-text-secondary mb-4 text-sm">
+              Enter room ID or paste room URL:
+            </p>
+            <input
+              type="text"
+              value={roomIdInput}
+              onChange={(e) => setRoomIdInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleJoinRoomSubmit();
+                }
+              }}
+              placeholder="e.g., scalex-1762125167223-2214gg4x6ztj"
+              className="w-full px-4 py-2 bg-copilot-bg-primary border border-copilot-border-default rounded-lg text-copilot-text-primary focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary mb-6"
+              autoFocus
+            />
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowJoinRoomModal(false);
+                  setRoomIdInput('');
+                }}
+                className="px-4 py-2 bg-copilot-bg-tertiary text-copilot-text-secondary rounded-lg hover:bg-copilot-bg-primary transition-colors"
+              >
+                {t('common:buttons.cancel')}
+              </button>
+              <button
+                onClick={handleJoinRoomSubmit}
+                className="px-4 py-2 bg-copilot-accent-primary text-white rounded-lg hover:bg-copilot-accent-secondary transition-colors"
+              >
+                {t('dashboard.actions.joinRoom.joinWithId')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

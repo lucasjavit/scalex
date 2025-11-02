@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../auth-social/context/AuthContext';
+import { useNotification } from '../../../../hooks/useNotification';
 import VideoCall from '../components/VideoCall';
 import videoCallService from '../services/videoCallService';
 
@@ -9,6 +10,7 @@ const VideoCallRoom = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showSuccess } = useNotification();
   const [showTopic, setShowTopic] = useState(true);
   const [topic, setTopic] = useState('');
   const [randomTopic, setRandomTopic] = useState('');
@@ -228,7 +230,7 @@ const VideoCallRoom = () => {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(roomId);
-                  alert('Room ID copied!');
+                  showSuccess('Room ID copied to clipboard!');
                 }}
                 className="text-xs text-copilot-accent-primary font-semibold hover:text-copilot-accent-secondary"
                 title="Copy Room ID"
