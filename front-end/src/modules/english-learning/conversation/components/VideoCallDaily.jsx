@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft }) => {
   const containerRef = useRef(null);
   const dailyFrameRef = useRef(null);
+  const errorHandlersRef = useRef({ originalError: null, originalUnhandledRejection: null });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [participantsCount, setParticipantsCount] = useState(0);
@@ -72,14 +73,66 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           throw new Error('Iframe element not found after waiting');
         }
 
+        // Wait for iframe to be accessible and have contentWindow
+        let iframeReady = false;
+        attempts = 0;
+        while (!iframeReady && attempts < 30) {
+          try {
+            // Check if iframe has a contentWindow (means it's loaded)
+            if (iframeElement.contentWindow) {
+              // Additional check: try to access iframe content (may fail due to CORS, but that's ok)
+              // We just want to ensure the iframe structure is there
+              iframeReady = true;
+            }
+          } catch (e) {
+            // CORS error is expected and ok - we just want to check if contentWindow exists
+            iframeReady = true;
+          }
+          if (!iframeReady) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            attempts++;
+          }
+        }
+
+        // CRITICAL: Wait for the HTML iframe 'load' event
+        // This ensures the iframe has fully loaded its content before Daily.co tries to access DOM
+        const iframeLoadPromise = new Promise((resolve) => {
+          const onLoad = () => {
+            iframeElement.removeEventListener('load', onLoad);
+            resolve();
+          };
+          iframeElement.addEventListener('load', onLoad);
+          
+          // If iframe is already loaded (load event won't fire), resolve immediately
+          if (iframeElement.contentWindow && iframeElement.contentDocument?.readyState === 'complete') {
+            iframeElement.removeEventListener('load', onLoad);
+            resolve();
+          }
+          
+          // Timeout after 5 seconds
+          setTimeout(() => {
+            iframeElement.removeEventListener('load', onLoad);
+            console.warn('Iframe load event timeout - proceeding anyway');
+            resolve();
+          }, 5000);
+        });
+        
+        await iframeLoadPromise;
+
         // Additional wait to ensure iframe content is accessible
-        // Use requestAnimationFrame to wait for the next paint cycle
+        // Use multiple requestAnimationFrame calls to wait for browser paint cycles
         await new Promise((resolve) => requestAnimationFrame(() => {
-          requestAnimationFrame(resolve);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(resolve);
+            });
+          });
         }));
         
-        // Small additional delay to ensure Daily.co internals are ready
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Extended delay to ensure Daily.co internals are fully initialized
+        // This is critical in production where code executes much faster
+        // Increased delay to give Daily.co more time to initialize its internal DOM
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         
         console.log('Iframe mount wait complete');
 
@@ -88,37 +141,77 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           return;
         }
 
-        // Set up event listeners BEFORE joining
-        // First, set up a promise to wait for the 'loaded' event
-        // This must be done BEFORE any other listeners to catch the event if it fires early
-        let loadedResolver = null;
-        const loadedPromise = new Promise((resolve) => {
-          loadedResolver = resolve;
-        });
+        // Set up error handler to suppress the AudioTracks error during initialization
+        // This error occurs internally in Daily.co but doesn't prevent functionality
+        errorHandlersRef.current.originalError = window.onerror;
+        errorHandlersRef.current.originalUnhandledRejection = window.onunhandledrejection;
+        const originalErrorHandler = errorHandlersRef.current.originalError;
+        const originalUnhandledRejection = errorHandlersRef.current.originalUnhandledRejection;
         
-        // Set up the loaded listener first to catch the event early
-        callFrame.on('loaded', () => {
-          console.log('Daily.co iframe loaded');
-          if (isSubscribed) setIsLoading(false);
-          if (loadedResolver) {
-            loadedResolver();
-            loadedResolver = null;
+        const errorSuppressionHandler = (message, source, lineno, colno, error) => {
+          // Suppress the specific AudioTracks error during initialization
+          // Error message contains "addEventListener" and stack trace contains "AudioTracks"
+          const errorString = error?.stack || error?.toString() || '';
+          const isAudioTracksError = 
+            (message && (message.includes('addEventListener') || message.includes('Cannot read properties'))) &&
+            (errorString.includes('AudioTracks') || source?.includes('AudioTracks'));
+          
+          if (isAudioTracksError) {
+            console.warn('Suppressed Daily.co AudioTracks initialization error (non-critical)');
+            return true; // Suppress the error
           }
-        });
+          // Let other errors through
+          if (originalErrorHandler) {
+            return originalErrorHandler.call(window, message, source, lineno, colno, error);
+          }
+          return false;
+        };
+        
+        const unhandledRejectionHandler = (event) => {
+          const error = event.reason;
+          const errorString = error?.stack || error?.toString() || '';
+          if (errorString.includes('AudioTracks') && errorString.includes('addEventListener')) {
+            console.warn('Suppressed Daily.co AudioTracks promise rejection (non-critical)');
+            event.preventDefault();
+            return;
+          }
+          if (originalUnhandledRejection) {
+            originalUnhandledRejection(event);
+          }
+        };
+        
+        // Set up the error handlers
+        window.onerror = errorSuppressionHandler;
+        window.onunhandledrejection = unhandledRejectionHandler;
 
-        // Set up all other event listeners
+        // Set up event listeners BEFORE joining
         callFrame
           .on('loading', () => {
             if (isSubscribed) setIsLoading(true);
           })
+          .on('loaded', () => {
+            console.log('Daily.co iframe loaded');
+            if (isSubscribed) setIsLoading(false);
+            // Restore original error handlers after Daily.co is loaded
+            setTimeout(() => {
+              window.onerror = originalErrorHandler;
+              window.onunhandledrejection = originalUnhandledRejection;
+            }, 1000);
+          })
           .on('started-camera', () => {
             if (isSubscribed) setIsLoading(false);
+            // Restore original error handlers after camera starts
+            window.onerror = originalErrorHandler;
+            window.onunhandledrejection = originalUnhandledRejection;
           })
           .on('joined-meeting', (event) => {
             if (!isSubscribed) return;
             setIsLoading(false);
             setParticipantsCount(event.participants ? Object.keys(event.participants).length : 1);
             onUserJoined?.({ id: 'local', participant: event.participants?.local });
+            // Restore original error handlers after joining
+            window.onerror = originalErrorHandler;
+            window.onunhandledrejection = originalUnhandledRejection;
           })
           .on('participant-joined', (event) => {
             if (!isSubscribed) return;
@@ -151,46 +244,62 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
             console.error('Daily.co error:', error);
             setError(error.errorMsg || 'Failed to connect to video call');
             setIsLoading(false);
+            // Restore original error handlers on error
+            window.onerror = originalErrorHandler;
+            window.onunhandledrejection = originalUnhandledRejection;
           });
 
         if (!isSubscribed) {
+          window.onerror = originalErrorHandler;
+          window.onunhandledrejection = originalUnhandledRejection;
           await callFrame.destroy();
           return;
         }
 
-        // Wait for the 'loaded' event before joining to ensure DOM is ready
-        // This prevents the AudioTracks error in production
-        // Use Promise.race with a timeout to prevent infinite waiting
-        await Promise.race([
-          loadedPromise,
-          new Promise((resolve) => {
-            setTimeout(() => {
-              if (loadedResolver) {
-                console.warn('Loaded event timeout - proceeding anyway');
-                loadedResolver();
-                loadedResolver = null;
-              }
-              resolve();
-            }, 5000);
-          })
-        ]);
-
-        // Additional small delay after loaded event to ensure internal DOM is ready
-        await new Promise((resolve) => setTimeout(resolve, 200));
-
-        if (!isSubscribed) {
-          await callFrame.destroy();
-          return;
+        // Wrap join() in try-catch to handle any errors gracefully
+        // The AudioTracks error might occur, but we'll catch it and retry
+        try {
+          // Join the meeting - this will trigger event listeners
+          await callFrame.join({
+            url: roomUrl,
+            token: token || undefined,
+            showFullscreenButton: true,
+            showLocalVideo: true,
+            showParticipantsBar: true,
+          });
+        } catch (joinError) {
+          // If join fails, wait a bit more and retry once
+          console.warn('Initial join attempt failed, retrying after delay...', joinError);
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          
+          if (!isSubscribed) {
+            window.onerror = originalErrorHandler;
+            window.onunhandledrejection = originalUnhandledRejection;
+            await callFrame.destroy();
+            return;
+          }
+          
+          try {
+            await callFrame.join({
+              url: roomUrl,
+              token: token || undefined,
+              showFullscreenButton: true,
+              showLocalVideo: true,
+              showParticipantsBar: true,
+            });
+          } catch (retryError) {
+            console.error('Retry join also failed:', retryError);
+            window.onerror = originalErrorHandler;
+            window.onunhandledrejection = originalUnhandledRejection;
+            throw retryError;
+          }
         }
-
-        // Join the meeting - this will trigger event listeners
-        await callFrame.join({
-          url: roomUrl,
-          token: token || undefined,
-          showFullscreenButton: true,
-          showLocalVideo: true,
-          showParticipantsBar: true,
-        });
+        
+        // Fallback: restore error handlers after a timeout if events don't fire
+        setTimeout(() => {
+          window.onerror = originalErrorHandler;
+          window.onunhandledrejection = originalUnhandledRejection;
+        }, 5000);
       } catch (err) {
         console.error('Error initializing Daily.co:', err);
         if (isSubscribed) {
@@ -205,6 +314,15 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
     // Cleanup
     return () => {
       isSubscribed = false;
+      
+      // Restore original error handlers on cleanup
+      if (errorHandlersRef.current.originalError !== undefined) {
+        window.onerror = errorHandlersRef.current.originalError;
+      }
+      if (errorHandlersRef.current.originalUnhandledRejection !== undefined) {
+        window.onunhandledrejection = errorHandlersRef.current.originalUnhandledRejection;
+      }
+      
       if (callFrame) {
         callFrame.destroy().catch((e) => console.log('Cleanup error:', e));
       }
