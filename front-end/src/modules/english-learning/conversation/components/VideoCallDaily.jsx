@@ -49,9 +49,13 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
 
         dailyFrameRef.current = callFrame;
 
-        // Wait for iframe DOM to be fully mounted (critical for production)
-        // This prevents AudioTracks from trying to access undefined elements
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // CRITICAL: Wait for iframe DOM to be fully mounted
+        // Production builds are highly optimized and execute much faster than dev,
+        // causing a race condition where AudioTracks tries to access DOM elements
+        // before they exist. This delay ensures the iframe has time to render.
+        console.log('Waiting for iframe to mount...');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log('Iframe mount wait complete');
 
         if (!isSubscribed) {
           await callFrame.destroy();
