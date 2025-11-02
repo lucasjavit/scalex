@@ -34,6 +34,11 @@ async function bootstrap() {
         return callback(null, true);
       }
 
+      // Allow scallex.co domain and all subdomains
+      if (origin.includes('scallex.co')) {
+        return callback(null, true);
+      }
+
       callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
