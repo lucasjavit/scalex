@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
 import { UsersService } from '../../users/users.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
@@ -15,6 +16,8 @@ export class FirebaseAuthGuard implements CanActivate {
     private reflector: Reflector,
     private firebaseAdminService: FirebaseAdminService,
     private usersService: UsersService,
+    @InjectPinoLogger(FirebaseAuthGuard.name)
+    private readonly logger: PinoLogger,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -84,7 +87,8 @@ export class FirebaseAuthGuard implements CanActivate {
 
       return true;
     } catch (error) {
-      console.error('Firebase Auth Error:', error.message);
+      this.logger.error('Firebase Auth Error:', error.message);
+      this.logger.error('Stack trace:', error.stack);
       throw new UnauthorizedException('Invalid or expired token');
     }
   }
