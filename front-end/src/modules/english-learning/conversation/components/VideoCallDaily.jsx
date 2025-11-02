@@ -1,4 +1,5 @@
 import DailyIframe from '@daily-co/daily-js';
+import DetectRTC from 'detectrtc';
 import React, { useEffect, useRef, useState } from 'react';
 
 const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft }) => {
