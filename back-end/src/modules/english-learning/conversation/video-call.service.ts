@@ -132,19 +132,12 @@ export class VideoCallService {
   async createRoom(
     createRoomDto: CreateRoomDto,
   ): Promise<VideoCallRoom & { dailyRoomUrl: string; dailyRoomId: string }> {
-    // CHECK USAGE LIMITS BEFORE CREATING ROOM
+    // CHECK USAGE LIMITS BEFORE CREATING ANYTHING
     await this.checkUsageLimits();
 
     const roomName = this.generateRoomName();
 
-    // Create Daily.co room
-    const dailyRoom = await this.dailyService.createRoom(roomName, {
-      maxParticipants: 4,
-      enableScreenshare: true,
-      enableChat: true,
-      expiresIn: 3600 * (createRoomDto.duration || 1), // Expires based on duration
-    });
-
+    // FIRST: Create room object in memory
     const room: VideoCallRoom = {
       roomName,
       userId: createRoomDto.userId,
@@ -164,11 +157,38 @@ export class VideoCallService {
     };
 
     this.rooms.set(roomName, room);
-    console.log(
-      `Created room: ${roomName} with Daily.co room: ${dailyRoom.id}`,
-    );
+    console.log(`Room created in memory: ${roomName}`);
 
-    // INCREMENT ROOM COUNTER AFTER SUCCESSFUL CREATION
+    // SECOND: Create Daily.co room (ONLY after memory storage succeeds)
+    let dailyRoom;
+    try {
+      dailyRoom = await this.dailyService.createRoom(roomName, {
+        maxParticipants: 4,
+        enableScreenshare: true,
+        enableChat: true,
+        expiresIn: 3600 * (createRoomDto.duration || 1),
+      });
+      console.log(
+        `✅ Created Daily.co room: ${roomName} (${dailyRoom.id})`,
+      );
+    } catch (error) {
+      console.error(
+        `❌ Failed to create Daily.co room ${roomName}:`,
+        error.message,
+      );
+      // Room in memory exists, but Daily.co room creation failed
+      // Users can still see the room but won't be able to join
+      console.warn(`⚠️  Room ${roomName} exists in memory but has no Daily.co room`);
+
+      // Return room without Daily.co details
+      return {
+        ...room,
+        dailyRoomUrl: '',
+        dailyRoomId: '',
+      };
+    }
+
+    // INCREMENT ROOM COUNTER AFTER SUCCESSFUL DAILY.CO CREATION
     await this.incrementRoomCounter();
 
     return {
@@ -267,6 +287,16 @@ export class VideoCallService {
       const start = new Date(room.startedAt);
       const end = new Date(room.endedAt);
       room.duration = Math.round((end.getTime() - start.getTime()) / 1000);
+    }
+
+    // Remove ALL participants from queue (memory and database)
+    for (const userId of room.participants) {
+      try {
+        await this.queueService.leaveQueue(userId);
+        console.log(`🗑️  Removed user ${userId} from queue (room ended)`);
+      } catch (error) {
+        console.warn(`Failed to remove user ${userId} from queue:`, error);
+      }
     }
 
     // Delete Daily.co room (optional - Daily.co will auto-delete after expiration)

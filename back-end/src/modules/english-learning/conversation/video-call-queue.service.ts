@@ -791,8 +791,9 @@ export class VideoCallQueueService implements OnModuleInit {
     const sessionRooms: SessionRoom[] = [];
     const sessionsToSave: Partial<VideoCallSession>[] = [];
     const userIdsToRemove: string[] = [];
+    const roomsToCreate: Array<{ roomName: string; user1: any; user2: any; level: string }> = [];
 
-    // Cria pares para cada nível
+    // Prepara pares para cada nível (sem criar rooms ainda)
     for (const [level, users] of Object.entries(usersByLevel)) {
       this.logger.log(`Level ${level}: ${users.length} users`);
 
@@ -803,50 +804,30 @@ export class VideoCallQueueService implements OnModuleInit {
 
         const roomName = `room_${sessionId}_${level}_${i / 2}`;
 
-        // Create Daily.co room for scheduled session
-        try {
-          // Check usage limits before creating room
-          if (this.videoCallService) {
-            const canCreate = await this.videoCallService.checkAndIncrementRoomUsage();
-            if (!canCreate) {
-              this.logger.error(
-                `❌ Cannot create room ${roomName}: Usage limit reached`,
-              );
-              continue; // Skip this pair
+        // Check usage limits before preparing pair
+        if (this.videoCallService) {
+          const canCreate = await this.videoCallService.checkAndIncrementRoomUsage();
+          if (!canCreate) {
+            this.logger.error(
+              `❌ Cannot create room ${roomName}: Usage limit reached`,
+            );
+
+            // Remove users from queue - they will return to dashboard
+            try {
+              await this.queueRepository.delete({ userId: user1.userId });
+              await this.queueRepository.delete({ userId: user2.userId });
+              this.logger.log(`🗑️  Removed users ${user1.userId} and ${user2.userId} from queue (usage limit reached)`);
+            } catch (deleteError) {
+              this.logger.warn(`Failed to remove users from queue: ${deleteError.message}`);
             }
+
+            continue; // Skip this pair
           }
-
-          await this.dailyService.createRoom(roomName, {
-            maxParticipants: 2,
-            enableScreenshare: true,
-            enableChat: true,
-            expiresIn: this.SESSION_DURATION / 1000, // Convert ms to seconds
-          });
-          this.logger.log(
-            `✅ Created Daily.co room for scheduled session: ${roomName}`,
-          );
-        } catch (error) {
-          this.logger.error(
-            `❌ Failed to create Daily.co room ${roomName}:`,
-            error.message,
-          );
-          // Continue anyway - session will be created but video might not work
         }
-
-        const room: SessionRoom = {
-          roomName,
-          sessionId,
-          user1: user1.userId,
-          user2: user2.userId,
-          level,
-          createdAt: new Date(),
-          endedAt: null,
-          status: 'active',
-        };
 
         const expiresAt = new Date(Date.now() + this.SESSION_DURATION);
 
-        // Prepara sessão para salvar no banco
+        // Prepara sessão para salvar no banco (SEM criar room ainda)
         sessionsToSave.push({
           sessionId,
           user1Id: user1.userId,
@@ -860,11 +841,25 @@ export class VideoCallQueueService implements OnModuleInit {
           status: SessionStatus.ACTIVE,
         });
 
+        // Guarda dados para criar room DEPOIS
+        roomsToCreate.push({ roomName, user1, user2, level });
+
+        const room: SessionRoom = {
+          roomName,
+          sessionId,
+          user1: user1.userId,
+          user2: user2.userId,
+          level,
+          createdAt: new Date(),
+          endedAt: null,
+          status: 'active',
+        };
+
         sessionRooms.push(room);
         userIdsToRemove.push(user1.userId, user2.userId);
 
         this.logger.log(
-          `Prepared room: ${roomName} for users ${user1.userId} and ${user2.userId}`,
+          `Prepared pair: ${user1.userId} and ${user2.userId} for room ${roomName}`,
         );
       }
 
@@ -877,13 +872,13 @@ export class VideoCallQueueService implements OnModuleInit {
       }
     }
 
-    if (sessionRooms.length === 0) {
-      this.logger.log('No rooms created. Skipping session.');
+    if (sessionsToSave.length === 0) {
+      this.logger.log('No pairs to process. Skipping session.');
       this.scheduleNextSession();
       return;
     }
 
-    // Salva todas as sessões e remove usuários da fila em uma ÚNICA TRANSAÇÃO
+    // FIRST: Save to database (transaction)
     try {
       await this.sessionRepository.manager.transaction(
         async (transactionalEntityManager) => {
@@ -902,19 +897,47 @@ export class VideoCallQueueService implements OnModuleInit {
           }
 
           this.logger.log(
-            `✅ Transaction completed: ${sessionsToSave.length} sessions saved, ${userIdsToRemove.length} users removed from queue`,
+            `✅ Database transaction completed: ${sessionsToSave.length} sessions saved, ${userIdsToRemove.length} users removed from queue`,
           );
         },
       );
 
-      // Apenas atualiza memória APÓS transação bem-sucedida
+      // SECOND: Create rooms in Daily.co (ONLY after DB success)
+      for (const { roomName, user1, user2, level } of roomsToCreate) {
+        try {
+          await this.dailyService.createRoom(roomName, {
+            maxParticipants: 2,
+            enableScreenshare: true,
+            enableChat: true,
+            expiresIn: this.SESSION_DURATION / 1000,
+          });
+          this.logger.log(
+            `✅ Created Daily.co room for scheduled session: ${roomName}`,
+          );
+        } catch (roomError) {
+          this.logger.error(
+            `❌ Failed to create Daily.co room ${roomName}:`,
+            roomError.message,
+          );
+          // Room creation failed, but DB transaction succeeded
+          // Session exists but without working room
+          this.logger.warn(`⚠️  Session saved but room ${roomName} not created in Daily.co`);
+        }
+      }
+
+      // THIRD: Update memory (after both DB and rooms succeed)
       for (const room of sessionRooms) {
         this.sessionRooms.set(room.roomName, room);
         this.userSessions.set(room.user1, sessionId);
         this.userSessions.set(room.user2, sessionId);
       }
     } catch (error) {
-      this.logger.error('❌ Error in session creation transaction:', error);
+      this.logger.error('❌ Error in database transaction:', error);
+
+      // Database transaction failed - users remain in queue
+      // No rooms were created in Daily.co (because we create them AFTER transaction)
+      this.logger.log(`⚠️  Transaction failed. Users remain in queue. No Daily.co rooms were created.`);
+
       this.scheduleNextSession();
       return;
     }
@@ -1030,6 +1053,15 @@ export class VideoCallQueueService implements OnModuleInit {
       // Remove mapeamentos de usuários
       this.userSessions.delete(room.user1);
       this.userSessions.delete(room.user2);
+
+      // Remove ambos usuários da queue (memória e BD)
+      try {
+        await this.queueRepository.delete({ userId: room.user1 });
+        await this.queueRepository.delete({ userId: room.user2 });
+        this.logger.log(`🗑️  Removed users ${room.user1} and ${room.user2} from queue (session ended)`);
+      } catch (deleteError) {
+        this.logger.warn(`Failed to remove users from queue: ${deleteError.message}`);
+      }
 
       this.logger.log(`Ended room: ${room.roomName}`);
     }
@@ -1234,53 +1266,31 @@ export class VideoCallQueueService implements OnModuleInit {
         const sessionId = `session_${Date.now()}`;
         const roomName = `room_${sessionId}_${level}_immediate`;
 
-        // Create Daily.co room for immediate match
-        try {
-          // Check usage limits before creating room
-          if (this.videoCallService) {
-            const canCreate = await this.videoCallService.checkAndIncrementRoomUsage();
-            if (!canCreate) {
-              this.logger.error(
-                `❌ Cannot create room ${roomName}: Usage limit reached`,
-              );
-              // Keep both users in queue (they're already there, don't remove them)
-              this.logger.log(`Users ${user1.userId} and ${user2.userId} will remain in queue`);
-              releaseLock();
-              return;
+        // Check usage limits BEFORE database transaction
+        if (this.videoCallService) {
+          const canCreate = await this.videoCallService.checkAndIncrementRoomUsage();
+          if (!canCreate) {
+            this.logger.error(
+              `❌ Cannot create room ${roomName}: Usage limit reached`,
+            );
+
+            // Remove users from queue - they will return to dashboard
+            try {
+              await this.queueRepository.delete({ userId: user1.userId });
+              await this.queueRepository.delete({ userId: user2.userId });
+              this.logger.log(`🗑️  Removed users ${user1.userId} and ${user2.userId} from queue (usage limit reached)`);
+            } catch (deleteError) {
+              this.logger.warn(`Failed to remove users from queue: ${deleteError.message}`);
             }
+
+            releaseLock();
+            return;
           }
-
-          await this.dailyService.createRoom(roomName, {
-            maxParticipants: 2,
-            enableScreenshare: true,
-            enableChat: true,
-            expiresIn: this.SESSION_DURATION / 1000, // Convert ms to seconds
-          });
-          this.logger.log(
-            `✅ Created Daily.co room for immediate match: ${roomName}`,
-          );
-        } catch (error) {
-          this.logger.error(
-            `❌ Failed to create Daily.co room ${roomName}:`,
-            error.message,
-          );
-          // Continue anyway - session will be created but video might not work
         }
-
-        const room: SessionRoom = {
-          roomName,
-          sessionId,
-          user1: user1.userId,
-          user2: user2.userId,
-          level,
-          createdAt: new Date(),
-          endedAt: null,
-          status: 'active',
-        };
 
         const expiresAt = new Date(Date.now() + this.SESSION_DURATION);
 
-        // Salva sessão no banco usando transação para garantir atomicidade
+        // FIRST: Save to database (transaction)
         try {
           await this.sessionRepository.manager.transaction(
             async (transactionalEntityManager) => {
@@ -1310,7 +1320,42 @@ export class VideoCallQueueService implements OnModuleInit {
             },
           );
 
-          // Apenas adiciona à memória APÓS transação bem-sucedida
+          this.logger.log(`✅ Database transaction successful for immediate match`);
+
+          // SECOND: Create Daily.co room (ONLY after DB success)
+          try {
+            await this.dailyService.createRoom(roomName, {
+              maxParticipants: 2,
+              enableScreenshare: true,
+              enableChat: true,
+              expiresIn: this.SESSION_DURATION / 1000,
+            });
+            this.logger.log(
+              `✅ Created Daily.co room for immediate match: ${roomName}`,
+            );
+          } catch (roomError) {
+            this.logger.error(
+              `❌ Failed to create Daily.co room ${roomName}:`,
+              roomError.message,
+            );
+            // Room creation failed, but DB transaction succeeded
+            // Users were removed from queue, session is in DB but without room
+            // This is acceptable - they'll see an error when trying to join
+            this.logger.warn(`⚠️  Session ${sessionId} created without Daily.co room`);
+          }
+
+          // THIRD: Update memory (after both DB and room succeed)
+          const room: SessionRoom = {
+            roomName,
+            sessionId,
+            user1: user1.userId,
+            user2: user2.userId,
+            level,
+            createdAt: new Date(),
+            endedAt: null,
+            status: 'active',
+          };
+
           this.sessionRooms.set(roomName, room);
           this.userSessions.set(user1.userId, sessionId);
           this.userSessions.set(user2.userId, sessionId);
@@ -1334,8 +1379,11 @@ export class VideoCallQueueService implements OnModuleInit {
             this.endSession(sessionId);
           }, this.SESSION_DURATION);
         } catch (error) {
-          this.logger.error('Error creating immediate match session:', error);
-          // Em caso de erro, não adiciona nada à memória - rollback automático da transação
+          this.logger.error('❌ Error in database transaction:', error);
+
+          // Database transaction failed - users remain in queue
+          // No room was created in Daily.co
+          this.logger.log(`⚠️  Transaction failed. Users ${user1.userId} and ${user2.userId} remain in queue`);
         }
       } else {
         this.logger.log(
