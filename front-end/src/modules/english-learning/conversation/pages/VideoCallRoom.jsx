@@ -151,7 +151,16 @@ const VideoCallRoom = () => {
       }
     } catch (error) {
       console.error('Error leaving session:', error);
-      // Continue navigation even if API call fails
+
+      // IF ANY ERROR OCCURS: Force remove user from queue (both database and memory)
+      try {
+        console.log('Attempting to force leave queue due to error...');
+        await videoCallService.leaveQueue(user.uid);
+        console.log('Successfully force-removed from queue');
+      } catch (queueError) {
+        console.error('Error force-removing from queue:', queueError);
+        // Even if queue removal fails, continue to navigation
+      }
     }
 
     // User who clicked "End Call" returns to dashboard
