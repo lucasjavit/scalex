@@ -24,7 +24,7 @@ const EnglishCourseAdmin = () => {
   const [editingCard, setEditingCard] = useState(null);
   const [stageForm, setStageForm] = useState({ title: '', description: '', orderIndex: stages.length + 1 });
   const [unitForm, setUnitForm] = useState({ title: '', description: '', youtubeUrl: '', videoDuration: '', orderIndex: 1 });
-  const [cardForm, setCardForm] = useState({ question: '', answer: '', exampleSentence: '', orderIndex: 1 });
+  const [cardForm, setCardForm] = useState({ question: '', answer: '', exampleSentence: '' });
 
   useEffect(() => {
     if (activeTab === 'stages') {
@@ -160,7 +160,7 @@ const EnglishCourseAdmin = () => {
         unitId: selectedUnit.id,
       });
       setShowCardModal(false);
-      setCardForm({ question: '', answer: '', exampleSentence: '', orderIndex: 1 });
+      setCardForm({ question: '', answer: '', exampleSentence: '' });
       await loadCards();
       showSuccess('Card criado com sucesso!');
     } catch (error) {
@@ -189,11 +189,10 @@ const EnglishCourseAdmin = () => {
 
   const handleEditCard = (card) => {
     setEditingCard(card);
-    setCardForm({ 
-      question: card.question, 
-      answer: card.answer, 
-      exampleSentence: card.exampleSentence || '', 
-      orderIndex: card.orderIndex 
+    setCardForm({
+      question: card.question,
+      answer: card.answer,
+      exampleSentence: card.exampleSentence || ''
     });
     setShowCardModal(true);
   };
@@ -645,13 +644,6 @@ const EnglishCourseAdmin = () => {
                   onChange={(e) => setCardForm({ ...cardForm, exampleSentence: e.target.value })}
                   className="input-copilot w-full"
                   rows="2"
-                />
-                <input
-                  type="number"
-                  placeholder="Order index"
-                  value={cardForm.orderIndex}
-                  onChange={(e) => setCardForm({ ...cardForm, orderIndex: parseInt(e.target.value) })}
-                  className="input-copilot w-full"
                 />
               </div>
               <div className="flex gap-2 mt-6">

@@ -1,22 +1,36 @@
 // API service for communicating with ScaleX backend
-const API_BASE_URL = 'http://localhost:3000';
+import { auth } from '../modules/auth-social/services/firebaseAuth';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 class ApiService {
   constructor() {
     this.baseURL = API_BASE_URL;
   }
 
+  // Get Firebase auth token
+  async getAuthToken() {
+    if (auth.currentUser) {
+      return await auth.currentUser.getIdToken();
+    }
+    return null;
+  }
+
   // Generic request method
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
-    
-    // Get userId from localStorage (set by auth context)
+
+    // Get Firebase auth token
+    const token = await this.getAuthToken();
+
+    // Get userId from localStorage (set by auth context) - for backward compatibility
     const userId = localStorage.getItem('userId');
-    
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
-        ...(userId && { 'x-user-id': userId }), // Add userId header if available
+        ...(token && { 'Authorization': `Bearer ${token}` }), // Add Firebase token
+        ...(userId && { 'x-user-id': userId }), // Add userId header if available (backward compatibility)
         ...options.headers,
       },
       ...options,
@@ -27,6 +41,12 @@ class ApiService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+
+        // Better error message for authentication issues
+        if (response.status === 401) {
+          throw new Error('No token provided');
+        }
+
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
