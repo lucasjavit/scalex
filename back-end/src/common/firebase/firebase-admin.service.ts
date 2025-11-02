@@ -63,8 +63,12 @@ export class FirebaseAdminService {
         }
       }
     } catch (error) {
-      this.logger.error('❌ Erro ao inicializar Firebase Admin:', error.message);
-      this.logger.error('Stack trace:', error.stack);
+      this.logger.error({
+        message: '❌ Erro ao inicializar Firebase Admin',
+        errorMessage: error.message,
+        errorStack: error.stack,
+        errorName: error.name,
+      });
       this.firebaseApp = null;
     }
   }
