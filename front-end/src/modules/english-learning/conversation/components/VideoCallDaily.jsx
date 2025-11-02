@@ -15,10 +15,53 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
     let isSubscribed = true;
     let callFrame = null;
 
+    // Verifica suporte ao WebRTC antes de inicializar
+    const checkWebRTCSupport = () => {
+      // Verifica se está em HTTPS (requerido para WebRTC, exceto localhost)
+      const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      // Verifica se RTCPeerConnection está disponível
+      const hasRTCPeerConnection = typeof RTCPeerConnection !== 'undefined' || 
+                                   typeof webkitRTCPeerConnection !== 'undefined' || 
+                                   typeof mozRTCPeerConnection !== 'undefined';
+      
+      // Verifica se getUserMedia está disponível
+      const hasGetUserMedia = navigator.mediaDevices?.getUserMedia || 
+                              navigator.getUserMedia || 
+                              navigator.webkitGetUserMedia || 
+                              navigator.mozGetUserMedia;
+
+      if (!isSecure) {
+        return {
+          supported: false,
+          error: 'WebRTC requires HTTPS. Please access this site using HTTPS (secure connection).',
+          details: 'Video calls require a secure connection for privacy and security reasons.'
+        };
+      }
+
+      if (!hasRTCPeerConnection && !hasGetUserMedia) {
+        return {
+          supported: false,
+          error: 'WebRTC is not supported in this browser.',
+          details: 'Please use a modern browser like Chrome, Firefox, Safari, or Edge.'
+        };
+      }
+
+      return { supported: true };
+    };
+
     const initializeDaily = async () => {
       try {
         setIsLoading(true);
         setError(null);
+
+        // Verifica suporte ao WebRTC antes de continuar
+        const webrtcCheck = checkWebRTCSupport();
+        if (!webrtcCheck.supported) {
+          setError(`${webrtcCheck.error}\n\n${webrtcCheck.details}`);
+          setIsLoading(false);
+          return;
+        }
 
         // Cleanup previous instance
         if (dailyFrameRef.current) {
@@ -28,12 +71,34 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
 
         if (!containerRef.current) return;
 
-        // Cria o iframe Daily.co
-        callFrame = DailyIframe.createFrame(containerRef.current, {
-          showLeaveButton: false,
-          iframeStyle: { width: '100%', height: '100%', border: '0', borderRadius: '8px' },
-        });
-        dailyFrameRef.current = callFrame;
+        // Verifica se RTCPeerConnection está realmente disponível (teste mais rigoroso)
+        try {
+          const testConnection = new RTCPeerConnection();
+          testConnection.close();
+        } catch (testErr) {
+          setError('WebRTC is blocked or not available.\n\nPlease check:\n• Browser permissions for camera/microphone\n• Privacy extensions that might block WebRTC\n• Try using a different browser');
+          setIsLoading(false);
+          return;
+        }
+
+        // Cria o iframe Daily.co com tratamento de erro na criação
+        try {
+          callFrame = DailyIframe.createFrame(containerRef.current, {
+            showLeaveButton: false,
+            iframeStyle: { width: '100%', height: '100%', border: '0', borderRadius: '8px' },
+          });
+          dailyFrameRef.current = callFrame;
+        } catch (createError) {
+          // Se a criação do frame falhar, pode ser problema de WebRTC ou configuração
+          console.error('Error creating Daily.co frame:', createError);
+          if (createError?.message?.includes('WebRTC') || createError?.message?.includes('not supported')) {
+            setError('Failed to initialize video call.\n\nWebRTC is required but not available.\n\nPlease:\n• Allow camera/microphone permissions\n• Check browser settings\n• Try a different browser');
+            setIsLoading(false);
+            return;
+          }
+          // Re-throw para ser capturado no catch externo
+          throw createError;
+        }
 
         // Configura supressão de erro de AudioTracks
         errorHandlersRef.current.originalError = window.onerror;
@@ -115,7 +180,22 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
       } catch (err) {
         console.error('Error initializing Daily.co:', err);
         if (isSubscribed) {
-          setError('Failed to load video call. Please try again.');
+          let errorMessage = 'Failed to load video call. Please try again.';
+          
+          // Trata erro específico de WebRTC
+          if (err?.message?.includes('WebRTC') || err?.message?.includes('not supported')) {
+            const isSecure = window.location.protocol === 'https:' || 
+                           window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1';
+            
+            if (!isSecure) {
+              errorMessage = 'WebRTC requires HTTPS connection.\n\nPlease access this site using HTTPS (secure connection) to use video calls.';
+            } else {
+              errorMessage = 'WebRTC is not available in your browser.\n\nThis may be due to:\n• Browser settings blocking WebRTC\n• Extensions blocking media access\n• Firewall or network restrictions\n\nPlease try:\n• Allowing camera/microphone permissions\n• Disabling privacy/security extensions\n• Using a different browser';
+            }
+          }
+          
+          setError(errorMessage);
           setIsLoading(false);
         }
       }
@@ -173,7 +253,7 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
               <span className="text-red-500 text-2xl">⚠️</span>
             </div>
             <h3 className="text-xl font-semibold text-copilot-text-primary mb-2">Connection Error</h3>
-            <p className="text-copilot-text-secondary mb-4">{error}</p>
+            <p className="text-copilot-text-secondary mb-4 whitespace-pre-line">{error}</p>
             <div className="flex gap-3 justify-center">
               <button onClick={() => window.location.reload()} className="btn-copilot-primary">Try Again</button>
               <a href={roomUrl} target="_blank" rel="noopener noreferrer" className="btn-copilot-secondary">Open in New Tab</a>
