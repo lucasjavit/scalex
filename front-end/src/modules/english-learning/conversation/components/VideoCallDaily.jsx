@@ -54,13 +54,18 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           return;
         }
 
+        // Create a promise to wait for iframe to be loaded
+        const waitForLoaded = new Promise((resolve) => {
+          callFrame.on('loaded', () => {
+            console.log('Daily.co iframe loaded');
+            resolve();
+          });
+        });
+
         // Set up event listeners
         callFrame
           .on('loading', () => {
             if (isSubscribed) setIsLoading(true);
-          })
-          .on('loaded', () => {
-            if (isSubscribed) setIsLoading(false);
           })
           .on('started-camera', () => {
             if (isSubscribed) setIsLoading(false);
@@ -109,19 +114,7 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           return;
         }
 
-        // Preload to ensure Daily.co initializes properly and avoid race conditions
-        try {
-          await callFrame.preAuth({ url: roomUrl, token: token || undefined });
-        } catch (preAuthError) {
-          console.warn('PreAuth failed, continuing with join:', preAuthError);
-        }
-
-        if (!isSubscribed) {
-          await callFrame.destroy();
-          return;
-        }
-
-        // Join the meeting
+        // Join the meeting - this will trigger 'loading' and then 'loaded' events
         await callFrame.join({
           url: roomUrl,
           token: token || undefined,
@@ -129,6 +122,14 @@ const VideoCallDaily = ({ roomUrl, token, onEndCall, onUserJoined, onUserLeft })
           showLocalVideo: true,
           showParticipantsBar: true,
         });
+
+        // Wait for iframe to be fully loaded before proceeding
+        // This ensures all audio/video elements are initialized
+        await waitForLoaded;
+
+        if (isSubscribed) {
+          setIsLoading(false);
+        }
       } catch (err) {
         console.error('Error initializing Daily.co:', err);
         if (isSubscribed) {
