@@ -121,28 +121,30 @@ export default function Navbar() {
   return (
     <nav className="bg-copilot-bg-secondary border-b border-copilot-border-default">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo/Brand */}
           <div className="flex items-center space-x-6">
             <span
               onClick={() => navigate('/home')}
               className={`cursor-pointer transition-all duration-300 hover:scale-105 ${shouldGlow ? 'shining-text' : ''}`}
               style={shouldGlow ? {
-                background: 'linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe)',
+                background: 'linear-gradient(45deg, #2563eb, #7c3aed, #4facfe, #00f2fe)',
                 backgroundSize: '400% 400%',
                 animation: 'gradientShift 3s ease infinite, glow 2s ease-in-out infinite',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
                 color: 'transparent',
+                fontWeight: 'bold',
+                fontSize: '1.75rem', // (28px)
               } : {
-                background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                background: 'linear-gradient(90deg, #2563eb, #7c3aed)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
                 color: 'transparent',
                 fontWeight: 'bold',
-                fontSize: '1.125rem', // text-lg equivalent
+                fontSize: '1.75rem', // (28px)
               }}
             >
               Scallex
@@ -156,14 +158,14 @@ export default function Navbar() {
             {isAdmin && (
               <button
                 onClick={() => navigate('/admin')}
-                className={`text-sm font-medium transition-colors duration-200 flex items-center gap-1 px-3 py-1.5 rounded-lg ${
+                className={`text-xs font-medium transition-colors duration-200 flex items-center gap-1 px-2 py-1 rounded-lg ${
                   location.pathname.startsWith('/admin')
                     ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                     : 'text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50'
                 }`}
                 title={t('navigation.adminPanel')}
               >
-                <span>🔧</span>
+                <span className="text-xs">🔧</span>
                 <span>{t('navigation.adminPanel')}</span>
               </button>
             )}
