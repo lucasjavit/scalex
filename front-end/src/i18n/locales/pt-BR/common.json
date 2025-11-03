@@ -172,6 +172,33 @@
       "title": "Banco Digital",
       "description": "Receba do exterior e solicite empréstimos"
     }
+  },
+  "courseDashboard": {
+    "title": "Programa de Domínio do Inglês",
+    "subtitle": "Sistema profissional de aprendizado para atingir fluência em inglês",
+    "courseProgress": "Progresso do Curso",
+    "completed": "Concluído",
+    "unitsCompleted": "{{completed}} de {{total}} units completas",
+    "courseComplete": "Curso Completo!",
+    "newCards": "Novos Cards",
+    "learning": "Em Aprendizado",
+    "toReview": "Para Revisar",
+    "totalAvailable": "Total Disponível",
+    "startReview": "Iniciar Revisão",
+    "stages": "Stages",
+    "stage": "Stage {{number}}",
+    "units": "{{count}} Units",
+    "locked": "Bloqueado",
+    "unlocked": "Desbloqueado",
+    "inProgress": "Em Progresso",
+    "howItWorks": "Como Funciona",
+    "howItWorksDescription": "Aprenda com o método de repetição espaçada",
+    "flashcardsTitle": "Flashcards",
+    "flashcardsDescription": "Estude com flashcards digitais, ideais para vocabulário e conceitos",
+    "spacedRepetitionTitle": "Repetição Espaçada",
+    "spacedRepetitionDescription": "Revise conteúdos em intervalos ideais para maximizar a retenção",
+    "progressTrackingTitle": "Acompanhamento de Progresso",
+    "progressTrackingDescription": "Monitore seu progresso com estatísticas detalhadas"
   }
 }
 

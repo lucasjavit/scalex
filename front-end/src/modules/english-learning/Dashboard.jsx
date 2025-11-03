@@ -44,12 +44,6 @@ export default function EnglishLearningDashboard() {
 
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-block bg-copilot-gradient p-4 rounded-copilot-lg mb-6 shadow-copilot-lg">
-            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-              <span className="text-5xl">📚</span>
-            </div>
-          </div>
-
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-3">
             {t('learning.title', 'English Learning')}
           </h1>

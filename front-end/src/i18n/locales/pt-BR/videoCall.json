@@ -77,6 +77,9 @@
     "remaining": "restante",
     "chattingWith": "Conversando com",
     "conversationTopic": "Tópico da Conversa",
+    "back": "Voltar",
+    "copy": "Copiar",
+    "endCall": "Encerrar Chamada",
     "tips": {
       "dontWorryMistakes": "Não se preocupe com erros - a prática leva à perfeição!",
       "askQuestions": "Faça perguntas para manter a conversa fluindo",
@@ -99,7 +102,7 @@
       "career": "Fale sobre trabalho, carreiras e crescimento profissional!"
     },
     "messages": {
-      "roomIdCopied": "ID da sala copiado!",
+      "roomIdCopied": "ID da sala copiado para a área de transferência!",
       "errorStartingCall": "Erro ao iniciar rastreamento da chamada",
       "errorEndingCall": "Erro ao encerrar rastreamento da chamada"
     }
@@ -133,6 +136,83 @@
       "redirecting": "Redirecionando para sala de videochamada..."
     }
   },
+  "waiting": {
+    "title": "Aguardando Sessão",
+    "subtitle": "Você está na fila! Por favor aguarde enquanto preparamos a próxima sessão de conversação.",
+    "nextSession": "Próxima Sessão",
+    "checkingStatus": "Verificando status da fila...",
+    "sessionActive": "Sessão Ativa",
+    "currentPeriod": "Período atual: {{start}} - {{end}}",
+    "timeRemaining": "Tempo restante:",
+    "periodEndingSoon": "Período encerrando em breve!",
+    "periodEndsIn": "Período atual encerra em",
+    "nextAvailablePeriod": "Próximo disponível: {{time}}",
+    "howItWorks": "Como funciona:",
+    "sessionsStart": "Sessões iniciam automaticamente a cada 10 minutos",
+    "pairedSameLevel": "Você será pareado com alguém do mesmo nível",
+    "sessionDuration": "Cada sessão dura 10 minutos",
+    "autoRedirect": "Você será redirecionado automaticamente quando a sessão iniciar",
+    "waitingForSession": "Aguardando próxima sessão...",
+    "leaving": "Saindo...",
+    "nextSessionTime": "Próxima sessão: {{time}}",
+    "backToDashboard": "Voltar ao Dashboard",
+    "closing": "Encerrando...",
+    "startingSoon": "Iniciando em breve...",
+    "waiting": "Aguardando..."
+  },
+  "matching": {
+    "title": "Prática de Videochamada",
+    "subtitle": "Pratique inglês com nativos e estudantes do mundo todo",
+    "chooseTopicTitle": "Escolha um tópico de conversa",
+    "topics": {
+      "random": "Tópicos Aleatórios",
+      "travel": "Viagem & Cultura",
+      "food": "Comida & Culinária",
+      "technology": "Tecnologia",
+      "sports": "Esportes & Fitness",
+      "music": "Música & Entretenimento",
+      "books": "Livros & Literatura",
+      "career": "Carreira & Trabalho"
+    },
+    "randomQuestions": {
+      "q1": "Qual é a sua memória favorita da infância?",
+      "q2": "Se você pudesse viajar para qualquer lugar, para onde iria?",
+      "q3": "Qual foi o melhor livro que você leu recentemente?",
+      "q4": "Descreva seu fim de semana ideal.",
+      "q5": "Sobre o que você é apaixonado?",
+      "q6": "Se você pudesse jantar com qualquer pessoa, quem seria?",
+      "q7": "Qual é o lugar mais interessante que você visitou?",
+      "q8": "Qual habilidade você gostaria de aprender?",
+      "q9": "Descreva seu trabalho dos sonhos.",
+      "q10": "Qual é a sua forma favorita de relaxar?",
+      "q11": "Se você pudesse viver em qualquer época, quando seria?",
+      "q12": "Qual foi o melhor conselho que você já recebeu?",
+      "q13": "O que sempre faz você sorrir?",
+      "q14": "Se você pudesse ter qualquer superpoder, qual seria?",
+      "q15": "Qual é seu tipo favorito de música?",
+      "q16": "Descreva seu dia perfeito.",
+      "q17": "Por que você é grato?",
+      "q18": "Se você pudesse aprender qualquer idioma, qual seria?",
+      "q19": "Qual é a sua estação favorita e por quê?",
+      "q20": "Qual é uma meta em que você está trabalhando?"
+    },
+    "findingPartner": "Procurando um parceiro de conversação...",
+    "lookingForSomeone": "Estamos procurando alguém que queira praticar {{topic}}",
+    "cancelSearch": "Cancelar Busca",
+    "startLooking": "Começar a Procurar um Parceiro",
+    "matchFound": "Parceiro Encontrado!",
+    "matchedWith": "Você foi pareado com",
+    "online": "Online",
+    "searchTime": "tempo de busca",
+    "startVideoCall": "Iniciar Videochamada",
+    "findAnotherPartner": "Encontrar Outro Parceiro",
+    "tipsTitle": "Dicas para uma ótima conversa",
+    "tip1": "Seja respeitoso e paciente com seu parceiro",
+    "tip2": "Não se preocupe em cometer erros - a prática leva à perfeição!",
+    "tip3": "Faça perguntas para manter a conversa fluindo",
+    "tip4": "Compartilhe suas experiências e ouça as deles",
+    "tip5": "Divirta-se e aproveite o intercâmbio cultural!"
+  },
   "howItWorks": {
     "title": "Como Funciona o Sistema de Video Call",
     "subtitle": "Conecte-se com outros usuários para praticar inglês em conversas ao vivo",
@@ -148,23 +228,49 @@
         "description": "Nosso algoritmo conecta usuários com níveis similares de inglês para uma experiência de aprendizado equilibrada."
       }
     },
+    "availableSessions": {
+      "title": "Sessões Disponíveis",
+      "periods": {
+        "title": "Sistema de Períodos",
+        "description": "O sistema de video call opera em períodos específicos ao longo do dia. Cada período tem um horário de início e fim definido:",
+        "morning": "Sessões da Manhã",
+        "morningDesc": "Ex: 08:00-09:00, 09:30-10:30",
+        "evening": "Sessões da Noite",
+        "eveningDesc": "Ex: 19:00-20:00, 20:30-21:30"
+      },
+      "status": {
+        "title": "Status do Sistema",
+        "description": "O dashboard mostra o status atual do sistema com um banner informativo no topo:",
+        "active": "Sistema Ativo",
+        "activeDesc": "Quando há uma sessão em andamento, você pode iniciar uma conversa imediatamente.",
+        "waiting": "Aguardando Próxima Sessão",
+        "waitingDesc": "Entre sessões, um countdown mostra o tempo restante até a próxima sessão disponível."
+      },
+      "viewing": {
+        "title": "Visualização de Períodos",
+        "description": "No dashboard, você verá:",
+        "current": "A sessão atual em destaque (se houver uma ativa)",
+        "next": "A próxima sessão disponível (se não houver sessão ativa)",
+        "expandButton": "Botão \"Ver todas\" para expandir e ver todos os períodos do dia"
+      }
+    },
     "gettingStarted": {
       "title": "Como Começar",
       "step1": {
-        "title": "Acesse o Dashboard",
-        "description": "No dashboard do video call, você pode ver seu status atual e iniciar uma nova conversa."
+        "title": "Verifique os Períodos Disponíveis",
+        "description": "No dashboard, confira o status do sistema e os horários das sessões. Certifique-se de que há uma sessão ativa ou aguarde a próxima."
       },
       "step2": {
-        "title": "Inicie o Matching",
-        "description": "Clique em \"Iniciar Conversa\" para entrar na fila de matching. O sistema encontrará um parceiro compatível."
+        "title": "Escolha uma Opção",
+        "description": "Você pode escolher entre encontrar um parceiro automaticamente, criar uma sala privada, ou entrar em uma sala existente com um ID."
       },
       "step3": {
-        "title": "Aguarde na Fila",
-        "description": "Você será colocado na fila de espera até que um parceiro compatível seja encontrado."
+        "title": "Aguarde na Fila (se necessário)",
+        "description": "Se escolheu \"Find a Partner\", você entrará na fila de espera. O sistema mostrará um countdown e tentará encontrar um parceiro compatível."
       },
       "step4": {
         "title": "Conecte-se e Pratique",
-        "description": "Quando um parceiro for encontrado, você será redirecionado para a sala de video call para começar a conversa."
+        "description": "Quando um parceiro for encontrado ou você entrar em uma sala, será redirecionado para a videochamada para começar a conversar em inglês."
       }
     },
     "features": {
@@ -187,9 +293,9 @@
       }
     },
     "matchingSystem": {
-      "title": "Sistema de Matching",
+      "title": "Sistema de Matching e Fila de Espera",
       "howItWorks": {
-        "title": "Como Funciona",
+        "title": "Como Funciona o Matching",
         "description": "Nosso sistema de matching considera vários fatores para conectar usuários compatíveis:"
       },
       "factors": {
@@ -198,9 +304,38 @@
         "preferences": "Preferências de conversa",
         "timezone": "Fuso horário compatível"
       },
+      "queue": {
+        "title": "Fila de Espera",
+        "description": "Quando você clica em \"Find a Partner\", entra em uma fila de espera inteligente:",
+        "countdown": {
+          "title": "Countdown Timer",
+          "description": "Um timer em tempo real mostra quanto tempo você está esperando na fila. O sistema continua procurando um parceiro durante esse período."
+        },
+        "realtime": {
+          "title": "Atualização em Tempo Real",
+          "description": "A página da fila atualiza automaticamente quando um parceiro é encontrado, redirecionando você instantaneamente para a sala de video call."
+        },
+        "cancel": {
+          "title": "Cancelar a Qualquer Momento",
+          "description": "Você pode sair da fila a qualquer momento clicando no botão \"Cancelar\" e retornar ao dashboard."
+        }
+      },
       "waiting": {
         "title": "Tempo de Espera",
-        "description": "O tempo de espera varia dependendo da disponibilidade de usuários. Geralmente, um parceiro é encontrado em poucos minutos."
+        "description": "O tempo de espera varia dependendo de:",
+        "factor1": "Número de usuários online no momento",
+        "factor2": "Horário do dia (períodos de pico têm mais usuários)",
+        "factor3": "Compatibilidade de perfis disponíveis",
+        "tip": "💡 Dica: Períodos da noite geralmente têm mais usuários disponíveis."
+      },
+      "limits": {
+        "title": "Limites de Uso",
+        "description": "Para garantir disponibilidade justa para todos os usuários, o sistema pode ter limites de uso:",
+        "usage": {
+          "title": "Limite de Uso Atingido",
+          "description": "Se você atingir o limite de uso, o botão \"Find a Partner\" ficará desabilitado temporariamente. Uma mensagem explicativa será exibida no dashboard.",
+          "note": "Nota: Salas privadas (Create Room e Join Room) não são afetadas por limites de uso."
+        }
       }
     },
     "bestPractices": {
@@ -240,6 +375,7 @@
     "startVideoCall": "Iniciar Video Call Agora",
     "dashboardFeatures": {
       "title": "Funcionalidades do Dashboard",
+      "howItWorks": "Como funciona:",
       "startNewCall": {
         "title": "Start New Call",
         "description": "Inicia o processo de matching automático para encontrar um parceiro de conversação.",

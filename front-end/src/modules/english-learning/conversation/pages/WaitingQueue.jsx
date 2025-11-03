@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useBlocker } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../auth-social/context/AuthContext';
 import videoCallService from '../services/videoCallService';
 
 export default function WaitingQueue() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation(['videoCall']);
   const [queueStatus, setQueueStatus] = useState(null);
   const [systemStatus, setSystemStatus] = useState(null);
   const [timeUntilSession, setTimeUntilSession] = useState(null);
@@ -143,7 +145,7 @@ export default function WaitingQueue() {
   useEffect(() => {
     if (!queueStatus?.nextSessionTime) {
       console.log('⏱️ No nextSessionTime, showing waiting message');
-      setTimeUntilSession('Waiting...');
+      setTimeUntilSession(t('waiting.waiting'));
       return;
     }
 
@@ -157,7 +159,7 @@ export default function WaitingQueue() {
       console.log('⏱️ Countdown update - diff:', diff, 'ms');
 
       if (diff <= 0) {
-        setTimeUntilSession('Starting soon...');
+        setTimeUntilSession(t('waiting.startingSoon'));
       } else {
         const minutes = Math.floor(diff / 60000);
         const seconds = Math.floor((diff % 60000) / 1000);
@@ -187,8 +189,8 @@ export default function WaitingQueue() {
       const diff = periodEnd - now;
 
         if (diff <= 0) {
-          setTimeUntilPeriodEnd('Closing...');
-        } else {
+          setTimeUntilPeriodEnd(t('waiting.closing'));
+        } else{
         const minutes = Math.floor(diff / 60000);
         const seconds = Math.floor((diff % 60000) / 1000);
         setTimeUntilPeriodEnd(`${minutes}:${seconds.toString().padStart(2, '0')}`);
@@ -218,7 +220,7 @@ export default function WaitingQueue() {
       <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking queue status...</p>
+          <p className="text-gray-600">{t('waiting.checkingStatus')}</p>
         </div>
       </div>
     );
@@ -229,13 +231,13 @@ export default function WaitingQueue() {
       <div className="min-h-screen bg-copilot-bg-primary flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Error</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('queue.messages.error')}</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => navigate('/video-call')}
             className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
           >
-            Back to Dashboard
+            {t('waiting.backToDashboard')}
           </button>
         </div>
       </div>
@@ -249,10 +251,10 @@ export default function WaitingQueue() {
         <div className="text-center mb-8">
           <div className="text-6xl mb-4 animate-bounce">⏳</div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Waiting for Session
+            {t('waiting.title')}
           </h1>
           <p className="text-gray-600">
-            You're in the queue! Please wait while we prepare the next conversation session.
+            {t('waiting.subtitle')}
           </p>
         </div>
 
@@ -263,13 +265,13 @@ export default function WaitingQueue() {
               <div className="text-2xl mr-3">⚠️</div>
               <div>
                 <h3 className="font-semibold text-yellow-900 mb-1">
-                  Period ending soon!
+                  {t('waiting.periodEndingSoon')}
                 </h3>
                 <p className="text-sm text-yellow-800 mb-2">
-                  Current period ends in <span className="font-mono font-bold">{timeUntilPeriodEnd}</span>
+                  {t('waiting.periodEndsIn')} <span className="font-mono font-bold">{timeUntilPeriodEnd}</span>
                 </p>
                 <p className="text-sm text-yellow-800">
-                  Next available: {String(systemStatus.nextPeriod?.start.hour).padStart(2, '0')}:{String(systemStatus.nextPeriod?.start.minute).padStart(2, '0')}
+                  {t('waiting.nextAvailablePeriod', { time: `${String(systemStatus.nextPeriod?.start.hour).padStart(2, '0')}:${String(systemStatus.nextPeriod?.start.minute).padStart(2, '0')}` })}
                 </p>
               </div>
             </div>
@@ -283,12 +285,15 @@ export default function WaitingQueue() {
               <div className="text-2xl mr-3">✅</div>
               <div>
                 <h3 className="font-semibold text-green-900 mb-1">
-                  Session Active
+                  {t('waiting.sessionActive')}
                 </h3>
                 <p className="text-sm text-green-800">
-                  Current period: {String(systemStatus.currentPeriod.start.hour).padStart(2, '0')}:{String(systemStatus.currentPeriod.start.minute).padStart(2, '0')} - {String(systemStatus.currentPeriod.end.hour).padStart(2, '0')}:{String(systemStatus.currentPeriod.end.minute).padStart(2, '0')}
+                  {t('waiting.currentPeriod', {
+                    start: `${String(systemStatus.currentPeriod.start.hour).padStart(2, '0')}:${String(systemStatus.currentPeriod.start.minute).padStart(2, '0')}`,
+                    end: `${String(systemStatus.currentPeriod.end.hour).padStart(2, '0')}:${String(systemStatus.currentPeriod.end.minute).padStart(2, '0')}`
+                  })}
                   {' '}•{' '}
-                  Time remaining: <span className="font-mono font-bold">{timeUntilPeriodEnd}</span>
+                  {t('waiting.timeRemaining')} <span className="font-mono font-bold">{timeUntilPeriodEnd}</span>
                 </p>
               </div>
             </div>
@@ -301,7 +306,7 @@ export default function WaitingQueue() {
             <div className="text-4xl font-bold text-purple-600">
               {timeUntilSession || '--:--'}
             </div>
-            <div className="text-sm text-gray-600 mt-2">Next Session</div>
+            <div className="text-sm text-gray-600 mt-2">{t('waiting.nextSession')}</div>
           </div>
         </div>
 
@@ -310,12 +315,12 @@ export default function WaitingQueue() {
           <div className="flex items-start">
             <div className="text-2xl mr-3">ℹ️</div>
             <div>
-              <h3 className="font-semibold text-blue-900 mb-2">How it works:</h3>
+              <h3 className="font-semibold text-blue-900 mb-2">{t('waiting.howItWorks')}</h3>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Sessions start automatically every 10 minutes</li>
-                <li>• You'll be paired with someone at the same level</li>
-                <li>• Each session lasts 10 minutes</li>
-                <li>• You'll be automatically redirected when the session starts</li>
+                <li>• {t('waiting.sessionsStart')}</li>
+                <li>• {t('waiting.pairedSameLevel')}</li>
+                <li>• {t('waiting.sessionDuration')}</li>
+                <li>• {t('waiting.autoRedirect')}</li>
               </ul>
             </div>
           </div>
@@ -329,7 +334,7 @@ export default function WaitingQueue() {
             <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
           </div>
           <p className="text-center text-gray-500 text-sm mt-2">
-            Waiting for next session...
+            {t('waiting.waitingForSession')}
           </p>
         </div>
 
@@ -339,13 +344,13 @@ export default function WaitingQueue() {
           disabled={loading}
           className="w-full bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
         >
-          {loading ? 'Leaving...' : 'Leave Queue'}
+          {loading ? t('waiting.leaving') : t('queue.leaveQueue')}
         </button>
 
         {/* Next Session Info */}
         {queueStatus?.nextSessionTime && (
           <div className="mt-4 text-center text-sm text-gray-500">
-            Next session: {new Date(queueStatus.nextSessionTime).toLocaleTimeString('en-US')}
+            {t('waiting.nextSessionTime', { time: new Date(queueStatus.nextSessionTime).toLocaleTimeString() })}
           </div>
         )}
       </div>

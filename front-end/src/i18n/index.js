@@ -45,39 +45,31 @@ const resources = {
   },
 };
 
-// Clear any existing preferences to force defaults
+// Force English as default - clear any saved preferences
 if (typeof window !== 'undefined') {
-  // Clear theme preference to force night theme
-  localStorage.removeItem('theme');
-  // Clear language preference to force English
-  localStorage.removeItem('i18nextLng');
+  // Only set English if no language is set, or force it
+  const savedLang = localStorage.getItem('i18nextLng');
+  if (!savedLang || savedLang !== 'en') {
+    localStorage.setItem('i18nextLng', 'en');
+  }
 }
 
 i18n
-  .use(LanguageDetector) // Detect user language
   .use(initReactI18next) // Pass i18n to react-i18next
   .init({
     resources,
     fallbackLng: 'en', // Default language
-    lng: 'en', // Set English as default language
+    lng: 'en', // Force English as default language
     defaultNS: 'common', // Default namespace
     ns: ['common', 'auth', 'admin', 'landing', 'videoCall'],
-    
+
     interpolation: {
       escapeValue: false, // React already escapes values
     },
-    
-    detection: {
-      // Order of language detection
-      order: ['localStorage', 'navigator'],
-      // Cache user language preference
-      caches: ['localStorage'],
-      lookupLocalStorage: 'i18nextLng',
-    },
-    
-    // Clear any existing language preference to force default
-    initImmediate: false,
-    
+
+    // Don't use browser language detection - force English
+    // Users can manually change language via language selector
+
     // Debug mode disabled for production
     debug: false,
   });

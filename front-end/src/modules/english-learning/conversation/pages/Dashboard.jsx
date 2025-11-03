@@ -202,11 +202,6 @@ const VideoCallDashboard = () => {
 
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-block bg-copilot-gradient p-4 rounded-copilot-lg mb-6 shadow-copilot-lg">
-            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-              <span className="text-5xl">🎥</span>
-            </div>
-          </div>
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-3">
             {t('dashboard.title')}
           </h1>
@@ -229,10 +224,6 @@ const VideoCallDashboard = () => {
         {/* Statistics */}
         {statistics && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-copilot-text-primary mb-6 text-center">
-              {t('dashboard.statistics.title')}
-            </h2>
-            
             {/* Main Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
               <div className="bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-lg shadow-lg p-6 text-center">
@@ -266,7 +257,7 @@ const VideoCallDashboard = () => {
               </div>
 
               <div className="bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-lg shadow-lg p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
+                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-copilot flex items-center justify-center mb-4 mx-auto">
                   <span className="text-white text-2xl">📅</span>
                 </div>
                 <h3 className="text-3xl font-bold text-copilot-text-primary mb-1">
@@ -290,9 +281,9 @@ const VideoCallDashboard = () => {
             {statistics.lastCall && (
               <div className="mt-6 bg-blue-50 border border-blue-200 rounded-copilot p-4 text-center">
                 <p className="text-blue-800 text-sm">
-                  {t('dashboard.statistics.lastCall', { 
-                    date: new Date(statistics.lastCall).toLocaleDateString(), 
-                    time: new Date(statistics.lastCall).toLocaleTimeString() 
+                  {t('dashboard.statistics.lastCall', {
+                    date: new Date(statistics.lastCall).toLocaleDateString(),
+                    time: new Date(statistics.lastCall).toLocaleTimeString()
                   })}
                 </p>
               </div>
@@ -300,7 +291,7 @@ const VideoCallDashboard = () => {
           </div>
         )}
 
-            {/* System Status Banner */}
+        {/* System Status Banner */}
             {systemStatus && (
               <div className={`mb-8 rounded-copilot p-6 border-l-4 ${
                 systemStatus.isActive && systemStatus.canAcceptSessions
@@ -353,11 +344,12 @@ const VideoCallDashboard = () => {
                       <p className="text-sm font-semibold text-gray-700">{t('dashboard.systemStatus.availableTimes')}</p>
                       <button
                         onClick={() => setShowAllPeriods(!showAllPeriods)}
-                        className="text-gray-600 hover:text-gray-900 transition-all p-1.5 hover:bg-gray-100 rounded-full"
-                        title={showAllPeriods ? 'Show available only' : 'Show all periods'}
+                        className="text-xs text-gray-600 hover:text-gray-900 transition-all px-2 py-1 hover:bg-gray-100 rounded-md flex items-center gap-1"
+                        title={showAllPeriods ? 'Mostrar apenas atual' : 'Ver todas as sessões'}
                       >
+                        <span>{showAllPeriods ? 'Ocultar' : 'Ver todas'}</span>
                         <svg
-                          className={`w-5 h-5 transition-transform duration-200 ${showAllPeriods ? 'rotate-180' : ''}`}
+                          className={`w-4 h-4 transition-transform duration-200 ${showAllPeriods ? 'rotate-180' : ''}`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -382,10 +374,16 @@ const VideoCallDashboard = () => {
                       const displayPeriods = showAllPeriods
                         ? sortedPeriods
                         : sortedPeriods.filter(p => {
+                            // Show only current period if exists
+                            if (systemStatus.currentPeriod) {
+                              return p.start.hour === systemStatus.currentPeriod.start.hour &&
+                                     p.start.minute === systemStatus.currentPeriod.start.minute;
+                            }
+                            // If no current period, show the next upcoming one
+                            const periodStartTime = p.start.hour * 60 + p.start.minute;
                             const periodEndTime = p.end.hour * 60 + p.end.minute;
-                            // Show if period hasn't ended yet
                             return periodEndTime >= currentTimeInMinutes;
-                          });
+                          }).slice(0, 1); // Show only the first one (current or next)
 
                       // Divide into AM (00:00-11:59) and PM (12:00-23:59)
                       const amPeriods = displayPeriods.filter(p => p.start.hour < 12);
@@ -512,7 +510,7 @@ const VideoCallDashboard = () => {
                     disabled={!systemStatus?.isActive || !systemStatus?.canAcceptSessions}
                     className={`text-lg px-8 py-4 w-full font-semibold rounded-lg transition-all duration-200 ${
                       systemStatus?.isActive && systemStatus?.canAcceptSessions
-                        ? 'bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-700 dark:to-blue-800 text-green-800 dark:text-green-100 shadow-lg border border-green-300 dark:border-blue-600 hover:shadow-xl hover:from-green-200 hover:to-blue-200 dark:hover:from-green-600 dark:hover:to-blue-700 active:shadow-inner active:translate-y-0.5'
+                        ? 'bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-700 dark:to-blue-800 text-slate-800 dark:text-green-100 shadow-lg border border-green-300 dark:border-blue-600 hover:shadow-xl hover:from-green-200 hover:to-blue-200 dark:hover:from-green-600 dark:hover:to-blue-700 active:shadow-inner active:translate-y-0.5'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-400'
                     }`}
                   >
@@ -526,7 +524,7 @@ const VideoCallDashboard = () => {
           {/* Join Room */}
           <div className="bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-lg shadow-lg p-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-copilot flex items-center justify-center mb-6 mx-auto">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-copilot flex items-center justify-center mb-6 mx-auto">
                 <span className="text-white text-3xl">🔗</span>
               </div>
               <h3 className="text-2xl font-bold text-copilot-text-primary mb-3">

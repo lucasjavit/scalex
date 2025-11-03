@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../auth-social/context/AuthContext';
 
 const Matching = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation(['videoCall']);
   const [isMatching, setIsMatching] = useState(false);
   const [matchFound, setMatchFound] = useState(false);
   const [matchedUser, setMatchedUser] = useState(null);
@@ -13,37 +15,37 @@ const Matching = () => {
   const [selectedTopic, setSelectedTopic] = useState('random');
 
   const topics = [
-    { id: 'random', name: 'Random Topics', icon: '🎲' },
-    { id: 'travel', name: 'Travel & Culture', icon: '✈️' },
-    { id: 'food', name: 'Food & Cooking', icon: '🍕' },
-    { id: 'technology', name: 'Technology', icon: '💻' },
-    { id: 'sports', name: 'Sports & Fitness', icon: '⚽' },
-    { id: 'music', name: 'Music & Entertainment', icon: '🎵' },
-    { id: 'books', name: 'Books & Literature', icon: '📚' },
-    { id: 'career', name: 'Career & Work', icon: '💼' },
+    { id: 'random', name: t('matching.topics.random'), icon: '🎲' },
+    { id: 'travel', name: t('matching.topics.travel'), icon: '✈️' },
+    { id: 'food', name: t('matching.topics.food'), icon: '🍕' },
+    { id: 'technology', name: t('matching.topics.technology'), icon: '💻' },
+    { id: 'sports', name: t('matching.topics.sports'), icon: '⚽' },
+    { id: 'music', name: t('matching.topics.music'), icon: '🎵' },
+    { id: 'books', name: t('matching.topics.books'), icon: '📚' },
+    { id: 'career', name: t('matching.topics.career'), icon: '💼' },
   ];
 
   const randomTopics = [
-    "What's your favorite childhood memory?",
-    "If you could travel anywhere, where would you go?",
-    "What's the best book you've read recently?",
-    "Describe your ideal weekend.",
-    "What's something you're passionate about?",
-    "If you could have dinner with anyone, who would it be?",
-    "What's the most interesting place you've visited?",
-    "What's a skill you'd like to learn?",
-    "Describe your dream job.",
-    "What's your favorite way to relax?",
-    "If you could live in any time period, when would it be?",
-    "What's the best advice you've ever received?",
-    "What's something that always makes you smile?",
-    "If you could have any superpower, what would it be?",
-    "What's your favorite type of music?",
-    "Describe your perfect day.",
-    "What's something you're grateful for?",
-    "If you could learn any language, which would it be?",
-    "What's your favorite season and why?",
-    "What's a goal you're working towards?"
+    t('matching.randomQuestions.q1'),
+    t('matching.randomQuestions.q2'),
+    t('matching.randomQuestions.q3'),
+    t('matching.randomQuestions.q4'),
+    t('matching.randomQuestions.q5'),
+    t('matching.randomQuestions.q6'),
+    t('matching.randomQuestions.q7'),
+    t('matching.randomQuestions.q8'),
+    t('matching.randomQuestions.q9'),
+    t('matching.randomQuestions.q10'),
+    t('matching.randomQuestions.q11'),
+    t('matching.randomQuestions.q12'),
+    t('matching.randomQuestions.q13'),
+    t('matching.randomQuestions.q14'),
+    t('matching.randomQuestions.q15'),
+    t('matching.randomQuestions.q16'),
+    t('matching.randomQuestions.q17'),
+    t('matching.randomQuestions.q18'),
+    t('matching.randomQuestions.q19'),
+    t('matching.randomQuestions.q20'),
   ];
 
   useEffect(() => {
@@ -118,16 +120,11 @@ const Matching = () => {
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-block bg-copilot-gradient p-4 rounded-copilot-lg mb-6 shadow-copilot-lg">
-            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-              <span className="text-5xl">🎥</span>
-            </div>
-          </div>
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-3">
-            Video Call Practice
+            {t('matching.title')}
           </h1>
           <p className="text-copilot-text-secondary text-lg">
-            Practice English with native speakers and learners worldwide
+            {t('matching.subtitle')}
           </p>
         </div>
 
@@ -136,7 +133,7 @@ const Matching = () => {
             {/* Topic Selection */}
             <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6">
               <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">
-                Choose a conversation topic
+                {t('matching.chooseTopicTitle')}
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {topics.map((topic) => (
@@ -166,10 +163,10 @@ const Matching = () => {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white border-t-transparent"></div>
                 </div>
                 <h3 className="text-2xl font-bold text-copilot-text-primary mb-2">
-                  Finding a conversation partner...
+                  {t('matching.findingPartner')}
                 </h3>
                 <p className="text-copilot-text-secondary mb-4">
-                  We're looking for someone who wants to practice {topics.find(t => t.id === selectedTopic)?.name.toLowerCase()}
+                  {t('matching.lookingForSomeone', { topic: topics.find(t => t.id === selectedTopic)?.name.toLowerCase() })}
                 </p>
                 <div className="text-3xl font-mono text-copilot-accent-primary mb-6">
                   {formatTime(timeElapsed)}
@@ -178,7 +175,7 @@ const Matching = () => {
                   onClick={stopMatching}
                   className="btn-copilot-secondary"
                 >
-                  Cancel Search
+                  {t('matching.cancelSearch')}
                 </button>
               </div>
             ) : (
@@ -187,7 +184,7 @@ const Matching = () => {
                   onClick={startMatching}
                   className="btn-copilot-primary text-lg px-8 py-4"
                 >
-                  Start Looking for a Partner
+                  {t('matching.startLooking')}
                 </button>
               </div>
             )}
@@ -199,17 +196,17 @@ const Matching = () => {
               <span className="text-white text-3xl">🎉</span>
             </div>
             <h3 className="text-2xl font-bold text-copilot-text-primary mb-2">
-              Match Found!
+              {t('matching.matchFound')}
             </h3>
             <p className="text-copilot-text-secondary mb-6">
-              You've been matched with <strong>{matchedUser.name}</strong>
+              {t('matching.matchedWith')} <strong>{matchedUser.name}</strong>
             </p>
-            
+
             <div className="bg-copilot-bg-primary rounded-copilot p-4 mb-6">
               <div className="flex items-center justify-center gap-4 text-sm text-copilot-text-secondary">
-                <span>🌍 Online</span>
+                <span>🌍 {t('matching.online')}</span>
                 <span>📊 {matchedUser.level}</span>
-                <span>⏱️ {formatTime(timeElapsed)} search time</span>
+                <span>⏱️ {formatTime(timeElapsed)} {t('matching.searchTime')}</span>
               </div>
             </div>
 
@@ -218,7 +215,7 @@ const Matching = () => {
                 onClick={startCall}
                 className="btn-copilot-primary text-lg px-8 py-4 w-full"
               >
-                Start Video Call
+                {t('matching.startVideoCall')}
               </button>
               <button
                 onClick={() => {
@@ -228,7 +225,7 @@ const Matching = () => {
                 }}
                 className="btn-copilot-secondary w-full"
               >
-                Find Another Partner
+                {t('matching.findAnotherPartner')}
               </button>
             </div>
           </div>
@@ -237,14 +234,14 @@ const Matching = () => {
         {/* Tips */}
         <div className="mt-12 bg-blue-50 border border-blue-200 rounded-copilot p-6">
           <h4 className="text-lg font-semibold text-blue-800 mb-3">
-            💡 Tips for a great conversation
+            💡 {t('matching.tipsTitle')}
           </h4>
           <ul className="text-blue-700 space-y-2 text-sm">
-            <li>• Be respectful and patient with your partner</li>
-            <li>• Don't worry about making mistakes - practice makes perfect!</li>
-            <li>• Ask questions to keep the conversation flowing</li>
-            <li>• Share your experiences and listen to theirs</li>
-            <li>• Have fun and enjoy the cultural exchange!</li>
+            <li>• {t('matching.tip1')}</li>
+            <li>• {t('matching.tip2')}</li>
+            <li>• {t('matching.tip3')}</li>
+            <li>• {t('matching.tip4')}</li>
+            <li>• {t('matching.tip5')}</li>
           </ul>
         </div>
       </div>

@@ -76,6 +76,9 @@
     "remaining": "remaining",
     "chattingWith": "Chatting with",
     "conversationTopic": "Conversation Topic",
+    "back": "Back",
+    "copy": "Copy",
+    "endCall": "End Call",
     "tips": {
       "dontWorryMistakes": "Don't worry about mistakes - practice makes perfect!",
       "askQuestions": "Ask questions to keep the conversation flowing",
@@ -98,7 +101,7 @@
       "career": "Talk about work, careers, and professional growth!"
     },
     "messages": {
-      "roomIdCopied": "Room ID copied!",
+      "roomIdCopied": "Room ID copied to clipboard!",
       "errorStartingCall": "Error starting call tracking",
       "errorEndingCall": "Error ending call tracking"
     }
@@ -132,6 +135,83 @@
       "redirecting": "Redirecting to video call room..."
     }
   },
+  "waiting": {
+    "title": "Waiting for Session",
+    "subtitle": "You're in the queue! Please wait while we prepare the next conversation session.",
+    "nextSession": "Next Session",
+    "checkingStatus": "Checking queue status...",
+    "sessionActive": "Session Active",
+    "currentPeriod": "Current period: {{start}} - {{end}}",
+    "timeRemaining": "Time remaining:",
+    "periodEndingSoon": "Period ending soon!",
+    "periodEndsIn": "Current period ends in",
+    "nextAvailablePeriod": "Next available: {{time}}",
+    "howItWorks": "How it works:",
+    "sessionsStart": "Sessions start automatically every 10 minutes",
+    "pairedSameLevel": "You'll be paired with someone at the same level",
+    "sessionDuration": "Each session lasts 10 minutes",
+    "autoRedirect": "You'll be automatically redirected when the session starts",
+    "waitingForSession": "Waiting for next session...",
+    "leaving": "Leaving...",
+    "nextSessionTime": "Next session: {{time}}",
+    "backToDashboard": "Back to Dashboard",
+    "closing": "Closing...",
+    "startingSoon": "Starting soon...",
+    "waiting": "Waiting..."
+  },
+  "matching": {
+    "title": "Video Call Practice",
+    "subtitle": "Practice English with native speakers and learners worldwide",
+    "chooseTopicTitle": "Choose a conversation topic",
+    "topics": {
+      "random": "Random Topics",
+      "travel": "Travel & Culture",
+      "food": "Food & Cooking",
+      "technology": "Technology",
+      "sports": "Sports & Fitness",
+      "music": "Music & Entertainment",
+      "books": "Books & Literature",
+      "career": "Career & Work"
+    },
+    "randomQuestions": {
+      "q1": "What's your favorite childhood memory?",
+      "q2": "If you could travel anywhere, where would you go?",
+      "q3": "What's the best book you've read recently?",
+      "q4": "Describe your ideal weekend.",
+      "q5": "What's something you're passionate about?",
+      "q6": "If you could have dinner with anyone, who would it be?",
+      "q7": "What's the most interesting place you've visited?",
+      "q8": "What's a skill you'd like to learn?",
+      "q9": "Describe your dream job.",
+      "q10": "What's your favorite way to relax?",
+      "q11": "If you could live in any time period, when would it be?",
+      "q12": "What's the best advice you've ever received?",
+      "q13": "What's something that always makes you smile?",
+      "q14": "If you could have any superpower, what would it be?",
+      "q15": "What's your favorite type of music?",
+      "q16": "Describe your perfect day.",
+      "q17": "What's something you're grateful for?",
+      "q18": "If you could learn any language, which would it be?",
+      "q19": "What's your favorite season and why?",
+      "q20": "What's a goal you're working towards?"
+    },
+    "findingPartner": "Finding a conversation partner...",
+    "lookingForSomeone": "We're looking for someone who wants to practice {{topic}}",
+    "cancelSearch": "Cancel Search",
+    "startLooking": "Start Looking for a Partner",
+    "matchFound": "Match Found!",
+    "matchedWith": "You've been matched with",
+    "online": "Online",
+    "searchTime": "search time",
+    "startVideoCall": "Start Video Call",
+    "findAnotherPartner": "Find Another Partner",
+    "tipsTitle": "Tips for a great conversation",
+    "tip1": "Be respectful and patient with your partner",
+    "tip2": "Don't worry about making mistakes - practice makes perfect!",
+    "tip3": "Ask questions to keep the conversation flowing",
+    "tip4": "Share your experiences and listen to theirs",
+    "tip5": "Have fun and enjoy the cultural exchange!"
+  },
   "howItWorks": {
     "title": "How the Video Call System Works",
     "subtitle": "Connect with other users to practice English in live conversations",
@@ -150,20 +230,20 @@
     "gettingStarted": {
       "title": "Getting Started",
       "step1": {
-        "title": "Access the Dashboard",
-        "description": "On the video call dashboard, you can see your current status and start a new conversation."
+        "title": "Check Available Periods",
+        "description": "On the dashboard, check the system status and session times. Make sure there's an active session or wait for the next one."
       },
       "step2": {
-        "title": "Start Matching",
-        "description": "Click \"Start Conversation\" to enter the matching queue. The system will find a compatible partner."
+        "title": "Choose an Option",
+        "description": "You can choose between finding a partner automatically, creating a private room, or joining an existing room with an ID."
       },
       "step3": {
-        "title": "Wait in Queue",
-        "description": "You will be placed in the waiting queue until a compatible partner is found."
+        "title": "Wait in Queue (if needed)",
+        "description": "If you chose \"Find a Partner\", you'll enter the waiting queue. The system will show a countdown and try to find a compatible partner."
       },
       "step4": {
         "title": "Connect and Practice",
-        "description": "When a partner is found, you will be redirected to the video call room to start the conversation."
+        "description": "When a partner is found or you enter a room, you'll be redirected to the video call to start conversing in English."
       }
     },
     "features": {
@@ -186,9 +266,9 @@
       }
     },
     "matchingSystem": {
-      "title": "Matching System",
+      "title": "Matching System and Waiting Queue",
       "howItWorks": {
-        "title": "How It Works",
+        "title": "How Matching Works",
         "description": "Our matching system considers several factors to connect compatible users:"
       },
       "factors": {
@@ -197,9 +277,38 @@
         "preferences": "Conversation preferences",
         "timezone": "Compatible timezone"
       },
+      "queue": {
+        "title": "Waiting Queue",
+        "description": "When you click \"Find a Partner\", you enter an intelligent waiting queue:",
+        "countdown": {
+          "title": "Countdown Timer",
+          "description": "A real-time timer shows how long you've been waiting in the queue. The system continues searching for a partner during this time."
+        },
+        "realtime": {
+          "title": "Real-Time Updates",
+          "description": "The queue page automatically updates when a partner is found, instantly redirecting you to the video call room."
+        },
+        "cancel": {
+          "title": "Cancel Anytime",
+          "description": "You can leave the queue at any time by clicking the \"Cancel\" button and returning to the dashboard."
+        }
+      },
       "waiting": {
         "title": "Waiting Time",
-        "description": "Waiting time varies depending on user availability. Usually, a partner is found within a few minutes."
+        "description": "Waiting time varies depending on:",
+        "factor1": "Number of users online at the moment",
+        "factor2": "Time of day (peak periods have more users)",
+        "factor3": "Compatibility of available profiles",
+        "tip": "💡 Tip: Evening periods generally have more users available."
+      },
+      "limits": {
+        "title": "Usage Limits",
+        "description": "To ensure fair availability for all users, the system may have usage limits:",
+        "usage": {
+          "title": "Usage Limit Reached",
+          "description": "If you reach the usage limit, the \"Find a Partner\" button will be temporarily disabled. An explanatory message will be displayed on the dashboard.",
+          "note": "Note: Private rooms (Create Room and Join Room) are not affected by usage limits."
+        }
       }
     },
     "bestPractices": {
@@ -237,8 +346,35 @@
       }
     },
     "startVideoCall": "Start Video Call Now",
+    "availableSessions": {
+      "title": "Available Sessions",
+      "periods": {
+        "title": "Period System",
+        "description": "The video call system operates during specific periods throughout the day. Each period has a defined start and end time:",
+        "morning": "Morning Sessions",
+        "morningDesc": "e.g., 08:00-09:00, 09:30-10:30",
+        "evening": "Evening Sessions",
+        "eveningDesc": "e.g., 19:00-20:00, 20:30-21:30"
+      },
+      "status": {
+        "title": "System Status",
+        "description": "The dashboard shows the current system status with an informative banner at the top:",
+        "active": "System Active",
+        "activeDesc": "When there's a session in progress, you can start a conversation immediately.",
+        "waiting": "Waiting for Next Session",
+        "waitingDesc": "Between sessions, a countdown shows the time remaining until the next available session."
+      },
+      "viewing": {
+        "title": "Viewing Periods",
+        "description": "On the dashboard, you will see:",
+        "current": "The current session highlighted (if there is one active)",
+        "next": "The next available session (if there's no active session)",
+        "expandButton": "\"View all\" button to expand and see all periods of the day"
+      }
+    },
     "dashboardFeatures": {
       "title": "Dashboard Features",
+      "howItWorks": "How it works:",
       "startNewCall": {
         "title": "Start New Call",
         "description": "Initiates the automatic matching process to find a conversation partner.",

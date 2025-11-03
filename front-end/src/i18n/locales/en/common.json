@@ -172,6 +172,33 @@
       "title": "Digital Bank",
       "description": "Receive from abroad and request loans"
     }
+  },
+  "courseDashboard": {
+    "title": "English Mastery Program",
+    "subtitle": "Professional learning system to achieve English fluency",
+    "courseProgress": "Course Progress",
+    "completed": "Completed",
+    "unitsCompleted": "{{completed}} of {{total}} units completed",
+    "courseComplete": "Course Complete!",
+    "newCards": "New Cards",
+    "learning": "Learning",
+    "toReview": "To Review",
+    "totalAvailable": "Total Available",
+    "startReview": "Start Review",
+    "stages": "Stages",
+    "stage": "Stage {{number}}",
+    "units": "{{count}} Units",
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "inProgress": "In Progress",
+    "howItWorks": "How It Works",
+    "howItWorksDescription": "Learn with the spaced repetition method",
+    "flashcardsTitle": "Flashcards",
+    "flashcardsDescription": "Study with digital flashcards, ideal for vocabulary and concepts",
+    "spacedRepetitionTitle": "Spaced Repetition",
+    "spacedRepetitionDescription": "Review content at optimal intervals to maximize retention",
+    "progressTrackingTitle": "Progress Tracking",
+    "progressTrackingDescription": "Monitor your progress with detailed statistics"
   }
 }
 

@@ -60,6 +60,95 @@ const HowItWorks = () => {
             </div>
           </section>
 
+          {/* Available Sessions Section */}
+          <section className="bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-copilot p-8">
+            <h2 className="text-2xl font-bold text-copilot-text-primary mb-6 flex items-center gap-3">
+              <span className="text-3xl">⏰</span>
+              {t('howItWorks.availableSessions.title', 'Sessões Disponíveis')}
+            </h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold text-copilot-text-primary mb-3">
+                  {t('howItWorks.availableSessions.periods.title', 'Sistema de Períodos')}
+                </h3>
+                <p className="text-copilot-text-secondary mb-4">
+                  {t('howItWorks.availableSessions.periods.description', 'O sistema de video call opera em períodos específicos ao longo do dia. Cada período tem um horário de início e fim definido:')}
+                </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🌅</span>
+                      <h4 className="font-semibold text-copilot-text-primary">
+                        {t('howItWorks.availableSessions.periods.morning', 'Sessões da Manhã')}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-copilot-text-secondary">
+                      {t('howItWorks.availableSessions.periods.morningDesc', 'Ex: 08:00-09:00, 09:30-10:30')}
+                    </p>
+                  </div>
+                  <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🌙</span>
+                      <h4 className="font-semibold text-copilot-text-primary">
+                        {t('howItWorks.availableSessions.periods.evening', 'Sessões da Noite')}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-copilot-text-secondary">
+                      {t('howItWorks.availableSessions.periods.eveningDesc', 'Ex: 19:00-20:00, 20:30-21:30')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-copilot-text-primary mb-3">
+                  {t('howItWorks.availableSessions.status.title', 'Status do Sistema')}
+                </h3>
+                <p className="text-copilot-text-secondary mb-4">
+                  {t('howItWorks.availableSessions.status.description', 'O dashboard mostra o status atual do sistema com um banner informativo no topo:')}
+                </p>
+                <div className="space-y-3">
+                  <div className="bg-green-50 border border-green-200 rounded-copilot p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">✅</span>
+                      <h4 className="font-semibold text-green-700">
+                        {t('howItWorks.availableSessions.status.active', 'Sistema Ativo')}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-green-600">
+                      {t('howItWorks.availableSessions.status.activeDesc', 'Quando há uma sessão em andamento, você pode iniciar uma conversa imediatamente.')}
+                    </p>
+                  </div>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-copilot p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">⏳</span>
+                      <h4 className="font-semibold text-yellow-700">
+                        {t('howItWorks.availableSessions.status.waiting', 'Aguardando Próxima Sessão')}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-yellow-600">
+                      {t('howItWorks.availableSessions.status.waitingDesc', 'Entre sessões, um countdown mostra o tempo restante até a próxima sessão disponível.')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-copilot-text-primary mb-3">
+                  {t('howItWorks.availableSessions.viewing.title', 'Visualização de Períodos')}
+                </h3>
+                <p className="text-copilot-text-secondary mb-3">
+                  {t('howItWorks.availableSessions.viewing.description', 'No dashboard, você verá:')}
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-copilot-text-secondary ml-4">
+                  <li>{t('howItWorks.availableSessions.viewing.current', 'A sessão atual em destaque (se houver uma ativa)')}</li>
+                  <li>{t('howItWorks.availableSessions.viewing.next', 'A próxima sessão disponível (se não houver sessão ativa)')}</li>
+                  <li>{t('howItWorks.availableSessions.viewing.expandButton', 'Botão "Ver todas" para expandir e ver todos os períodos do dia')}</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
           {/* How to Start Section */}
           <section className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8">
             <h2 className="text-2xl font-bold text-copilot-text-primary mb-6 flex items-center gap-3">
@@ -73,42 +162,42 @@ const HowItWorks = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-copilot-text-primary mb-2">
-                    {t('howItWorks.gettingStarted.step1.title', 'Acesse o Dashboard')}
+                    {t('howItWorks.gettingStarted.step1.title', 'Verifique os Períodos Disponíveis')}
                   </h3>
                   <p className="text-copilot-text-secondary">
-                    {t('howItWorks.gettingStarted.step1.description', 'No dashboard do video call, você pode ver seu status atual e iniciar uma nova conversa.')}
+                    {t('howItWorks.gettingStarted.step1.description', 'No dashboard, confira o status do sistema e os horários das sessões. Certifique-se de que há uma sessão ativa ou aguarde a próxima.')}
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex gap-4">
                 <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
                   2
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-copilot-text-primary mb-2">
-                    {t('howItWorks.gettingStarted.step2.title', 'Inicie o Matching')}
+                    {t('howItWorks.gettingStarted.step2.title', 'Escolha uma Opção')}
                   </h3>
                   <p className="text-copilot-text-secondary">
-                    {t('howItWorks.gettingStarted.step2.description', 'Clique em "Iniciar Conversa" para entrar na fila de matching. O sistema encontrará um parceiro compatível.')}
+                    {t('howItWorks.gettingStarted.step2.description', 'Você pode escolher entre encontrar um parceiro automaticamente, criar uma sala privada, ou entrar em uma sala existente com um ID.')}
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex gap-4">
                 <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
                   3
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-copilot-text-primary mb-2">
-                    {t('howItWorks.gettingStarted.step3.title', 'Aguarde na Fila')}
+                    {t('howItWorks.gettingStarted.step3.title', 'Aguarde na Fila (se necessário)')}
                   </h3>
                   <p className="text-copilot-text-secondary">
-                    {t('howItWorks.gettingStarted.step3.description', 'Você será colocado na fila de espera até que um parceiro compatível seja encontrado.')}
+                    {t('howItWorks.gettingStarted.step3.description', 'Se escolheu "Find a Partner", você entrará na fila de espera. O sistema mostrará um countdown e tentará encontrar um parceiro compatível.')}
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex gap-4">
                 <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
                   4
@@ -118,7 +207,7 @@ const HowItWorks = () => {
                     {t('howItWorks.gettingStarted.step4.title', 'Conecte-se e Pratique')}
                   </h3>
                   <p className="text-copilot-text-secondary">
-                    {t('howItWorks.gettingStarted.step4.description', 'Quando um parceiro for encontrado, você será redirecionado para a sala de video call para começar a conversa.')}
+                    {t('howItWorks.gettingStarted.step4.description', 'Quando um parceiro for encontrado ou você entrar em uma sala, será redirecionado para a videochamada para começar a conversar em inglês.')}
                   </p>
                 </div>
               </div>
@@ -190,12 +279,12 @@ const HowItWorks = () => {
           <section className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-8">
             <h2 className="text-2xl font-bold text-copilot-text-primary mb-6 flex items-center gap-3">
               <span className="text-3xl">🤝</span>
-              {t('howItWorks.matchingSystem.title', 'Sistema de Matching')}
+              {t('howItWorks.matchingSystem.title', 'Sistema de Matching e Fila de Espera')}
             </h2>
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold text-copilot-text-primary mb-3">
-                  {t('howItWorks.matchingSystem.howItWorks.title', 'Como Funciona')}
+                  {t('howItWorks.matchingSystem.howItWorks.title', 'Como Funciona o Matching')}
                 </h3>
                 <p className="text-copilot-text-secondary mb-4">
                   {t('howItWorks.matchingSystem.howItWorks.description', 'Nosso sistema de matching considera vários fatores para conectar usuários compatíveis:')}
@@ -207,14 +296,89 @@ const HowItWorks = () => {
                   <li>{t('howItWorks.matchingSystem.factors.timezone', 'Fuso horário compatível')}</li>
                 </ul>
               </div>
-              
+
+              <div>
+                <h3 className="text-lg font-semibold text-copilot-text-primary mb-3">
+                  {t('howItWorks.matchingSystem.queue.title', 'Fila de Espera')}
+                </h3>
+                <p className="text-copilot-text-secondary mb-4">
+                  {t('howItWorks.matchingSystem.queue.description', 'Quando você clica em "Find a Partner", entra em uma fila de espera inteligente:')}
+                </p>
+                <div className="space-y-3">
+                  <div className="bg-blue-50 border border-blue-200 rounded-copilot p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">⏱️</span>
+                      <h4 className="font-semibold text-blue-700">
+                        {t('howItWorks.matchingSystem.queue.countdown.title', 'Countdown Timer')}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-blue-600">
+                      {t('howItWorks.matchingSystem.queue.countdown.description', 'Um timer em tempo real mostra quanto tempo você está esperando na fila. O sistema continua procurando um parceiro durante esse período.')}
+                    </p>
+                  </div>
+                  <div className="bg-purple-50 border border-purple-200 rounded-copilot p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🔄</span>
+                      <h4 className="font-semibold text-purple-700">
+                        {t('howItWorks.matchingSystem.queue.realtime.title', 'Atualização em Tempo Real')}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-purple-600">
+                      {t('howItWorks.matchingSystem.queue.realtime.description', 'A página da fila atualiza automaticamente quando um parceiro é encontrado, redirecionando você instantaneamente para a sala de video call.')}
+                    </p>
+                  </div>
+                  <div className="bg-orange-50 border border-orange-200 rounded-copilot p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">❌</span>
+                      <h4 className="font-semibold text-orange-700">
+                        {t('howItWorks.matchingSystem.queue.cancel.title', 'Cancelar a Qualquer Momento')}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-orange-600">
+                      {t('howItWorks.matchingSystem.queue.cancel.description', 'Você pode sair da fila a qualquer momento clicando no botão "Cancelar" e retornar ao dashboard.')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <h3 className="text-lg font-semibold text-copilot-text-primary mb-3">
                   {t('howItWorks.matchingSystem.waiting.title', 'Tempo de Espera')}
                 </h3>
-                <p className="text-copilot-text-secondary">
-                  {t('howItWorks.matchingSystem.waiting.description', 'O tempo de espera varia dependendo da disponibilidade de usuários. Geralmente, um parceiro é encontrado em poucos minutos.')}
+                <p className="text-copilot-text-secondary mb-3">
+                  {t('howItWorks.matchingSystem.waiting.description', 'O tempo de espera varia dependendo de:')}
                 </p>
+                <ul className="list-disc list-inside space-y-2 text-copilot-text-secondary ml-4">
+                  <li>{t('howItWorks.matchingSystem.waiting.factor1', 'Número de usuários online no momento')}</li>
+                  <li>{t('howItWorks.matchingSystem.waiting.factor2', 'Horário do dia (períodos de pico têm mais usuários)')}</li>
+                  <li>{t('howItWorks.matchingSystem.waiting.factor3', 'Compatibilidade de perfis disponíveis')}</li>
+                </ul>
+                <p className="text-copilot-text-secondary mt-3 text-sm italic">
+                  {t('howItWorks.matchingSystem.waiting.tip', '💡 Dica: Períodos da noite geralmente têm mais usuários disponíveis.')}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-copilot-text-primary mb-3">
+                  {t('howItWorks.matchingSystem.limits.title', 'Limites de Uso')}
+                </h3>
+                <p className="text-copilot-text-secondary mb-3">
+                  {t('howItWorks.matchingSystem.limits.description', 'Para garantir disponibilidade justa para todos os usuários, o sistema pode ter limites de uso:')}
+                </p>
+                <div className="bg-red-50 border border-red-200 rounded-copilot p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xl">⚠️</span>
+                    <h4 className="font-semibold text-red-700">
+                      {t('howItWorks.matchingSystem.limits.usage.title', 'Limite de Uso Atingido')}
+                    </h4>
+                  </div>
+                  <p className="text-sm text-red-600 mb-2">
+                    {t('howItWorks.matchingSystem.limits.usage.description', 'Se você atingir o limite de uso, o botão "Find a Partner" ficará desabilitado temporariamente. Uma mensagem explicativa será exibida no dashboard.')}
+                  </p>
+                  <p className="text-xs text-red-500 italic">
+                    {t('howItWorks.matchingSystem.limits.usage.note', 'Nota: Salas privadas (Create Room e Join Room) não são afetadas por limites de uso.')}
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -337,7 +501,7 @@ const HowItWorks = () => {
                     {t('howItWorks.dashboardFeatures.startNewCall.description', 'Inicia o processo de matching automático para encontrar um parceiro de conversação.')}
                   </p>
                   <div className="space-y-2 text-xs text-green-600">
-                    <p><strong>Como funciona:</strong></p>
+                    <p><strong>{t('howItWorks.dashboardFeatures.howItWorks', 'Como funciona:')}</strong></p>
                     <ul className="list-disc list-inside space-y-1">
                       <li>{t('howItWorks.dashboardFeatures.startNewCall.step1', 'Clique em "Find a Partner"')}</li>
                       <li>{t('howItWorks.dashboardFeatures.startNewCall.step2', 'Sistema encontra usuário compatível')}</li>
@@ -359,7 +523,7 @@ const HowItWorks = () => {
                     {t('howItWorks.dashboardFeatures.createRoom.description', 'Cria uma sala privada com ID único que você pode compartilhar com amigos.')}
                   </p>
                   <div className="space-y-2 text-xs text-purple-600">
-                    <p><strong>Como funciona:</strong></p>
+                    <p><strong>{t('howItWorks.dashboardFeatures.howItWorks', 'Como funciona:')}</strong></p>
                     <ul className="list-disc list-inside space-y-1">
                       <li>{t('howItWorks.dashboardFeatures.createRoom.step1', 'Clique em "Create Room"')}</li>
                       <li>{t('howItWorks.dashboardFeatures.createRoom.step2', 'Sistema gera ID único da sala')}</li>
@@ -382,7 +546,7 @@ const HowItWorks = () => {
                     {t('howItWorks.dashboardFeatures.joinRoom.description', 'Entre em uma sala existente usando o ID fornecido por um amigo.')}
                   </p>
                   <div className="space-y-2 text-xs text-orange-600">
-                    <p><strong>Como funciona:</strong></p>
+                    <p><strong>{t('howItWorks.dashboardFeatures.howItWorks', 'Como funciona:')}</strong></p>
                     <ul className="list-disc list-inside space-y-1">
                       <li>{t('howItWorks.dashboardFeatures.joinRoom.step1', 'Cole o ID da sala no campo')}</li>
                       <li>{t('howItWorks.dashboardFeatures.joinRoom.step2', 'Clique em "Join with Room ID"')}</li>

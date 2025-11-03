@@ -86,9 +86,6 @@ export default function CompleteRegistration() {
       <div className="max-w-3xl mx-auto">
         <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot-lg shadow-copilot-xl p-8">
           <div className="text-center mb-8">
-            <div className="inline-block bg-copilot-gradient p-4 rounded-copilot-lg mb-4">
-              <span className="text-5xl">👤</span>
-            </div>
             <h1 className="text-3xl font-bold text-copilot-text-primary mb-2">
               Complete seu Cadastro
             </h1>

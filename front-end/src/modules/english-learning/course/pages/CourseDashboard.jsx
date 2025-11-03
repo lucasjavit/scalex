@@ -114,18 +114,12 @@ export default function CourseDashboard() {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-block bg-copilot-gradient p-4 rounded-copilot-lg mb-4 shadow-copilot-lg">
-            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-              <span className="text-5xl">📚</span>
-            </div>
-          </div>
-
           <h1 className="text-4xl font-bold text-copilot-text-primary mb-2">
-            English Mastery Program
+            {t('courseDashboard.title')}
           </h1>
 
           <p className="text-copilot-text-secondary text-lg">
-            Sistema profissional de aprendizado para atingir fluência em inglês
+            {t('courseDashboard.subtitle')}
           </p>
         </div>
         
@@ -143,14 +137,14 @@ export default function CourseDashboard() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                         </svg>
                       </div>
-                      <h3 className="text-xl font-bold text-copilot-text-primary">Progresso do Curso</h3>
+                      <h3 className="text-xl font-bold text-copilot-text-primary">{t('courseDashboard.courseProgress')}</h3>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-5xl font-extrabold bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent mb-1">
                       {courseProgress}%
                     </div>
-                    <p className="text-xs text-copilot-text-secondary font-medium">Concluído</p>
+                    <p className="text-xs text-copilot-text-secondary font-medium">{t('courseDashboard.completed')}</p>
                   </div>
                 </div>
 
@@ -158,7 +152,7 @@ export default function CourseDashboard() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-copilot-text-secondary font-medium">
-                      {completedUnits} de {totalUnits} units completas
+                      {t('courseDashboard.unitsCompleted', { completed: completedUnits, total: totalUnits })}
                     </span>
                   </div>
                   <div className="relative w-full h-4 bg-gray-700 rounded-full overflow-hidden">
@@ -194,7 +188,7 @@ export default function CourseDashboard() {
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      <span>Curso Completo!</span>
+                      <span>{t('courseDashboard.courseComplete')}</span>
                     </div>
                   </div>
                 )}
@@ -207,25 +201,25 @@ export default function CourseDashboard() {
           <div className="mb-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <StatsCard
-                title="Novos Cards"
+                title={t('courseDashboard.newCards')}
                 value={dashboardStats.cardsDue.new || 0}
                 icon="🆕"
                 gradient="from-blue-500 to-cyan-500"
               />
               <StatsCard
-                title="Em Aprendizado"
+                title={t('courseDashboard.learning')}
                 value={dashboardStats.cardsDue.learning || 0}
                 icon="📖"
                 gradient="from-yellow-500 to-orange-500"
               />
               <StatsCard
-                title="Para Revisar"
+                title={t('courseDashboard.toReview')}
                 value={dashboardStats.cardsDue.review || 0}
                 icon="♻️"
                 gradient="from-purple-500 to-pink-500"
               />
               <StatsCard
-                title="Total Disponível"
+                title={t('courseDashboard.totalAvailable')}
                 value={dashboardStats.cardsDue.total || 0}
                 icon="🎴"
                 gradient="from-green-500 to-emerald-500"
@@ -243,7 +237,7 @@ export default function CourseDashboard() {
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-white/10 to-transparent rounded-xl opacity-80"></div>
               <span className="text-3xl relative z-10" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>⚡</span>
-              <span className="relative z-10">Iniciar Revisão</span>
+              <span className="relative z-10">{t('courseDashboard.startReview')}</span>
             </button>
           </div>
         </div>
@@ -252,7 +246,7 @@ export default function CourseDashboard() {
         <div id="stages-section" className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-copilot-text-primary">
-              Stages
+              {t('courseDashboard.stages')}
             </h2>
             <p className="text-sm text-copilot-text-secondary">
               {stages.length} {stages.length === 1 ? 'estágio' : 'estágios'} disponíveis
@@ -290,13 +284,13 @@ export default function CourseDashboard() {
                 <button
                   onClick={handlePrev}
                   disabled={currentIndex === 0}
-                  className="p-3 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 active:shadow-inner active:translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-3 rounded-full bg-copilot-bg-secondary border border-copilot-border-default shadow-lg hover:shadow-xl hover:border-copilot-accent-primary active:shadow-inner active:translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-copilot-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                
+
                 <div className="flex gap-2">
                   {stages.slice(0, Math.ceil(stages.length / 3)).map((_, index) => (
                     <button
@@ -305,7 +299,7 @@ export default function CourseDashboard() {
                       className={`h-2 rounded-full transition-all duration-300 ${
                         Math.floor(currentIndex) === index
                           ? 'w-8 bg-copilot-accent-primary'
-                          : 'w-2 bg-gray-600'
+                          : 'w-2 bg-copilot-border-default'
                       }`}
                     />
                   ))}
@@ -314,9 +308,9 @@ export default function CourseDashboard() {
                 <button
                   onClick={handleNext}
                   disabled={currentIndex >= stages.length - 3}
-                  className="p-3 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 active:shadow-inner active:translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-3 rounded-full bg-copilot-bg-secondary border border-copilot-border-default shadow-lg hover:shadow-xl hover:border-copilot-accent-primary active:shadow-inner active:translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-copilot-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -381,8 +375,8 @@ function StageCard({ stage, onClick }) {
       onClick={onClick}
       className={`relative rounded-copilot p-6 transition-all duration-300 h-[220px] flex ${
         isLocked
-          ? 'opacity-60 cursor-not-allowed bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600'
-          : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-2xl hover:from-slate-600 hover:to-slate-700 hover:scale-[1.02] group'
+          ? 'opacity-60 cursor-not-allowed bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600'
+          : 'cursor-pointer bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-700 hover:scale-[1.02] group'
       }`}
     >
       <div className="flex items-start gap-4 flex-1 h-full">

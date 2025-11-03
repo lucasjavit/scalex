@@ -213,6 +213,159 @@
   box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05) !important;
 }
 
+/* Override dark gradient cards with light theme versions */
+.theme-day .bg-gradient-to-br.from-slate-700.to-slate-800 {
+  background: linear-gradient(to bottom right, #FFFFFF, #F8FAFC) !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+.theme-day .bg-gradient-to-br.from-slate-700.to-slate-800:hover {
+  background: linear-gradient(to bottom right, #FAFBFC, #F1F5F9) !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12), 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  border-color: #C7D2FE !important;
+  transform: translateY(-1px);
+}
+
+/* Progress bar card - darker slate gradients */
+.theme-day .bg-gradient-to-br.from-slate-800.to-slate-900 {
+  background: linear-gradient(to bottom right, #F8FAFC, #F1F5F9) !important;
+  border-color: #E2E8F0 !important;
+}
+
+.theme-day .bg-gray-700 {
+  background: #E5E7EB !important;
+}
+
+.theme-day .border-slate-600 {
+  border-color: #E2E8F0 !important;
+}
+
+/* Improve card contrast in day theme */
+.theme-day .from-gray-700.to-gray-800 {
+  background: linear-gradient(to bottom right, #F8FAFC, #F1F5F9) !important;
+}
+
+/* Improve gradient backgrounds for day theme - darker sections */
+.theme-day .bg-blue-50 {
+  background: #EFF6FF !important;
+}
+
+.theme-day .border-blue-200 {
+  border-color: #BFDBFE !important;
+}
+
+.theme-day .text-blue-800 {
+  color: #1E40AF !important;
+}
+
+.theme-day .text-blue-700 {
+  color: #1D4ED8 !important;
+}
+
+/* Yellow warning sections */
+.theme-day .bg-yellow-50 {
+  background: #FEFCE8 !important;
+}
+
+.theme-day .border-yellow-500 {
+  border-color: #EAB308 !important;
+}
+
+.theme-day .text-yellow-900 {
+  color: #713F12 !important;
+}
+
+.theme-day .text-yellow-800 {
+  color: #854D0E !important;
+}
+
+/* Green success sections */
+.theme-day .bg-green-50 {
+  background: #F0FDF4 !important;
+}
+
+.theme-day .border-green-500 {
+  border-color: #22C55E !important;
+}
+
+.theme-day .text-green-900 {
+  color: #14532D !important;
+}
+
+.theme-day .text-green-800 {
+  color: #166534 !important;
+}
+
+/* Purple sections */
+.theme-day .bg-purple-50 {
+  background: #FAF5FF !important;
+}
+
+.theme-day .text-purple-600 {
+  color: #9333EA !important;
+}
+
+/* Gray text improvements */
+.theme-day .text-gray-700 {
+  color: #374151 !important;
+}
+
+.theme-day .text-gray-600 {
+  color: #4B5563 !important;
+}
+
+.theme-day .text-gray-500 {
+  color: #6B7280 !important;
+}
+
+.theme-day .bg-gray-50 {
+  background: #F9FAFB !important;
+}
+
+.theme-day .bg-gray-100 {
+  background: #F3F4F6 !important;
+}
+
+.theme-day .border-gray-200 {
+  border-color: #E5E7EB !important;
+}
+
+.theme-day .text-gray-400 {
+  color: #9CA3AF !important;
+}
+
+.theme-day .text-gray-800 {
+  color: #1F2937 !important;
+}
+
+/* Hover states for slate gradient cards */
+.theme-day .hover\\:from-slate-600:hover {
+  background: linear-gradient(to bottom right, #F8FAFC, #F1F5F9) !important;
+}
+
+.theme-day .hover\\:to-slate-700:hover {
+  background: linear-gradient(to bottom right, #F8FAFC, #F1F5F9) !important;
+}
+
+/* Improve hover state for card hover effects */
+.theme-day .hover\\:bg-gray-100:hover {
+  background: #F3F4F6 !important;
+}
+
+.theme-day .hover\\:bg-copilot-bg-tertiary:hover {
+  background: #F8FAFC !important;
+}
+
+/* Shadow improvements */
+.theme-day .shadow-lg {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+.theme-day .hover\\:shadow-xl:hover {
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.1), 0 3px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
 /* Transition effects */
 .theme-day .transition-all {
   transition-property: all;
