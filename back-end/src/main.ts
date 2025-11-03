@@ -5,7 +5,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS
+  // Enable CORS - Only allow front-end domain (private back-end architecture)
   const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
@@ -16,12 +16,17 @@ async function bootstrap() {
   // Add production frontend URL if configured
   if (process.env.FRONTEND_URL) {
     allowedOrigins.push(process.env.FRONTEND_URL);
+    // Also allow www subdomain
+    const frontendUrl = new URL(process.env.FRONTEND_URL);
+    if (!frontendUrl.hostname.startsWith('www.')) {
+      allowedOrigins.push(`${frontendUrl.protocol}//www.${frontendUrl.hostname}`);
+    }
   }
 
-  // Allow all sslip.io domains in production (Coolify)
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl)
+      // Allow requests with no origin (server-to-server, like nginx proxy)
+      // This is CRITICAL for the proxy reverso architecture
       if (!origin) return callback(null, true);
 
       // Check if origin is in allowed list
@@ -29,16 +34,7 @@ async function bootstrap() {
         return callback(null, true);
       }
 
-      // Allow all sslip.io domains (Coolify)
-      if (origin.includes('.sslip.io')) {
-        return callback(null, true);
-      }
-
-      // Allow scallex.co domain and all subdomains
-      if (origin.includes('scallex.co')) {
-        return callback(null, true);
-      }
-
+      console.warn(`❌ CORS blocked request from origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
