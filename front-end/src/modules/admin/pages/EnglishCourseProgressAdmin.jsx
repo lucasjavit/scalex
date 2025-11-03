@@ -66,8 +66,8 @@ export default function EnglishCourseProgressAdmin() {
       async () => {
         try {
           setLoading(true);
-          console.log('📤 Sending reset request to:', `/api/english-course/progress/admin/users/${user.id}/reset`);
-          await apiService.request(`/api/english-course/progress/admin/users/${user.id}/reset`, {
+          console.log('📤 Sending reset request to:', `/english-course/progress/admin/users/${user.id}/reset`);
+          await apiService.request(`/english-course/progress/admin/users/${user.id}/reset`, {
             method: 'POST'
           });
           console.log('✅ Reset successful');
@@ -122,7 +122,7 @@ export default function EnglishCourseProgressAdmin() {
       // Load user progress for each stage
       const progressPromises = stagesData.map(async (stage) => {
         try {
-          const progress = await apiService.request(`/api/english-course/progress/users/${userId}/stages/${stage.id}`, 'GET');
+          const progress = await apiService.request(`/english-course/progress/users/${userId}/stages/${stage.id}`, 'GET');
           return {
             ...stage,
             progress: progress || {
@@ -163,7 +163,7 @@ export default function EnglishCourseProgressAdmin() {
       const unitsWithProgress = await Promise.all(
         unitsData.map(async (unit) => {
           try {
-            const progress = await apiService.request(`/api/english-course/progress/users/${user.id}/units/${unit.id}`, 'GET');
+            const progress = await apiService.request(`/english-course/progress/users/${user.id}/units/${unit.id}`, 'GET');
             return {
               ...unit,
               isCompleted: progress?.isCompleted || false,

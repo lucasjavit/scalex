@@ -6,17 +6,17 @@ class CourseApiService {
   // ========================================
 
   async getAllStages() {
-    const response = await apiService.request('/api/english-course/stages');
+    const response = await apiService.request('/english-course/stages');
     return response;
   }
 
   async getStage(stageId) {
-    const response = await apiService.request(`/api/english-course/stages/${stageId}`);
+    const response = await apiService.request(`/english-course/stages/${stageId}`);
     return response;
   }
 
   async createStage(data) {
-    const response = await apiService.request('/api/english-course/stages', {
+    const response = await apiService.request('/english-course/stages', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -24,7 +24,7 @@ class CourseApiService {
   }
 
   async updateStage(stageId, data) {
-    const response = await apiService.request(`/api/english-course/stages/${stageId}`, {
+    const response = await apiService.request(`/english-course/stages/${stageId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
@@ -32,7 +32,7 @@ class CourseApiService {
   }
 
   async deleteStage(stageId) {
-    await apiService.request(`/api/english-course/stages/${stageId}`, {
+    await apiService.request(`/english-course/stages/${stageId}`, {
       method: 'DELETE',
     });
   }
@@ -42,17 +42,17 @@ class CourseApiService {
   // ========================================
 
   async getUnitsByStage(stageId) {
-    const response = await apiService.request(`/api/english-course/stages/${stageId}/units`);
+    const response = await apiService.request(`/english-course/stages/${stageId}/units`);
     return response;
   }
 
   async getUnit(unitId) {
-    const response = await apiService.request(`/api/english-course/units/${unitId}`);
+    const response = await apiService.request(`/english-course/units/${unitId}`);
     return response;
   }
 
   async createUnit(data) {
-    const response = await apiService.request('/api/english-course/units', {
+    const response = await apiService.request('/english-course/units', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -60,7 +60,7 @@ class CourseApiService {
   }
 
   async updateUnit(unitId, data) {
-    const response = await apiService.request(`/api/english-course/units/${unitId}`, {
+    const response = await apiService.request(`/english-course/units/${unitId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
@@ -68,7 +68,7 @@ class CourseApiService {
   }
 
   async deleteUnit(unitId) {
-    await apiService.request(`/api/english-course/units/${unitId}`, {
+    await apiService.request(`/english-course/units/${unitId}`, {
       method: 'DELETE',
     });
   }
@@ -78,17 +78,17 @@ class CourseApiService {
   // ========================================
 
   async getCardsByUnit(unitId) {
-    const response = await apiService.request(`/api/english-course/units/${unitId}/cards`);
+    const response = await apiService.request(`/english-course/units/${unitId}/cards`);
     return response;
   }
 
   async getCard(cardId) {
-    const response = await apiService.request(`/api/english-course/cards/${cardId}`);
+    const response = await apiService.request(`/english-course/cards/${cardId}`);
     return response;
   }
 
   async createCard(data) {
-    const response = await apiService.request('/api/english-course/cards', {
+    const response = await apiService.request('/english-course/cards', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -96,7 +96,7 @@ class CourseApiService {
   }
 
   async updateCard(cardId, data) {
-    const response = await apiService.request(`/api/english-course/cards/${cardId}`, {
+    const response = await apiService.request(`/english-course/cards/${cardId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
@@ -104,7 +104,7 @@ class CourseApiService {
   }
 
   async deleteCard(cardId) {
-    await apiService.request(`/api/english-course/cards/${cardId}`, {
+    await apiService.request(`/english-course/cards/${cardId}`, {
       method: 'DELETE',
     });
   }
@@ -114,36 +114,36 @@ class CourseApiService {
   // ========================================
 
   async getDashboard() {
-    const response = await apiService.request('/api/english-course/progress/dashboard');
+    const response = await apiService.request('/english-course/progress/dashboard');
     return response;
   }
 
   async getStageProgress(stageId) {
-    const response = await apiService.request(`/api/english-course/progress/stages/${stageId}`);
+    const response = await apiService.request(`/english-course/progress/stages/${stageId}`);
     return response;
   }
 
   async startStage(stageId) {
-    const response = await apiService.request(`/api/english-course/progress/stages/${stageId}/start`, {
+    const response = await apiService.request(`/english-course/progress/stages/${stageId}/start`, {
       method: 'POST',
     });
     return response;
   }
 
   async getUnitProgress(unitId) {
-    const response = await apiService.request(`/api/english-course/progress/units/${unitId}`);
+    const response = await apiService.request(`/english-course/progress/units/${unitId}`);
     return response;
   }
 
   async startUnit(unitId) {
-    const response = await apiService.request(`/api/english-course/progress/units/${unitId}/start`, {
+    const response = await apiService.request(`/english-course/progress/units/${unitId}/start`, {
       method: 'POST',
     });
     return response;
   }
 
   async updateWatchTime(unitId, watchTimeSeconds) {
-    const response = await apiService.request(`/api/english-course/progress/units/${unitId}/watch-time`, {
+    const response = await apiService.request(`/english-course/progress/units/${unitId}/watch-time`, {
       method: 'PATCH',
       body: JSON.stringify({ watchTimeSeconds }),
     });
@@ -151,14 +151,14 @@ class CourseApiService {
   }
 
   async completeUnit(unitId) {
-    const response = await apiService.request(`/api/english-course/progress/units/${unitId}/complete`, {
+    const response = await apiService.request(`/english-course/progress/units/${unitId}/complete`, {
       method: 'POST',
     });
     return response;
   }
 
   async skipUnit(unitId) {
-    const response = await apiService.request(`/api/english-course/progress/units/${unitId}/skip`, {
+    const response = await apiService.request(`/english-course/progress/units/${unitId}/skip`, {
       method: 'POST',
     });
     return response;
@@ -169,12 +169,12 @@ class CourseApiService {
   // ========================================
 
   async getDueCards(limit = 20) {
-    const response = await apiService.request(`/api/english-course/review/due?limit=${limit}`);
+    const response = await apiService.request(`/english-course/review/due?limit=${limit}`);
     return response;
   }
 
   async submitReview(cardId, result, timeTakenSeconds) {
-    const response = await apiService.request('/api/english-course/review/submit', {
+    const response = await apiService.request('/english-course/review/submit', {
       method: 'POST',
       body: JSON.stringify({
         cardId,
@@ -186,7 +186,7 @@ class CourseApiService {
   }
 
   async getReviewStats(period = 'today') {
-    const response = await apiService.request(`/api/english-course/review/stats?period=${period}`);
+    const response = await apiService.request(`/english-course/review/stats?period=${period}`);
     return response;
   }
 }

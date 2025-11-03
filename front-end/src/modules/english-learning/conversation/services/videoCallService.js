@@ -31,7 +31,7 @@ class VideoCallService {
   async createVideoCallSession(userId, preferences = {}) {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/rooms`, {
+      const response = await fetch(`${this.baseURL}/english-learning/admin/video-call/rooms`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -98,7 +98,7 @@ class VideoCallService {
 
       // Mark the room as started via API and add user to participants
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/rooms/${roomName}/start`, {
+      const response = await fetch(`${this.baseURL}/english-learning/admin/video-call/rooms/${roomName}/start`, {
         method: 'PUT',
         headers,
         body: JSON.stringify({
@@ -125,7 +125,7 @@ class VideoCallService {
       // console.log('Duration:', duration);
 
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/rooms/${roomName}`, {
+      const response = await fetch(`${this.baseURL}/english-learning/admin/video-call/rooms/${roomName}`, {
         method: 'DELETE',
         headers,
       });
@@ -152,7 +152,7 @@ class VideoCallService {
       // console.log('User ID:', userId);
 
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/statistics/${userId}`, {
+      const response = await fetch(`${this.baseURL}/english-learning/video-call/statistics/${userId}`, {
         method: 'GET',
         headers,
       });
@@ -195,7 +195,7 @@ class VideoCallService {
       // console.log('Preferences:', preferences);
 
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/queue/join`, {
+      const response = await fetch(`${this.baseURL}/english-learning/video-call/queue/join`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -230,7 +230,7 @@ class VideoCallService {
       // console.log('User ID:', userId);
 
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/queue/leave/${userId}`, {
+      const response = await fetch(`${this.baseURL}/english-learning/video-call/queue/leave/${userId}`, {
         method: 'DELETE',
         headers,
       });
@@ -260,7 +260,7 @@ class VideoCallService {
       console.log('Should rejoin queue:', shouldRejoinQueue);
 
       const headers = await this.getAuthHeaders();
-      const url = `${this.baseURL}/api/english-learning/video-call/session/leave/${userId}?shouldRejoinQueue=${shouldRejoinQueue}`;
+      const url = `${this.baseURL}/english-learning/video-call/session/leave/${userId}?shouldRejoinQueue=${shouldRejoinQueue}`;
       const response = await fetch(url, {
         method: 'DELETE',
         headers,
@@ -287,7 +287,7 @@ class VideoCallService {
   async getQueueStatus(userId) {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/queue/status/${userId}`, {
+      const response = await fetch(`${this.baseURL}/english-learning/video-call/queue/status/${userId}`, {
         method: 'GET',
         headers,
       });
@@ -310,7 +310,7 @@ class VideoCallService {
   async getQueue() {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/queue`, {
+      const response = await fetch(`${this.baseURL}/english-learning/video-call/queue`, {
         method: 'GET',
         headers,
       });
@@ -333,7 +333,7 @@ class VideoCallService {
   async getAllSessions() {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/sessions`, {
+      const response = await fetch(`${this.baseURL}/english-learning/admin/video-call/sessions`, {
         method: 'GET',
         headers,
       });
@@ -356,7 +356,7 @@ class VideoCallService {
   async getSessionRoom(roomName) {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/admin/video-call/session-room/${roomName}`, {
+      const response = await fetch(`${this.baseURL}/english-learning/admin/video-call/session-room/${roomName}`, {
         method: 'GET',
         headers,
       });
@@ -379,7 +379,7 @@ class VideoCallService {
   async getSystemStatus() {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/system-status`, {
+      const response = await fetch(`${this.baseURL}/english-learning/video-call/system-status`, {
         method: 'GET',
         headers,
       });
@@ -402,7 +402,7 @@ class VideoCallService {
   async checkSessionStatus(userId) {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${this.baseURL}/api/english-learning/video-call/session/check/${userId}`, {
+      const response = await fetch(`${this.baseURL}/english-learning/video-call/session/check/${userId}`, {
         method: 'GET',
         headers,
       });
