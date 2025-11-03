@@ -24,7 +24,7 @@ import { VideoCallService } from './video-call.service';
  * Rota: /api/english-learning/video-call
  * Guard: FirebaseAuthGuard + EnglishLearningAccessGuard
  */
-@Controller('api/english-learning/video-call')
+@Controller('english-learning/video-call')
 @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class VideoCallPublicController {
   constructor(

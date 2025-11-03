@@ -15,7 +15,7 @@ import { CreateUnitDto } from '../dto/create-unit.dto';
 import { UpdateUnitDto } from '../dto/update-unit.dto';
 import { UnitsService } from '../services/units.service';
 
-@Controller('api/english-course')
+@Controller('english-course')
 @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class UnitsController {
   constructor(private readonly unitsService: UnitsService) {}

@@ -15,7 +15,7 @@ import { CreateStageDto } from '../dto/create-stage.dto';
 import { UpdateStageDto } from '../dto/update-stage.dto';
 import { StagesService } from '../services/stages.service';
 
-@Controller('api/english-course/stages')
+@Controller('english-course/stages')
 @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class StagesController {
   constructor(private readonly stagesService: StagesService) {}

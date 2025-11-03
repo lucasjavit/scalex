@@ -14,7 +14,7 @@ import { ProgressService } from '../services/progress.service';
 import { FirebaseAuthGuard } from '../../../../common/guards/firebase-auth.guard';
 import { EnglishLearningAccessGuard } from '../../../../common/guards/english-learning-access.guard';
 
-@Controller('api/english-course/progress')
+@Controller('english-course/progress')
 @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class ProgressController {
   constructor(private readonly progressService: ProgressService) {}

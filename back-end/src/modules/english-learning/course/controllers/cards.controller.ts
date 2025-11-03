@@ -15,7 +15,7 @@ import { CreateCardDto } from '../dto/create-card.dto';
 import { UpdateCardDto } from '../dto/update-card.dto';
 import { CardsService } from '../services/cards.service';
 
-@Controller('api/english-course')
+@Controller('english-course')
 @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class CardsController {
   constructor(private readonly cardsService: CardsService) {}

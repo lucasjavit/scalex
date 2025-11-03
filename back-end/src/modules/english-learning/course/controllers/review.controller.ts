@@ -5,7 +5,7 @@ import { EnglishLearningAccessGuard } from '../../../../common/guards/english-le
 import { SubmitReviewDto } from '../dto/submit-review.dto';
 import { ReviewService } from '../services/review.service';
 
-@Controller('api/english-course/review')
+@Controller('english-course/review')
 @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}

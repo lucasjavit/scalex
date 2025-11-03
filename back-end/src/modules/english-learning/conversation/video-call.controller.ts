@@ -20,7 +20,7 @@ import { VideoCallDailyService } from './video-call-daily.service';
 import { VideoCallQueueService } from './video-call-queue.service';
 import { VideoCallService } from './video-call.service';
 
-@Controller('api/english-learning/admin/video-call')
+@Controller('english-learning/admin/video-call')
 @UseGuards(FirebaseAuthGuard, EnglishLearningAccessGuard)
 export class VideoCallController {
   constructor(
