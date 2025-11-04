@@ -73,9 +73,7 @@ function FeatureItem({ text }) {
   );
 }
 
-// Macro-Modules Dashboards
-import BusinessSuiteDashboard from "../modules/business-suite/Dashboard";
-import EnglishLearningDashboard from "../modules/english-learning/Dashboard";
+// Macro-Modules Dashboards - Removed (direct navigation only)
 
 // English Learning - Conversation Module
 import ConversationRoutes from "../modules/english-learning/conversation/ConversationRoutes";
@@ -119,15 +117,7 @@ export default function AppRoutes() {
               }
             />
 
-            {/* MACRO-MODULE 1: English Learning */}
-            <Route
-              path="/learning"
-              element={
-                <EnglishLearningRoute>
-                  <EnglishLearningDashboard />
-                </EnglishLearningRoute>
-              }
-            />
+            {/* MACRO-MODULE 1: English Learning - Direct Routes Only */}
             <Route
               path="/learning/conversation/*"
               element={
@@ -166,24 +156,6 @@ export default function AppRoutes() {
                 <EnglishLearningRoute>
                   <ReviewSession />
                 </EnglishLearningRoute>
-              }
-            />
-            <Route
-              path="/learning/teachers"
-              element={
-                <EnglishLearningRoute>
-                  <ComingSoonPage moduleName="Professores de Inglês" moduleIcon="👨‍🏫" />
-                </EnglishLearningRoute>
-              }
-            />
-
-            {/* MACRO-MODULE 2: Business Suite */}
-            <Route
-              path="/business"
-              element={
-                <PrivateRoute>
-                  <BusinessSuiteDashboard />
-                </PrivateRoute>
               }
             />
 

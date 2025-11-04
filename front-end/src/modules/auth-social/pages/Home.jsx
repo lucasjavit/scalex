@@ -190,92 +190,70 @@ export default function Home() {
               status={conversationAvailable ? 'active' : 'disabled'}
               disabledReason={conversationDisabledReason}
             />
-            <MacroModuleCard
-              icon="👨‍🏫"
-              gradient="from-blue-500 to-cyan-500"
-              title={t('home.learning.teachers', 'Professores')}
-              description={t('home.learning.teachersDesc', 'Aulas particulares')}
-              onClick={() => navigate('/learning/teachers')}
-              status="coming-soon"
-            />
-          </div>
-
-          <div className="mt-6 text-center">
-            <BackButton 
-              to="/learning" 
-              label={t('home.learning.viewAll', 'Ver todos os módulos')}
-              className="inline-flex"
-            />
           </div>
         </section>
 
-        {/* Macro-Module 2: Business Suite */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-copilot flex items-center justify-center shadow-copilot">
-              <span className="text-white text-2xl">💼</span>
+        {/* Macro-Module 2: Business Suite - Admin Only */}
+        {isAdmin && (
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-copilot flex items-center justify-center shadow-copilot">
+                <span className="text-white text-2xl">💼</span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-copilot-text-primary">
+                  {t('home.business.title', 'Business Suite')}
+                </h2>
+                <p className="text-copilot-text-secondary text-sm">
+                  {t('home.business.subtitle', 'Ferramentas para trabalhar como PJ')}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-copilot-text-primary">
-                {t('home.business.title', 'Business Suite')}
-              </h2>
-              <p className="text-copilot-text-secondary text-sm">
-                {t('home.business.subtitle', 'Ferramentas para trabalhar como PJ')}
-              </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <MacroModuleCard
+                icon="📊"
+                gradient="from-blue-500 to-cyan-500"
+                title={t('home.business.accounting', 'Contabilidade')}
+                description={t('home.business.accountingDesc', 'CNPJ e contador')}
+                onClick={() => navigate('/accounting')}
+                status="coming-soon"
+              />
+              <MacroModuleCard
+                icon="💼"
+                gradient="from-purple-500 to-pink-500"
+                title={t('home.business.career', 'Consultoria')}
+                description={t('home.business.careerDesc', 'LinkedIn e currículo')}
+                onClick={() => navigate('/career')}
+                status="coming-soon"
+              />
+              <MacroModuleCard
+                icon="🌍"
+                gradient="from-red-500 to-pink-500"
+                title={t('home.business.jobs', 'Vagas Remotas')}
+                description={t('home.business.jobsDesc', 'Trabalho internacional')}
+                onClick={() => navigate('/jobs')}
+                status="coming-soon"
+              />
+              <MacroModuleCard
+                icon="🛡️"
+                gradient="from-indigo-500 to-blue-500"
+                title={t('home.business.insurance', 'Seguros')}
+                description={t('home.business.insuranceDesc', 'Planos e proteção')}
+                onClick={() => navigate('/insurance')}
+                status="coming-soon"
+              />
+              <MacroModuleCard
+                icon="💰"
+                gradient="from-teal-500 to-cyan-500"
+                title={t('home.business.banking', 'Banco Digital')}
+                description={t('home.business.bankingDesc', 'Pagamentos internacionais')}
+                onClick={() => navigate('/banking')}
+                status="coming-soon"
+              />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <MacroModuleCard
-              icon="📊"
-              gradient="from-blue-500 to-cyan-500"
-              title={t('home.business.accounting', 'Contabilidade')}
-              description={t('home.business.accountingDesc', 'CNPJ e contador')}
-              onClick={() => navigate('/business/accounting')}
-              status="coming-soon"
-            />
-            <MacroModuleCard
-              icon="💼"
-              gradient="from-purple-500 to-pink-500"
-              title={t('home.business.career', 'Consultoria')}
-              description={t('home.business.careerDesc', 'LinkedIn e currículo')}
-              onClick={() => navigate('/business/career')}
-              status="coming-soon"
-            />
-            <MacroModuleCard
-              icon="🌍"
-              gradient="from-red-500 to-pink-500"
-              title={t('home.business.jobs', 'Vagas Remotas')}
-              description={t('home.business.jobsDesc', 'Trabalho internacional')}
-              onClick={() => navigate('/business/jobs')}
-              status="coming-soon"
-            />
-            <MacroModuleCard
-              icon="🛡️"
-              gradient="from-indigo-500 to-blue-500"
-              title={t('home.business.insurance', 'Seguros')}
-              description={t('home.business.insuranceDesc', 'Planos e proteção')}
-              onClick={() => navigate('/business/insurance')}
-              status="coming-soon"
-            />
-            <MacroModuleCard
-              icon="💰"
-              gradient="from-teal-500 to-cyan-500"
-              title={t('home.business.banking', 'Banco Digital')}
-              description={t('home.business.bankingDesc', 'Pagamentos internacionais')}
-              onClick={() => navigate('/business/banking')}
-              status="coming-soon"
-            />
-          </div>
-
-          <div className="mt-6 text-center">
-            <BackButton 
-              to="/business" 
-              label={t('home.business.viewAll', 'Ver todos os módulos')}
-              className="inline-flex"
-            />
-          </div>
-        </section>
+          </section>
+        )}
       </main>
     </div>
   );

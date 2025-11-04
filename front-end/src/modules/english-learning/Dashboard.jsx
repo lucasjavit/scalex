@@ -24,15 +24,6 @@ export default function EnglishLearningDashboard() {
       route: '/learning/conversation',
       gradient: 'from-yellow-500 to-orange-500',
       status: 'active'
-    },
-    {
-      id: 'teachers',
-      icon: '👨‍🏫',
-      title: t('learning.teachers.title', 'Professores'),
-      description: t('learning.teachers.description', 'Aulas particulares com professores qualificados'),
-      route: '/learning/teachers',
-      gradient: 'from-blue-500 to-cyan-500',
-      status: 'coming-soon'
     }
   ];
 

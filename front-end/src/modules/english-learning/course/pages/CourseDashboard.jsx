@@ -110,7 +110,7 @@ export default function CourseDashboard() {
     <div className="bg-copilot-bg-primary min-h-screen">
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Back Button */}
-        <BackButton to="/learning" />
+        <BackButton to="/home" />
 
         {/* Header */}
         <div className="text-center mb-8">
