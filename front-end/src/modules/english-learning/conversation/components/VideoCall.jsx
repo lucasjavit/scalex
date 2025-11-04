@@ -23,7 +23,7 @@ const VideoCall = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
         const baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
         
         const response = await fetch(
-          `${baseURL}/api/english-learning/video-call/daily/token`,
+          `${baseURL}/english-learning/video-call/daily/token`,
           {
             method: 'POST',
             headers,

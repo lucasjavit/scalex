@@ -106,7 +106,7 @@ export default function Home() {
         const baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
         const token = await user?.getIdToken();
 
-        const response = await fetch(`${baseURL}/api/english-learning/video-call/feature-availability`, {
+        const response = await fetch(`${baseURL}/english-learning/video-call/feature-availability`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
