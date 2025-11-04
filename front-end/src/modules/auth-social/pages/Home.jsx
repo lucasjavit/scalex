@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import BackButton from '../../../components/BackButton';
 import { useIsAdmin } from "../../../hooks/useIsAdmin";
 import apiService from "../../../services/api";
+import { getApiUrl } from "../../../utils/apiUrl";
 import { useAuth } from "../context/AuthContext";
 
 // MacroModuleCard Component
@@ -103,10 +104,9 @@ export default function Home() {
   useEffect(() => {
     const checkFeatureAvailability = async () => {
       try {
-        const baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
         const token = await user?.getIdToken();
 
-        const response = await fetch(`${baseURL}/english-learning/video-call/feature-availability`, {
+        const response = await fetch(getApiUrl('/english-learning/video-call/feature-availability'), {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

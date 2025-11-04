@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { getApiUrl } from '../../../../utils/apiUrl';
 import { useAuth } from '../../../auth-social/context/AuthContext';
 import videoCallService from '../services/videoCallService';
 import VideoCallDaily from './VideoCallDaily';
@@ -20,10 +21,9 @@ const VideoCall = ({ roomName, onEndCall, onUserJoined, onUserLeft }) => {
 
         // Get Daily.co token and room URL from backend
         const headers = await videoCallService.getAuthHeaders();
-        const baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
         
         const response = await fetch(
-          `${baseURL}/english-learning/video-call/daily/token`,
+          getApiUrl('/english-learning/video-call/daily/token'),
           {
             method: 'POST',
             headers,

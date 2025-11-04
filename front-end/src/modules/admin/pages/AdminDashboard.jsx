@@ -1,12 +1,82 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../../../components/BackButton';
 import { useUserStatus } from '../../../hooks/useUserStatus';
 import AdminLayout from '../components/AdminLayout';
+import adminApi from '../services/adminApi';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { userStatus } = useUserStatus();
+  const [userStats, setUserStats] = useState({
+    total: '---',
+    active: '---',
+    inactive: '---',
+  });
+  const [englishLearningStats, setEnglishLearningStats] = useState({
+    totalStages: '---',
+    activeSessions: '---',
+    totalUsers: '---',
+  });
+
+  // Fetch user statistics
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      try {
+        const users = await adminApi.getAllUsers();
+        const total = users.length;
+        const active = users.filter(u => u.is_active === true).length;
+        const inactive = users.filter(u => u.is_active === false).length;
+
+        setUserStats({
+          total,
+          active,
+          inactive,
+        });
+      } catch (error) {
+        console.error('Error fetching user statistics:', error);
+      }
+    };
+
+    // Only fetch if user is admin
+    if (userStatus?.role === 'admin') {
+      fetchUserStats();
+    }
+  }, [userStatus]);
+
+  // Fetch English Learning statistics
+  useEffect(() => {
+    const fetchEnglishLearningStats = async () => {
+      try {
+        console.log('🔍 Fetching English Learning stats...');
+        const [stages, sessions, users] = await Promise.all([
+          adminApi.getEnglishLearningStages(),
+          adminApi.getVideoCallSessions(),
+          adminApi.getAllUsers(),
+        ]);
+
+        console.log('📊 Stages:', stages);
+        console.log('📊 Sessions:', sessions);
+        console.log('📊 Users:', users);
+
+        const stats = {
+          totalStages: stages?.length || 0,
+          activeSessions: sessions?.length || 0,
+          totalUsers: users?.length || 0,
+        };
+
+        console.log('✅ English Learning Stats:', stats);
+
+        setEnglishLearningStats(stats);
+      } catch (error) {
+        console.error('❌ Error fetching English Learning statistics:', error);
+      }
+    };
+
+    if (userStatus) {
+      fetchEnglishLearningStats();
+    }
+  }, [userStatus]);
 
   const allModules = [
     {
@@ -15,9 +85,9 @@ const AdminDashboard = () => {
       icon: '👥',
       color: 'from-blue-500 to-cyan-500',
       stats: [
-        { label: 'Total Users', value: '---', icon: '👤' },
-        { label: 'Active Users', value: '---', icon: '✅' },
-        { label: 'Inactive Users', value: '---', icon: '⛔' },
+        { label: 'Total Users', value: userStats.total, icon: '👤' },
+        { label: 'Active Users', value: userStats.active, icon: '✅' },
+        { label: 'Inactive Users', value: userStats.inactive, icon: '⛔' },
       ],
       actions: [
         { label: 'View All Users', href: '/admin/users', icon: '👥' },
@@ -31,9 +101,9 @@ const AdminDashboard = () => {
       icon: '📖',
       color: 'from-purple-500 to-pink-500',
       stats: [
-        { label: 'Total Stages', value: '---', icon: '📂' },
-        { label: 'Active Sessions', value: '---', icon: '🟢' },
-        { label: 'Total Users', value: '---', icon: '👥' },
+        { label: 'Total Stages', value: englishLearningStats.totalStages, icon: '📂' },
+        { label: 'Active Sessions', value: englishLearningStats.activeSessions, icon: '🟢' },
+        { label: 'Total Users', value: englishLearningStats.totalUsers, icon: '👥' },
       ],
       actions: [
         { label: 'Manage Course', href: '/admin/english-learning/course', icon: '📚' },

@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
-import { useNavigate, useBlocker } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { getApiUrl } from '../../../../utils/apiUrl';
 import { useAuth } from '../../../auth-social/context/AuthContext';
 import videoCallService from '../services/videoCallService';
 
@@ -128,7 +129,7 @@ export default function WaitingQueue() {
           type: 'application/json',
         });
         navigator.sendBeacon(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/english-learning/video-call/queue/leave/${user.uid}`,
+          getApiUrl(`/english-learning/video-call/queue/leave/${user.uid}`),
           blob
         );
       }

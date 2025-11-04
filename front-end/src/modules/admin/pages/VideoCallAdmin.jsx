@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../../hooks/useNotification';
+import { getApiUrl } from '../../../utils/apiUrl';
 import { useAuth } from '../../auth-social/context/AuthContext';
 import AdminLayout from '../components/AdminLayout';
 
@@ -18,7 +19,6 @@ const VideoCallAdmin = () => {
     endMinute: ''
   });
   const [clearingQueue, setClearingQueue] = useState(false);
-  const baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -51,8 +51,8 @@ const VideoCallAdmin = () => {
       const headers = await getAuthHeaders();
 
       const [statusRes, statsRes] = await Promise.all([
-        fetch(`${baseURL}/english-learning/admin/video-call/system-status`, { headers }),
-        fetch(`${baseURL}/english-learning/admin/video-call/admin/statistics`, { headers })
+        fetch(getApiUrl('/english-learning/admin/video-call/system-status'), { headers }),
+        fetch(getApiUrl('/english-learning/admin/video-call/admin/statistics'), { headers })
       ]);
 
       const statusData = await statusRes.json();
@@ -79,7 +79,7 @@ const VideoCallAdmin = () => {
   const disableSystem = async () => {
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`${baseURL}/english-learning/admin/video-call/admin/disable`, {
+      const response = await fetch(getApiUrl('/english-learning/admin/video-call/admin/disable'), {
         method: 'POST',
         headers,
       });
@@ -110,7 +110,7 @@ const VideoCallAdmin = () => {
   const enableSystem = async () => {
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`${baseURL}/english-learning/admin/video-call/admin/enable`, {
+      const response = await fetch(getApiUrl('/english-learning/admin/video-call/admin/enable'), {
         method: 'POST',
         headers,
       });
@@ -145,7 +145,7 @@ const VideoCallAdmin = () => {
 
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`${baseURL}/english-learning/admin/video-call/admin/add-period`, {
+      const response = await fetch(getApiUrl('/english-learning/admin/video-call/admin/add-period'), {
         method: 'POST',
         headers,
         body: JSON.stringify(period),
@@ -179,7 +179,7 @@ const VideoCallAdmin = () => {
   const removePeriod = async (index) => {
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`${baseURL}/english-learning/admin/video-call/admin/remove-period/${index}`, {
+      const response = await fetch(getApiUrl(`/english-learning/admin/video-call/admin/remove-period/${index}`), {
         method: 'DELETE',
         headers,
       });
@@ -211,7 +211,7 @@ const VideoCallAdmin = () => {
     try {
       setClearingQueue(true);
       const headers = await getAuthHeaders();
-      const response = await fetch(`${baseURL}/english-learning/admin/video-call/admin/queue/clear`, {
+      const response = await fetch(getApiUrl('/english-learning/admin/video-call/admin/queue/clear'), {
         method: 'POST',
         headers,
       });

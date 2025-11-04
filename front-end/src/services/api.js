@@ -1,5 +1,6 @@
 // API service for communicating with ScaleX backend
 import { auth } from '../modules/auth-social/services/firebaseAuth';
+import { getApiUrl } from '../utils/apiUrl';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -18,7 +19,7 @@ class ApiService {
 
   // Generic request method
   async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
+    const url = getApiUrl(endpoint);
 
     // Get Firebase auth token
     const token = await this.getAuthToken();

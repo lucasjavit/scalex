@@ -1,4 +1,5 @@
 import { auth } from '../modules/auth-social/services/firebaseAuth';
+import { getApiUrl } from '../utils/apiUrl';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -23,7 +24,7 @@ const getAuthToken = async () => {
 export const getAllUsers = async () => {
   const token = await getAuthToken();
 
-  const response = await fetch(`${API_URL}/users`, {
+  const response = await fetch(getApiUrl('/users'), {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
@@ -44,7 +45,7 @@ export const getAllUsers = async () => {
 export const getUsersByRole = async (role) => {
   const token = await getAuthToken();
 
-  const response = await fetch(`${API_URL}/users/admin/roles/${role}`, {
+  const response = await fetch(getApiUrl(`/users/admin/roles/${role}`), {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
@@ -66,7 +67,7 @@ export const getUsersByRole = async (role) => {
 export const updateUserRole = async (userId, newRole) => {
   const token = await getAuthToken();
 
-  const response = await fetch(`${API_URL}/users/admin/${userId}/role`, {
+  const response = await fetch(getApiUrl(`/users/admin/${userId}/role`), {
     method: 'PATCH',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -91,7 +92,7 @@ export const getCurrentUserData = async () => {
   const token = await getAuthToken();
   const firebaseUid = auth.currentUser.uid;
 
-  const response = await fetch(`${API_URL}/users/firebase/${firebaseUid}`, {
+  const response = await fetch(getApiUrl(`/users/firebase/${firebaseUid}`), {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
@@ -152,7 +153,7 @@ export const getRoleInfo = (roleValue) => {
 export const toggleUserStatus = async (userId) => {
   const token = await getAuthToken();
 
-  const response = await fetch(`${API_URL}/users/${userId}/toggle-status`, {
+  const response = await fetch(getApiUrl(`/users/${userId}/toggle-status`), {
     method: 'PATCH',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -177,7 +178,7 @@ export const toggleUserStatus = async (userId) => {
 export const deleteUser = async (userId) => {
   const token = await getAuthToken();
 
-  const response = await fetch(`${API_URL}/users/${userId}`, {
+  const response = await fetch(getApiUrl(`/users/${userId}`), {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`,

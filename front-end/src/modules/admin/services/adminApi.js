@@ -1,3 +1,4 @@
+import { getApiUrl } from '../../../utils/apiUrl';
 import { auth } from '../../auth-social/services/firebaseAuth';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -17,7 +18,7 @@ class AdminApiService {
   async getAllUsers() {
     const token = await getAuthToken();
 
-    const response = await fetch(`${API_URL}/users`, {
+    const response = await fetch(getApiUrl('/users'), {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -33,7 +34,7 @@ class AdminApiService {
   async toggleUserStatus(userId) {
     const token = await getAuthToken();
 
-    const response = await fetch(`${API_URL}/users/${userId}/toggle-status`, {
+    const response = await fetch(getApiUrl(`/users/${userId}/toggle-status`), {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -52,7 +53,7 @@ class AdminApiService {
   async deleteUser(userId) {
     const token = await getAuthToken();
 
-    const response = await fetch(`${API_URL}/users/${userId}`, {
+    const response = await fetch(getApiUrl(`/users/${userId}`), {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -63,6 +64,42 @@ class AdminApiService {
       const error = await response.json().catch(() => ({ message: 'Failed to delete user' }));
       throw new Error(error.message || 'Failed to delete user');
     }
+  }
+
+  // English Learning module statistics
+  async getEnglishLearningStages() {
+    const token = await getAuthToken();
+
+    const response = await fetch(getApiUrl('/english-course/stages'), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch stages');
+    }
+
+    const result = await response.json();
+    // API may return array directly or wrapped in data property
+    return Array.isArray(result) ? result : (result.data || []);
+  }
+
+  async getVideoCallSessions() {
+    const token = await getAuthToken();
+
+    const response = await fetch(getApiUrl('/english-learning/admin/video-call/sessions'), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch video call sessions');
+    }
+
+    const result = await response.json();
+    return result.data || [];
   }
 }
 
