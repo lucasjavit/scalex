@@ -1,9 +1,28 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { DataSource } from 'typeorm';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
+
+  // Run migrations automatically on startup
+  try {
+    const dataSource = app.get(DataSource);
+    const migrations = await dataSource.runMigrations();
+    if (migrations.length > 0) {
+      logger.log(`✅ ${migrations.length} migration(s) executed successfully`);
+      migrations.forEach(migration => {
+        logger.log(`  - ${migration.name}`);
+      });
+    } else {
+      logger.log('✅ No pending migrations');
+    }
+  } catch (error) {
+    logger.error('❌ Migration failed', error);
+    throw error;
+  }
 
   // Set global prefix for all routes
   app.setGlobalPrefix('api');
@@ -56,6 +75,6 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`🚀 Application is running on: http://localhost:${port}`);
 }
 bootstrap();
