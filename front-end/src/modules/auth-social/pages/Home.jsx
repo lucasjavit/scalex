@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import BackButton from '../../../components/BackButton';
 import { useIsAdmin } from "../../../hooks/useIsAdmin";
+import { useUserPermissions } from "../../../hooks/useUserPermissions";
 import apiService from "../../../services/api";
 import { getApiUrl } from "../../../utils/apiUrl";
 import { useAuth } from "../context/AuthContext";
@@ -76,6 +77,7 @@ export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
+  const { permissions, hasPermission, loading: permissionsLoading } = useUserPermissions();
   const [conversationAvailable, setConversationAvailable] = useState(true);
   const [conversationDisabledReason, setConversationDisabledReason] = useState('');
 
@@ -156,42 +158,48 @@ export default function Home() {
         </div>
 
 
-        {/* Macro-Module 1: English Learning */}
-        <section className="mb-12">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-copilot flex items-center justify-center shadow-copilot">
-              <span className="text-white text-2xl">📚</span>
+        {/* English Learning Modules */}
+        {!permissionsLoading && (hasPermission('learning.course') || hasPermission('learning.conversation') || isAdmin) && (
+          <section className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-copilot flex items-center justify-center shadow-copilot">
+                <span className="text-white text-2xl">📚</span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-copilot-text-primary">
+                  {t('home.learning.title', 'English Learning')}
+                </h2>
+                <p className="text-copilot-text-secondary text-sm">
+                  {t('home.learning.subtitle', 'Aprenda e pratique inglês')}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-copilot-text-primary">
-                {t('home.learning.title', 'English Learning')}
-              </h2>
-              <p className="text-copilot-text-secondary text-sm">
-                {t('home.learning.subtitle', 'Aprenda e pratique inglês')}
-              </p>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <MacroModuleCard
-              icon="📖"
-              gradient="from-green-500 to-emerald-500"
-              title={t('home.learning.course', 'Aulas de Inglês')}
-              description={t('home.learning.courseDesc', 'Sistema de spaced repetition')}
-              onClick={() => navigate('/learning/course')}
-              status="active"
-            />
-            <MacroModuleCard
-              icon="💬"
-              gradient="from-yellow-500 to-orange-500"
-              title={t('home.learning.conversation', 'Conversação')}
-              description={t('home.learning.conversationDesc', 'Pratique com outros usuários')}
-              onClick={() => navigate('/learning/conversation')}
-              status={conversationAvailable ? 'active' : 'disabled'}
-              disabledReason={conversationDisabledReason}
-            />
-          </div>
-        </section>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {(hasPermission('learning.course') || isAdmin) && (
+                <MacroModuleCard
+                  icon="📖"
+                  gradient="from-green-500 to-emerald-500"
+                  title={t('home.learning.course', 'Aulas de Inglês')}
+                  description={t('home.learning.courseDesc', 'Sistema de spaced repetition')}
+                  onClick={() => navigate('/learning/course')}
+                  status="active"
+                />
+              )}
+              {(hasPermission('learning.conversation') || isAdmin) && (
+                <MacroModuleCard
+                  icon="💬"
+                  gradient="from-yellow-500 to-orange-500"
+                  title={t('home.learning.conversation', 'Conversação')}
+                  description={t('home.learning.conversationDesc', 'Pratique com outros usuários')}
+                  onClick={() => navigate('/learning/conversation')}
+                  status={conversationAvailable ? 'active' : 'disabled'}
+                  disabledReason={conversationDisabledReason}
+                />
+              )}
+            </div>
+          </section>
+        )}
 
         {/* Macro-Module 2: Business Suite - Admin Only */}
         {isAdmin && (

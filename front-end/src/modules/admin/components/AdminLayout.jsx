@@ -19,6 +19,12 @@ const AdminLayout = ({ children }) => {
       roles: ['admin'] // Only admin can see this
     },
     {
+      name: 'User Management',
+      href: '/admin/permissions',
+      icon: '🔐',
+      roles: ['admin'] // Only admin can see this
+    },
+    {
       name: 'English Learning',
       icon: '📖',
       roles: ['admin', 'partner_english_course'], // Admin and English Course Partner

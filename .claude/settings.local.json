@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(npm run migration:create:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run migration:run:*)",
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(npx nest build:*)",
+      "Bash(node_modules/.bin/nest build)",
+      "Bash(tasklist:*)",
+      "Bash(lsof:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

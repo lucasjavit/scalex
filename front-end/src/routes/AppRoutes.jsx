@@ -86,6 +86,8 @@ import ReviewSession from "../modules/english-learning/course/pages/ReviewSessio
 
 // Admin Panel
 import { AdminRoutes } from "../modules/admin";
+import UserPermissionsManagement from "../pages/AdminPanel/UserPermissionsManagement";
+import UserRolesManagement from "../pages/AdminPanel/UserRolesManagement";
 
 // Test Environment Variables
 import TestEnv from "../test-env";
@@ -170,6 +172,22 @@ export default function AppRoutes() {
             />
 
             {/* Admin Panel Routes */}
+            <Route
+              path="/admin/permissions"
+              element={
+                <PrivateRoute>
+                  <UserPermissionsManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/roles"
+              element={
+                <PrivateRoute>
+                  <UserRolesManagement />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/admin/*"
               element={
