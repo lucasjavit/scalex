@@ -356,12 +356,21 @@ export class VideoCallQueueService implements OnModuleInit {
     });
 
     if (existingInQueue) {
-      return {
-        success: false,
-        message: 'Você já está na fila',
-        queuePosition: await this.getQueuePosition(dto.userId),
-        nextSessionTime: this.nextSessionTime,
-      };
+      // Remove o usuário da fila (BD e memória) automaticamente
+      this.logger.log(`🚪 User ${dto.userId} already in queue - removing from queue automatically`);
+
+      // Remove do banco de dados
+      await this.queueRepository.remove(existingInQueue);
+
+      // Remove da memória (se existir mapeamento de sessão)
+      if (this.userSessions.has(dto.userId)) {
+        this.userSessions.delete(dto.userId);
+      }
+
+      this.logger.log(`✅ User ${dto.userId} removed from queue successfully`);
+
+      // Agora continua com o fluxo normal de adicionar na fila
+      // (não retorna aqui, deixa o código seguir para adicionar novamente)
     }
 
     // Verifica se o usuário já está em uma sessão ativa
