@@ -2,12 +2,7 @@
 import { auth } from '../modules/auth-social/services/firebaseAuth';
 import { getApiUrl } from '../utils/apiUrl';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
 class SavedJobsService {
-  constructor() {
-    this.baseURL = API_BASE_URL;
-  }
 
   // Get Firebase auth token
   async getAuthToken() {

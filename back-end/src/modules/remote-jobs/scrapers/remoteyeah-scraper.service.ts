@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseScraperService, ScrapedJob } from './base-scraper.service';
+import { JobBoard } from '../entities/job-board.entity';
 import { firstValueFrom } from 'rxjs';
 import * as cheerio from 'cheerio';
 
@@ -34,7 +37,11 @@ export class RemoteYeahScraperService extends BaseScraperService {
     errors: [] as { page: number; error: string }[],
   };
 
-  constructor(httpService: HttpService) {
+  constructor(
+    httpService: HttpService,
+    @InjectRepository(JobBoard)
+    private readonly jobBoardRepository: Repository<JobBoard>,
+  ) {
     super(httpService);
   }
 
@@ -44,6 +51,16 @@ export class RemoteYeahScraperService extends BaseScraperService {
   async fetchJobs(): Promise<ScrapedJob[]> {
     this.logger.log('🚀 Iniciando scraping do RemoteYeah (HTML)...');
     this.resetStats();
+
+    // Verifica se o job board está habilitado
+    const remoteyeahBoard = await this.jobBoardRepository.findOne({
+      where: { slug: 'remoteyeah', enabled: true },
+    });
+
+    if (!remoteyeahBoard) {
+      this.logger.warn('⚠️  Job board "remoteyeah" não encontrado ou desabilitado');
+      return [];
+    }
 
     const allJobs: ScrapedJob[] = [];
     const seenIds = new Set<string>();

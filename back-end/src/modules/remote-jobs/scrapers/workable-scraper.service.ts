@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseScraperService, ScrapedJob } from './base-scraper.service';
-import {
-  getVerifiedWorkableCompanies,
-  WorkableCompany,
-} from '../config/workable-companies';
+import { JobBoard } from '../entities/job-board.entity';
+import { JobBoardCompanyService } from '../services/job-board-company.service';
+import { Company } from '../entities/company.entity';
 import { firstValueFrom } from 'rxjs';
 import * as cheerio from 'cheerio';
 
@@ -37,35 +38,58 @@ export class WorkableScraperService extends BaseScraperService {
     errors: [] as { company: string; error: string }[],
   };
 
-  constructor(httpService: HttpService) {
+  constructor(
+    httpService: HttpService,
+    @InjectRepository(JobBoard)
+    private readonly jobBoardRepository: Repository<JobBoard>,
+    private readonly jobBoardCompanyService: JobBoardCompanyService,
+  ) {
     super(httpService);
   }
 
   /**
    * Método principal: busca vagas de todas as empresas Workable
+   * MODIFICADO: Agora busca empresas do banco de dados
    */
   async fetchJobs(): Promise<ScrapedJob[]> {
     this.logger.log('🚀 Iniciando scraping do Workable (multi-company)...');
     this.resetStats();
 
-    const companies = getVerifiedWorkableCompanies();
-    this.stats.totalCompanies = companies.length;
+    // 1. Buscar o job_board "workable"
+    const workableBoard = await this.jobBoardRepository.findOne({
+      where: { slug: 'workable', enabled: true },
+    });
 
-    this.logger.log(`📋 ${companies.length} empresas para processar`);
+    if (!workableBoard) {
+      this.logger.warn('⚠️  Job board "workable" não encontrado ou desabilitado');
+      return [];
+    }
+
+    // 2. Buscar todas as empresas ATIVAS relacionadas ao workable
+    const relations = await this.jobBoardCompanyService
+      .findEnabledByJobBoard(workableBoard.id);
+
+    if (relations.length === 0) {
+      this.logger.warn('⚠️  Nenhuma empresa ativa encontrada para Workable');
+      return [];
+    }
+
+    this.stats.totalCompanies = relations.length;
+    this.logger.log(`📋 ${relations.length} empresas ativas para processar`);
 
     const allJobs: ScrapedJob[] = [];
 
     // Processa empresas em batches para não sobrecarregar
-    for (let i = 0; i < companies.length; i += this.MAX_CONCURRENT_REQUESTS) {
-      const batch = companies.slice(i, i + this.MAX_CONCURRENT_REQUESTS);
+    for (let i = 0; i < relations.length; i += this.MAX_CONCURRENT_REQUESTS) {
+      const batch = relations.slice(i, i + this.MAX_CONCURRENT_REQUESTS);
 
       this.logger.log(
-        `📦 Processando batch ${Math.floor(i / this.MAX_CONCURRENT_REQUESTS) + 1}/${Math.ceil(companies.length / this.MAX_CONCURRENT_REQUESTS)}...`,
+        `📦 Processando batch ${Math.floor(i / this.MAX_CONCURRENT_REQUESTS) + 1}/${Math.ceil(relations.length / this.MAX_CONCURRENT_REQUESTS)}...`,
       );
 
       // Processa empresas do batch em paralelo
       const batchResults = await Promise.all(
-        batch.map((company) => this.fetchCompanyJobs(company)),
+        batch.map((relation) => this.fetchCompanyJobsFromRelation(relation)),
       );
 
       // Adiciona jobs encontrados
@@ -74,7 +98,7 @@ export class WorkableScraperService extends BaseScraperService {
       }
 
       // Delay entre batches
-      if (i + this.MAX_CONCURRENT_REQUESTS < companies.length) {
+      if (i + this.MAX_CONCURRENT_REQUESTS < relations.length) {
         await this.delay(this.REQUEST_DELAY_MS);
       }
     }
@@ -84,11 +108,99 @@ export class WorkableScraperService extends BaseScraperService {
   }
 
   /**
-   * Busca vagas de uma empresa específica usando API do Workable
-   * Workable tem uma API interna que retorna JSON
+   * NOVO: Busca vagas de uma relação JobBoardCompany
+   * Rastreia status (pending/success/error) no banco
    */
-  private async fetchCompanyJobs(
-    company: WorkableCompany,
+  private async fetchCompanyJobsFromRelation(relation: any): Promise<ScrapedJob[]> {
+    const company = relation.company;
+
+    try {
+      // Marcar como "em processamento"
+      await this.jobBoardCompanyService.updateScrapingStatus(
+        relation.id,
+        'pending',
+      );
+
+      const apiUrl = `https://apply.workable.com/api/v1/widget/accounts/${company.slug}`;
+      this.logger.debug(`🔍 Buscando ${company.name} (${company.slug})...`);
+
+      const response = await firstValueFrom(
+        this.httpService.get<any>(apiUrl, {
+          timeout: this.TIMEOUT_MS,
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            Accept: 'application/json',
+          },
+        }),
+      );
+
+      const jobs = response.data?.jobs || [];
+
+      if (jobs.length === 0) {
+        this.logger.debug(`⚪ ${company.name}: 0 vagas`);
+        this.stats.successfulCompanies++;
+
+        // Marcar como sucesso
+        await this.jobBoardCompanyService.updateScrapingStatus(
+          relation.id,
+          'success',
+        );
+
+        return [];
+      }
+
+      // Transforma em formato padrão (Workable já filtra apenas remoto)
+      const scrapedJobs = jobs.map((job: any) =>
+        this.transformWorkableJob(job, company),
+      );
+
+      this.logger.log(
+        `✅ ${company.name}: ${scrapedJobs.length} vagas remotas`,
+      );
+
+      this.stats.successfulCompanies++;
+      this.stats.totalJobs += jobs.length;
+      this.stats.remoteJobs += scrapedJobs.length;
+
+      // Marcar como sucesso
+      await this.jobBoardCompanyService.updateScrapingStatus(
+        relation.id,
+        'success',
+      );
+
+      return scrapedJobs;
+    } catch (error) {
+      const errorMessage =
+        error.response?.status === 404
+          ? '404 - Empresa não encontrada ou não usa Workable'
+          : error.message;
+
+      this.logger.warn(`❌ ${company.name}: ${errorMessage}`);
+
+      this.stats.failedCompanies++;
+      this.stats.errors.push({
+        company: company.name,
+        error: errorMessage,
+      });
+
+      // Registrar erro no banco
+      await this.jobBoardCompanyService.updateScrapingStatus(
+        relation.id,
+        'error',
+        errorMessage,
+      );
+
+      return [];
+    }
+  }
+
+  /**
+   * ANTIGO: Busca vagas de uma empresa específica (mantido como fallback)
+   * @deprecated Use fetchCompanyJobsFromRelation instead
+   */
+  private async fetchCompanyJobs_DEPRECATED(
+    company: any,
   ): Promise<ScrapedJob[]> {
     try {
       // Workable Public Widget API
@@ -150,10 +262,11 @@ export class WorkableScraperService extends BaseScraperService {
 
   /**
    * Transforma job da API do Workable em formato padrão
+   * MODIFICADO: Aceita Company entity do banco de dados
    */
   private transformWorkableJob(
     job: any,
-    company: WorkableCompany,
+    company: Company,
   ): ScrapedJob {
     const title = job.title || '';
     const description = job.description || '';

@@ -1,23 +1,29 @@
 import { CacheModuleOptions } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
-import * as redisStore from 'cache-manager-redis-store';
+import { redisStore } from 'cache-manager-redis-yet';
 
-export const getCacheConfig = (
+export const getCacheConfig = async (
   config: ConfigService,
-): CacheModuleOptions => {
+): Promise<CacheModuleOptions> => {
   const redisUrl = config.get<string>('REDIS_URL');
+
+  console.log('🔍 Cache config - REDIS_URL:', redisUrl ? 'CONFIGURADO' : 'NÃO CONFIGURADO');
 
   // Se tiver REDIS_URL configurado, usa Redis
   if (redisUrl) {
-    const url = new URL(redisUrl);
+    console.log('✅ Configurando Redis store...');
+
+    const store = await redisStore({
+      url: redisUrl,
+      ttl: 1800 * 1000, // 30 minutos em milissegundos
+    });
+
+    console.log('✅ Redis store configurado com sucesso!');
+
     return {
       isGlobal: true,
-      store: redisStore as any,
-      host: url.hostname,
-      port: parseInt(url.port || '6379'),
-      password: url.password || undefined,
-      ttl: 1800, // 30 minutos padrão
-      max: 1000, // Máximo 1000 itens no cache
+      store: store as any,
+      ttl: 1800 * 1000, // 30 minutos em milissegundos
     };
   }
 

@@ -7,12 +7,14 @@ import { Company } from './entities/company.entity';
 import { Job } from './entities/job.entity';
 import { SavedJob } from './entities/saved-job.entity';
 import { JobBoard } from './entities/job-board.entity';
+import { JobBoardCompany } from './entities/job-board-company.entity';
 
 // Services
 import { CompanyService } from './services/company.service';
 import { JobService } from './services/job.service';
 import { JobBoardAggregatorService } from './services/job-board-aggregator.service';
 import { SavedJobService } from './services/saved-job.service';
+import { JobBoardCompanyService } from './services/job-board-company.service';
 
 // Scrapers
 import { GenericScraperService } from './scrapers/generic-scraper.service';
@@ -31,10 +33,17 @@ import { CompanyController } from './controllers/company.controller';
 import { JobController } from './controllers/job.controller';
 import { JobBoardController } from './controllers/job-board.controller';
 import { SavedJobController } from './controllers/saved-job.controller';
+import { JobBoardCompanyController } from './controllers/job-board-company.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Company, Job, SavedJob, JobBoard]),
+    TypeOrmModule.forFeature([
+      Company,
+      Job,
+      SavedJob,
+      JobBoard,
+      JobBoardCompany,
+    ]),
     HttpModule,
   ],
   controllers: [
@@ -42,6 +51,7 @@ import { SavedJobController } from './controllers/saved-job.controller';
     JobController,
     JobBoardController,
     SavedJobController,
+    JobBoardCompanyController,
   ],
   providers: [
     // Services
@@ -49,6 +59,7 @@ import { SavedJobController } from './controllers/saved-job.controller';
     JobService,
     JobBoardAggregatorService,
     SavedJobService,
+    JobBoardCompanyService,
     // Scrapers
     GenericScraperService,
     GreenhouseScraperService,

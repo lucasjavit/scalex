@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseScraperService, ScrapedJob } from './base-scraper.service';
+import { JobBoard } from '../entities/job-board.entity';
 import { firstValueFrom } from 'rxjs';
 
 /**
@@ -40,7 +43,11 @@ export class RemotiveScraperService extends BaseScraperService {
     errors: [] as { category: string; error: string }[],
   };
 
-  constructor(httpService: HttpService) {
+  constructor(
+    httpService: HttpService,
+    @InjectRepository(JobBoard)
+    private readonly jobBoardRepository: Repository<JobBoard>,
+  ) {
     super(httpService);
   }
 
@@ -50,6 +57,16 @@ export class RemotiveScraperService extends BaseScraperService {
   async fetchJobs(): Promise<ScrapedJob[]> {
     this.logger.log('🚀 Iniciando scraping do Remotive (API)...');
     this.resetStats();
+
+    // Verifica se o job board está habilitado
+    const remotiveBoard = await this.jobBoardRepository.findOne({
+      where: { slug: 'remotive', enabled: true },
+    });
+
+    if (!remotiveBoard) {
+      this.logger.warn('⚠️  Job board "remotive" não encontrado ou desabilitado');
+      return [];
+    }
 
     this.stats.totalCategories = this.CATEGORIES.length;
     const allJobs: ScrapedJob[] = [];

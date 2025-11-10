@@ -23,7 +23,13 @@
     "migration:create": "npm run typeorm -- migration:create",
     "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
-    "migration:show": "npm run typeorm -- migration:show -d src/data-source.ts"
+    "migration:show": "npm run typeorm -- migration:show -d src/data-source.ts",
+    "seed:workable": "ts-node src/modules/remote-jobs/seeds/run-seed.ts",
+    "seed:lever": "ts-node src/modules/remote-jobs/seeds/run-seed-lever.ts",
+    "seed:greenhouse": "ts-node src/modules/remote-jobs/seeds/run-seed-greenhouse.ts",
+    "seed:ashby": "ts-node src/modules/remote-jobs/seeds/run-seed-ashby.ts",
+    "seed:aggregators": "ts-node src/modules/remote-jobs/seeds/run-seed-aggregators.ts",
+    "seed:all": "ts-node src/modules/remote-jobs/seeds/run-seed-all.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
@@ -39,7 +45,7 @@
     "@nestjs/typeorm": "^11.0.0",
     "axios": "^1.13.2",
     "cache-manager": "^7.2.4",
-    "cache-manager-redis-store": "^3.0.1",
+    "cache-manager-redis-yet": "^5.1.5",
     "cheerio": "^1.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",

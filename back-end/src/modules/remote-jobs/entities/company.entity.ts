@@ -5,7 +5,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  OneToMany,
 } from 'typeorm';
+import { JobBoardCompany } from './job-board-company.entity';
 
 @Entity('companies')
 @Index(['slug'], { unique: true })
@@ -60,4 +62,8 @@ export class Company {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Relationships
+  @OneToMany(() => JobBoardCompany, (jbc) => jbc.company)
+  jobBoardCompanies: JobBoardCompany[];
 }

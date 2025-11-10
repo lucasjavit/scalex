@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseScraperService, ScrapedJob } from './base-scraper.service';
+import { JobBoard } from '../entities/job-board.entity';
 import {
   getVerifiedBuiltInCompanies,
   BuiltInCompany,
@@ -40,7 +43,11 @@ export class BuiltInScraperService extends BaseScraperService {
     errors: [] as { company: string; error: string }[],
   };
 
-  constructor(httpService: HttpService) {
+  constructor(
+    httpService: HttpService,
+    @InjectRepository(JobBoard)
+    private readonly jobBoardRepository: Repository<JobBoard>,
+  ) {
     super(httpService);
   }
 
@@ -50,6 +57,16 @@ export class BuiltInScraperService extends BaseScraperService {
   async fetchJobs(): Promise<ScrapedJob[]> {
     this.logger.log('🚀 Iniciando scraping do Built In (multi-company)...');
     this.resetStats();
+
+    // Verifica se o job board está habilitado
+    const builtinBoard = await this.jobBoardRepository.findOne({
+      where: { slug: 'builtin', enabled: true },
+    });
+
+    if (!builtinBoard) {
+      this.logger.warn('⚠️  Job board "builtin" não encontrado ou desabilitado');
+      return [];
+    }
 
     const companies = getVerifiedBuiltInCompanies();
     this.stats.totalCompanies = companies.length;

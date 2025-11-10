@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseScraperService, ScrapedJob } from './base-scraper.service';
-import {
-  getVerifiedGreenhouseCompanies,
-  GreenhouseCompany,
-} from '../config/greenhouse-companies';
+import { JobBoard } from '../entities/job-board.entity';
+import { JobBoardCompanyService } from '../services/job-board-company.service';
+import { Company } from '../entities/company.entity';
 import { firstValueFrom } from 'rxjs';
 
 /**
@@ -71,35 +72,58 @@ export class GreenhouseScraperService extends BaseScraperService {
     errors: [] as { company: string; error: string }[],
   };
 
-  constructor(httpService: HttpService) {
+  constructor(
+    httpService: HttpService,
+    @InjectRepository(JobBoard)
+    private readonly jobBoardRepository: Repository<JobBoard>,
+    private readonly jobBoardCompanyService: JobBoardCompanyService,
+  ) {
     super(httpService);
   }
 
   /**
    * Método principal: busca vagas de todas as empresas Greenhouse
+   * MODIFICADO: Agora busca empresas do banco de dados
    */
   async fetchJobs(): Promise<ScrapedJob[]> {
     this.logger.log('🚀 Iniciando scraping do Greenhouse (multi-company)...');
     this.resetStats();
 
-    const companies = getVerifiedGreenhouseCompanies();
-    this.stats.totalCompanies = companies.length;
+    // 1. Buscar o job_board "greenhouse"
+    const greenhouseBoard = await this.jobBoardRepository.findOne({
+      where: { slug: 'greenhouse', enabled: true },
+    });
 
-    this.logger.log(`📋 ${companies.length} empresas para processar`);
+    if (!greenhouseBoard) {
+      this.logger.warn('⚠️  Job board "greenhouse" não encontrado ou desabilitado');
+      return [];
+    }
+
+    // 2. Buscar todas as empresas ATIVAS relacionadas ao greenhouse
+    const relations = await this.jobBoardCompanyService
+      .findEnabledByJobBoard(greenhouseBoard.id);
+
+    if (relations.length === 0) {
+      this.logger.warn('⚠️  Nenhuma empresa ativa encontrada para Greenhouse');
+      return [];
+    }
+
+    this.stats.totalCompanies = relations.length;
+    this.logger.log(`📋 ${relations.length} empresas ativas para processar`);
 
     const allJobs: ScrapedJob[] = [];
 
     // Processa empresas em batches para não sobrecarregar
-    for (let i = 0; i < companies.length; i += this.MAX_CONCURRENT_REQUESTS) {
-      const batch = companies.slice(i, i + this.MAX_CONCURRENT_REQUESTS);
+    for (let i = 0; i < relations.length; i += this.MAX_CONCURRENT_REQUESTS) {
+      const batch = relations.slice(i, i + this.MAX_CONCURRENT_REQUESTS);
 
       this.logger.log(
-        `📦 Processando batch ${Math.floor(i / this.MAX_CONCURRENT_REQUESTS) + 1}/${Math.ceil(companies.length / this.MAX_CONCURRENT_REQUESTS)}...`,
+        `📦 Processando batch ${Math.floor(i / this.MAX_CONCURRENT_REQUESTS) + 1}/${Math.ceil(relations.length / this.MAX_CONCURRENT_REQUESTS)}...`,
       );
 
       // Processa empresas do batch em paralelo
       const batchResults = await Promise.all(
-        batch.map((company) => this.fetchCompanyJobs(company)),
+        batch.map((relation) => this.fetchCompanyJobsFromRelation(relation)),
       );
 
       // Adiciona jobs encontrados
@@ -108,7 +132,7 @@ export class GreenhouseScraperService extends BaseScraperService {
       }
 
       // Delay entre batches
-      if (i + this.MAX_CONCURRENT_REQUESTS < companies.length) {
+      if (i + this.MAX_CONCURRENT_REQUESTS < relations.length) {
         await this.delay(this.REQUEST_DELAY_MS);
       }
     }
@@ -118,10 +142,97 @@ export class GreenhouseScraperService extends BaseScraperService {
   }
 
   /**
-   * Busca vagas de uma empresa específica
+   * NOVO: Busca vagas de uma relação JobBoardCompany
+   * Rastreia status (pending/success/error) no banco
    */
-  private async fetchCompanyJobs(
-    company: GreenhouseCompany,
+  private async fetchCompanyJobsFromRelation(relation: any): Promise<ScrapedJob[]> {
+    const company = relation.company;
+
+    try {
+      // Marcar como "em processamento"
+      await this.jobBoardCompanyService.updateScrapingStatus(
+        relation.id,
+        'pending',
+      );
+
+      const url = `${this.baseUrl}/${company.slug}/jobs`;
+      this.logger.debug(`🔍 Buscando ${company.name} (${company.slug})...`);
+
+      const response = await firstValueFrom(
+        this.httpService.get<GreenhouseApiResponse>(url, {
+          timeout: this.TIMEOUT_MS,
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            Accept: 'application/json',
+          },
+        }),
+      );
+
+      const jobs = response.data?.jobs || [];
+
+      if (jobs.length === 0) {
+        this.logger.debug(`⚪ ${company.name}: 0 vagas`);
+        this.stats.successfulCompanies++;
+
+        // Marcar como sucesso
+        await this.jobBoardCompanyService.updateScrapingStatus(
+          relation.id,
+          'success',
+        );
+
+        return [];
+      }
+
+      // Filtra apenas vagas remotas
+      const remoteJobs = jobs.filter((job) => this.isRemoteJob(job));
+
+      this.logger.log(
+        `✅ ${company.name}: ${remoteJobs.length}/${jobs.length} vagas remotas`,
+      );
+
+      this.stats.successfulCompanies++;
+      this.stats.totalJobs += jobs.length;
+      this.stats.remoteJobs += remoteJobs.length;
+
+      // Marcar como sucesso
+      await this.jobBoardCompanyService.updateScrapingStatus(
+        relation.id,
+        'success',
+      );
+
+      // Transforma em formato padrão
+      return remoteJobs.map((job) => this.transformGreenhouseJob(job, company));
+    } catch (error) {
+      const errorMessage = error.response?.status === 404
+        ? '404 - Empresa não encontrada ou não usa mais Greenhouse'
+        : error.message;
+
+      this.logger.warn(`❌ ${company.name}: ${errorMessage}`);
+
+      this.stats.failedCompanies++;
+      this.stats.errors.push({
+        company: company.name,
+        error: errorMessage,
+      });
+
+      // Registrar erro no banco
+      await this.jobBoardCompanyService.updateScrapingStatus(
+        relation.id,
+        'error',
+        errorMessage,
+      );
+
+      return [];
+    }
+  }
+
+  /**
+   * ANTIGO: Busca vagas de uma empresa específica (mantido como fallback)
+   * @deprecated Use fetchCompanyJobsFromRelation instead
+   */
+  private async fetchCompanyJobs_DEPRECATED(
+    company: any,
   ): Promise<ScrapedJob[]> {
     try {
       const url = `${this.baseUrl}/${company.slug}/jobs`;
@@ -199,10 +310,11 @@ export class GreenhouseScraperService extends BaseScraperService {
 
   /**
    * Transforma job do Greenhouse em formato padrão
+   * MODIFICADO: Aceita Company entity do banco de dados
    */
   private transformGreenhouseJob(
     job: GreenhouseJob,
-    company: GreenhouseCompany,
+    company: Company,
   ): ScrapedJob {
     // Extrai department name
     const department = job.departments?.[0]?.name || '';

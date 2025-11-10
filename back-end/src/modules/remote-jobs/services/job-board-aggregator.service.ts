@@ -116,7 +116,7 @@ export class JobBoardAggregatorService {
 
     // Salva TODAS as vagas no Redis (30 min TTL)
     this.logger.log(`🔍 Tentando salvar ${allJobs.length} vagas no Redis...`);
-    await this.cacheManager.set('jobs:all', allJobs, 1800);
+    await this.cacheManager.set('jobs:all', allJobs, 1800 * 1000);
 
     // Verifica se realmente salvou
     const test = await this.cacheManager.get('jobs:all');
@@ -129,7 +129,7 @@ export class JobBoardAggregatorService {
     );
 
     // Salva estatísticas no cache por 30 minutos
-    await this.cacheManager.set('job-boards:last-scrape', result, 1800);
+    await this.cacheManager.set('job-boards:last-scrape', result, 1800 * 1000);
 
     return result;
   }
@@ -180,20 +180,47 @@ export class JobBoardAggregatorService {
   }> {
     this.logger.log('🔍 Buscando vagas do Redis...');
 
-    // Busca a chave correta no Redis
-    let cacheKey = 'jobs:all';
-    if (filters?.platform) {
-      cacheKey = `jobs:platform:${filters.platform}`;
+    let jobs: ScrapedJob[] = [];
+
+    // Se platform for 'all' ou não especificado, busca de TODAS as plataformas
+    if (!filters?.platform || filters.platform === 'all') {
+      this.logger.log('🌍 Buscando vagas de TODAS as plataformas...');
+
+      const platforms = [
+        'greenhouse',
+        'lever',
+        'workable',
+        'ashby',
+        'wellfound',
+        'builtin',
+        'weworkremotely',
+        'remotive',
+        'remoteyeah'
+      ];
+
+      for (const platform of platforms) {
+        const cacheKey = `jobs:platform:${platform}`;
+        const platformJobs = await this.cacheManager.get<ScrapedJob[]>(cacheKey);
+
+        if (platformJobs && platformJobs.length > 0) {
+          this.logger.log(`  ✅ ${platform}: ${platformJobs.length} vagas`);
+          jobs.push(...platformJobs);
+        } else {
+          this.logger.log(`  ⚠️  ${platform}: 0 vagas`);
+        }
+      }
+
+      this.logger.log(`📦 Total agregado: ${jobs.length} vagas de todas as plataformas`);
+    } else {
+      // Busca de uma plataforma específica
+      const cacheKey = `jobs:platform:${filters.platform}`;
+      this.logger.log(`🔑 Buscando chave: ${cacheKey}`);
+
+      jobs = await this.cacheManager.get<ScrapedJob[]>(cacheKey) || [];
+      this.logger.log(`📊 Resultado: ${jobs.length} vagas`);
     }
 
-    this.logger.log(`🔑 Buscando chave: ${cacheKey}`);
-
-    // Busca do Redis
-    let jobs = await this.cacheManager.get<ScrapedJob[]>(cacheKey);
-
-    this.logger.log(`📊 Resultado: ${jobs ? `${jobs.length} vagas` : 'null/undefined'}`);
-
-    if (!jobs || jobs.length === 0) {
+    if (jobs.length === 0) {
       this.logger.warn('⚠️  Nenhuma vaga encontrada no cache');
       return {
         jobs: [],
@@ -262,10 +289,9 @@ export class JobBoardAggregatorService {
     try {
       const jobs = await this.greenhouseScraper.fetchJobs();
 
-      // Salva no Redis com TODAS as chaves necessárias (30 min TTL)
-      await this.cacheManager.set('jobs:greenhouse', jobs, 1800);
-      await this.cacheManager.set('jobs:platform:greenhouse', jobs, 1800); // Para filtro de platform
-      await this.cacheManager.set('jobs:all', jobs, 1800); // Sobrescreve jobs:all
+      // Salva no Redis com chaves específicas (30 min TTL)
+      await this.cacheManager.set('jobs:greenhouse', jobs, 1800 * 1000);
+      await this.cacheManager.set('jobs:platform:greenhouse', jobs, 1800 * 1000);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       this.logger.log(
@@ -301,10 +327,9 @@ export class JobBoardAggregatorService {
     try {
       const jobs = await this.leverScraper.fetchJobs();
 
-      // Salva no Redis com TODAS as chaves necessárias (30 min TTL)
-      await this.cacheManager.set('jobs:lever', jobs, 1800);
-      await this.cacheManager.set('jobs:platform:lever', jobs, 1800); // Para filtro de platform
-      await this.cacheManager.set('jobs:all', jobs, 1800); // Sobrescreve jobs:all
+      // Salva no Redis com chaves específicas (30 min TTL)
+      await this.cacheManager.set('jobs:lever', jobs, 1800 * 1000);
+      await this.cacheManager.set('jobs:platform:lever', jobs, 1800 * 1000);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       this.logger.log(
@@ -340,10 +365,9 @@ export class JobBoardAggregatorService {
     try {
       const jobs = await this.workableScraper.fetchJobs();
 
-      // Salva no Redis com TODAS as chaves necessárias (30 min TTL)
-      await this.cacheManager.set('jobs:workable', jobs, 1800);
-      await this.cacheManager.set('jobs:platform:workable', jobs, 1800); // Para filtro de platform
-      await this.cacheManager.set('jobs:all', jobs, 1800); // Sobrescreve jobs:all
+      // Salva no Redis com chaves específicas (30 min TTL)
+      await this.cacheManager.set('jobs:workable', jobs, 1800 * 1000);
+      await this.cacheManager.set('jobs:platform:workable', jobs, 1800 * 1000);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       this.logger.log(
@@ -379,10 +403,9 @@ export class JobBoardAggregatorService {
     try {
       const jobs = await this.ashbyScraper.fetchJobs();
 
-      // Salva no Redis com TODAS as chaves necessárias (30 min TTL)
-      await this.cacheManager.set('jobs:ashby', jobs, 1800);
-      await this.cacheManager.set('jobs:platform:ashby', jobs, 1800); // Para filtro de platform
-      await this.cacheManager.set('jobs:all', jobs, 1800); // Sobrescreve jobs:all
+      // Salva no Redis com chaves específicas (30 min TTL)
+      await this.cacheManager.set('jobs:ashby', jobs, 1800 * 1000);
+      await this.cacheManager.set('jobs:platform:ashby', jobs, 1800 * 1000);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       this.logger.log(
@@ -420,10 +443,9 @@ export class JobBoardAggregatorService {
     try {
       const jobs = await this.wellfoundScraper.fetchJobs();
 
-      // Salva no Redis com TODAS as chaves necessárias (30 min TTL)
-      await this.cacheManager.set('jobs:wellfound', jobs, 1800);
-      await this.cacheManager.set('jobs:platform:wellfound', jobs, 1800); // Para filtro de platform
-      await this.cacheManager.set('jobs:all', jobs, 1800); // Sobrescreve jobs:all
+      // Salva no Redis com chaves específicas (30 min TTL)
+      await this.cacheManager.set('jobs:wellfound', jobs, 1800 * 1000);
+      await this.cacheManager.set('jobs:platform:wellfound', jobs, 1800 * 1000);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       this.logger.log(
@@ -461,10 +483,9 @@ export class JobBoardAggregatorService {
     try {
       const jobs = await this.builtinScraper.fetchJobs();
 
-      // Salva no Redis com TODAS as chaves necessárias (30 min TTL)
-      await this.cacheManager.set('jobs:builtin', jobs, 1800);
-      await this.cacheManager.set('jobs:platform:builtin', jobs, 1800); // Para filtro de platform
-      await this.cacheManager.set('jobs:all', jobs, 1800); // Sobrescreve jobs:all
+      // Salva no Redis com chaves específicas (30 min TTL)
+      await this.cacheManager.set('jobs:builtin', jobs, 1800 * 1000);
+      await this.cacheManager.set('jobs:platform:builtin', jobs, 1800 * 1000);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       this.logger.log(
@@ -502,10 +523,9 @@ export class JobBoardAggregatorService {
     try {
       const jobs = await this.weworkremotelyScraper.fetchJobs();
 
-      // Salva no Redis com TODAS as chaves necessárias (30 min TTL)
-      await this.cacheManager.set('jobs:weworkremotely', jobs, 1800);
-      await this.cacheManager.set('jobs:platform:weworkremotely', jobs, 1800);
-      await this.cacheManager.set('jobs:all', jobs, 1800);
+      // Salva no Redis com chaves específicas (30 min TTL)
+      await this.cacheManager.set('jobs:weworkremotely', jobs, 1800 * 1000);
+      await this.cacheManager.set('jobs:platform:weworkremotely', jobs, 1800 * 1000);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       this.logger.log(
@@ -545,10 +565,9 @@ export class JobBoardAggregatorService {
     try {
       const jobs = await this.remotiveScraper.fetchJobs();
 
-      // Salva no Redis com TODAS as chaves necessárias (30 min TTL)
-      await this.cacheManager.set('jobs:remotive', jobs, 1800);
-      await this.cacheManager.set('jobs:platform:remotive', jobs, 1800);
-      await this.cacheManager.set('jobs:all', jobs, 1800);
+      // Salva no Redis com chaves específicas (30 min TTL)
+      await this.cacheManager.set('jobs:remotive', jobs, 1800 * 1000);
+      await this.cacheManager.set('jobs:platform:remotive', jobs, 1800 * 1000);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       this.logger.log(
@@ -584,10 +603,9 @@ export class JobBoardAggregatorService {
     try {
       const jobs = await this.remoteyeahScraper.fetchJobs();
 
-      // Salva no Redis com TODAS as chaves necessárias (30 min TTL)
-      await this.cacheManager.set('jobs:remoteyeah', jobs, 1800);
-      await this.cacheManager.set('jobs:platform:remoteyeah', jobs, 1800);
-      await this.cacheManager.set('jobs:all', jobs, 1800);
+      // Salva no Redis com chaves específicas (30 min TTL)
+      await this.cacheManager.set('jobs:remoteyeah', jobs, 1800 * 1000);
+      await this.cacheManager.set('jobs:platform:remoteyeah', jobs, 1800 * 1000);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
       this.logger.log(
