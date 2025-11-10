@@ -1,8 +1,6 @@
 import { auth } from '../modules/auth-social/services/firebaseAuth';
 import { getApiUrl } from '../utils/apiUrl';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
 /**
  * Admin Service - Gerenciamento de usuários e roles (apenas admin)
  */

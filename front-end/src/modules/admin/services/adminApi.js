@@ -1,8 +1,6 @@
 import { getApiUrl } from '../../../utils/apiUrl';
 import { auth } from '../../auth-social/services/firebaseAuth';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
 /**
  * Obter token Firebase do usuário autenticado
  */
