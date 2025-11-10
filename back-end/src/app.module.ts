@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CacheModule } from '@nestjs/cache-manager';
 import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,6 +9,8 @@ import { VideoCallModule } from './modules/english-learning/conversation/video-c
 import { EnglishCourseModule } from './modules/english-learning/course/english-course.module';
 import { UsersModule } from './users/users.module';
 import { FirebaseModule } from './common/firebase/firebase.module';
+import { RemoteJobsModule } from './modules/remote-jobs/remote-jobs.module';
+import { getCacheConfig } from './config/cache.config';
 
 @Module({
   imports: [
@@ -27,6 +30,12 @@ import { FirebaseModule } from './common/firebase/firebase.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: getCacheConfig,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -49,6 +58,7 @@ import { FirebaseModule } from './common/firebase/firebase.module';
     VideoCallModule,
     EnglishCourseModule,
     FirebaseModule,
+    RemoteJobsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
