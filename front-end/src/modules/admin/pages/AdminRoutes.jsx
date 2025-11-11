@@ -5,6 +5,7 @@ import EnglishCourseAdmin from './EnglishCourseAdmin';
 import EnglishCourseProgressAdmin from './EnglishCourseProgressAdmin';
 import VideoCallAdmin from './VideoCallAdmin';
 import AdminUserManagement from '../../../pages/admin/AdminUserManagement';
+import RemoteJobsAdminPage from './RemoteJobsAdminPage';
 
 const AdminRoutes = () => {
   return (
@@ -22,6 +23,9 @@ const AdminRoutes = () => {
       <Route path="/english-learning/video-call" element={<VideoCallAdmin />} />
       <Route path="/english-learning/course" element={<EnglishCourseAdmin />} />
       <Route path="/english-learning/progress" element={<EnglishCourseProgressAdmin />} />
+
+      {/* Remote Jobs Module */}
+      <Route path="/remote-jobs" element={<RemoteJobsAdminPage />} />
 
       {/* Legacy Routes - Redirect to new structure */}
       <Route path="/english-course" element={<Navigate to="/admin/english-learning/course" replace />} />

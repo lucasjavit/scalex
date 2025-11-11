@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
+import { FirebaseModule } from '../../common/firebase/firebase.module';
+import { UsersModule } from '../../users/users.module';
 
 // Entities
 import { Company } from './entities/company.entity';
@@ -15,6 +17,7 @@ import { JobService } from './services/job.service';
 import { JobBoardAggregatorService } from './services/job-board-aggregator.service';
 import { SavedJobService } from './services/saved-job.service';
 import { JobBoardCompanyService } from './services/job-board-company.service';
+import { RemoteJobsAdminService } from './services/remote-jobs-admin.service';
 
 // Scrapers
 import { GenericScraperService } from './scrapers/generic-scraper.service';
@@ -34,6 +37,7 @@ import { JobController } from './controllers/job.controller';
 import { JobBoardController } from './controllers/job-board.controller';
 import { SavedJobController } from './controllers/saved-job.controller';
 import { JobBoardCompanyController } from './controllers/job-board-company.controller';
+import { RemoteJobsAdminController } from './controllers/remote-jobs-admin.controller';
 
 @Module({
   imports: [
@@ -45,6 +49,8 @@ import { JobBoardCompanyController } from './controllers/job-board-company.contr
       JobBoardCompany,
     ]),
     HttpModule,
+    FirebaseModule,
+    UsersModule,
   ],
   controllers: [
     CompanyController,
@@ -52,6 +58,7 @@ import { JobBoardCompanyController } from './controllers/job-board-company.contr
     JobBoardController,
     SavedJobController,
     JobBoardCompanyController,
+    RemoteJobsAdminController,
   ],
   providers: [
     // Services
@@ -60,6 +67,7 @@ import { JobBoardCompanyController } from './controllers/job-board-company.contr
     JobBoardAggregatorService,
     SavedJobService,
     JobBoardCompanyService,
+    RemoteJobsAdminService,
     // Scrapers
     GenericScraperService,
     GreenhouseScraperService,
