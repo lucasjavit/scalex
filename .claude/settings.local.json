@@ -10,7 +10,12 @@
       "Bash(npx nest build:*)",
       "Bash(node_modules/.bin/nest build)",
       "Bash(tasklist:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(findstr:*)",
+      "Bash(timeout 3 bash:*)",
+      "Bash(docker restart:*)",
+      "Bash(npm run seed:remote-companies:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
