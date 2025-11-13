@@ -5,57 +5,25 @@ export class FixJobBoardsVsCompanies1763038154738 implements MigrationInterface 
     public async up(queryRunner: QueryRunner): Promise<void> {
         console.log('🔧 Starting FixJobBoardsVsCompanies migration...');
 
-        // 1. First, let's ensure the correct aggregator job boards exist
-        // Check if Lever aggregator exists
+        // 1. Ensure Lever aggregator job board exists
         const [leverBoard] = await queryRunner.query(`
-            SELECT id, slug FROM job_boards WHERE slug IN ('lever', 'leverjobs') ORDER BY enabled DESC LIMIT 1
+            SELECT id FROM job_boards WHERE slug = 'lever' LIMIT 1
         `);
 
-        let finalLeverBoardId = leverBoard?.id;
-
-        // If no Lever board exists or it's 'leverjobs', ensure 'lever' exists
-        if (!leverBoard || leverBoard.slug === 'leverjobs') {
-            await queryRunner.query(`
-                INSERT INTO job_boards (slug, name, url, scraper, enabled, priority, description)
-                VALUES ('lever', 'Lever Jobs', 'https://jobs.lever.co', 'lever', true, 1, 'Lever ATS - Multi-company job board')
-                ON CONFLICT (slug) DO UPDATE SET
-                    scraper = 'lever',
-                    enabled = true,
-                    priority = 1,
-                    description = 'Lever ATS - Multi-company job board'
-            `);
-
-            const [newLever] = await queryRunner.query(`SELECT id FROM job_boards WHERE slug = 'lever'`);
-            finalLeverBoardId = newLever?.id;
+        if (!leverBoard) {
+            console.log('⚠️  Lever job board not found - skipping Lever companies');
         }
 
-        // Check if Greenhouse aggregator exists
+        // 2. Ensure Greenhouse aggregator job board exists
         const [greenhouseBoard] = await queryRunner.query(`
             SELECT id FROM job_boards WHERE slug = 'greenhouse' LIMIT 1
         `);
 
-        let finalGreenhouseBoardId = greenhouseBoard?.id;
-
         if (!greenhouseBoard) {
-            await queryRunner.query(`
-                INSERT INTO job_boards (slug, name, url, scraper, enabled, priority, description)
-                VALUES ('greenhouse', 'Greenhouse', 'https://boards.greenhouse.io', 'greenhouse', true, 1, 'Greenhouse ATS - Multi-company job board')
-                ON CONFLICT (slug) DO UPDATE SET
-                    scraper = 'greenhouse',
-                    enabled = true,
-                    priority = 1,
-                    description = 'Greenhouse ATS - Multi-company job board'
-            `);
-
-            const [newGreenhouse] = await queryRunner.query(`SELECT id FROM job_boards WHERE slug = 'greenhouse'`);
-            finalGreenhouseBoardId = newGreenhouse?.id;
+            console.log('⚠️  Greenhouse job board not found - skipping Greenhouse companies');
         }
 
-        console.log(`✅ Lever board ID: ${finalLeverBoardId}`);
-        console.log(`✅ Greenhouse board ID: ${finalGreenhouseBoardId}`);
-
-        // 3. Migrate individual companies from job_boards to companies table
-        // Companies that use Lever
+        // 3. Companies that use Lever platform
         const leverCompanies = [
             { slug: 'yuno', name: 'Yuno', url: 'https://jobs.lever.co/yuno', description: 'Payments orchestration LATAM' },
             { slug: 'connectly', name: 'Connectly', url: 'https://jobs.lever.co/connectly', description: 'Customer messaging Brasil/LATAM' },
@@ -85,7 +53,7 @@ export class FixJobBoardsVsCompanies1763038154738 implements MigrationInterface 
             { slug: 'canva', name: 'Canva', url: 'https://jobs.lever.co/canva', description: 'Graphic design' },
         ];
 
-        // Companies that use Greenhouse
+        // 4. Companies that use Greenhouse platform
         const greenhouseCompanies = [
             { slug: 'nubank', name: 'Nubank', url: 'https://boards.greenhouse.io/nubank', description: 'Banco digital Brasil/México/Colômbia' },
             { slug: 'gympass', name: 'Gympass', url: 'https://boards.greenhouse.io/gympass', description: 'Corporate wellness LATAM' },
@@ -106,10 +74,12 @@ export class FixJobBoardsVsCompanies1763038154738 implements MigrationInterface 
             { slug: 'atlassian', name: 'Atlassian', url: 'https://boards.greenhouse.io/atlassian', description: 'Jira/Confluence' },
         ];
 
-        // 4. Insert companies into companies table and create job_board_companies relationships
-        if (finalLeverBoardId) {
+        // 5. Process Lever companies - ensure they exist in companies table and create relationships
+        if (leverBoard) {
+            console.log(`📦 Processing ${leverCompanies.length} Lever companies...`);
+
             for (const company of leverCompanies) {
-                // Insert company
+                // Ensure company exists in companies table
                 await queryRunner.query(`
                     INSERT INTO companies (slug, name, platform, website, description, featured, "featuredOrder", rating, "reviewCount", "totalJobs")
                     VALUES ($1, $2, 'lever', $3, $4, false, 0, 0, 0, 0)
@@ -117,22 +87,30 @@ export class FixJobBoardsVsCompanies1763038154738 implements MigrationInterface 
                 `, [company.slug, company.name, company.url, company.description]);
 
                 // Get company ID
-                const [companyResult] = await queryRunner.query(`SELECT id FROM companies WHERE slug = $1`, [company.slug]);
+                const [companyResult] = await queryRunner.query(
+                    `SELECT id FROM companies WHERE slug = $1`,
+                    [company.slug]
+                );
 
+                // Create relationship in job_board_companies if company was found
                 if (companyResult?.id) {
-                    // Create relationship
                     await queryRunner.query(`
                         INSERT INTO job_board_companies (job_board_id, company_id, scraper_url, enabled)
                         VALUES ($1, $2, $3, true)
                         ON CONFLICT (job_board_id, company_id) DO NOTHING
-                    `, [finalLeverBoardId, companyResult.id, company.url]);
+                    `, [leverBoard.id, companyResult.id, company.url]);
                 }
             }
+
+            console.log(`✅ Processed ${leverCompanies.length} Lever companies`);
         }
 
-        if (finalGreenhouseBoardId) {
+        // 6. Process Greenhouse companies - ensure they exist in companies table and create relationships
+        if (greenhouseBoard) {
+            console.log(`📦 Processing ${greenhouseCompanies.length} Greenhouse companies...`);
+
             for (const company of greenhouseCompanies) {
-                // Insert company
+                // Ensure company exists in companies table
                 await queryRunner.query(`
                     INSERT INTO companies (slug, name, platform, website, description, featured, "featuredOrder", rating, "reviewCount", "totalJobs")
                     VALUES ($1, $2, 'greenhouse', $3, $4, false, 0, 0, 0, 0)
@@ -140,46 +118,41 @@ export class FixJobBoardsVsCompanies1763038154738 implements MigrationInterface 
                 `, [company.slug, company.name, company.url, company.description]);
 
                 // Get company ID
-                const [companyResult] = await queryRunner.query(`SELECT id FROM companies WHERE slug = $1`, [company.slug]);
+                const [companyResult] = await queryRunner.query(
+                    `SELECT id FROM companies WHERE slug = $1`,
+                    [company.slug]
+                );
 
+                // Create relationship in job_board_companies if company was found
                 if (companyResult?.id) {
-                    // Create relationship
                     await queryRunner.query(`
                         INSERT INTO job_board_companies (job_board_id, company_id, scraper_url, enabled)
                         VALUES ($1, $2, $3, true)
                         ON CONFLICT (job_board_id, company_id) DO NOTHING
-                    `, [finalGreenhouseBoardId, companyResult.id, company.url]);
+                    `, [greenhouseBoard.id, companyResult.id, company.url]);
                 }
             }
+
+            console.log(`✅ Processed ${greenhouseCompanies.length} Greenhouse companies`);
         }
 
-        // 5. Delete individual companies from job_boards table (they should only be in companies table now)
-        console.log('🗑️  Removing individual companies from job_boards table...');
-
-        const companiesToDelete = [
-            'yuno', 'connectly', 'clip', 'kavak', 'bitso', 'kushki',
-            'binance', 'coinbase', 'kraken', 'gemini', 'circle', 'chainalysis',
-            'stripe', 'netflix', 'uber', 'reddit', 'duolingo',
-            'databricks', 'snowflake', 'mongodb', 'elastic', 'datadog', 'gitlab', 'notion', 'figma', 'canva',
-            'nubank-gh', 'gympass-gh', 'wildlife-gh', 'rappi-gh',
-            'deel-gh', 'remote-gh', 'toptal-gh', 'zapier-gh', 'automattic-gh',
-            'airbnb-gh', 'spotify-gh', 'shopify-gh', 'github-gh', 'slack-gh', 'twilio-gh', 'zendesk-gh', 'atlassian-gh'
-        ];
-
-        const deleteResult = await queryRunner.query(`
-            DELETE FROM job_boards
-            WHERE slug = ANY($1::text[])
-            RETURNING slug
-        `, [companiesToDelete]);
-
-        console.log(`✅ Deleted ${deleteResult.length} individual companies from job_boards`);
         console.log('✅ FixJobBoardsVsCompanies migration completed successfully!');
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        // This migration is destructive and cannot be easily reversed
-        // The data has been reorganized from an incorrect structure to a correct one
-        console.log('Cannot revert FixJobBoardsVsCompanies migration - data has been restructured');
+        // This migration only creates relationships and ensures data exists
+        // It does not delete anything, so down migration can remove the relationships created
+        console.log('🔄 Reverting FixJobBoardsVsCompanies migration...');
+
+        // Remove job_board_companies relationships created by this migration
+        await queryRunner.query(`
+            DELETE FROM job_board_companies
+            WHERE job_board_id IN (
+                SELECT id FROM job_boards WHERE slug IN ('lever', 'greenhouse')
+            )
+        `);
+
+        console.log('✅ Migration reverted');
     }
 
 }
