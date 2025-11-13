@@ -1,8 +1,9 @@
 import { DataSource } from 'typeorm';
 
 /**
- * Seed com empresas tech populares conhecidas por contratar remotamente
- * Essas empresas usam Lever, Greenhouse ou outras plataformas de ATS
+ * Seed com 93 empresas tech populares conhecidas por contratar remotamente
+ * Inclui empresas globais e latino-americanas (Nubank, Rappi, Kavak, Clip, Bitso, etc)
+ * Essas empresas usam Lever ou Greenhouse como plataforma de ATS
  */
 
 interface CompanyData {
@@ -15,103 +16,101 @@ interface CompanyData {
 
 const POPULAR_COMPANIES: CompanyData[] = [
   // Lever Companies - Tech Giants e Unicorns
-  { slug: 'netflix', name: 'Netflix', platform: 'lever', website: 'https://www.netflix.com' },
-  { slug: 'grammarly', name: 'Grammarly', platform: 'lever', website: 'https://www.grammarly.com' },
   { slug: 'affirm', name: 'Affirm', platform: 'lever', website: 'https://www.affirm.com' },
-  { slug: 'canva', name: 'Canva', platform: 'lever', website: 'https://www.canva.com' },
-  { slug: 'sketch', name: 'Sketch', platform: 'lever', website: 'https://www.sketch.com' },
-  { slug: 'automattic', name: 'Automattic', platform: 'lever', website: 'https://automattic.com' },
-  { slug: 'gitlab', name: 'GitLab', platform: 'lever', website: 'https://about.gitlab.com' },
-  { slug: 'notion', name: 'Notion', platform: 'lever', website: 'https://www.notion.so' },
-  { slug: 'figma', name: 'Figma', platform: 'lever', website: 'https://www.figma.com' },
-  { slug: 'shopify', name: 'Shopify', platform: 'lever', website: 'https://www.shopify.com' },
-  { slug: 'twilio', name: 'Twilio', platform: 'lever', website: 'https://www.twilio.com' },
-  { slug: 'reddit', name: 'Reddit', platform: 'lever', website: 'https://www.reddit.com' },
-  { slug: 'discord', name: 'Discord', platform: 'lever', website: 'https://discord.com' },
-  { slug: 'plaid', name: 'Plaid', platform: 'lever', website: 'https://plaid.com' },
-  { slug: 'webflow', name: 'Webflow', platform: 'lever', website: 'https://webflow.com' },
   { slug: 'airtable', name: 'Airtable', platform: 'lever', website: 'https://www.airtable.com' },
-  { slug: 'miro', name: 'Miro', platform: 'lever', website: 'https://miro.com' },
-  { slug: 'coda', name: 'Coda', platform: 'lever', website: 'https://coda.io' },
-  { slug: 'zapier', name: 'Zapier', platform: 'lever', website: 'https://zapier.com' },
+  { slug: 'binance', name: 'Binance', platform: 'lever', website: 'https://www.binance.com' },
+  { slug: 'bitso', name: 'Bitso', platform: 'lever', website: 'https://bitso.com' },
+  { slug: 'buffer', name: 'Buffer', platform: 'lever', website: 'https://buffer.com' },
   { slug: 'calendly', name: 'Calendly', platform: 'lever', website: 'https://calendly.com' },
+  { slug: 'canva', name: 'Canva', platform: 'lever', website: 'https://www.canva.com' },
+  { slug: 'chainalysis', name: 'Chainalysis', platform: 'lever', website: 'https://www.chainalysis.com' },
+  { slug: 'circle', name: 'Circle', platform: 'lever', website: 'https://www.circle.com' },
+  { slug: 'clip', name: 'Clip', platform: 'lever', website: 'https://www.clip.mx' },
+  { slug: 'coda', name: 'Coda', platform: 'lever', website: 'https://coda.io' },
+  { slug: 'coinbase', name: 'Coinbase', platform: 'lever', website: 'https://www.coinbase.com' },
+  { slug: 'connectly', name: 'Connectly', platform: 'lever', website: 'https://www.connectly.ai' },
+  { slug: 'databricks', name: 'Databricks', platform: 'lever', website: 'https://www.databricks.com' },
+  { slug: 'datadog', name: 'Datadog', platform: 'lever', website: 'https://www.datadoghq.com' },
+  { slug: 'discord', name: 'Discord', platform: 'lever', website: 'https://discord.com' },
+  { slug: 'duckduckgo', name: 'DuckDuckGo', platform: 'lever', website: 'https://duckduckgo.com' },
+  { slug: 'duolingo', name: 'Duolingo', platform: 'lever', website: 'https://www.duolingo.com' },
+  { slug: 'elastic', name: 'Elastic', platform: 'lever', website: 'https://www.elastic.co' },
+  { slug: 'figma', name: 'Figma', platform: 'lever', website: 'https://www.figma.com' },
+  { slug: 'gemini', name: 'Gemini', platform: 'lever', website: 'https://www.gemini.com' },
+  { slug: 'gitlab', name: 'GitLab', platform: 'lever', website: 'https://about.gitlab.com' },
+  { slug: 'grammarly', name: 'Grammarly', platform: 'lever', website: 'https://www.grammarly.com' },
+  { slug: 'huggingface', name: 'Hugging Face', platform: 'lever', website: 'https://huggingface.co' },
+  { slug: 'invision', name: 'InVision', platform: 'lever', website: 'https://www.invisionapp.com' },
+  { slug: 'jetbrains', name: 'JetBrains', platform: 'lever', website: 'https://www.jetbrains.com' },
+  { slug: 'kavak', name: 'Kavak', platform: 'lever', website: 'https://www.kavak.com' },
+  { slug: 'kraken', name: 'Kraken', platform: 'lever', website: 'https://www.kraken.com' },
+  { slug: 'kushki', name: 'Kushki', platform: 'lever', website: 'https://www.kushkipagos.com' },
+  { slug: 'linear', name: 'Linear', platform: 'lever', website: 'https://linear.app' },
+  { slug: 'loom', name: 'Loom', platform: 'lever', website: 'https://www.loom.com' },
+  { slug: 'medium', name: 'Medium', platform: 'lever', website: 'https://medium.com' },
+  { slug: 'miro', name: 'Miro', platform: 'lever', website: 'https://miro.com' },
+  { slug: 'mongodb', name: 'MongoDB', platform: 'lever', website: 'https://www.mongodb.com' },
+  { slug: 'netflix', name: 'Netflix', platform: 'lever', website: 'https://www.netflix.com' },
+  { slug: 'notion', name: 'Notion', platform: 'lever', website: 'https://www.notion.so' },
+  { slug: 'plaid', name: 'Plaid', platform: 'lever', website: 'https://plaid.com' },
+  { slug: 'reddit', name: 'Reddit', platform: 'lever', website: 'https://www.reddit.com' },
+  { slug: 'sketch', name: 'Sketch', platform: 'lever', website: 'https://www.sketch.com' },
+  { slug: 'snowflake', name: 'Snowflake', platform: 'lever', website: 'https://www.snowflake.com' },
+  { slug: 'stripe', name: 'Stripe', platform: 'lever', website: 'https://stripe.com' },
+  { slug: 'substack', name: 'Substack', platform: 'lever', website: 'https://substack.com' },
+  { slug: 'uber', name: 'Uber', platform: 'lever', website: 'https://www.uber.com' },
+  { slug: 'vercel', name: 'Vercel', platform: 'lever', website: 'https://vercel.com' },
+  { slug: 'webflow', name: 'Webflow', platform: 'lever', website: 'https://webflow.com' },
+  { slug: 'yuno', name: 'Yuno', platform: 'lever', website: 'https://www.y.uno' },
 
   // Greenhouse Companies - Enterprise & Scale-ups
-  { slug: 'stripe', name: 'Stripe', platform: 'greenhouse', website: 'https://stripe.com' },
   { slug: 'airbnb', name: 'Airbnb', platform: 'greenhouse', website: 'https://www.airbnb.com' },
-  { slug: 'coinbase', name: 'Coinbase', platform: 'greenhouse', website: 'https://www.coinbase.com' },
+  { slug: 'anthropic', name: 'Anthropic', platform: 'greenhouse', website: 'https://www.anthropic.com' },
+  { slug: 'asana', name: 'Asana', platform: 'greenhouse', website: 'https://asana.com' },
+  { slug: 'atlassian', name: 'Atlassian', platform: 'greenhouse', website: 'https://www.atlassian.com' },
+  { slug: 'automattic', name: 'Automattic', platform: 'greenhouse', website: 'https://automattic.com' },
+  { slug: 'basecamp', name: 'Basecamp', platform: 'greenhouse', website: 'https://basecamp.com' },
+  { slug: 'brex', name: 'Brex', platform: 'greenhouse', website: 'https://www.brex.com' },
+  { slug: 'calm', name: 'Calm', platform: 'greenhouse', website: 'https://www.calm.com' },
+  { slug: 'chime', name: 'Chime', platform: 'greenhouse', website: 'https://www.chime.com' },
+  { slug: 'cloudflare', name: 'Cloudflare', platform: 'greenhouse', website: 'https://www.cloudflare.com' },
+  { slug: 'coursera', name: 'Coursera', platform: 'greenhouse', website: 'https://www.coursera.org' },
+  { slug: 'deel', name: 'Deel', platform: 'greenhouse', website: 'https://www.deel.com' },
+  { slug: 'docker', name: 'Docker', platform: 'greenhouse', website: 'https://www.docker.com' },
   { slug: 'doordash', name: 'DoorDash', platform: 'greenhouse', website: 'https://www.doordash.com' },
   { slug: 'dropbox', name: 'Dropbox', platform: 'greenhouse', website: 'https://www.dropbox.com' },
+  { slug: 'etsy', name: 'Etsy', platform: 'greenhouse', website: 'https://www.etsy.com' },
+  { slug: 'faire', name: 'Faire', platform: 'greenhouse', website: 'https://www.faire.com' },
+  { slug: 'github', name: 'GitHub', platform: 'greenhouse', website: 'https://github.com' },
+  { slug: 'gympass', name: 'Gympass', platform: 'greenhouse', website: 'https://www.gympass.com' },
+  { slug: 'hashicorp', name: 'HashiCorp', platform: 'greenhouse', website: 'https://www.hashicorp.com' },
+  { slug: 'headspace', name: 'Headspace', platform: 'greenhouse', website: 'https://www.headspace.com' },
   { slug: 'hubspot', name: 'HubSpot', platform: 'greenhouse', website: 'https://www.hubspot.com' },
   { slug: 'instacart', name: 'Instacart', platform: 'greenhouse', website: 'https://www.instacart.com' },
   { slug: 'lyft', name: 'Lyft', platform: 'greenhouse', website: 'https://www.lyft.com' },
-  { slug: 'pinterest', name: 'Pinterest', platform: 'greenhouse', website: 'https://www.pinterest.com' },
-  { slug: 'robinhood', name: 'Robinhood', platform: 'greenhouse', website: 'https://robinhood.com' },
-  { slug: 'snowflake', name: 'Snowflake', platform: 'greenhouse', website: 'https://www.snowflake.com' },
-  { slug: 'square', name: 'Square', platform: 'greenhouse', website: 'https://squareup.com' },
-  { slug: 'databricks', name: 'Databricks', platform: 'greenhouse', website: 'https://www.databricks.com' },
-  { slug: 'asana', name: 'Asana', platform: 'greenhouse', website: 'https://asana.com' },
-  { slug: 'zendesk', name: 'Zendesk', platform: 'greenhouse', website: 'https://www.zendesk.com' },
-  { slug: 'atlassian', name: 'Atlassian', platform: 'greenhouse', website: 'https://www.atlassian.com' },
-  { slug: 'cloudflare', name: 'Cloudflare', platform: 'greenhouse', website: 'https://www.cloudflare.com' },
-  { slug: 'mongodb', name: 'MongoDB', platform: 'greenhouse', website: 'https://www.mongodb.com' },
-  { slug: 'elastic', name: 'Elastic', platform: 'greenhouse', website: 'https://www.elastic.co' },
-  { slug: 'datadog', name: 'Datadog', platform: 'greenhouse', website: 'https://www.datadoghq.com' },
-
-  // Fintech & Crypto
-  { slug: 'wise', name: 'Wise', platform: 'greenhouse', website: 'https://wise.com' },
-  { slug: 'chime', name: 'Chime', platform: 'greenhouse', website: 'https://www.chime.com' },
-  { slug: 'brex', name: 'Brex', platform: 'greenhouse', website: 'https://www.brex.com' },
-  { slug: 'ramp', name: 'Ramp', platform: 'greenhouse', website: 'https://ramp.com' },
   { slug: 'marqeta', name: 'Marqeta', platform: 'greenhouse', website: 'https://www.marqeta.com' },
-  { slug: 'gemini', name: 'Gemini', platform: 'greenhouse', website: 'https://www.gemini.com' },
-  { slug: 'kraken', name: 'Kraken', platform: 'greenhouse', website: 'https://www.kraken.com' },
-
-  // Developer Tools & Infrastructure
-  { slug: 'vercel', name: 'Vercel', platform: 'lever', website: 'https://vercel.com' },
-  { slug: 'hashicorp', name: 'HashiCorp', platform: 'greenhouse', website: 'https://www.hashicorp.com' },
-  { slug: 'docker', name: 'Docker', platform: 'greenhouse', website: 'https://www.docker.com' },
-  { slug: 'github', name: 'GitHub', platform: 'greenhouse', website: 'https://github.com' },
-  { slug: 'jetbrains', name: 'JetBrains', platform: 'lever', website: 'https://www.jetbrains.com' },
-
-  // Communication & Collaboration
-  { slug: 'zoom', name: 'Zoom', platform: 'greenhouse', website: 'https://zoom.us' },
-  { slug: 'slack', name: 'Slack', platform: 'greenhouse', website: 'https://slack.com' },
-  { slug: 'linear', name: 'Linear', platform: 'lever', website: 'https://linear.app' },
-  { slug: 'loom', name: 'Loom', platform: 'lever', website: 'https://www.loom.com' },
-
-  // E-commerce & Marketplaces
-  { slug: 'etsy', name: 'Etsy', platform: 'greenhouse', website: 'https://www.etsy.com' },
-  { slug: 'faire', name: 'Faire', platform: 'greenhouse', website: 'https://www.faire.com' },
-  { slug: 'poshmark', name: 'Poshmark', platform: 'greenhouse', website: 'https://poshmark.com' },
-
-  // Healthcare & Wellness
-  { slug: 'oscar', name: 'Oscar Health', platform: 'greenhouse', website: 'https://www.hioscar.com' },
-  { slug: 'calm', name: 'Calm', platform: 'greenhouse', website: 'https://www.calm.com' },
-  { slug: 'headspace', name: 'Headspace', platform: 'greenhouse', website: 'https://www.headspace.com' },
-
-  // Education & Learning
-  { slug: 'duolingo', name: 'Duolingo', platform: 'greenhouse', website: 'https://www.duolingo.com' },
-  { slug: 'coursera', name: 'Coursera', platform: 'greenhouse', website: 'https://www.coursera.org' },
-  { slug: 'udemy', name: 'Udemy', platform: 'greenhouse', website: 'https://www.udemy.com' },
-
-  // Media & Content
-  { slug: 'spotify', name: 'Spotify', platform: 'greenhouse', website: 'https://www.spotify.com' },
-  { slug: 'substack', name: 'Substack', platform: 'lever', website: 'https://substack.com' },
-  { slug: 'medium', name: 'Medium', platform: 'lever', website: 'https://medium.com' },
-
-  // Remote-first Companies
-  { slug: 'duckduckgo', name: 'DuckDuckGo', platform: 'lever', website: 'https://duckduckgo.com' },
-  { slug: 'buffer', name: 'Buffer', platform: 'lever', website: 'https://buffer.com' },
-  { slug: 'basecamp', name: 'Basecamp', platform: 'greenhouse', website: 'https://basecamp.com' },
-  { slug: 'invision', name: 'InVision', platform: 'lever', website: 'https://www.invisionapp.com' },
-  { slug: 'toptal', name: 'Toptal', platform: 'lever', website: 'https://www.toptal.com' },
-
-  // AI & ML
+  { slug: 'nubank', name: 'Nubank', platform: 'greenhouse', website: 'https://nubank.com.br' },
   { slug: 'openai', name: 'OpenAI', platform: 'greenhouse', website: 'https://openai.com' },
-  { slug: 'anthropic', name: 'Anthropic', platform: 'greenhouse', website: 'https://www.anthropic.com' },
-  { slug: 'huggingface', name: 'Hugging Face', platform: 'lever', website: 'https://huggingface.co' },
+  { slug: 'oscar', name: 'Oscar Health', platform: 'greenhouse', website: 'https://www.hioscar.com' },
+  { slug: 'pinterest', name: 'Pinterest', platform: 'greenhouse', website: 'https://www.pinterest.com' },
+  { slug: 'poshmark', name: 'Poshmark', platform: 'greenhouse', website: 'https://poshmark.com' },
+  { slug: 'ramp', name: 'Ramp', platform: 'greenhouse', website: 'https://ramp.com' },
+  { slug: 'rappi', name: 'Rappi', platform: 'greenhouse', website: 'https://www.rappi.com' },
+  { slug: 'remote', name: 'Remote.com', platform: 'greenhouse', website: 'https://remote.com' },
+  { slug: 'robinhood', name: 'Robinhood', platform: 'greenhouse', website: 'https://robinhood.com' },
   { slug: 'scale', name: 'Scale AI', platform: 'greenhouse', website: 'https://scale.com' },
+  { slug: 'shopify', name: 'Shopify', platform: 'greenhouse', website: 'https://www.shopify.com' },
+  { slug: 'slack', name: 'Slack', platform: 'greenhouse', website: 'https://slack.com' },
+  { slug: 'spotify', name: 'Spotify', platform: 'greenhouse', website: 'https://www.spotify.com' },
+  { slug: 'square', name: 'Square', platform: 'greenhouse', website: 'https://squareup.com' },
+  { slug: 'toptal', name: 'Toptal', platform: 'greenhouse', website: 'https://www.toptal.com' },
+  { slug: 'twilio', name: 'Twilio', platform: 'greenhouse', website: 'https://www.twilio.com' },
+  { slug: 'udemy', name: 'Udemy', platform: 'greenhouse', website: 'https://www.udemy.com' },
+  { slug: 'wildlife', name: 'Wildlife Studios', platform: 'greenhouse', website: 'https://www.wildlifestudios.com' },
+  { slug: 'wise', name: 'Wise', platform: 'greenhouse', website: 'https://wise.com' },
+  { slug: 'zapier', name: 'Zapier', platform: 'greenhouse', website: 'https://zapier.com' },
+  { slug: 'zendesk', name: 'Zendesk', platform: 'greenhouse', website: 'https://www.zendesk.com' },
+  { slug: 'zoom', name: 'Zoom', platform: 'greenhouse', website: 'https://zoom.us' },
 ];
 
 export async function seedPopularCompanies(dataSource: DataSource) {
@@ -120,7 +119,7 @@ export async function seedPopularCompanies(dataSource: DataSource) {
   const jbcRepo = dataSource.getRepository('job_board_companies');
 
   console.log('🌱 Iniciando seed de empresas populares...');
-  console.log(`📋 ${POPULAR_COMPANIES.length} empresas para processar`);
+  console.log(`📋 ${POPULAR_COMPANIES.length} empresas tech globais e latino-americanas`);
 
   let createdCompanies = 0;
   let existingCompanies = 0;
