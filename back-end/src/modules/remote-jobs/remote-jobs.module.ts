@@ -23,6 +23,7 @@ import { RemoteJobsAdminService } from './services/remote-jobs-admin.service';
 import { JobScrapingCronService } from './services/job-scraping-cron.service';
 import { CronConfigService } from './services/cron-config.service';
 import { RssFeedService } from './services/rss-feed.service';
+import { DatabaseInitService } from './services/database-init.service';
 
 // Scrapers
 import { GenericScraperService } from './scrapers/generic-scraper.service';
@@ -79,6 +80,7 @@ import { RemoteJobsAdminController } from './controllers/remote-jobs-admin.contr
     JobScrapingCronService,
     CronConfigService,
     RssFeedService,
+    DatabaseInitService,
     // Scrapers
     GenericScraperService,
     GreenhouseScraperService,
