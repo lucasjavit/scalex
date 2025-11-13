@@ -24,6 +24,7 @@
     "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
     "migration:show": "npm run typeorm -- migration:show -d src/data-source.ts",
+    "migration:verify": "node verify-migrations.js",
     "db:reset": "node reset-database.js",
     "seed:workable": "ts-node src/modules/remote-jobs/seeds/run-seed.ts",
     "seed:lever": "ts-node src/modules/remote-jobs/seeds/run-seed-lever.ts",

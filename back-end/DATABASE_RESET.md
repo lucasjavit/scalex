@@ -125,7 +125,10 @@ Após o reset, você pode verificar se tudo está correto:
 ```bash
 cd back-end
 
-# Verificar migrations executadas
+# Verificar ordem e integridade das migrations (ANTES de resetar)
+npm run migration:verify
+
+# Verificar migrations executadas no banco
 npm run migration:show
 
 # Verificar job boards criados
