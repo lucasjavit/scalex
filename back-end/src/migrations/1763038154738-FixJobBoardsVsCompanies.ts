@@ -3,40 +3,56 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class FixJobBoardsVsCompanies1763038154738 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        // 1. Get IDs of real job boards (aggregators)
-        const leverBoard = await queryRunner.query(`
-            SELECT id FROM job_boards WHERE slug IN ('leverjobs', 'lever') LIMIT 1
-        `);
-        const greenhouseBoard = await queryRunner.query(`
-            SELECT id FROM job_boards WHERE slug IN ('greenhouse') LIMIT 1
+        console.log('🔧 Starting FixJobBoardsVsCompanies migration...');
+
+        // 1. First, let's ensure the correct aggregator job boards exist
+        // Check if Lever aggregator exists
+        const [leverBoard] = await queryRunner.query(`
+            SELECT id, slug FROM job_boards WHERE slug IN ('lever', 'leverjobs') ORDER BY enabled DESC LIMIT 1
         `);
 
-        const leverBoardId = leverBoard[0]?.id;
-        const greenhouseBoardId = greenhouseBoard[0]?.id;
+        let finalLeverBoardId = leverBoard?.id;
 
-        // 2. If aggregator job boards don't exist, create them
-        if (!leverBoardId) {
+        // If no Lever board exists or it's 'leverjobs', ensure 'lever' exists
+        if (!leverBoard || leverBoard.slug === 'leverjobs') {
             await queryRunner.query(`
                 INSERT INTO job_boards (slug, name, url, scraper, enabled, priority, description)
                 VALUES ('lever', 'Lever Jobs', 'https://jobs.lever.co', 'lever', true, 1, 'Lever ATS - Multi-company job board')
-                ON CONFLICT (slug) DO NOTHING
+                ON CONFLICT (slug) DO UPDATE SET
+                    scraper = 'lever',
+                    enabled = true,
+                    priority = 1,
+                    description = 'Lever ATS - Multi-company job board'
             `);
+
+            const [newLever] = await queryRunner.query(`SELECT id FROM job_boards WHERE slug = 'lever'`);
+            finalLeverBoardId = newLever?.id;
         }
 
-        if (!greenhouseBoardId) {
+        // Check if Greenhouse aggregator exists
+        const [greenhouseBoard] = await queryRunner.query(`
+            SELECT id FROM job_boards WHERE slug = 'greenhouse' LIMIT 1
+        `);
+
+        let finalGreenhouseBoardId = greenhouseBoard?.id;
+
+        if (!greenhouseBoard) {
             await queryRunner.query(`
                 INSERT INTO job_boards (slug, name, url, scraper, enabled, priority, description)
                 VALUES ('greenhouse', 'Greenhouse', 'https://boards.greenhouse.io', 'greenhouse', true, 1, 'Greenhouse ATS - Multi-company job board')
-                ON CONFLICT (slug) DO NOTHING
+                ON CONFLICT (slug) DO UPDATE SET
+                    scraper = 'greenhouse',
+                    enabled = true,
+                    priority = 1,
+                    description = 'Greenhouse ATS - Multi-company job board'
             `);
+
+            const [newGreenhouse] = await queryRunner.query(`SELECT id FROM job_boards WHERE slug = 'greenhouse'`);
+            finalGreenhouseBoardId = newGreenhouse?.id;
         }
 
-        // Get the IDs again after potential creation
-        const [leverResult] = await queryRunner.query(`SELECT id FROM job_boards WHERE slug = 'lever' LIMIT 1`);
-        const [greenhouseResult] = await queryRunner.query(`SELECT id FROM job_boards WHERE slug = 'greenhouse' LIMIT 1`);
-
-        const finalLeverBoardId = leverResult?.id;
-        const finalGreenhouseBoardId = greenhouseResult?.id;
+        console.log(`✅ Lever board ID: ${finalLeverBoardId}`);
+        console.log(`✅ Greenhouse board ID: ${finalGreenhouseBoardId}`);
 
         // 3. Migrate individual companies from job_boards to companies table
         // Companies that use Lever
@@ -138,6 +154,8 @@ export class FixJobBoardsVsCompanies1763038154738 implements MigrationInterface 
         }
 
         // 5. Delete individual companies from job_boards table (they should only be in companies table now)
+        console.log('🗑️  Removing individual companies from job_boards table...');
+
         const companiesToDelete = [
             'yuno', 'connectly', 'clip', 'kavak', 'bitso', 'kushki',
             'binance', 'coinbase', 'kraken', 'gemini', 'circle', 'chainalysis',
@@ -148,10 +166,14 @@ export class FixJobBoardsVsCompanies1763038154738 implements MigrationInterface 
             'airbnb-gh', 'spotify-gh', 'shopify-gh', 'github-gh', 'slack-gh', 'twilio-gh', 'zendesk-gh', 'atlassian-gh'
         ];
 
-        await queryRunner.query(`
+        const deleteResult = await queryRunner.query(`
             DELETE FROM job_boards
-            WHERE slug = ANY($1)
+            WHERE slug = ANY($1::text[])
+            RETURNING slug
         `, [companiesToDelete]);
+
+        console.log(`✅ Deleted ${deleteResult.length} individual companies from job_boards`);
+        console.log('✅ FixJobBoardsVsCompanies migration completed successfully!');
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
