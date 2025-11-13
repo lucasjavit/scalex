@@ -26,14 +26,14 @@ export class Job {
   @Column()
   platform: string; // Nome do job board/plataforma
 
-  @Column({ nullable: true })
+  @Column({ name: 'company_slug', nullable: true })
   companySlug?: string; // Deprecated: kept for backward compatibility, use companyId
 
-  @Column({ nullable: true })
+  @Column({ name: 'company_id', type: 'uuid', nullable: true })
   companyId?: string; // FK para Company (UUID)
 
-  @ManyToOne(() => Company, { nullable: true })
-  @JoinColumn({ name: 'companyId' })
+  @ManyToOne(() => Company, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'company_id' })
   company?: Company;
 
   @Column()

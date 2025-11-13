@@ -6,6 +6,8 @@ export class CreateJobBoardCompaniesTable1762778378369
   name = 'CreateJobBoardCompaniesTable1762778378369';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // Create job_board_companies relationship table
+    // This table links job boards (aggregators) with companies they scrape
     await queryRunner.query(`
       CREATE TABLE "job_board_companies" (
         "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -28,12 +30,15 @@ export class CreateJobBoardCompaniesTable1762778378369
     await queryRunner.query(`
       CREATE INDEX "IDX_job_board_companies_job_board_company" ON "job_board_companies" ("job_board_id", "company_id")
     `);
+
+    await queryRunner.query(`
+      CREATE UNIQUE INDEX "IDX_0c88f6b797898401b77526a525" ON "job_board_companies" ("job_board_id", "company_id")
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP INDEX "IDX_job_board_companies_job_board_company"`,
-    );
+    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_0c88f6b797898401b77526a525"`);
+    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_job_board_companies_job_board_company"`);
     await queryRunner.query(`DROP TABLE "job_board_companies"`);
   }
 }
