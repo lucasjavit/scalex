@@ -19,18 +19,18 @@ export class SavedJob {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column()
+  @Column({ name: 'job_id', type: 'uuid' })
   jobId: string;
 
   @ManyToOne(() => Job, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'jobId' })
+  @JoinColumn({ name: 'job_id' })
   job: Job;
 
   @Column({

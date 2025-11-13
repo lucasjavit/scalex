@@ -30,7 +30,8 @@
     "seed:ashby": "ts-node src/modules/remote-jobs/seeds/run-seed-ashby.ts",
     "seed:aggregators": "ts-node src/modules/remote-jobs/seeds/run-seed-aggregators.ts",
     "seed:all": "ts-node src/modules/remote-jobs/seeds/run-seed-all.ts",
-    "seed:remote-companies": "ts-node scripts/seed-remote-companies.ts"
+    "seed:remote-companies": "ts-node scripts/seed-remote-companies.ts",
+    "seed:popular": "ts-node src/modules/remote-jobs/seeds/run-seed-popular-companies.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",

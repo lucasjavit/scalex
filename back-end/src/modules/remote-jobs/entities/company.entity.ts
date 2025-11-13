@@ -21,8 +21,8 @@ export class Company {
   @Column()
   name: string; // 'Stripe', 'Coinbase'
 
-  @Column({ type: 'enum', enum: ['lever', 'greenhouse', 'ashby', 'workable', 'builtin', 'remoteyeah'] })
-  platform: 'lever' | 'greenhouse' | 'ashby' | 'workable' | 'builtin' | 'remoteyeah';
+  @Column({ type: 'varchar', nullable: false })
+  platform: string; // Platform name - Admin can add/edit/delete via interface
 
   @Column({ nullable: true })
   logo: string; // URL do logo
