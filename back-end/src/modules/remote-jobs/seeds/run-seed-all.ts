@@ -3,6 +3,7 @@ import { seedWorkableCompanies } from './seed-workable-companies';
 import { seedLeverCompanies } from './seed-lever-companies';
 import { seedGreenhouseCompanies } from './seed-greenhouse-companies';
 import { seedAshbyCompanies } from './seed-ashby-companies';
+import { seedBuiltInCompanies } from './seed-builtin-companies';
 import { seedAggregators } from './seed-aggregators';
 import * as dotenv from 'dotenv';
 
@@ -30,23 +31,27 @@ async function runAllSeeds() {
     console.log('='.repeat(60));
 
     // Executa todos os seeds em sequência
-    console.log('\n📍 [1/5] Workable');
+    console.log('\n📍 [1/6] Workable');
     console.log('='.repeat(60));
     await seedWorkableCompanies(dataSource);
 
-    console.log('\n📍 [2/5] Lever');
+    console.log('\n📍 [2/6] Lever');
     console.log('='.repeat(60));
     await seedLeverCompanies(dataSource);
 
-    console.log('\n📍 [3/5] Greenhouse');
+    console.log('\n📍 [3/6] Greenhouse');
     console.log('='.repeat(60));
     await seedGreenhouseCompanies(dataSource);
 
-    console.log('\n📍 [4/5] Ashby');
+    console.log('\n📍 [4/6] Ashby');
     console.log('='.repeat(60));
     await seedAshbyCompanies(dataSource);
 
-    console.log('\n📍 [5/5] Agregadores (Wellfound, Built In, etc)');
+    console.log('\n📍 [5/6] Built In');
+    console.log('='.repeat(60));
+    await seedBuiltInCompanies(dataSource);
+
+    console.log('\n📍 [6/6] Agregadores (Wellfound, We Work Remotely, Remotive, etc)');
     console.log('='.repeat(60));
     await seedAggregators(dataSource);
 

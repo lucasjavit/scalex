@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Bookmark, BookmarkCheck, MapPin, DollarSign, Briefcase, Clock } from 'lucide-react';
 import { savedJobsService } from '../../../services/savedJobsService';
 import { useNotification } from '../../../hooks/useNotification';
@@ -9,6 +10,7 @@ export default function JobCard({ job, userId, isSaved: initialIsSaved = false, 
   const { showSuccess, showError, showInfo } = useNotification();
 
   const handleSaveToggle = async (e) => {
+    e.preventDefault(); // Prevent default link behavior
     e.stopPropagation(); // Prevent card click
 
     if (!userId) {
@@ -20,11 +22,25 @@ export default function JobCard({ job, userId, isSaved: initialIsSaved = false, 
 
     try {
       if (isSaved) {
-        // TODO: Implement unsave functionality
-        showInfo('Funcionalidade de remover vaga em desenvolvimento');
+        // Get all saved jobs to find the savedJobId
+        const response = await savedJobsService.getSavedJobs(userId);
+        if (response && response.data) {
+          const savedJob = response.data.find(saved => saved.job?.id === job.id);
+          if (savedJob) {
+            await savedJobsService.deleteSavedJob(userId, savedJob.id);
+            setIsSaved(false);
+            showSuccess('Vaga removida com sucesso!');
+
+            // Notify parent component
+            if (onSaveToggle) {
+              onSaveToggle(job, false);
+            }
+          }
+        }
       } else {
         // Save job
-        await savedJobsService.saveJob(userId, job);
+        const response = await savedJobsService.saveJob(userId, job.id);
+
         setIsSaved(true);
         showSuccess('Vaga salva com sucesso!');
 
@@ -34,14 +50,12 @@ export default function JobCard({ job, userId, isSaved: initialIsSaved = false, 
         }
       }
     } catch (error) {
-      console.error('Error toggling save status:', error);
-
       // Check if job is already saved
       if (error.message?.includes('já')) {
         setIsSaved(true);
         showInfo('Esta vaga já está salva');
       } else {
-        showError('Erro ao salvar vaga. Tente novamente.');
+        showError(`Erro ao salvar vaga: ${error.message || 'Tente novamente.'}`);
       }
     } finally {
       setIsSaving(false);
@@ -64,13 +78,49 @@ export default function JobCard({ job, userId, isSaved: initialIsSaved = false, 
     return `${Math.floor(diffDays / 30)} meses atrás`;
   };
 
+  // Get company logo URL
+  const getCompanyLogo = () => {
+    // If company has logo in database, use it
+    if (job.company?.logo) {
+      return job.company.logo;
+    }
+
+    // Otherwise, try Clearbit Logo API (free, no auth required)
+    if (job.companySlug) {
+      const domain = job.company?.website || `${job.companySlug}.com`;
+      return `https://logo.clearbit.com/${domain}`;
+    }
+
+    return null;
+  };
+
+  // Get company initials for fallback
+  const getCompanyInitials = () => {
+    if (!job.companySlug) return '?';
+
+    const name = job.company?.name || job.companySlug.replace(/-/g, ' ');
+    const words = name.split(' ');
+
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const [logoError, setLogoError] = useState(false);
+  const logoUrl = getCompanyLogo();
+
   return (
-    <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 hover:border-copilot-accent-blue transition-all duration-200 hover:shadow-copilot-lg relative">
+    <Link
+      to={`/jobs/details/${job.id}`}
+      className="block bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 hover:border-copilot-accent-blue transition-all duration-200 hover:shadow-copilot-lg relative cursor-pointer"
+    >
       {/* Save Button */}
       <button
         onClick={handleSaveToggle}
         disabled={isSaving}
-        className={`absolute top-4 right-4 p-2 rounded-lg transition-all duration-200 ${
+        className={`absolute top-4 right-4 p-2 rounded-lg transition-all duration-200 z-10 ${
           isSaved
             ? 'bg-copilot-accent-blue bg-opacity-10 text-copilot-accent-blue hover:bg-opacity-20'
             : 'bg-copilot-bg-tertiary text-copilot-text-secondary hover:text-copilot-accent-blue hover:bg-copilot-bg-primary'
@@ -88,17 +138,40 @@ export default function JobCard({ job, userId, isSaved: initialIsSaved = false, 
 
       {/* Job Content */}
       <div className="pr-12">
-        {/* Title and Company */}
-        <h3 className="text-xl font-bold text-copilot-text-primary mb-2 hover:text-copilot-accent-blue transition-colors cursor-pointer">
-          {job.title}
-        </h3>
+        {/* Company Logo and Title */}
+        <div className="flex items-start gap-4 mb-3">
+          {/* Company Logo */}
+          <div className="flex-shrink-0">
+            {logoUrl && !logoError ? (
+              <img
+                src={logoUrl}
+                alt={job.company?.name || job.companySlug}
+                className="w-12 h-12 rounded-lg object-contain bg-white p-1"
+                onError={() => setLogoError(true)}
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-lg bg-copilot-accent-blue bg-opacity-10 flex items-center justify-center">
+                <span className="text-copilot-accent-blue font-bold text-sm">
+                  {getCompanyInitials()}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Title */}
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-copilot-text-primary mb-2 hover:text-copilot-accent-blue transition-colors cursor-pointer">
+              {job.title}
+            </h3>
+          </div>
+        </div>
 
         {/* Company - Platform Badge */}
         <div className="flex items-center gap-2 mb-4">
           {/* Company Name */}
           {job.companySlug && (
             <span className="text-sm font-semibold text-copilot-text-secondary capitalize">
-              {job.companySlug.replace(/-/g, ' ')}
+              {job.company?.name || job.companySlug.replace(/-/g, ' ')}
             </span>
           )}
 
@@ -115,81 +188,42 @@ export default function JobCard({ job, userId, isSaved: initialIsSaved = false, 
           )}
         </div>
 
-        {/* Job Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        {/* Job Details Row */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
           {/* Location */}
-          <div className="flex items-center gap-2 text-copilot-text-secondary text-sm">
-            <MapPin size={16} className="flex-shrink-0" />
+          <div className="flex items-center gap-1.5 text-copilot-text-secondary text-sm">
+            <MapPin size={14} className="flex-shrink-0" />
             <span>{job.location || 'Location not specified'}</span>
           </div>
 
           {/* Salary */}
           {job.salary && (
-            <div className="flex items-center gap-2 text-copilot-text-secondary text-sm">
-              <DollarSign size={16} className="flex-shrink-0" />
+            <div className="flex items-center gap-1.5 text-copilot-text-primary text-sm font-semibold">
+              <DollarSign size={14} className="flex-shrink-0" />
               <span>{job.salary}</span>
             </div>
           )}
 
           {/* Seniority */}
           {job.seniority && (
-            <div className="flex items-center gap-2 text-copilot-text-secondary text-sm">
-              <Briefcase size={16} className="flex-shrink-0" />
+            <div className="flex items-center gap-1.5 text-copilot-text-secondary text-sm">
+              <Briefcase size={14} className="flex-shrink-0" />
               <span className="capitalize">{job.seniority}</span>
             </div>
           )}
 
           {/* Published Date */}
-          <div className="flex items-center gap-2 text-copilot-text-secondary text-sm">
-            <Clock size={16} className="flex-shrink-0" />
+          <div className="flex items-center gap-1.5 text-copilot-text-secondary text-sm">
+            <Clock size={14} className="flex-shrink-0" />
             <span>{formatDate(job.publishedAt)}</span>
           </div>
         </div>
 
-        {/* Tags */}
-        {job.tags && job.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {job.tags.slice(0, 5).map((tag, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 text-xs rounded-md bg-copilot-bg-tertiary text-copilot-text-secondary border border-copilot-border-subtle"
-              >
-                {tag}
-              </span>
-            ))}
-            {job.tags.length > 5 && (
-              <span className="px-2 py-1 text-xs rounded-md text-copilot-text-tertiary">
-                +{job.tags.length - 5} mais
-              </span>
-            )}
-          </div>
-        )}
-
         {/* Description Preview */}
-        <p className="text-copilot-text-secondary text-sm line-clamp-2 mb-4">
+        <p className="text-copilot-text-secondary text-sm line-clamp-2">
           {job.description?.replace(/<[^>]*>/g, '').substring(0, 150)}...
         </p>
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          <a
-            href={job.externalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-copilot-primary text-sm"
-          >
-            Ver detalhes
-          </a>
-          <a
-            href={job.externalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-copilot-secondary text-sm"
-          >
-            Aplicar agora
-          </a>
-        </div>
       </div>
-    </div>
+    </Link>
   );
 }

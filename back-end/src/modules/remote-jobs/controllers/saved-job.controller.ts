@@ -7,11 +7,10 @@ import {
   Body,
   Param,
   Logger,
-  Inject,
+  NotFoundException,
 } from '@nestjs/common';
 import { SavedJobService } from '../services/saved-job.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { JobService } from '../services/job.service';
 import { ScrapedJob } from '../scrapers/base-scraper.service';
 
 @Controller('remote-jobs/saved-jobs')
@@ -20,49 +19,48 @@ export class SavedJobController {
 
   constructor(
     private readonly savedJobService: SavedJobService,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
+    private readonly jobService: JobService,
   ) {}
 
   /**
    * POST /remote-jobs/saved-jobs
    * Salva uma vaga para o usuário
-   * Body: { userId, jobId (externalId da vaga no Redis) }
+   * Body: { userId, jobId (UUID da vaga no PostgreSQL) }
    */
   @Post()
-  async saveJob(
-    @Body() body: { userId: string; jobId: string; platform: string },
-  ) {
+  async saveJob(@Body() body: { userId: string; jobId: string }) {
     this.logger.log(`💾 Salvando vaga ${body.jobId} para usuário ${body.userId}`);
 
-    // 1. Busca a vaga no Redis
-    const allJobs = await this.cacheManager.get<ScrapedJob[]>('jobs:all');
+    // 1. Busca a vaga no PostgreSQL usando o UUID
+    const job = await this.jobService.findOne(body.jobId);
 
-    if (!allJobs || allJobs.length === 0) {
-      return {
-        success: false,
-        message: 'Nenhuma vaga encontrada no cache. Faça o scraping primeiro.',
-      };
+    if (!job) {
+      throw new NotFoundException('Vaga não encontrada no banco de dados');
     }
 
-    // 2. Encontra a vaga específica
-    const scrapedJob = allJobs.find(
-      (job) =>
-        job.externalId === body.jobId && job.platform === body.platform,
-    );
+    // 2. Converte Job para ScrapedJob para manter compatibilidade
+    const scrapedJob: ScrapedJob = {
+      externalId: job.externalId,
+      platform: job.platform,
+      companySlug: job.companySlug || 'unknown',
+      title: job.title,
+      description: job.description,
+      location: job.location,
+      salary: job.salary,
+      remote: job.remote,
+      countries: job.countries,
+      tags: job.tags,
+      seniority: job.seniority as any,
+      employmentType: job.employmentType as any,
+      requirements: job.requirements,
+      benefits: job.benefits,
+      externalUrl: job.externalUrl,
+      publishedAt: job.publishedAt,
+      expiresAt: job.expiresAt,
+    };
 
-    if (!scrapedJob) {
-      return {
-        success: false,
-        message: 'Vaga não encontrada no cache',
-      };
-    }
-
-    // 3. Salva (copia para PostgreSQL + cria saved_job)
-    const savedJob = await this.savedJobService.saveJob(
-      body.userId,
-      scrapedJob,
-    );
+    // 3. Salva (cria saved_job)
+    const savedJob = await this.savedJobService.saveJob(body.userId, scrapedJob);
 
     return {
       success: true,

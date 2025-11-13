@@ -195,6 +195,9 @@ export class GreenhouseScraperService extends BaseScraperService {
       this.stats.totalJobs += jobs.length;
       this.stats.remoteJobs += remoteJobs.length;
 
+      // Busca detalhes completos de cada vaga (incluindo descrição)
+      const jobsWithDetails = await this.fetchJobsDetails(company.slug, remoteJobs);
+
       // Marcar como sucesso
       await this.jobBoardCompanyService.updateScrapingStatus(
         relation.id,
@@ -202,7 +205,7 @@ export class GreenhouseScraperService extends BaseScraperService {
       );
 
       // Transforma em formato padrão
-      return remoteJobs.map((job) => this.transformGreenhouseJob(job, company));
+      return jobsWithDetails.map((job) => this.transformGreenhouseJob(job, company));
     } catch (error) {
       const errorMessage = error.response?.status === 404
         ? '404 - Empresa não encontrada ou não usa mais Greenhouse'
@@ -225,6 +228,56 @@ export class GreenhouseScraperService extends BaseScraperService {
 
       return [];
     }
+  }
+
+  /**
+   * Busca detalhes completos de cada vaga (incluindo descrição)
+   * Processa em lotes para não sobrecarregar a API
+   */
+  private async fetchJobsDetails(
+    companySlug: string,
+    jobs: GreenhouseJob[],
+  ): Promise<GreenhouseJob[]> {
+    const jobsWithDetails: GreenhouseJob[] = [];
+    const BATCH_SIZE = 3; // Processar 3 vagas por vez
+
+    for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
+      const batch = jobs.slice(i, i + BATCH_SIZE);
+
+      // Busca detalhes em paralelo dentro do batch
+      const detailsPromises = batch.map(async (job) => {
+        try {
+          const detailUrl = `${this.baseUrl}/${companySlug}/jobs/${job.id}`;
+          const response = await firstValueFrom(
+            this.httpService.get(detailUrl, {
+              timeout: this.TIMEOUT_MS,
+              headers: {
+                'User-Agent':
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                Accept: 'application/json',
+              },
+            }),
+          );
+
+          // Retorna job com descrição completa
+          return response.data;
+        } catch (error) {
+          this.logger.warn(`⚠️  Erro ao buscar detalhes da vaga ${job.id}: ${error.message}`);
+          // Retorna job original sem descrição em caso de erro
+          return job;
+        }
+      });
+
+      const batchDetails = await Promise.all(detailsPromises);
+      jobsWithDetails.push(...batchDetails);
+
+      // Pequeno delay entre batches
+      if (i + BATCH_SIZE < jobs.length) {
+        await this.delay(300);
+      }
+    }
+
+    return jobsWithDetails;
   }
 
   /**
@@ -290,11 +343,19 @@ export class GreenhouseScraperService extends BaseScraperService {
 
   /**
    * Verifica se uma vaga é remota
+   * MELHORADO: Verifica location + offices + metadata
    */
   private isRemoteJob(job: GreenhouseJob): boolean {
+    // 1. Verifica location principal
     const locationName = job.location?.name?.toLowerCase() || '';
 
-    // Palavras-chave que indicam remote
+    // 2. Verifica todos os offices
+    const officeLocations = job.offices?.map(o => o.name?.toLowerCase() || '').join(' ') || '';
+
+    // 3. Combina tudo para buscar
+    const allLocations = `${locationName} ${officeLocations}`.toLowerCase();
+
+    // Palavras-chave que indicam remote (mais abrangente)
     const remoteKeywords = [
       'remote',
       'anywhere',
@@ -303,9 +364,18 @@ export class GreenhouseScraperService extends BaseScraperService {
       'distributed',
       'virtual',
       'telecommute',
+      'home office',
+      'trabalho remoto',
+      'remoto',
     ];
 
-    return remoteKeywords.some((keyword) => locationName.includes(keyword));
+    // Verifica se tem alguma palavra-chave
+    const hasRemoteKeyword = remoteKeywords.some((keyword) => allLocations.includes(keyword));
+
+    // Também aceita se location não está definido ou é vazio (algumas empresas só postam remote)
+    const isEmptyLocation = !locationName || locationName.trim() === '';
+
+    return hasRemoteKeyword || isEmptyLocation;
   }
 
   /**

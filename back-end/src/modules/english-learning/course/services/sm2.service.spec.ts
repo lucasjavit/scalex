@@ -48,11 +48,9 @@ describe('Sm2Service', () => {
         repetitions: 0,
         state: 'new',
         nextReviewDate: new Date(),
-        lastReviewedAt: null,
         createdAt: new Date(),
         updatedAt: new Date(),
-        card: null,
-      };
+      } as any;
     });
 
     it('should handle WRONG result on new card', () => {
@@ -108,8 +106,7 @@ describe('Sm2Service', () => {
         lastReviewedAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        card: null,
-      };
+      } as any;
     });
 
     it('should handle WRONG result on learning card', () => {
@@ -170,8 +167,7 @@ describe('Sm2Service', () => {
         lastReviewedAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        card: null,
-      };
+      } as any;
     });
 
     it('should handle WRONG result on review card - reset to learning', () => {
@@ -256,8 +252,7 @@ describe('Sm2Service', () => {
         lastReviewedAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        card: null,
-      };
+      } as any;
 
       const result = service.calculateNextReview(card, 'wrong');
       expect(result.easeFactor).toBe(1.3); // Should not go below 1.3
@@ -276,8 +271,7 @@ describe('Sm2Service', () => {
         lastReviewedAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        card: null,
-      };
+      } as any;
 
       const result = service.calculateNextReview(card, 'easy');
       expect(result.easeFactor).toBe(2.5); // Should not go above 2.5
@@ -325,8 +319,7 @@ describe('Sm2Service', () => {
         lastReviewedAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        card: null,
-      };
+      } as any;
 
       const now = Date.now();
       const result = service.calculateNextReview(card, 'good');

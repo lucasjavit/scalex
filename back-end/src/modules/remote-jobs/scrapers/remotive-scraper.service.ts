@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseScraperService, ScrapedJob } from './base-scraper.service';
 import { JobBoard } from '../entities/job-board.entity';
+import { RssFeed } from '../entities/rss-feed.entity';
+import { RssFeedService } from '../services/rss-feed.service';
 import { firstValueFrom } from 'rxjs';
 
 /**
@@ -12,10 +14,11 @@ import { firstValueFrom } from 'rxjs';
  * Remotive tem API pública documentada
  * API URL: https://remotive.com/api/remote-jobs?category=software-dev&limit=100
  * Documentação: https://remotive.com/remote-jobs/api
+ * MODIFICADO: Agora busca API endpoints do banco de dados
  *
  * Estratégia:
- * 1. Busca vagas via API pública (JSON)
- * 2. Filtra categorias relevantes (software-dev, devops, etc)
+ * 1. Busca API endpoints habilitados no banco de dados
+ * 2. Busca vagas via API pública (JSON)
  * 3. Extração direta de JSON
  */
 @Injectable()
@@ -24,41 +27,35 @@ export class RemotiveScraperService extends BaseScraperService {
   protected readonly baseUrl = 'https://remotive.com/api/remote-jobs';
   protected readonly platformName = 'remotive';
 
-  // Categorias para buscar
-  private readonly CATEGORIES = [
-    'software-dev',
-    'devops',
-    'data',
-  ];
-
-  private readonly LIMIT_PER_CATEGORY = 100;
   private readonly TIMEOUT_MS = 15000;
 
   // Estatísticas
   private stats = {
-    totalCategories: 0,
-    successfulCategories: 0,
-    failedCategories: 0,
+    totalEndpoints: 0,
+    successfulEndpoints: 0,
+    failedEndpoints: 0,
     totalJobs: 0,
-    errors: [] as { category: string; error: string }[],
+    errors: [] as { endpoint: string; error: string }[],
   };
 
   constructor(
     httpService: HttpService,
     @InjectRepository(JobBoard)
     private readonly jobBoardRepository: Repository<JobBoard>,
+    private readonly rssFeedService: RssFeedService,
   ) {
     super(httpService);
   }
 
   /**
-   * Método principal: busca vagas de todas as categorias
+   * Método principal: busca vagas de todos os API endpoints
+   * MODIFICADO: Agora busca API endpoints do banco de dados
    */
   async fetchJobs(): Promise<ScrapedJob[]> {
     this.logger.log('🚀 Iniciando scraping do Remotive (API)...');
     this.resetStats();
 
-    // Verifica se o job board está habilitado
+    // 1. Buscar o job_board "remotive"
     const remotiveBoard = await this.jobBoardRepository.findOne({
       where: { slug: 'remotive', enabled: true },
     });
@@ -68,17 +65,29 @@ export class RemotiveScraperService extends BaseScraperService {
       return [];
     }
 
-    this.stats.totalCategories = this.CATEGORIES.length;
+    // 2. Buscar todos os API endpoints ATIVOS do Remotive
+    const apiEndpoints = await this.rssFeedService.findEnabledByJobBoard(
+      remotiveBoard.id,
+    );
+
+    if (apiEndpoints.length === 0) {
+      this.logger.warn('⚠️  Nenhum API endpoint ativo encontrado para Remotive');
+      return [];
+    }
+
+    this.stats.totalEndpoints = apiEndpoints.length;
+    this.logger.log(`📋 ${apiEndpoints.length} API endpoints ativos para processar`);
+
     const allJobs: ScrapedJob[] = [];
     const seenIds = new Set<string>();
 
-    // Processa categorias em paralelo
-    const categoryResults = await Promise.all(
-      this.CATEGORIES.map((category) => this.fetchCategoryJobs(category)),
+    // Processa endpoints em paralelo
+    const endpointResults = await Promise.all(
+      apiEndpoints.map((endpoint) => this.fetchEndpointJobs(endpoint)),
     );
 
-    // Remove duplicatas (jobs podem aparecer em múltiplas categorias)
-    for (const jobs of categoryResults) {
+    // Remove duplicatas (jobs podem aparecer em múltiplos endpoints)
+    for (const jobs of endpointResults) {
       for (const job of jobs) {
         if (!seenIds.has(job.externalId)) {
           seenIds.add(job.externalId);
@@ -88,7 +97,7 @@ export class RemotiveScraperService extends BaseScraperService {
     }
 
     this.logger.log(
-      `🔍 Total de ${categoryResults.flat().length} vagas encontradas, ${allJobs.length} únicas`,
+      `🔍 Total de ${endpointResults.flat().length} vagas encontradas, ${allJobs.length} únicas`,
     );
 
     this.logStats();
@@ -96,16 +105,18 @@ export class RemotiveScraperService extends BaseScraperService {
   }
 
   /**
-   * Busca vagas de uma categoria específica via API
+   * NOVO: Busca vagas de um API endpoint específico
+   * Rastreia status (pending/success/error) no banco
    */
-  private async fetchCategoryJobs(category: string): Promise<ScrapedJob[]> {
+  private async fetchEndpointJobs(rssFeed: RssFeed): Promise<ScrapedJob[]> {
     try {
-      const apiUrl = `${this.baseUrl}?category=${category}&limit=${this.LIMIT_PER_CATEGORY}`;
+      // Marcar como "em processamento"
+      await this.rssFeedService.updateScrapingStatus(rssFeed.id, 'pending');
 
-      this.logger.debug(`🔍 Buscando categoria: ${category}...`);
+      this.logger.debug(`🔍 Buscando endpoint: ${rssFeed.category}...`);
 
       const response = await firstValueFrom(
-        this.httpService.get<any>(apiUrl, {
+        this.httpService.get<any>(rssFeed.url, {
           timeout: this.TIMEOUT_MS,
           headers: {
             'User-Agent':
@@ -116,23 +127,33 @@ export class RemotiveScraperService extends BaseScraperService {
       );
 
       const data = response.data;
-      const jobs = this.transformRemotiveJobs(data.jobs || [], category);
+      const jobs = this.transformRemotiveJobs(data.jobs || [], rssFeed.category);
 
-      this.logger.log(`✅ ${category}: ${jobs.length} vagas`);
+      this.logger.log(`✅ ${rssFeed.category}: ${jobs.length} vagas`);
 
-      this.stats.successfulCategories++;
+      this.stats.successfulEndpoints++;
       this.stats.totalJobs += jobs.length;
+
+      // Marcar como sucesso
+      await this.rssFeedService.updateScrapingStatus(rssFeed.id, 'success');
 
       return jobs;
     } catch (error) {
       const errorMessage = error.response?.status || error.message;
-      this.logger.warn(`❌ Categoria ${category}: ${errorMessage}`);
+      this.logger.warn(`❌ Endpoint ${rssFeed.category}: ${errorMessage}`);
 
-      this.stats.failedCategories++;
+      this.stats.failedEndpoints++;
       this.stats.errors.push({
-        category: category,
+        endpoint: rssFeed.category,
         error: errorMessage,
       });
+
+      // Registrar erro no banco
+      await this.rssFeedService.updateScrapingStatus(
+        rssFeed.id,
+        'error',
+        errorMessage,
+      );
 
       return [];
     }
@@ -216,9 +237,9 @@ export class RemotiveScraperService extends BaseScraperService {
    */
   private resetStats(): void {
     this.stats = {
-      totalCategories: 0,
-      successfulCategories: 0,
-      failedCategories: 0,
+      totalEndpoints: 0,
+      successfulEndpoints: 0,
+      failedEndpoints: 0,
       totalJobs: 0,
       errors: [],
     };
@@ -231,22 +252,22 @@ export class RemotiveScraperService extends BaseScraperService {
     this.logger.log('');
     this.logger.log('📊 ==================== ESTATÍSTICAS ====================');
     this.logger.log(
-      `📋 Total de categorias processadas: ${this.stats.totalCategories}`,
+      `📋 Total de endpoints processados: ${this.stats.totalEndpoints}`,
     );
     this.logger.log(
-      `✅ Categorias com sucesso: ${this.stats.successfulCategories}`,
+      `✅ Endpoints com sucesso: ${this.stats.successfulEndpoints}`,
     );
-    this.logger.log(`❌ Categorias com erro: ${this.stats.failedCategories}`);
+    this.logger.log(`❌ Endpoints com erro: ${this.stats.failedEndpoints}`);
     this.logger.log(`💼 Total de vagas encontradas: ${this.stats.totalJobs}`);
     this.logger.log(
-      `📈 Taxa de sucesso: ${((this.stats.successfulCategories / this.stats.totalCategories) * 100).toFixed(1)}%`,
+      `📈 Taxa de sucesso: ${((this.stats.successfulEndpoints / this.stats.totalEndpoints) * 100).toFixed(1)}%`,
     );
 
     if (this.stats.errors.length > 0) {
       this.logger.warn('');
-      this.logger.warn('⚠️  Categorias com erro:');
+      this.logger.warn('⚠️  Endpoints com erro:');
       for (const error of this.stats.errors) {
-        this.logger.warn(`   - ${error.category}: ${error.error}`);
+        this.logger.warn(`   - ${error.endpoint}: ${error.error}`);
       }
     }
 

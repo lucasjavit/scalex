@@ -20,6 +20,7 @@ export interface ScrapedJob {
   benefits: string[];
   externalUrl: string;
   publishedAt: Date;
+  expiresAt?: Date;
 }
 
 /**

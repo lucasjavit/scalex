@@ -24,7 +24,6 @@ export class JobService {
 
   /**
    * Salva/atualiza jobs no banco usando upsert (necessário para SavedJob funcionar)
-   * Redis é usado para cache de performance, mas jobs precisam estar no BD
    */
   async upsertJobs(jobs: any[]): Promise<Job[]> {
     if (!jobs || jobs.length === 0) {
@@ -36,8 +35,22 @@ export class JobService {
       const savedJobs: Job[] = [];
 
       for (const jobData of jobs) {
+        // Resolve companyId from companySlug if needed
+        let companyId = jobData.companyId;
+
+        if (!companyId && jobData.companySlug) {
+          const company = await this.jobRepository.manager
+            .getRepository('Company')
+            .findOne({ where: { slug: jobData.companySlug }, select: ['id'] });
+
+          if (company) {
+            companyId = company.id;
+          }
+        }
+
         const job = await this.jobRepository.save({
           ...jobData,
+          companyId, // Set companyId (proper FK using PK)
           scrapedAt: new Date(),
           status: 'active',
         });
@@ -59,6 +72,29 @@ export class JobService {
     return this.jobRepository.find({
       where: { companySlug, status: 'active' },
       relations: ['company'],
+      order: { publishedAt: 'DESC' },
+    });
+  }
+
+  /**
+   * Busca job por externalId e platform
+   */
+  async findByExternalId(externalId: string, platform: string): Promise<Job | null> {
+    return this.jobRepository.findOne({
+      where: { externalId, platform },
+    });
+  }
+
+  /**
+   * Busca jobs de uma empresa específica
+   */
+  async getJobsByCompany(companySlug: string): Promise<Job[]> {
+    return this.jobRepository.find({
+      where: {
+        companySlug,
+        isActive: true,
+        status: 'active'
+      },
       order: { publishedAt: 'DESC' },
     });
   }

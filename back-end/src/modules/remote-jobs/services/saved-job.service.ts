@@ -19,13 +19,14 @@ export class SavedJobService {
 
   /**
    * Salva uma vaga para o usuário
-   * 1. Copia vaga do Redis para PostgreSQL (tabela jobs)
-   * 2. Cria registro em saved_jobs
+   * 1. Verifica se vaga já existe no PostgreSQL (tabela jobs)
+   * 2. Se não existir, cria registro na tabela jobs
+   * 3. Cria registro em saved_jobs
    */
   async saveJob(userId: string, scrapedJob: ScrapedJob): Promise<SavedJob> {
     this.logger.log(`💾 Salvando vaga para usuário ${userId}...`);
 
-    // 1. Copia vaga para PostgreSQL (tabela jobs) se não existir
+    // 1. Verifica se vaga existe no PostgreSQL (tabela jobs)
     let job = await this.jobRepository.findOne({
       where: {
         externalId: scrapedJob.externalId,

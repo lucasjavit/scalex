@@ -7,8 +7,11 @@ import {
   Query,
   ParseIntPipe,
   ParseBoolPipe,
+  Param,
+  NotFoundException,
 } from '@nestjs/common';
 import { JobBoardAggregatorService } from '../services/job-board-aggregator.service';
+import { JobService } from '../services/job.service';
 
 @Controller('remote-jobs/job-boards')
 export class JobBoardController {
@@ -16,24 +19,25 @@ export class JobBoardController {
 
   constructor(
     private readonly jobBoardAggregatorService: JobBoardAggregatorService,
+    private readonly jobService: JobService,
   ) {}
 
   /**
    * POST /remote-jobs/job-boards/scrape-all
-   * Dispara scraping de TODOS os job boards habilitados
-   * Salva todas as vagas encontradas no Redis
+   * DEPRECATED: Scraping is now automatic via cron every 4 hours
+   * Use this only for manual testing
    */
   @Post('scrape-all')
   @HttpCode(200)
   async scrapeAllJobBoards() {
-    this.logger.log('🚀 Endpoint /scrape-all chamado');
+    this.logger.log('🚀 Endpoint /scrape-all chamado (DEPRECATED - use cron)');
 
     const result =
       await this.jobBoardAggregatorService.fetchAndStoreAllJobs();
 
     return {
       success: true,
-      message: 'Scraping de job boards concluído e salvo no Redis',
+      message: 'Scraping manual executado (DEPRECATED - scraping automático a cada 4h)',
       data: result,
     };
   }
@@ -54,20 +58,19 @@ export class JobBoardController {
 
   /**
    * POST /remote-jobs/job-boards/scrape-greenhouse
-   * Dispara scraping APENAS de empresas Greenhouse
-   * Salva todas as vagas encontradas no Redis
+   * DEPRECATED: Scraping is now automatic via cron
    */
   @Post('scrape-greenhouse')
   @HttpCode(200)
   async scrapeGreenhouseOnly() {
-    this.logger.log('🏢 Endpoint /scrape-greenhouse chamado');
+    this.logger.log('🏢 Endpoint /scrape-greenhouse chamado (DEPRECATED)');
 
     const result =
       await this.jobBoardAggregatorService.fetchAndStoreGreenhouseJobs();
 
     return {
       success: true,
-      message: 'Scraping do Greenhouse concluído e salvo no Redis',
+      message: 'DEPRECATED - Use cron automático a cada 4h',
       data: result,
     };
   }
@@ -75,7 +78,6 @@ export class JobBoardController {
   /**
    * POST /remote-jobs/job-boards/scrape-lever
    * Dispara scraping APENAS de empresas Lever
-   * Salva todas as vagas encontradas no Redis
    */
   @Post('scrape-lever')
   @HttpCode(200)
@@ -87,7 +89,7 @@ export class JobBoardController {
 
     return {
       success: true,
-      message: 'Scraping do Lever concluído e salvo no Redis',
+      message: 'Scraping do Lever concluído (DEPRECATED - use cron)',
       data: result,
     };
   }
@@ -95,7 +97,6 @@ export class JobBoardController {
   /**
    * POST /remote-jobs/job-boards/scrape-workable
    * Dispara scraping APENAS de empresas Workable
-   * Salva todas as vagas encontradas no Redis
    */
   @Post('scrape-workable')
   @HttpCode(200)
@@ -107,7 +108,7 @@ export class JobBoardController {
 
     return {
       success: true,
-      message: 'Scraping do Workable concluído e salvo no Redis',
+      message: 'Scraping do Workable concluído (DEPRECATED - use cron)',
       data: result,
     };
   }
@@ -115,7 +116,6 @@ export class JobBoardController {
   /**
    * POST /remote-jobs/job-boards/scrape-ashby
    * Dispara scraping APENAS de empresas Ashby
-   * Salva todas as vagas encontradas no Redis
    */
   @Post('scrape-ashby')
   @HttpCode(200)
@@ -127,7 +127,7 @@ export class JobBoardController {
 
     return {
       success: true,
-      message: 'Scraping do Ashby concluído e salvo no Redis',
+      message: 'Scraping do Ashby concluído (DEPRECATED - use cron)',
       data: result,
     };
   }
@@ -135,7 +135,6 @@ export class JobBoardController {
   /**
    * POST /remote-jobs/job-boards/scrape-wellfound
    * Dispara scraping APENAS de empresas Wellfound
-   * Salva todas as vagas encontradas no Redis
    */
   @Post('scrape-wellfound')
   @HttpCode(200)
@@ -147,7 +146,7 @@ export class JobBoardController {
 
     return {
       success: true,
-      message: 'Scraping do Wellfound concluído e salvo no Redis',
+      message: 'Scraping do Wellfound concluído (DEPRECATED - use cron)',
       data: result,
     };
   }
@@ -155,7 +154,6 @@ export class JobBoardController {
   /**
    * POST /remote-jobs/job-boards/scrape-builtin
    * Dispara scraping APENAS de empresas Built In
-   * Salva todas as vagas encontradas no Redis
    */
   @Post('scrape-builtin')
   @HttpCode(200)
@@ -167,7 +165,7 @@ export class JobBoardController {
 
     return {
       success: true,
-      message: 'Scraping do Built In concluído e salvo no Redis',
+      message: 'Scraping do Built In concluído (DEPRECATED - use cron)',
       data: result,
     };
   }
@@ -175,7 +173,6 @@ export class JobBoardController {
   /**
    * POST /remote-jobs/job-boards/scrape-weworkremotely
    * Dispara scraping APENAS do We Work Remotely (RSS feeds)
-   * Salva todas as vagas encontradas no Redis
    */
   @Post('scrape-weworkremotely')
   @HttpCode(200)
@@ -187,7 +184,7 @@ export class JobBoardController {
 
     return {
       success: true,
-      message: 'Scraping do We Work Remotely concluído e salvo no Redis',
+      message: 'Scraping do We Work Remotely concluído (DEPRECATED - use cron)',
       data: result,
     };
   }
@@ -195,7 +192,6 @@ export class JobBoardController {
   /**
    * POST /remote-jobs/job-boards/scrape-remotive
    * Dispara scraping APENAS do Remotive (API pública)
-   * Salva todas as vagas encontradas no Redis
    */
   @Post('scrape-remotive')
   @HttpCode(200)
@@ -207,14 +203,29 @@ export class JobBoardController {
 
     return {
       success: true,
-      message: 'Scraping do Remotive concluído e salvo no Redis',
+      message: 'Scraping do Remotive concluído (DEPRECATED - use cron)',
       data: result,
     };
   }
 
   /**
+   * GET /remote-jobs/job-boards/jobs/:id
+   * Busca job por ID (deve vir ANTES da rota 'jobs' genérica)
+   */
+  @Get('jobs/:id')
+  async getJobById(@Param('id') id: string) {
+    const job = await this.jobService.findOne(id);
+
+    if (!job) {
+      throw new NotFoundException(`Job with ID ${id} not found`);
+    }
+
+    return job;
+  }
+
+  /**
    * GET /remote-jobs/job-boards/jobs
-   * Retorna todas as vagas do Redis com filtros e paginação
+   * Retorna todas as vagas ativas do PostgreSQL com filtros e paginação
    * Query params:
    *  - page: número da página (padrão: 1)
    *  - limit: itens por página (padrão: 20)
@@ -222,6 +233,11 @@ export class JobBoardController {
    *  - remote: filtrar apenas vagas remotas (true/false)
    *  - seniority: filtrar por nível (junior, mid, senior, etc)
    *  - employmentType: filtrar por tipo (full-time, part-time, contract, internship)
+   *  - jobTitle: buscar por título da vaga
+   *  - skills: buscar por habilidades/tags
+   *  - benefits: buscar por benefícios
+   *  - location: buscar por localização
+   *  - minSalary: salário mínimo
    */
   @Get('jobs')
   async getAllJobs(
@@ -231,6 +247,13 @@ export class JobBoardController {
     @Query('remote', new ParseBoolPipe({ optional: true })) remote?: boolean,
     @Query('seniority') seniority?: string,
     @Query('employmentType') employmentType?: string,
+    @Query('category') category?: string,
+    @Query('jobTitle') jobTitle?: string,
+    @Query('skills') skills?: string,
+    @Query('benefits') benefits?: string,
+    @Query('location') location?: string,
+    @Query('degree') degree?: string,
+    @Query('minSalary') minSalary?: string,
   ) {
     const result = await this.jobBoardAggregatorService.getAllJobs({
       page,
@@ -239,6 +262,13 @@ export class JobBoardController {
       remote,
       seniority,
       employmentType,
+      category,
+      jobTitle,
+      skills,
+      benefits,
+      location,
+      degree,
+      minSalary,
     });
 
     return {
@@ -259,7 +289,7 @@ export class JobBoardController {
 
     return {
       success: true,
-      message: 'Scraping do RemoteYeah concluído e salvo no Redis',
+      message: 'Scraping do RemoteYeah concluído (DEPRECATED - use cron)',
       data: result,
     };
   }

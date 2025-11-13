@@ -95,6 +95,7 @@ import TestEnv from "../test-env";
 // Remote Jobs Module
 import JobsPage from "../modules/remote-jobs/pages/JobsPage";
 import SavedJobsPage from "../modules/remote-jobs/pages/SavedJobsPage";
+import JobDetailsPage from "../modules/remote-jobs/pages/JobDetailsPage";
 
 export default function AppRoutes() {
   return (
@@ -232,6 +233,14 @@ export default function AppRoutes() {
               element={
                 <PrivateRoute>
                   <SavedJobsPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/jobs/details/:id"
+              element={
+                <PrivateRoute>
+                  <JobDetailsPage />
                 </PrivateRoute>
               }
             />

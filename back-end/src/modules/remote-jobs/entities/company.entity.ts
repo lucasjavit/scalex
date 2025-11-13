@@ -21,8 +21,8 @@ export class Company {
   @Column()
   name: string; // 'Stripe', 'Coinbase'
 
-  @Column({ type: 'enum', enum: ['lever', 'greenhouse', 'ashby', 'workable'] })
-  platform: 'lever' | 'greenhouse' | 'ashby' | 'workable';
+  @Column({ type: 'enum', enum: ['lever', 'greenhouse', 'ashby', 'workable', 'builtin', 'remoteyeah'] })
+  platform: 'lever' | 'greenhouse' | 'ashby' | 'workable' | 'builtin' | 'remoteyeah';
 
   @Column({ nullable: true })
   logo: string; // URL do logo
@@ -56,6 +56,9 @@ export class Company {
 
   @Column({ default: 0 })
   totalJobs: number; // Cache do total de vagas (atualizado pelo cron)
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata: Record<string, any>; // Platform-specific metadata (e.g., builtinCompanyId for Built In)
 
   @CreateDateColumn()
   createdAt: Date;

@@ -4,10 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseScraperService, ScrapedJob } from './base-scraper.service';
 import { JobBoard } from '../entities/job-board.entity';
-import {
-  getVerifiedBuiltInCompanies,
-  BuiltInCompany,
-} from '../config/builtin-companies';
+import { JobBoardCompanyService } from '../services/job-board-company.service';
+import { Company } from '../entities/company.entity';
 import { firstValueFrom } from 'rxjs';
 import * as cheerio from 'cheerio';
 
@@ -47,18 +45,20 @@ export class BuiltInScraperService extends BaseScraperService {
     httpService: HttpService,
     @InjectRepository(JobBoard)
     private readonly jobBoardRepository: Repository<JobBoard>,
+    private readonly jobBoardCompanyService: JobBoardCompanyService,
   ) {
     super(httpService);
   }
 
   /**
    * Método principal: busca vagas de todas as empresas Built In
+   * MODIFICADO: Agora busca empresas do banco de dados
    */
   async fetchJobs(): Promise<ScrapedJob[]> {
     this.logger.log('🚀 Iniciando scraping do Built In (multi-company)...');
     this.resetStats();
 
-    // Verifica se o job board está habilitado
+    // 1. Buscar o job_board "builtin"
     const builtinBoard = await this.jobBoardRepository.findOne({
       where: { slug: 'builtin', enabled: true },
     });
@@ -68,24 +68,31 @@ export class BuiltInScraperService extends BaseScraperService {
       return [];
     }
 
-    const companies = getVerifiedBuiltInCompanies();
-    this.stats.totalCompanies = companies.length;
+    // 2. Buscar todas as empresas ATIVAS relacionadas ao builtin
+    const relations = await this.jobBoardCompanyService
+      .findEnabledByJobBoard(builtinBoard.id);
 
-    this.logger.log(`📋 ${companies.length} empresas para processar`);
+    if (relations.length === 0) {
+      this.logger.warn('⚠️  Nenhuma empresa ativa encontrada para Built In');
+      return [];
+    }
+
+    this.stats.totalCompanies = relations.length;
+    this.logger.log(`📋 ${relations.length} empresas ativas para processar`);
 
     const allJobs: ScrapedJob[] = [];
 
     // Processa empresas em batches
-    for (let i = 0; i < companies.length; i += this.MAX_CONCURRENT_REQUESTS) {
-      const batch = companies.slice(i, i + this.MAX_CONCURRENT_REQUESTS);
+    for (let i = 0; i < relations.length; i += this.MAX_CONCURRENT_REQUESTS) {
+      const batch = relations.slice(i, i + this.MAX_CONCURRENT_REQUESTS);
 
       this.logger.log(
-        `📦 Processando batch ${Math.floor(i / this.MAX_CONCURRENT_REQUESTS) + 1}/${Math.ceil(companies.length / this.MAX_CONCURRENT_REQUESTS)}...`,
+        `📦 Processando batch ${Math.floor(i / this.MAX_CONCURRENT_REQUESTS) + 1}/${Math.ceil(relations.length / this.MAX_CONCURRENT_REQUESTS)}...`,
       );
 
       // Processa empresas do batch em paralelo
       const batchResults = await Promise.all(
-        batch.map((company) => this.fetchCompanyJobs(company)),
+        batch.map((relation) => this.fetchCompanyJobsFromRelation(relation)),
       );
 
       // Adiciona jobs encontrados
@@ -94,7 +101,7 @@ export class BuiltInScraperService extends BaseScraperService {
       }
 
       // Delay entre batches
-      if (i + this.MAX_CONCURRENT_REQUESTS < companies.length) {
+      if (i + this.MAX_CONCURRENT_REQUESTS < relations.length) {
         await this.delay(this.REQUEST_DELAY_MS);
       }
     }
@@ -104,16 +111,30 @@ export class BuiltInScraperService extends BaseScraperService {
   }
 
   /**
-   * Busca vagas de uma empresa específica
+   * NOVO: Busca vagas de uma relação JobBoardCompany
+   * Rastreia status (pending/success/error) no banco
    */
-  private async fetchCompanyJobs(
-    company: BuiltInCompany,
-  ): Promise<ScrapedJob[]> {
-    try {
-      // URL com filtro de companyId e remote=true
-      const jobsUrl = `${this.baseUrl}/jobs?companyId=${company.companyId}&remote=true&allLocations=true`;
+  private async fetchCompanyJobsFromRelation(relation: any): Promise<ScrapedJob[]> {
+    const company = relation.company;
 
-      this.logger.debug(`🔍 Buscando ${company.name} (ID: ${company.companyId})...`);
+    try {
+      // Marcar como "em processamento"
+      await this.jobBoardCompanyService.updateScrapingStatus(
+        relation.id,
+        'pending',
+      );
+
+      // Built In usa companyId numérico que deve estar no metadata da empresa
+      const companyId = company.metadata?.builtinCompanyId;
+
+      if (!companyId) {
+        throw new Error('Company metadata missing builtinCompanyId');
+      }
+
+      // URL com filtro de companyId e remote=true
+      const jobsUrl = `${this.baseUrl}/jobs?companyId=${companyId}&remote=true&allLocations=true`;
+
+      this.logger.debug(`🔍 Buscando ${company.name} (ID: ${companyId})...`);
 
       // Faz requisição HTTP
       const response = await firstValueFrom(
@@ -134,11 +155,18 @@ export class BuiltInScraperService extends BaseScraperService {
       const html = response.data;
 
       // Extrai jobs do HTML
-      const jobs = this.extractJobsFromHTML(html, company);
+      const jobs = this.extractJobsFromHTML(html, company, companyId);
 
       if (jobs.length === 0) {
         this.logger.debug(`⚪ ${company.name}: 0 vagas`);
         this.stats.successfulCompanies++;
+
+        // Marcar como sucesso
+        await this.jobBoardCompanyService.updateScrapingStatus(
+          relation.id,
+          'success',
+        );
+
         return [];
       }
 
@@ -152,6 +180,12 @@ export class BuiltInScraperService extends BaseScraperService {
       this.stats.successfulCompanies++;
       this.stats.totalJobs += jobs.length;
       this.stats.remoteJobs += remoteJobs.length;
+
+      // Marcar como sucesso
+      await this.jobBoardCompanyService.updateScrapingStatus(
+        relation.id,
+        'success',
+      );
 
       return remoteJobs;
     } catch (error) {
@@ -170,6 +204,13 @@ export class BuiltInScraperService extends BaseScraperService {
         error: errorMessage,
       });
 
+      // Registrar erro no banco
+      await this.jobBoardCompanyService.updateScrapingStatus(
+        relation.id,
+        'error',
+        errorMessage,
+      );
+
       return [];
     }
   }
@@ -179,7 +220,8 @@ export class BuiltInScraperService extends BaseScraperService {
    */
   private extractJobsFromHTML(
     html: string,
-    company: BuiltInCompany,
+    company: Company,
+    companyId: number,
   ): ScrapedJob[] {
     const jobs: ScrapedJob[] = [];
 
@@ -196,17 +238,27 @@ export class BuiltInScraperService extends BaseScraperService {
 
           const jsonData = JSON.parse(scriptContent);
 
-          // Procura pelo ItemList no grafo
+          // Formato 1: Com @graph (alguns sites usam isso)
           if (jsonData['@graph']) {
             for (const item of jsonData['@graph']) {
               if (item['@type'] === 'ItemList' && item.itemListElement) {
                 // Extrai jobs do itemListElement
                 for (const jobItem of item.itemListElement) {
-                  const job = this.transformBuiltInJsonJob(jobItem, company);
+                  const job = this.transformBuiltInJsonJob(jobItem, company, companyId);
                   if (job) {
                     jobs.push(job);
                   }
                 }
+              }
+            }
+          }
+
+          // Formato 2: Direto no root (Built In usa isso)
+          if (jsonData['@type'] === 'ItemList' && jsonData.itemListElement) {
+            for (const jobItem of jsonData.itemListElement) {
+              const job = this.transformBuiltInJsonJob(jobItem, company, companyId);
+              if (job) {
+                jobs.push(job);
               }
             }
           }
@@ -232,7 +284,8 @@ export class BuiltInScraperService extends BaseScraperService {
    */
   private transformBuiltInJsonJob(
     jobData: any,
-    company: BuiltInCompany,
+    company: Company,
+    companyId: number,
   ): ScrapedJob | null {
     try {
       if (jobData['@type'] !== 'ListItem') {
@@ -268,13 +321,17 @@ export class BuiltInScraperService extends BaseScraperService {
         descriptionLower.includes('remote') ||
         descriptionLower.includes('work from anywhere');
 
+      // Tenta extrair salário do JSON-LD se disponível
+      const salary = this.extractSalaryFromJobData(jobData);
+
       return {
-        externalId: `builtin-${company.companyId}-${jobId || Date.now()}`,
+        externalId: `builtin-${companyId}-${jobId || Date.now()}`,
         platform: this.platformName,
         companySlug: company.slug,
         title: this.cleanText(title),
         description: this.cleanText(description),
         location: 'Remote', // Built In com filtro remote=true retorna apenas remotas
+        salary: salary,
         remote: true, // Sempre true porque filtramos por remote=true na URL
         countries: [],
         tags: this.extractTagsFromTitle(title),
@@ -319,6 +376,44 @@ export class BuiltInScraperService extends BaseScraperService {
     return remoteKeywords.some(
       (keyword) => location.includes(keyword) || title.includes(keyword),
     );
+  }
+
+  /**
+   * Extrai salário do JSON-LD se disponível
+   */
+  private extractSalaryFromJobData(jobData: any): string | undefined {
+    try {
+      // Schema.org JobPosting pode ter baseSalary ou salaryRange
+      if (jobData.baseSalary) {
+        const baseSalary = jobData.baseSalary;
+
+        // Formato: MonetaryAmount com value
+        if (baseSalary.value) {
+          const currency = baseSalary.currency || 'USD';
+          return `${baseSalary.value} ${currency}`;
+        }
+
+        // Formato: QuantitativeValue com minValue/maxValue
+        if (baseSalary.minValue && baseSalary.maxValue) {
+          const currency = baseSalary.currency || 'USD';
+          return `$${baseSalary.minValue}-${baseSalary.maxValue} ${currency}`;
+        }
+
+        // Formato: string simples
+        if (typeof baseSalary === 'string') {
+          return baseSalary;
+        }
+      }
+
+      // Tenta salaryRange
+      if (jobData.salaryRange) {
+        return jobData.salaryRange;
+      }
+    } catch (error) {
+      // Ignora erros de parsing de salary
+    }
+
+    return undefined;
   }
 
   /**

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, RefreshCw, Bookmark } from 'lucide-react';
+import { Search, Filter, RefreshCw, Bookmark, X, ArrowUp } from 'lucide-react';
 import JobCard from '../components/JobCard';
+import MultiSelect from '../../../components/MultiSelect';
+import BackButton from '../../../components/BackButton';
 import { jobsService } from '../../../services/jobsService';
 import { useNotification } from '../../../hooks/useNotification';
 
@@ -16,11 +18,41 @@ const SENIORITY_OPTIONS = [
 ];
 
 const EMPLOYMENT_TYPE_OPTIONS = [
-  { value: '', label: 'Todos os tipos' },
-  { value: 'full-time', label: 'Tempo integral' },
-  { value: 'part-time', label: 'Meio período' },
-  { value: 'contract', label: 'Contrato' },
-  { value: 'internship', label: 'Estágio' },
+  { value: 'full-time', label: 'Full-time' },
+  { value: 'part-time', label: 'Part-time' },
+  { value: 'contract', label: 'Contract' },
+  { value: 'freelance', label: 'Freelance' },
+  { value: 'internship', label: 'Internship' },
+];
+
+const JOB_CATEGORIES = [
+  { value: '', label: 'Todas as categorias' },
+  { value: 'android developer', label: 'Android Developer' },
+  { value: 'artificial intelligence engineer', label: 'AI Engineer' },
+  { value: 'back-end engineer', label: 'Back-end Engineer' },
+  { value: 'blockchain developer', label: 'Blockchain Developer' },
+  { value: 'data analyst', label: 'Data Analyst' },
+  { value: 'data engineer', label: 'Data Engineer' },
+  { value: 'data scientist', label: 'Data Scientist' },
+  { value: 'devops engineer', label: 'DevOps Engineer' },
+  { value: 'front-end engineer', label: 'Front-end Engineer' },
+  { value: 'full-stack engineer', label: 'Full-stack Engineer' },
+  { value: 'ios developer', label: 'iOS Developer' },
+  { value: 'machine learning engineer', label: 'Machine Learning Engineer' },
+  { value: 'mobile developer', label: 'Mobile Developer' },
+  { value: 'product designer', label: 'Product Designer' },
+  { value: 'product manager', label: 'Product Manager' },
+  { value: 'qa engineer', label: 'QA Engineer' },
+  { value: 'security engineer', label: 'Security Engineer' },
+  { value: 'software engineer', label: 'Software Engineer' },
+  { value: 'ui/ux designer', label: 'UI/UX Designer' },
+  { value: 'web developer', label: 'Web Developer' },
+];
+
+const DEGREE_OPTIONS = [
+  { value: '', label: 'Não importa' },
+  { value: 'required', label: 'Diploma necessário' },
+  { value: 'not-required', label: 'Sem necessidade de diploma' },
 ];
 
 const SOURCE_OPTIONS = [
@@ -29,11 +61,129 @@ const SOURCE_OPTIONS = [
   { value: 'lever', label: 'Lever', icon: '⚙️' },
   { value: 'workable', label: 'Workable', icon: '🏗️' },
   { value: 'ashby', label: 'Ashby', icon: '🏛️' },
-  { value: 'wellfound', label: 'Wellfound', icon: '🌐' },
   { value: 'builtin', label: 'Built In', icon: '🏙️' },
   { value: 'weworkremotely', label: 'We Work Remotely', icon: '💼' },
   { value: 'remotive', label: 'Remotive', icon: '🚀' },
   { value: 'remoteyeah', label: 'RemoteYeah', icon: '🌟' },
+];
+
+const LOCATION_OPTIONS = [
+  // Regions
+  { value: 'Worldwide', label: 'Worldwide' },
+  { value: 'Africa', label: 'Africa' },
+  { value: 'Asia', label: 'Asia' },
+  { value: 'Europe', label: 'Europe' },
+  { value: 'Latin America', label: 'Latin America' },
+  { value: 'Middle East', label: 'Middle East' },
+  { value: 'North America', label: 'North America' },
+  { value: 'Oceania', label: 'Oceania' },
+  // Countries (most common)
+  { value: 'United States', label: 'United States' },
+  { value: 'Canada', label: 'Canada' },
+  { value: 'United Kingdom', label: 'United Kingdom' },
+  { value: 'Germany', label: 'Germany' },
+  { value: 'France', label: 'France' },
+  { value: 'Spain', label: 'Spain' },
+  { value: 'Italy', label: 'Italy' },
+  { value: 'Netherlands', label: 'Netherlands' },
+  { value: 'Poland', label: 'Poland' },
+  { value: 'Portugal', label: 'Portugal' },
+  { value: 'Brazil', label: 'Brazil' },
+  { value: 'Mexico', label: 'Mexico' },
+  { value: 'Argentina', label: 'Argentina' },
+  { value: 'Colombia', label: 'Colombia' },
+  { value: 'Chile', label: 'Chile' },
+  { value: 'Australia', label: 'Australia' },
+  { value: 'New Zealand', label: 'New Zealand' },
+  { value: 'India', label: 'India' },
+  { value: 'Singapore', label: 'Singapore' },
+  { value: 'Japan', label: 'Japan' },
+  { value: 'South Korea', label: 'South Korea' },
+  { value: 'China', label: 'China' },
+  { value: 'Israel', label: 'Israel' },
+  { value: 'United Arab Emirates', label: 'United Arab Emirates' },
+  { value: 'South Africa', label: 'South Africa' },
+];
+
+const SKILLS_OPTIONS = [
+  // Languages
+  { value: 'JavaScript', label: 'JavaScript' },
+  { value: 'TypeScript', label: 'TypeScript' },
+  { value: 'Python', label: 'Python' },
+  { value: 'Java', label: 'Java' },
+  { value: 'C#', label: 'C#' },
+  { value: 'C++', label: 'C++' },
+  { value: 'C', label: 'C' },
+  { value: 'Go', label: 'Go' },
+  { value: 'Rust', label: 'Rust' },
+  { value: 'Ruby', label: 'Ruby' },
+  { value: 'PHP', label: 'PHP' },
+  { value: 'Swift', label: 'Swift' },
+  { value: 'Kotlin', label: 'Kotlin' },
+  { value: 'Scala', label: 'Scala' },
+  { value: 'Dart', label: 'Dart' },
+  { value: 'R', label: 'R' },
+  { value: 'SQL', label: 'SQL' },
+  { value: 'HTML', label: 'HTML' },
+  { value: 'CSS', label: 'CSS' },
+  // Frontend Frameworks/Libraries
+  { value: 'React', label: 'React' },
+  { value: 'Vue.js', label: 'Vue.js' },
+  { value: 'Angular', label: 'Angular' },
+  { value: 'Svelte', label: 'Svelte' },
+  { value: 'Next.js', label: 'Next.js' },
+  { value: 'Nuxt.js', label: 'Nuxt.js' },
+  { value: 'jQuery', label: 'jQuery' },
+  // Backend Frameworks
+  { value: 'Node.js', label: 'Node.js' },
+  { value: 'Express.js', label: 'Express.js' },
+  { value: 'NestJS', label: 'NestJS' },
+  { value: 'Django', label: 'Django' },
+  { value: 'Flask', label: 'Flask' },
+  { value: 'FastAPI', label: 'FastAPI' },
+  { value: 'Spring Boot', label: 'Spring Boot' },
+  { value: 'Laravel', label: 'Laravel' },
+  { value: 'Ruby on Rails', label: 'Ruby on Rails' },
+  { value: '.NET', label: '.NET' },
+  { value: 'ASP.NET', label: 'ASP.NET' },
+  // Databases
+  { value: 'PostgreSQL', label: 'PostgreSQL' },
+  { value: 'MySQL', label: 'MySQL' },
+  { value: 'MongoDB', label: 'MongoDB' },
+  { value: 'Redis', label: 'Redis' },
+  { value: 'SQLite', label: 'SQLite' },
+  { value: 'Elasticsearch', label: 'Elasticsearch' },
+  { value: 'DynamoDB', label: 'DynamoDB' },
+  { value: 'Cassandra', label: 'Cassandra' },
+  { value: 'Oracle', label: 'Oracle' },
+  // Cloud/DevOps
+  { value: 'AWS', label: 'AWS' },
+  { value: 'Azure', label: 'Azure' },
+  { value: 'GCP', label: 'GCP' },
+  { value: 'Docker', label: 'Docker' },
+  { value: 'Kubernetes', label: 'Kubernetes' },
+  { value: 'Terraform', label: 'Terraform' },
+  { value: 'Jenkins', label: 'Jenkins' },
+  { value: 'GitLab CI', label: 'GitLab CI' },
+  { value: 'GitHub Actions', label: 'GitHub Actions' },
+  { value: 'CircleCI', label: 'CircleCI' },
+  { value: 'Ansible', label: 'Ansible' },
+  // Mobile
+  { value: 'React Native', label: 'React Native' },
+  { value: 'Flutter', label: 'Flutter' },
+  { value: 'iOS', label: 'iOS' },
+  { value: 'Android', label: 'Android' },
+  // Tools/Other
+  { value: 'Git', label: 'Git' },
+  { value: 'GraphQL', label: 'GraphQL' },
+  { value: 'REST API', label: 'REST API' },
+  { value: 'Microservices', label: 'Microservices' },
+  { value: 'Agile', label: 'Agile' },
+  { value: 'Scrum', label: 'Scrum' },
+  { value: 'Machine Learning', label: 'Machine Learning' },
+  { value: 'Data Science', label: 'Data Science' },
+  { value: 'AI', label: 'AI' },
+  { value: 'Blockchain', label: 'Blockchain' },
 ];
 
 export default function JobsPage() {
@@ -44,13 +194,24 @@ export default function JobsPage() {
   const [scraping, setScraping] = useState(false);
   const [userId, setUserId] = useState(null);
   const [selectedSource, setSelectedSource] = useState('all'); // 'all', 'greenhouse', 'lever'
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Temporary salary value (for slider UI only)
+  const [tempMinSalary, setTempMinSalary] = useState('');
 
   // Filters
   const [filters, setFilters] = useState({
     platform: '', // Será definido baseado no selectedSource
     remote: true,
-    seniority: '',
-    employmentType: '',
+    seniority: [], // Array for multi-select
+    employmentType: [], // Array for multi-select
+    category: [], // Array for multi-select
+    jobTitle: '',
+    skills: [], // Array for multi-select
+    benefits: '',
+    location: [], // Array for multi-select
+    degree: '',
+    minSalary: '',
     page: 1,
     limit: 20,
   });
@@ -67,15 +228,41 @@ export default function JobsPage() {
     // Get userId from localStorage
     const storedUserId = localStorage.getItem('userId');
     setUserId(storedUserId);
-
-    // Load jobs
-    loadJobs();
   }, []);
 
+  // Debounce salary slider - only apply filter after user stops dragging
   useEffect(() => {
-    // Reload jobs when filters change
+    if (tempMinSalary === '') return; // Skip on initial render
+
+    const timeoutId = setTimeout(() => {
+      setFilters(prev => ({
+        ...prev,
+        minSalary: tempMinSalary,
+        page: 1,
+      }));
+    }, 500); // Wait 500ms after user stops dragging
+
+    return () => clearTimeout(timeoutId);
+  }, [tempMinSalary]);
+
+  useEffect(() => {
+    // Load jobs when component mounts or filters change
     loadJobs();
   }, [filters]);
+
+  // Scroll to top button visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const loadJobs = async () => {
     try {
@@ -194,13 +381,21 @@ export default function JobsPage() {
   return (
     <div className="bg-copilot-bg-primary min-h-screen">
       <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <BackButton to="/home" />
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <Search className="text-copilot-accent-blue" size={32} />
               <div>
-                <h1 className="text-3xl font-bold text-copilot-text-primary">Vagas Remotas</h1>
+                <h1 className="text-3xl font-bold text-copilot-text-primary">
+                  Vagas Remotas
+                  <span className="ml-3 text-2xl font-semibold text-copilot-accent-blue">
+                    {pagination.total.toLocaleString('pt-BR')}
+                  </span>
+                </h1>
                 <span className="inline-flex items-center px-3 py-1 mt-2 rounded-full text-xs font-medium bg-copilot-accent-purple bg-opacity-10 text-copilot-accent-purple">
                   {SOURCE_OPTIONS.find(s => s.value === selectedSource)?.icon} {SOURCE_OPTIONS.find(s => s.value === selectedSource)?.label}
                 </span>
@@ -211,28 +406,23 @@ export default function JobsPage() {
               {/* Saved Jobs Button */}
               <button
                 onClick={() => navigate('/jobs/saved')}
-                className="btn-copilot-secondary flex items-center gap-2"
+                className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-800 dark:text-slate-100 shadow-lg border border-slate-300 dark:border-slate-600 hover:shadow-xl hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-700 active:shadow-inner active:translate-y-0.5 transition-all duration-200"
               >
-                <Bookmark size={18} />
-                Vagas Salvas
-              </button>
-
-              {/* Scrape Button */}
-              <button
-                onClick={handleScrape}
-                disabled={scraping}
-                className="btn-copilot-primary flex items-center gap-2"
-              >
-                <RefreshCw size={18} className={scraping ? 'animate-spin' : ''} />
-                {scraping ? 'Buscando...' : 'Atualizar Vagas'}
+                <Bookmark size={16} />
+                <span className="font-semibold">Vagas Salvas</span>
               </button>
             </div>
           </div>
           <p className="text-copilot-text-secondary mb-4">
-            {selectedSource === 'all' && 'Todas as vagas remotas de Greenhouse, Lever, Workable e agregadores'}
-            {selectedSource === 'greenhouse' && 'Vagas remotas de 45+ empresas que usam Greenhouse: GitLab, Coinbase, Airbnb, Stripe e mais'}
-            {selectedSource === 'lever' && 'Vagas remotas de 45+ empresas que usam Lever: Netflix, Uber, Reddit, MongoDB e mais'}
-            {selectedSource === 'workable' && 'Vagas remotas de 30+ empresas que usam Workable: Revolut, Coursera, Zendesk, Farfetch e mais'}
+            {selectedSource === 'all' && 'Todas as vagas remotas de múltiplas plataformas e agregadores'}
+            {selectedSource === 'greenhouse' && 'Vagas remotas de empresas que usam Greenhouse'}
+            {selectedSource === 'lever' && 'Vagas remotas de empresas que usam Lever'}
+            {selectedSource === 'workable' && 'Vagas remotas de empresas que usam Workable'}
+            {selectedSource === 'ashby' && 'Vagas remotas de empresas que usam Ashby'}
+            {selectedSource === 'builtin' && 'Vagas remotas do Built In'}
+            {selectedSource === 'weworkremotely' && 'Vagas remotas do We Work Remotely'}
+            {selectedSource === 'remotive' && 'Vagas remotas do Remotive'}
+            {selectedSource === 'remoteyeah' && 'Vagas remotas do RemoteYeah'}
           </p>
 
           {/* Source Selector */}
@@ -258,59 +448,114 @@ export default function JobsPage() {
 
         {/* Filters */}
         <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter size={20} className="text-copilot-text-secondary" />
-            <h2 className="text-lg font-semibold text-copilot-text-primary">Filtros</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Remote Only */}
-            <div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.remote}
-                  onChange={(e) => handleFilterChange('remote', e.target.checked)}
-                  className="w-4 h-4 rounded border-copilot-border-default bg-copilot-bg-tertiary checked:bg-copilot-accent-blue"
+          <div className="space-y-4">
+            {/* All Filters in One Row */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {/* Job Category */}
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
+                  Categoria
+                </label>
+                <MultiSelect
+                  options={JOB_CATEGORIES}
+                  value={filters.category}
+                  onChange={(value) => handleFilterChange('category', value)}
+                  placeholder="Select categories..."
                 />
-                <span className="text-sm text-copilot-text-secondary">Apenas vagas remotas</span>
-              </label>
+              </div>
+
+              {/* Experience (Seniority) */}
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
+                  Experiência
+                </label>
+                <MultiSelect
+                  options={SENIORITY_OPTIONS}
+                  value={filters.seniority}
+                  onChange={(value) => handleFilterChange('seniority', value)}
+                  placeholder="Select experience..."
+                />
+              </div>
+
+              {/* Employment Type */}
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
+                  Contratação
+                </label>
+                <MultiSelect
+                  options={EMPLOYMENT_TYPE_OPTIONS}
+                  value={filters.employmentType}
+                  onChange={(value) => handleFilterChange('employmentType', value)}
+                  placeholder="Select types..."
+                />
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
+                  Localização
+                </label>
+                <MultiSelect
+                  options={LOCATION_OPTIONS}
+                  value={filters.location}
+                  onChange={(value) => handleFilterChange('location', value)}
+                  placeholder="Select locations..."
+                />
+              </div>
+
+              {/* Skills */}
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
+                  Skills
+                </label>
+                <MultiSelect
+                  options={SKILLS_OPTIONS}
+                  value={filters.skills}
+                  onChange={(value) => handleFilterChange('skills', value)}
+                  placeholder="Select skills..."
+                />
+              </div>
+
+              {/* Remote Only */}
+              <div className="flex items-end">
+                <label className="flex items-center gap-2 cursor-pointer h-[42px]">
+                  <input
+                    type="checkbox"
+                    checked={filters.remote}
+                    onChange={(e) => handleFilterChange('remote', e.target.checked)}
+                    className="w-4 h-4 rounded border-copilot-border-default bg-copilot-bg-tertiary checked:bg-copilot-accent-blue"
+                  />
+                  <span className="text-sm text-copilot-text-secondary whitespace-nowrap">Apenas Remoto</span>
+                </label>
+              </div>
             </div>
 
-            {/* Seniority */}
-            <div>
-              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
-                Nível de Senioridade
-              </label>
-              <select
-                value={filters.seniority}
-                onChange={(e) => handleFilterChange('seniority', e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-copilot-bg-tertiary border border-copilot-border-default text-copilot-text-primary focus:border-copilot-accent-blue focus:ring-1 focus:ring-copilot-accent-blue"
+            {/* Clear Filters Button */}
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => {
+                  setTempMinSalary('');
+                  setFilters({
+                    platform: selectedSource === 'all' ? '' : selectedSource,
+                    remote: true,
+                    seniority: [],
+                    employmentType: [],
+                    category: [],
+                    jobTitle: '',
+                    skills: [],
+                    benefits: '',
+                    location: [],
+                    degree: '',
+                    minSalary: '',
+                    page: 1,
+                    limit: 20,
+                  });
+                }}
+                className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-800 dark:text-slate-100 shadow-lg border border-slate-300 dark:border-slate-600 hover:shadow-xl hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-700 active:shadow-inner active:translate-y-0.5 transition-all duration-200"
               >
-                {SENIORITY_OPTIONS.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Employment Type */}
-            <div>
-              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
-                Tipo de Contratação
-              </label>
-              <select
-                value={filters.employmentType}
-                onChange={(e) => handleFilterChange('employmentType', e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-copilot-bg-tertiary border border-copilot-border-default text-copilot-text-primary focus:border-copilot-accent-blue focus:ring-1 focus:ring-copilot-accent-blue"
-              >
-                {EMPLOYMENT_TYPE_OPTIONS.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                <X size={16} />
+                <span className="font-semibold">Limpar Filtros</span>
+              </button>
             </div>
           </div>
         </div>
@@ -328,17 +573,9 @@ export default function JobsPage() {
           <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-12 text-center">
             <Search className="mx-auto mb-4 text-copilot-text-tertiary" size={48} />
             <p className="text-copilot-text-secondary text-lg mb-2">Nenhuma vaga encontrada</p>
-            <p className="text-copilot-text-tertiary mb-4">
-              Tente ajustar os filtros ou busque novas vagas
+            <p className="text-copilot-text-tertiary">
+              Tente ajustar os filtros
             </p>
-            <button
-              onClick={handleScrape}
-              disabled={scraping}
-              className="btn-copilot-primary"
-            >
-              <RefreshCw size={18} className={scraping ? 'animate-spin mr-2' : 'mr-2'} />
-              {scraping ? 'Buscando...' : 'Buscar Vagas'}
-            </button>
           </div>
         ) : (
           <>
@@ -403,6 +640,17 @@ export default function JobsPage() {
           </>
         )}
       </div>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 p-3 rounded-full bg-gradient-to-br from-copilot-accent-blue to-blue-600 text-white shadow-2xl hover:shadow-blue-500/50 hover:scale-110 active:scale-95 transition-all duration-300 z-50 group"
+          aria-label="Voltar ao topo"
+        >
+          <ArrowUp size={20} className="group-hover:-translate-y-1 transition-transform duration-300" />
+        </button>
+      )}
     </div>
   );
 }

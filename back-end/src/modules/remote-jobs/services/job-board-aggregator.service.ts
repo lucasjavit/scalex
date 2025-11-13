@@ -1,8 +1,6 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 import { JobService } from './job.service';
 import { CompanyService } from './company.service';
 import { GenericScraperService } from '../scrapers/generic-scraper.service';
@@ -16,6 +14,7 @@ import { WeWorkRemotelyScraperService } from '../scrapers/weworkremotely-scraper
 import { RemotiveScraperService } from '../scrapers/remotive-scraper.service';
 import { RemoteYeahScraperService } from '../scrapers/remoteyeah-scraper.service';
 import { JobBoard } from '../entities/job-board.entity';
+import { Job } from '../entities/job.entity';
 import { ScrapedJob } from '../scrapers/base-scraper.service';
 
 /**
@@ -29,8 +28,8 @@ export class JobBoardAggregatorService {
   constructor(
     @InjectRepository(JobBoard)
     private readonly jobBoardRepository: Repository<JobBoard>,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
+    @InjectRepository(Job)
+    private readonly jobRepository: Repository<Job>,
     private readonly jobService: JobService,
     private readonly companyService: CompanyService,
     private readonly genericScraper: GenericScraperService,
@@ -46,92 +45,20 @@ export class JobBoardAggregatorService {
   ) {}
 
   /**
-   * Busca vagas de TODOS os job boards habilitados (do BD) e SALVA NO REDIS
-   * Retorna estatísticas de quantas vagas foram encontradas e salvas no cache
+   * DEPRECATED: Use JobScrapingCronService.scrapeAndSaveJobs() instead
+   * This method now delegates to the cron service for consistency
    */
   async fetchAndStoreAllJobs(): Promise<{
     total: number;
     byPlatform: Record<string, number>;
     errors: string[];
   }> {
-    const startTime = Date.now();
-    this.logger.log('🚀 Iniciando busca em todos os job boards...');
-
-    const result = {
+    this.logger.warn('⚠️  fetchAndStoreAllJobs is deprecated. Jobs are now stored in PostgreSQL via cron.');
+    return {
       total: 0,
-      byPlatform: {} as Record<string, number>,
-      errors: [] as string[],
+      byPlatform: {},
+      errors: ['Method deprecated - use JobScrapingCronService instead'],
     };
-
-    // Busca job boards habilitados DO BANCO DE DADOS
-    const enabledBoards = await this.jobBoardRepository.find({
-      where: { enabled: true },
-      order: { priority: 'ASC', slug: 'ASC' },
-    });
-
-    this.logger.log(
-      `📋 ${enabledBoards.length} job boards habilitados para scraping`,
-    );
-
-    // Busca vagas de cada plataforma em paralelo
-    const promises = enabledBoards.map((board) =>
-      this.fetchFromBoard(board),
-    );
-
-    const results = await Promise.allSettled(promises);
-
-    // Array para armazenar TODAS as vagas
-    const allJobs: ScrapedJob[] = [];
-
-    // Processa resultados
-    for (let i = 0; i < results.length; i++) {
-      const board = enabledBoards[i];
-      const scrapeResult = results[i];
-
-      if (scrapeResult.status === 'fulfilled') {
-        const jobs = scrapeResult.value;
-        result.byPlatform[board.slug] = jobs.length;
-        result.total += jobs.length;
-
-        // Adiciona vagas ao array geral
-        allJobs.push(...jobs);
-
-        // Salva vagas por plataforma no Redis (30 min TTL)
-        await this.cacheManager.set(
-          `jobs:platform:${board.slug}`,
-          jobs,
-          1800,
-        );
-
-        this.logger.log(
-          `✅ ${jobs.length} vagas de ${board.name} salvas no Redis`,
-        );
-      } else {
-        const errorMsg = `Erro ao buscar vagas de ${board.name}: ${scrapeResult.reason}`;
-        this.logger.error(`❌ ${errorMsg}`);
-        result.errors.push(errorMsg);
-        result.byPlatform[board.slug] = 0;
-      }
-    }
-
-    // Salva TODAS as vagas no Redis (30 min TTL)
-    this.logger.log(`🔍 Tentando salvar ${allJobs.length} vagas no Redis...`);
-    await this.cacheManager.set('jobs:all', allJobs, 1800 * 1000);
-
-    // Verifica se realmente salvou
-    const test = await this.cacheManager.get('jobs:all');
-    this.logger.log(`✅ Verificação: ${test ? 'Dados encontrados' : 'ERRO: Dados não encontrados!'}`);
-    this.logger.log(`💾 Total: ${allJobs.length} vagas salvas no Redis`);
-
-    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    this.logger.log(
-      `🎉 Scraping finalizado! ${result.total} vagas em ${duration}s`,
-    );
-
-    // Salva estatísticas no cache por 30 minutos
-    await this.cacheManager.set('job-boards:last-scrape', result, 1800 * 1000);
-
-    return result;
   }
 
   /**
@@ -162,112 +89,199 @@ export class JobBoardAggregatorService {
   }
 
   /**
-   * Retorna todas as vagas do Redis com filtros e paginação
+   * Retorna todas as vagas ativas do PostgreSQL com filtros e paginação
    */
   async getAllJobs(filters?: {
     platform?: string;
     remote?: boolean;
     seniority?: string;
     employmentType?: string;
+    category?: string;
+    jobTitle?: string;
+    skills?: string;
+    benefits?: string;
+    location?: string;
+    degree?: string;
+    minSalary?: string;
     page?: number;
     limit?: number;
   }): Promise<{
-    jobs: ScrapedJob[];
+    jobs: Job[];
     total: number;
     page: number;
     limit: number;
     totalPages: number;
   }> {
-    this.logger.log('🔍 Buscando vagas do Redis...');
+    this.logger.log('🔍 Buscando vagas do PostgreSQL...');
 
-    let jobs: ScrapedJob[] = [];
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 20;
 
-    // Se platform for 'all' ou não especificado, busca de TODAS as plataformas
-    if (!filters?.platform || filters.platform === 'all') {
-      this.logger.log('🌍 Buscando vagas de TODAS as plataformas...');
+    // Construir query
+    const queryBuilder = this.jobRepository
+      .createQueryBuilder('job')
+      .leftJoinAndSelect('job.company', 'company')
+      .where('job.isActive = :isActive', { isActive: true });
 
-      const platforms = [
-        'greenhouse',
-        'lever',
-        'workable',
-        'ashby',
-        'wellfound',
-        'builtin',
-        'weworkremotely',
-        'remotive',
-        'remoteyeah'
-      ];
-
-      for (const platform of platforms) {
-        const cacheKey = `jobs:platform:${platform}`;
-        const platformJobs = await this.cacheManager.get<ScrapedJob[]>(cacheKey);
-
-        if (platformJobs && platformJobs.length > 0) {
-          this.logger.log(`  ✅ ${platform}: ${platformJobs.length} vagas`);
-          jobs.push(...platformJobs);
-        } else {
-          this.logger.log(`  ⚠️  ${platform}: 0 vagas`);
-        }
-      }
-
-      this.logger.log(`📦 Total agregado: ${jobs.length} vagas de todas as plataformas`);
-    } else {
-      // Busca de uma plataforma específica
-      const cacheKey = `jobs:platform:${filters.platform}`;
-      this.logger.log(`🔑 Buscando chave: ${cacheKey}`);
-
-      jobs = await this.cacheManager.get<ScrapedJob[]>(cacheKey) || [];
-      this.logger.log(`📊 Resultado: ${jobs.length} vagas`);
+    // Aplicar filtros básicos
+    if (filters?.platform && filters.platform !== 'all') {
+      queryBuilder.andWhere('job.platform = :platform', {
+        platform: filters.platform,
+      });
     }
 
-    if (jobs.length === 0) {
-      this.logger.warn('⚠️  Nenhuma vaga encontrada no cache');
-      return {
-        jobs: [],
-        total: 0,
-        page: filters?.page || 1,
-        limit: filters?.limit || 20,
-        totalPages: 0,
-      };
+    if (filters?.remote !== undefined) {
+      queryBuilder.andWhere('job.remote = :remote', {
+        remote: filters.remote,
+      });
     }
 
-    this.logger.log(`📦 ${jobs.length} vagas encontradas no Redis`);
+    if (filters?.seniority) {
+      queryBuilder.andWhere('job.seniority = :seniority', {
+        seniority: filters.seniority,
+      });
+    }
 
-    // Aplica filtros em memória
-    if (filters) {
-      if (filters.remote !== undefined) {
-        jobs = jobs.filter((job) => job.remote === filters.remote);
-      }
+    // Filtro por employment type (suporta múltiplos valores separados por vírgula)
+    if (filters?.employmentType) {
+      const employmentTypes = filters.employmentType.split(',').map(t => t.trim());
+      queryBuilder.andWhere('job.employmentType IN (:...employmentTypes)', {
+        employmentTypes,
+      });
+    }
 
-      if (filters.seniority) {
-        jobs = jobs.filter((job) => job.seniority === filters.seniority);
-      }
+    // Filtro por categoria (busca no título da vaga)
+    if (filters?.category && filters.category !== 'all') {
+      queryBuilder.andWhere('LOWER(job.title) LIKE LOWER(:category)', {
+        category: `%${filters.category}%`,
+      });
+    }
 
-      if (filters.employmentType) {
-        jobs = jobs.filter(
-          (job) => job.employmentType === filters.employmentType,
+    // Filtro por título (case-insensitive)
+    if (filters?.jobTitle) {
+      queryBuilder.andWhere('LOWER(job.title) LIKE LOWER(:jobTitle)', {
+        jobTitle: `%${filters.jobTitle}%`,
+      });
+    }
+
+    // Filtro por localização (case-insensitive, busca em location e countries)
+    // Suporta múltiplos valores separados por vírgula
+    // Note: countries is a simple-array (stored as text), not a real array
+    if (filters?.location) {
+      const locations = filters.location.split(',').map(l => l.trim());
+      const conditions = locations.map((_, index) =>
+        `(LOWER(job.location) LIKE :location${index} OR LOWER(job.countries) LIKE :location${index})`
+      ).join(' OR ');
+
+      const params: any = {};
+      locations.forEach((loc, index) => {
+        params[`location${index}`] = `%${loc.toLowerCase()}%`;
+      });
+
+      queryBuilder.andWhere(`(${conditions})`, params);
+    }
+
+    // Filtro por skills/tags (busca em tags array com LIKE para partial match)
+    // Note: tags is a simple-array (stored as text), not a real array
+    if (filters?.skills) {
+      const skillsArray = filters.skills.split(',').map(s => s.trim().toLowerCase());
+      const skillConditions = skillsArray.map((_, index) =>
+        `LOWER(job.tags) LIKE :skill${index}`
+      ).join(' OR ');
+
+      const skillParams: any = {};
+      skillsArray.forEach((skill, index) => {
+        skillParams[`skill${index}`] = `%${skill}%`;
+      });
+
+      queryBuilder.andWhere(`(${skillConditions})`, skillParams);
+    }
+
+    // Filtro por benefits (busca em benefits array)
+    // Note: benefits is a simple-array (stored as text), not a real array
+    if (filters?.benefits) {
+      const benefitsArray = filters.benefits.split(',').map(b => b.trim().toLowerCase());
+      const benefitConditions = benefitsArray.map((_, index) =>
+        `LOWER(job.benefits) LIKE :benefit${index}`
+      ).join(' OR ');
+
+      const benefitParams: any = {};
+      benefitsArray.forEach((benefit, index) => {
+        benefitParams[`benefit${index}`] = `%${benefit}%`;
+      });
+
+      queryBuilder.andWhere(`(${benefitConditions})`, benefitParams);
+    }
+
+    // Filtro por grau de escolaridade
+    if (filters?.degree) {
+      if (filters.degree === 'required') {
+        // Busca por termos que indicam diploma necessário
+        queryBuilder.andWhere(
+          "(LOWER(job.description) LIKE :degreePattern1 OR LOWER(job.description) LIKE :degreePattern2 OR LOWER(array_to_string(job.requirements, ',')) LIKE :degreePattern3)",
+          {
+            degreePattern1: '%degree required%',
+            degreePattern2: '%bachelor%',
+            degreePattern3: '%degree%',
+          },
+        );
+      } else if (filters.degree === 'not-required') {
+        // Busca por termos que indicam que diploma não é necessário
+        queryBuilder.andWhere(
+          '(LOWER(job.description) LIKE :noDegreePattern1 OR LOWER(job.description) LIKE :noDegreePattern2 OR NOT (LOWER(job.description) LIKE :degreePattern AND LOWER(job.description) LIKE :requiredPattern))',
+          {
+            noDegreePattern1: '%no degree%',
+            noDegreePattern2: '%degree not required%',
+            degreePattern: '%degree%',
+            requiredPattern: '%required%',
+          },
         );
       }
     }
 
-    // Total após filtros
-    const total = jobs.length;
+    // Filtro por salário mínimo
+    if (filters?.minSalary) {
+      const minSalaryNum = parseInt(filters.minSalary);
+      if (!isNaN(minSalaryNum)) {
+        // Extrai números do campo salary e compara
+        // Formato comum: "$120k - $150k/year" ou "$120,000 - $150,000"
+        queryBuilder.andWhere(
+          `(
+            CASE
+              WHEN job.salary ~ '\\$[0-9,]+k' THEN
+                CAST(REGEXP_REPLACE(REGEXP_REPLACE(job.salary, '\\$([0-9,]+)k.*', '\\1'), ',', '', 'g') AS INTEGER) * 1000
+              WHEN job.salary ~ '\\$[0-9,]+' THEN
+                CAST(REGEXP_REPLACE(REGEXP_REPLACE(job.salary, '\\$([0-9,]+).*', '\\1'), ',', '', 'g') AS INTEGER)
+              ELSE 0
+            END
+          ) >= :minSalary`,
+          {
+            minSalary: minSalaryNum,
+          },
+        );
+      }
+    }
 
-    // Paginação
-    const page = filters?.page || 1;
-    const limit = filters?.limit || 20;
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
+    // Ordenar por data de publicação (mais recentes primeiro)
+    queryBuilder.orderBy('job.publishedAt', 'DESC');
 
-    const paginatedJobs = jobs.slice(startIndex, endIndex);
+    // Contar total
+    const total = await queryBuilder.getCount();
+
+    // Aplicar paginação
+    const jobs = await queryBuilder
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
     const totalPages = Math.ceil(total / limit);
 
     this.logger.log(
-      `✅ Página ${page}/${totalPages}: ${paginatedJobs.length} vagas retornadas (total: ${total})`,
+      `✅ Página ${page}/${totalPages}: ${jobs.length} vagas retornadas (total: ${total})`,
     );
 
     return {
-      jobs: paginatedJobs,
+      jobs,
       total,
       page,
       limit,
@@ -275,372 +289,78 @@ export class JobBoardAggregatorService {
     };
   }
 
-  /**
-   * Busca vagas APENAS de empresas Greenhouse e salva no Redis
-   */
-  async fetchAndStoreGreenhouseJobs(): Promise<{
-    total: number;
-    companies: number;
-    errors: string[];
-  }> {
-    const startTime = Date.now();
-    this.logger.log('🏢 Iniciando scraping apenas do Greenhouse...');
+  // All platform-specific scraping methods are deprecated
+  // Jobs are now managed by JobScrapingCronService and stored in PostgreSQL
 
-    try {
-      const jobs = await this.greenhouseScraper.fetchJobs();
+  async fetchAndStoreGreenhouseJobs() {
+    this.logger.warn('⚠️  Deprecated: use JobScrapingCronService');
+    return { total: 0, companies: 0, errors: ['Method deprecated'] };
+  }
 
-      // Salva no Redis com chaves específicas (30 min TTL)
-      await this.cacheManager.set('jobs:greenhouse', jobs, 1800 * 1000);
-      await this.cacheManager.set('jobs:platform:greenhouse', jobs, 1800 * 1000);
+  async fetchAndStoreLeverJobs() {
+    this.logger.warn('⚠️  Deprecated: use JobScrapingCronService');
+    return { total: 0, companies: 0, errors: ['Method deprecated'] };
+  }
 
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      this.logger.log(
-        `✅ Greenhouse: ${jobs.length} vagas salvas no Redis em ${duration}s`,
-      );
+  async fetchAndStoreWorkableJobs() {
+    this.logger.warn('⚠️  Deprecated: use JobScrapingCronService');
+    return { total: 0, companies: 0, errors: ['Method deprecated'] };
+  }
 
-      return {
-        total: jobs.length,
-        companies: new Set(jobs.map((j) => j.companySlug)).size,
-        errors: [],
-      };
-    } catch (error) {
-      this.logger.error(`❌ Erro no scraping do Greenhouse: ${error.message}`);
-      return {
-        total: 0,
-        companies: 0,
-        errors: [error.message],
-      };
-    }
+  async fetchAndStoreAshbyJobs() {
+    this.logger.warn('⚠️  Deprecated: use JobScrapingCronService');
+    return { total: 0, companies: 0, errors: ['Method deprecated'] };
+  }
+
+  async fetchAndStoreWellfoundJobs() {
+    this.logger.warn('⚠️  Deprecated: use JobScrapingCronService');
+    return { total: 0, companies: 0, errors: ['Method deprecated'] };
+  }
+
+  async fetchAndStoreBuiltInJobs() {
+    this.logger.warn('⚠️  Deprecated: use JobScrapingCronService');
+    return { total: 0, companies: 0, errors: ['Method deprecated'] };
+  }
+
+  async fetchAndStoreWeWorkRemotelyJobs() {
+    this.logger.warn('⚠️  Deprecated: use JobScrapingCronService');
+    return { total: 0, feeds: 0, errors: ['Method deprecated'] };
+  }
+
+  async fetchAndStoreRemotiveJobs() {
+    this.logger.warn('⚠️  Deprecated: use JobScrapingCronService');
+    return { total: 0, categories: 0, errors: ['Method deprecated'] };
+  }
+
+  async fetchAndStoreRemoteYeahJobs() {
+    this.logger.warn('⚠️  Deprecated: use JobScrapingCronService');
+    return { total: 0, pages: 0, errors: ['Method deprecated'] };
   }
 
   /**
-   * Busca vagas APENAS de empresas Lever e salva no Redis
-   */
-  async fetchAndStoreLeverJobs(): Promise<{
-    total: number;
-    companies: number;
-    errors: string[];
-  }> {
-    const startTime = Date.now();
-    this.logger.log('⚙️ Iniciando scraping apenas do Lever...');
-
-    try {
-      const jobs = await this.leverScraper.fetchJobs();
-
-      // Salva no Redis com chaves específicas (30 min TTL)
-      await this.cacheManager.set('jobs:lever', jobs, 1800 * 1000);
-      await this.cacheManager.set('jobs:platform:lever', jobs, 1800 * 1000);
-
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      this.logger.log(
-        `✅ Lever: ${jobs.length} vagas salvas no Redis em ${duration}s`,
-      );
-
-      return {
-        total: jobs.length,
-        companies: new Set(jobs.map((j) => j.companySlug)).size,
-        errors: [],
-      };
-    } catch (error) {
-      this.logger.error(`❌ Erro no scraping do Lever: ${error.message}`);
-      return {
-        total: 0,
-        companies: 0,
-        errors: [error.message],
-      };
-    }
-  }
-
-  /**
-   * Busca vagas APENAS de empresas Workable e salva no Redis
-   */
-  async fetchAndStoreWorkableJobs(): Promise<{
-    total: number;
-    companies: number;
-    errors: string[];
-  }> {
-    const startTime = Date.now();
-    this.logger.log('🏗️ Iniciando scraping apenas do Workable...');
-
-    try {
-      const jobs = await this.workableScraper.fetchJobs();
-
-      // Salva no Redis com chaves específicas (30 min TTL)
-      await this.cacheManager.set('jobs:workable', jobs, 1800 * 1000);
-      await this.cacheManager.set('jobs:platform:workable', jobs, 1800 * 1000);
-
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      this.logger.log(
-        `✅ Workable: ${jobs.length} vagas salvas no Redis em ${duration}s`,
-      );
-
-      return {
-        total: jobs.length,
-        companies: new Set(jobs.map((j) => j.companySlug)).size,
-        errors: [],
-      };
-    } catch (error) {
-      this.logger.error(`❌ Erro no scraping do Workable: ${error.message}`);
-      return {
-        total: 0,
-        companies: 0,
-        errors: [error.message],
-      };
-    }
-  }
-
-  /**
-   * Busca vagas APENAS de empresas Ashby e salva no Redis
-   */
-  async fetchAndStoreAshbyJobs(): Promise<{
-    total: number;
-    companies: number;
-    errors: string[];
-  }> {
-    const startTime = Date.now();
-    this.logger.log('🏛️ Iniciando scraping apenas do Ashby...');
-
-    try {
-      const jobs = await this.ashbyScraper.fetchJobs();
-
-      // Salva no Redis com chaves específicas (30 min TTL)
-      await this.cacheManager.set('jobs:ashby', jobs, 1800 * 1000);
-      await this.cacheManager.set('jobs:platform:ashby', jobs, 1800 * 1000);
-
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      this.logger.log(
-        `✅ Ashby: ${jobs.length} vagas salvas no Redis em ${duration}s`,
-      );
-
-      return {
-        total: jobs.length,
-        companies: new Set(jobs.map((j) => j.companySlug)).size,
-        errors: [],
-      };
-    } catch (error) {
-      this.logger.error(`❌ Erro no scraping do Ashby: ${error.message}`);
-      return {
-        total: 0,
-        companies: 0,
-        errors: [error.message],
-      };
-    }
-  }
-
-  /**
-   * POST /remote-jobs/job-boards/scrape-wellfound
-   * Dispara scraping APENAS de empresas Wellfound
-   * Salva todas as vagas encontradas no Redis
-   */
-  async fetchAndStoreWellfoundJobs(): Promise<{
-    total: number;
-    companies: number;
-    errors: string[];
-  }> {
-    const startTime = Date.now();
-    this.logger.log('🌐 Iniciando scraping apenas do Wellfound...');
-
-    try {
-      const jobs = await this.wellfoundScraper.fetchJobs();
-
-      // Salva no Redis com chaves específicas (30 min TTL)
-      await this.cacheManager.set('jobs:wellfound', jobs, 1800 * 1000);
-      await this.cacheManager.set('jobs:platform:wellfound', jobs, 1800 * 1000);
-
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      this.logger.log(
-        `✅ Wellfound: ${jobs.length} vagas salvas no Redis em ${duration}s`,
-      );
-
-      return {
-        total: jobs.length,
-        companies: new Set(jobs.map((j) => j.companySlug)).size,
-        errors: [],
-      };
-    } catch (error) {
-      this.logger.error(`❌ Erro no scraping do Wellfound: ${error.message}`);
-      return {
-        total: 0,
-        companies: 0,
-        errors: [error.message],
-      };
-    }
-  }
-
-  /**
-   * POST /remote-jobs/job-boards/scrape-builtin
-   * Dispara scraping APENAS de empresas Built In
-   * Salva todas as vagas encontradas no Redis
-   */
-  async fetchAndStoreBuiltInJobs(): Promise<{
-    total: number;
-    companies: number;
-    errors: string[];
-  }> {
-    const startTime = Date.now();
-    this.logger.log('🏗️ Iniciando scraping apenas do Built In...');
-
-    try {
-      const jobs = await this.builtinScraper.fetchJobs();
-
-      // Salva no Redis com chaves específicas (30 min TTL)
-      await this.cacheManager.set('jobs:builtin', jobs, 1800 * 1000);
-      await this.cacheManager.set('jobs:platform:builtin', jobs, 1800 * 1000);
-
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      this.logger.log(
-        `✅ Built In: ${jobs.length} vagas salvas no Redis em ${duration}s`,
-      );
-
-      return {
-        total: jobs.length,
-        companies: new Set(jobs.map((j) => j.companySlug)).size,
-        errors: [],
-      };
-    } catch (error) {
-      this.logger.error(`❌ Erro no scraping do Built In: ${error.message}`);
-      return {
-        total: 0,
-        companies: 0,
-        errors: [error.message],
-      };
-    }
-  }
-
-  /**
-   * POST /remote-jobs/job-boards/scrape-weworkremotely
-   * Dispara scraping APENAS do We Work Remotely (RSS feeds)
-   * Salva todas as vagas encontradas no Redis
-   */
-  async fetchAndStoreWeWorkRemotelyJobs(): Promise<{
-    total: number;
-    feeds: number;
-    errors: string[];
-  }> {
-    const startTime = Date.now();
-    this.logger.log('💼 Iniciando scraping apenas do We Work Remotely...');
-
-    try {
-      const jobs = await this.weworkremotelyScraper.fetchJobs();
-
-      // Salva no Redis com chaves específicas (30 min TTL)
-      await this.cacheManager.set('jobs:weworkremotely', jobs, 1800 * 1000);
-      await this.cacheManager.set('jobs:platform:weworkremotely', jobs, 1800 * 1000);
-
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      this.logger.log(
-        `✅ We Work Remotely: ${jobs.length} vagas salvas no Redis em ${duration}s`,
-      );
-
-      return {
-        total: jobs.length,
-        feeds: 2, // Número de RSS feeds configurados
-        errors: [],
-      };
-    } catch (error) {
-      this.logger.error(
-        `❌ Erro no scraping do We Work Remotely: ${error.message}`,
-      );
-      return {
-        total: 0,
-        feeds: 0,
-        errors: [error.message],
-      };
-    }
-  }
-
-  /**
-   * POST /remote-jobs/job-boards/scrape-remotive
-   * Dispara scraping APENAS do Remotive (API pública)
-   * Salva todas as vagas encontradas no Redis
-   */
-  async fetchAndStoreRemotiveJobs(): Promise<{
-    total: number;
-    categories: number;
-    errors: string[];
-  }> {
-    const startTime = Date.now();
-    this.logger.log('🌐 Iniciando scraping apenas do Remotive...');
-
-    try {
-      const jobs = await this.remotiveScraper.fetchJobs();
-
-      // Salva no Redis com chaves específicas (30 min TTL)
-      await this.cacheManager.set('jobs:remotive', jobs, 1800 * 1000);
-      await this.cacheManager.set('jobs:platform:remotive', jobs, 1800 * 1000);
-
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      this.logger.log(
-        `✅ Remotive: ${jobs.length} vagas salvas no Redis em ${duration}s`,
-      );
-
-      return {
-        total: jobs.length,
-        categories: 3, // Número de categorias configuradas
-        errors: [],
-      };
-    } catch (error) {
-      this.logger.error(`❌ Erro no scraping do Remotive: ${error.message}`);
-      return {
-        total: 0,
-        categories: 0,
-        errors: [error.message],
-      };
-    }
-  }
-
-  /**
-   * Busca vagas do RemoteYeah e salva no Redis
-   */
-  async fetchAndStoreRemoteYeahJobs(): Promise<{
-    total: number;
-    pages: number;
-    errors: string[];
-  }> {
-    const startTime = Date.now();
-    this.logger.log('🌟 Iniciando scraping apenas do RemoteYeah...');
-
-    try {
-      const jobs = await this.remoteyeahScraper.fetchJobs();
-
-      // Salva no Redis com chaves específicas (30 min TTL)
-      await this.cacheManager.set('jobs:remoteyeah', jobs, 1800 * 1000);
-      await this.cacheManager.set('jobs:platform:remoteyeah', jobs, 1800 * 1000);
-
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      this.logger.log(
-        `✅ RemoteYeah: ${jobs.length} vagas salvas no Redis em ${duration}s`,
-      );
-
-      return {
-        total: jobs.length,
-        pages: 5, // Número de páginas configuradas
-        errors: [],
-      };
-    } catch (error) {
-      this.logger.error(`❌ Erro no scraping do RemoteYeah: ${error.message}`);
-      return {
-        total: 0,
-        pages: 0,
-        errors: [error.message],
-      };
-    }
-  }
-
-  /**
-   * Retorna estatísticas do último scraping
+   * Returns scraping statistics from PostgreSQL
    */
   async getScrapingStats(): Promise<any> {
-    const stats = await this.cacheManager.get('job-boards:last-scrape');
-    return stats || { total: 0, byPlatform: {}, errors: [] };
+    const totalJobs = await this.jobRepository.count({ where: { isActive: true } });
+    const platforms = await this.jobRepository
+      .createQueryBuilder('job')
+      .select('job.platform')
+      .addSelect('COUNT(*)', 'count')
+      .where('job.isActive = :isActive', { isActive: true })
+      .groupBy('job.platform')
+      .getRawMany();
+
+    const byPlatform: Record<string, number> = {};
+    for (const p of platforms) {
+      byPlatform[p.job_platform] = parseInt(p.count);
+    }
+
+    return {
+      total: totalJobs,
+      byPlatform,
+      errors: [],
+      source: 'postgresql',
+    };
   }
 
-  /**
-   * Limpa cache de jobs
-   */
-  async clearJobsCache(): Promise<void> {
-    // TODO: Implementar limpeza de todos os caches de jobs
-    await this.cacheManager.del('job-boards:last-scrape');
-    this.logger.log('🗑️  Cache de jobs limpo');
-  }
 }

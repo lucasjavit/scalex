@@ -161,17 +161,17 @@ class RemoteJobsAdminService {
   }
 
   /**
-   * Cache Management
+   * Cron Configuration
    */
-  async clearCache(platform = null) {
-    const queryString = platform ? `?platform=${platform}` : '';
-    return this.request(`/admin/remote-jobs/cache/clear${queryString}`, {
-      method: 'DELETE',
-    });
+  async getCronConfig() {
+    return this.request('/admin/remote-jobs/cron/config');
   }
 
-  async getCacheInfo() {
-    return this.request('/admin/remote-jobs/cache/info');
+  async updateCronConfig(expression) {
+    return this.request('/admin/remote-jobs/cron/config', {
+      method: 'PUT',
+      body: JSON.stringify({ expression }),
+    });
   }
 }
 

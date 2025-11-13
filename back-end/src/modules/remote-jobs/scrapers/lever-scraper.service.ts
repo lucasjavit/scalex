@@ -282,13 +282,22 @@ export class LeverScraperService extends BaseScraperService {
 
   /**
    * Verifica se uma vaga é remota
+   * MELHORADO: Verifica location + title + description e aceita location vazia
    */
   private isRemoteJob(job: LeverJob): boolean {
+    // 1. Verifica location
     const location = job.categories?.location?.toLowerCase() || '';
+
+    // 2. Verifica título
     const title = job.text?.toLowerCase() || '';
+
+    // 3. Verifica descrição (se disponível)
     const description = job.descriptionPlain?.toLowerCase() || '';
 
-    // Palavras-chave que indicam remote
+    // 4. Combina tudo para buscar
+    const allText = `${location} ${title} ${description}`.toLowerCase();
+
+    // Palavras-chave que indicam remote (mais abrangente)
     const remoteKeywords = [
       'remote',
       'anywhere',
@@ -298,14 +307,17 @@ export class LeverScraperService extends BaseScraperService {
       'virtual',
       'telecommute',
       'home office',
+      'trabalho remoto',
+      'remoto',
     ];
 
-    return remoteKeywords.some(
-      (keyword) =>
-        location.includes(keyword) ||
-        title.includes(keyword) ||
-        description.includes(keyword),
-    );
+    // Verifica se tem alguma palavra-chave
+    const hasRemoteKeyword = remoteKeywords.some((keyword) => allText.includes(keyword));
+
+    // Também aceita se location não está definido ou é vazio (algumas empresas só postam remote)
+    const isEmptyLocation = !location || location.trim() === '';
+
+    return hasRemoteKeyword || isEmptyLocation;
   }
 
   /**

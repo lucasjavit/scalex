@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseScraperService, ScrapedJob } from './base-scraper.service';
 import { JobBoard } from '../entities/job-board.entity';
+import { RssFeed } from '../entities/rss-feed.entity';
+import { RssFeedService } from '../services/rss-feed.service';
 import { firstValueFrom } from 'rxjs';
 import * as cheerio from 'cheerio';
 
@@ -12,9 +14,10 @@ import * as cheerio from 'cheerio';
  *
  * RemoteYeah é um job board focado em vagas remotas para engenheiros
  * URL: https://remoteyeah.com
+ * MODIFICADO: Agora busca páginas do banco de dados
  *
  * Estratégia:
- * 1. Busca a página principal com listagem de vagas
+ * 1. Busca páginas habilitadas no banco de dados
  * 2. Parse HTML usando cheerio
  * 3. Extração de dados estruturados (JSON-LD se disponível)
  * 4. Paginação para buscar mais vagas
@@ -25,7 +28,6 @@ export class RemoteYeahScraperService extends BaseScraperService {
   protected readonly baseUrl = 'https://remoteyeah.com';
   protected readonly platformName = 'remoteyeah';
 
-  private readonly MAX_PAGES = 5; // Limita a 5 páginas para não sobrecarregar
   private readonly TIMEOUT_MS = 15000;
 
   // Estatísticas
@@ -34,25 +36,27 @@ export class RemoteYeahScraperService extends BaseScraperService {
     successfulPages: 0,
     failedPages: 0,
     totalJobs: 0,
-    errors: [] as { page: number; error: string }[],
+    errors: [] as { page: string; error: string }[],
   };
 
   constructor(
     httpService: HttpService,
     @InjectRepository(JobBoard)
     private readonly jobBoardRepository: Repository<JobBoard>,
+    private readonly rssFeedService: RssFeedService,
   ) {
     super(httpService);
   }
 
   /**
    * Método principal: busca vagas de todas as páginas
+   * MODIFICADO: Agora busca páginas do banco de dados
    */
   async fetchJobs(): Promise<ScrapedJob[]> {
     this.logger.log('🚀 Iniciando scraping do RemoteYeah (HTML)...');
     this.resetStats();
 
-    // Verifica se o job board está habilitado
+    // 1. Buscar o job_board "remoteyeah"
     const remoteyeahBoard = await this.jobBoardRepository.findOne({
       where: { slug: 'remoteyeah', enabled: true },
     });
@@ -62,15 +66,26 @@ export class RemoteYeahScraperService extends BaseScraperService {
       return [];
     }
 
+    // 2. Buscar todas as páginas ATIVAS do RemoteYeah
+    const pages = await this.rssFeedService.findEnabledByJobBoard(
+      remoteyeahBoard.id,
+    );
+
+    if (pages.length === 0) {
+      this.logger.warn('⚠️  Nenhuma página ativa encontrada para RemoteYeah');
+      return [];
+    }
+
+    this.stats.totalPages = pages.length;
+    this.logger.log(`📋 ${pages.length} páginas ativas para processar`);
+
     const allJobs: ScrapedJob[] = [];
     const seenIds = new Set<string>();
 
-    // Busca múltiplas páginas
-    for (let page = 1; page <= this.MAX_PAGES; page++) {
-      this.stats.totalPages++;
-
+    // Processa páginas sequencialmente (com delay entre requisições)
+    for (const page of pages) {
       try {
-        const jobs = await this.fetchPageJobs(page);
+        const jobs = await this.fetchPageJobsFromRssFeed(page);
 
         // Remove duplicatas
         for (const job of jobs) {
@@ -85,21 +100,21 @@ export class RemoteYeahScraperService extends BaseScraperService {
 
         // Se não encontrou vagas, para de buscar mais páginas
         if (jobs.length === 0) {
-          this.logger.log(`📄 Página ${page}: sem vagas, parando busca`);
+          this.logger.log(`📄 ${page.category}: sem vagas, parando busca`);
           break;
         }
 
-        this.logger.log(`📄 Página ${page}: ${jobs.length} vagas (${allJobs.length} únicas no total)`);
+        this.logger.log(`📄 ${page.category}: ${jobs.length} vagas (${allJobs.length} únicas no total)`);
 
         // Pequeno delay entre requisições para ser gentil com o servidor
         await this.delay(1000);
       } catch (error) {
         const errorMessage = error.response?.status || error.message;
-        this.logger.warn(`❌ Erro na página ${page}: ${errorMessage}`);
+        this.logger.warn(`❌ Erro na ${page.category}: ${errorMessage}`);
 
         this.stats.failedPages++;
         this.stats.errors.push({
-          page,
+          page: page.category,
           error: errorMessage,
         });
 
@@ -116,25 +131,47 @@ export class RemoteYeahScraperService extends BaseScraperService {
   }
 
   /**
-   * Busca vagas de uma página específica
+   * NOVO: Busca vagas de uma página específica do RSS feed
+   * Rastreia status (pending/success/error) no banco
    */
-  private async fetchPageJobs(page: number): Promise<ScrapedJob[]> {
-    const url = page === 1 ? this.baseUrl : `${this.baseUrl}?page=${page}`;
+  private async fetchPageJobsFromRssFeed(rssFeed: RssFeed): Promise<ScrapedJob[]> {
+    try {
+      // Marcar como "em processamento"
+      await this.rssFeedService.updateScrapingStatus(rssFeed.id, 'pending');
 
-    this.logger.debug(`🔍 Buscando página ${page}...`);
+      this.logger.debug(`🔍 Buscando ${rssFeed.category}...`);
 
-    const html = await this.fetchHtml(url, this.TIMEOUT_MS);
-    const $ = this.parseHtml(html);
+      const html = await this.fetchHtml(rssFeed.url, this.TIMEOUT_MS);
+      const $ = this.parseHtml(html);
 
-    // Tenta extrair JSON-LD primeiro (se disponível)
-    const jsonLdJobs = this.extractJsonLD($, 'JobPosting');
-    if (jsonLdJobs.length > 0) {
-      this.logger.debug(`📋 Encontrados ${jsonLdJobs.length} jobs via JSON-LD`);
-      return this.transformJsonLdJobs(jsonLdJobs);
+      // Tenta extrair JSON-LD primeiro (se disponível)
+      const jsonLdJobs = this.extractJsonLD($, 'JobPosting');
+      let jobs: ScrapedJob[];
+
+      if (jsonLdJobs.length > 0) {
+        this.logger.debug(`📋 Encontrados ${jsonLdJobs.length} jobs via JSON-LD`);
+        jobs = this.transformJsonLdJobs(jsonLdJobs);
+      } else {
+        // Fallback: scraping HTML direto
+        jobs = this.scrapeHtmlJobs($);
+      }
+
+      // Marcar como sucesso
+      await this.rssFeedService.updateScrapingStatus(rssFeed.id, 'success');
+
+      return jobs;
+    } catch (error) {
+      const errorMessage = error.response?.status || error.message;
+
+      // Registrar erro no banco
+      await this.rssFeedService.updateScrapingStatus(
+        rssFeed.id,
+        'error',
+        errorMessage,
+      );
+
+      throw error; // Re-throw para manter comportamento original
     }
-
-    // Fallback: scraping HTML direto
-    return this.scrapeHtmlJobs($);
   }
 
   /**
@@ -311,15 +348,17 @@ export class RemoteYeahScraperService extends BaseScraperService {
     this.logger.log(`✅ Páginas com sucesso: ${this.stats.successfulPages}`);
     this.logger.log(`❌ Páginas com erro: ${this.stats.failedPages}`);
     this.logger.log(`💼 Total de vagas encontradas: ${this.stats.totalJobs}`);
-    this.logger.log(
-      `📈 Taxa de sucesso: ${((this.stats.successfulPages / this.stats.totalPages) * 100).toFixed(1)}%`,
-    );
+    if (this.stats.totalPages > 0) {
+      this.logger.log(
+        `📈 Taxa de sucesso: ${((this.stats.successfulPages / this.stats.totalPages) * 100).toFixed(1)}%`,
+      );
+    }
 
     if (this.stats.errors.length > 0) {
       this.logger.warn('');
       this.logger.warn('⚠️  Páginas com erro:');
       for (const error of this.stats.errors) {
-        this.logger.warn(`   - Página ${error.page}: ${error.error}`);
+        this.logger.warn(`   - ${error.page}: ${error.error}`);
       }
     }
 

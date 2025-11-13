@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseScraperService, ScrapedJob } from './base-scraper.service';
 import { JobBoard } from '../entities/job-board.entity';
+import { RssFeed } from '../entities/rss-feed.entity';
+import { RssFeedService } from '../services/rss-feed.service';
 import { firstValueFrom } from 'rxjs';
 import * as cheerio from 'cheerio';
 
@@ -11,10 +13,10 @@ import * as cheerio from 'cheerio';
  * Scraper para We Work Remotely
  *
  * We Work Remotely usa RSS feeds para diferentes categorias
- * RSS URL: https://weworkremotely.com/categories/remote-programming-jobs.rss
+ * MODIFICADO: Agora busca RSS feeds do banco de dados
  *
  * Estratégia:
- * 1. Busca RSS feed de programação (principal categoria para tech)
+ * 1. Busca RSS feeds habilitados no banco de dados
  * 2. Parse XML usando cheerio
  * 3. Extrai jobs do feed
  */
@@ -23,12 +25,6 @@ export class WeWorkRemotelyScraperService extends BaseScraperService {
   protected readonly logger = new Logger(WeWorkRemotelyScraperService.name);
   protected readonly baseUrl = 'https://weworkremotely.com';
   protected readonly platformName = 'weworkremotely';
-
-  // RSS feeds por categoria
-  private readonly RSS_FEEDS = [
-    'https://weworkremotely.com/categories/remote-programming-jobs.rss',
-    'https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss',
-  ];
 
   private readonly TIMEOUT_MS = 15000;
 
@@ -45,18 +41,20 @@ export class WeWorkRemotelyScraperService extends BaseScraperService {
     httpService: HttpService,
     @InjectRepository(JobBoard)
     private readonly jobBoardRepository: Repository<JobBoard>,
+    private readonly rssFeedService: RssFeedService,
   ) {
     super(httpService);
   }
 
   /**
    * Método principal: busca vagas de todos os RSS feeds
+   * MODIFICADO: Agora busca RSS feeds do banco de dados
    */
   async fetchJobs(): Promise<ScrapedJob[]> {
     this.logger.log('🚀 Iniciando scraping do We Work Remotely (RSS)...');
     this.resetStats();
 
-    // Verifica se o job board está habilitado
+    // 1. Buscar o job_board "weworkremotely"
     const weworkremotelyBoard = await this.jobBoardRepository.findOne({
       where: { slug: 'weworkremotely', enabled: true },
     });
@@ -66,12 +64,24 @@ export class WeWorkRemotelyScraperService extends BaseScraperService {
       return [];
     }
 
-    this.stats.totalFeeds = this.RSS_FEEDS.length;
+    // 2. Buscar todos os RSS feeds ATIVOS do We Work Remotely
+    const rssFeeds = await this.rssFeedService.findEnabledByJobBoard(
+      weworkremotelyBoard.id,
+    );
+
+    if (rssFeeds.length === 0) {
+      this.logger.warn('⚠️  Nenhum RSS feed ativo encontrado para We Work Remotely');
+      return [];
+    }
+
+    this.stats.totalFeeds = rssFeeds.length;
+    this.logger.log(`📋 ${rssFeeds.length} RSS feeds ativos para processar`);
+
     const allJobs: ScrapedJob[] = [];
 
     // Processa feeds em paralelo
     const feedResults = await Promise.all(
-      this.RSS_FEEDS.map((feedUrl) => this.fetchFeedJobs(feedUrl)),
+      rssFeeds.map((feed) => this.fetchFeedJobsFromRssFeed(feed)),
     );
 
     for (const jobs of feedResults) {
@@ -83,14 +93,18 @@ export class WeWorkRemotelyScraperService extends BaseScraperService {
   }
 
   /**
-   * Busca vagas de um RSS feed específico
+   * NOVO: Busca vagas de um RSS feed específico
+   * Rastreia status (pending/success/error) no banco
    */
-  private async fetchFeedJobs(feedUrl: string): Promise<ScrapedJob[]> {
+  private async fetchFeedJobsFromRssFeed(rssFeed: RssFeed): Promise<ScrapedJob[]> {
     try {
-      this.logger.debug(`🔍 Buscando feed: ${feedUrl}...`);
+      // Marcar como "em processamento"
+      await this.rssFeedService.updateScrapingStatus(rssFeed.id, 'pending');
+
+      this.logger.debug(`🔍 Buscando feed: ${rssFeed.category}...`);
 
       const response = await firstValueFrom(
-        this.httpService.get<string>(feedUrl, {
+        this.httpService.get<string>(rssFeed.url, {
           timeout: this.TIMEOUT_MS,
           headers: {
             'User-Agent':
@@ -103,21 +117,31 @@ export class WeWorkRemotelyScraperService extends BaseScraperService {
       const xml = response.data;
       const jobs = this.parseRssFeed(xml);
 
-      this.logger.log(`✅ ${feedUrl.split('/').pop()}: ${jobs.length} vagas`);
+      this.logger.log(`✅ ${rssFeed.category}: ${jobs.length} vagas`);
 
       this.stats.successfulFeeds++;
       this.stats.totalJobs += jobs.length;
 
+      // Marcar como sucesso
+      await this.rssFeedService.updateScrapingStatus(rssFeed.id, 'success');
+
       return jobs;
     } catch (error) {
       const errorMessage = error.response?.status || error.message;
-      this.logger.warn(`❌ Feed ${feedUrl}: ${errorMessage}`);
+      this.logger.warn(`❌ Feed ${rssFeed.category}: ${errorMessage}`);
 
       this.stats.failedFeeds++;
       this.stats.errors.push({
-        feed: feedUrl,
+        feed: rssFeed.category,
         error: errorMessage,
       });
+
+      // Registrar erro no banco
+      await this.rssFeedService.updateScrapingStatus(
+        rssFeed.id,
+        'error',
+        errorMessage,
+      );
 
       return [];
     }
@@ -163,6 +187,9 @@ export class WeWorkRemotelyScraperService extends BaseScraperService {
           // Usa data atual se parse falhar
         }
 
+        // Tenta extrair salary da descrição (We Work Remotely menciona salary no texto)
+        const salary = this.extractSalaryFromDescription(description);
+
         const job: ScrapedJob = {
           externalId: `weworkremotely-${jobSlug}`,
           platform: this.platformName,
@@ -170,6 +197,7 @@ export class WeWorkRemotelyScraperService extends BaseScraperService {
           title: this.cleanText(jobTitle),
           description: this.cleanText(this.stripHtmlTags(description)),
           location: region || 'Remote',
+          salary: salary,
           remote: true, // We Work Remotely é só remote
           countries: [],
           tags: this.extractTagsFromText(jobTitle + ' ' + category),
@@ -188,6 +216,36 @@ export class WeWorkRemotelyScraperService extends BaseScraperService {
     }
 
     return jobs;
+  }
+
+  /**
+   * Tenta extrair salary da descrição usando regex
+   * We Work Remotely geralmente menciona salary no texto
+   */
+  private extractSalaryFromDescription(description: string): string | undefined {
+    try {
+      const text = this.stripHtmlTags(description);
+
+      // Padrões comuns de salary
+      // Exemplos: "$100k-$150k", "$100,000 - $150,000", "€50k-€70k", "100k-150k USD"
+      const salaryPatterns = [
+        /\$\d{1,3}(?:,\d{3})*(?:k)?\s*-\s*\$?\d{1,3}(?:,\d{3})*(?:k)?(?:\s*(?:USD|EUR|GBP))?/gi,
+        /\€\d{1,3}(?:,\d{3})*(?:k)?\s*-\s*\€?\d{1,3}(?:,\d{3})*(?:k)?/gi,
+        /£\d{1,3}(?:,\d{3})*(?:k)?\s*-\s*£?\d{1,3}(?:,\d{3})*(?:k)?/gi,
+        /\d{1,3}(?:,\d{3})*(?:k)?\s*-\s*\d{1,3}(?:,\d{3})*(?:k)?\s*(?:USD|EUR|GBP)/gi,
+      ];
+
+      for (const pattern of salaryPatterns) {
+        const match = text.match(pattern);
+        if (match && match[0]) {
+          return match[0].trim();
+        }
+      }
+    } catch (error) {
+      // Ignora erros de parsing
+    }
+
+    return undefined;
   }
 
   /**

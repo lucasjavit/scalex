@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
-  RefreshCw, Database, Server, Activity, Trash2,
-  ToggleLeft, ToggleRight, Plus, Edit2, X
+  RefreshCw, Database, Server, Activity,
+  ToggleLeft, ToggleRight, Plus, Edit2, X, Trash2
 } from 'lucide-react';
 import { remoteJobsAdminService } from '../../../services/remoteJobsAdminService';
 import { useNotification } from '../../../hooks/useNotification';
@@ -9,7 +9,7 @@ import { useNotification } from '../../../hooks/useNotification';
 export default function RemoteJobsAdminPage() {
   const { showSuccess, showError, showInfo } = useNotification();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, companies, job-boards, scraping, cache
+  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, companies, job-boards, scraping
 
   // Dashboard data
   const [dashboardStats, setDashboardStats] = useState(null);
@@ -31,8 +31,10 @@ export default function RemoteJobsAdminPage() {
   const [scrapingHistory, setScrapingHistory] = useState([]);
   const [scraping, setScraping] = useState(false);
 
-  // Cache data
-  const [cacheInfo, setCacheInfo] = useState(null);
+  // Cron config data
+  const [cronConfig, setCronConfig] = useState(null);
+  const [cronSuggestions, setCronSuggestions] = useState([]);
+  const [updatingCron, setUpdatingCron] = useState(false);
 
   useEffect(() => {
     loadDashboard();
@@ -53,9 +55,7 @@ export default function RemoteJobsAdminPage() {
       case 'scraping':
         loadScrapingStatus();
         loadScrapingHistory();
-        break;
-      case 'cache':
-        loadCacheInfo();
+        loadCronConfig();
         break;
     }
   }, [activeTab]);
@@ -138,16 +138,17 @@ export default function RemoteJobsAdminPage() {
     }
   };
 
-  const loadCacheInfo = async () => {
+  const loadCronConfig = async () => {
     try {
-      setLoading(true);
-      const response = await remoteJobsAdminService.getCacheInfo();
-      setCacheInfo(response.data);
+      const response = await remoteJobsAdminService.getCronConfig();
+      setCronConfig({
+        expression: response.data.expression,
+        description: response.data.description,
+      });
+      setCronSuggestions(response.data.suggestions || []);
     } catch (error) {
-      console.error('Error loading cache info:', error);
-      showError('Erro ao carregar informações de cache');
-    } finally {
-      setLoading(false);
+      console.error('Error loading cron config:', error);
+      showError('Erro ao carregar configuração do cron');
     }
   };
 
@@ -167,22 +168,6 @@ export default function RemoteJobsAdminPage() {
       showError('Erro ao iniciar scraping');
     } finally {
       setScraping(false);
-    }
-  };
-
-  const handleClearCache = async (platform = null) => {
-    if (!confirm(platform ? `Limpar cache de ${platform}?` : 'Limpar todo o cache?')) {
-      return;
-    }
-
-    try {
-      const response = await remoteJobsAdminService.clearCache(platform);
-      showSuccess(response.message || 'Cache limpo com sucesso');
-      await loadCacheInfo();
-      await loadDashboard();
-    } catch (error) {
-      console.error('Error clearing cache:', error);
-      showError('Erro ao limpar cache');
     }
   };
 
@@ -269,6 +254,20 @@ export default function RemoteJobsAdminPage() {
     }
   };
 
+  const handleUpdateCronExpression = async (expression) => {
+    try {
+      setUpdatingCron(true);
+      const response = await remoteJobsAdminService.updateCronConfig(expression);
+      showSuccess(response.message || 'Cron atualizado com sucesso');
+      await loadCronConfig();
+    } catch (error) {
+      console.error('Error updating cron expression:', error);
+      showError('Erro ao atualizar configuração do cron');
+    } finally {
+      setUpdatingCron(false);
+    }
+  };
+
   if (loading && !dashboardStats) {
     return (
       <div className="bg-copilot-bg-primary min-h-screen flex items-center justify-center">
@@ -300,7 +299,6 @@ export default function RemoteJobsAdminPage() {
             { id: 'companies', label: 'Empresas', icon: Database },
             { id: 'job-boards', label: 'Job Boards', icon: Server },
             { id: 'scraping', label: 'Scraping', icon: RefreshCw },
-            { id: 'cache', label: 'Cache', icon: Server },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -374,14 +372,6 @@ export default function RemoteJobsAdminPage() {
                   >
                     <RefreshCw size={18} className={scraping ? 'animate-spin' : ''} />
                     {scraping ? 'Scrapando...' : 'Scrape All'}
-                  </button>
-
-                  <button
-                    onClick={() => handleClearCache()}
-                    className="btn-copilot-secondary flex items-center gap-2"
-                  >
-                    <Trash2 size={18} />
-                    Limpar Cache
                   </button>
 
                   <button
@@ -572,6 +562,62 @@ export default function RemoteJobsAdminPage() {
           {/* Scraping Tab */}
           {activeTab === 'scraping' && (
             <div className="space-y-6">
+              {/* Cron Configuration */}
+              {cronConfig && (
+                <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6">
+                  <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">
+                    Configuração do Agendamento
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div className="bg-copilot-bg-tertiary border border-copilot-border-default rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-copilot-text-secondary">Expressão Cron Atual:</span>
+                        <span className="font-mono text-copilot-accent-blue">{cronConfig.expression}</span>
+                      </div>
+                      <p className="text-sm text-copilot-text-secondary">
+                        {cronConfig.description}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-copilot-text-primary mb-2">
+                        Selecione um intervalo predefinido:
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {cronSuggestions.map((suggestion) => (
+                          <button
+                            key={suggestion.expression}
+                            onClick={() => handleUpdateCronExpression(suggestion.expression)}
+                            disabled={updatingCron || cronConfig.expression === suggestion.expression}
+                            className={`
+                              px-4 py-3 rounded-lg border text-left transition-colors
+                              ${cronConfig.expression === suggestion.expression
+                                ? 'border-copilot-accent-blue bg-copilot-accent-blue bg-opacity-10 text-copilot-accent-blue'
+                                : 'border-copilot-border-default bg-copilot-bg-tertiary text-copilot-text-primary hover:border-copilot-accent-blue'
+                              }
+                              disabled:opacity-50 disabled:cursor-not-allowed
+                            `}
+                          >
+                            <div className="font-medium text-sm">{suggestion.description}</div>
+                            <div className="font-mono text-xs text-copilot-text-tertiary mt-1">
+                              {suggestion.expression}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {updatingCron && (
+                      <div className="flex items-center gap-2 text-copilot-accent-blue">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-copilot-accent-blue border-t-transparent"></div>
+                        <span className="text-sm">Atualizando configuração...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6">
                 <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">
                   Status por Plataforma
@@ -623,65 +669,6 @@ export default function RemoteJobsAdminPage() {
                             </span>
                           </div>
                         )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Cache Tab */}
-          {activeTab === 'cache' && cacheInfo && (
-            <div className="space-y-6">
-              <div className="bg-copilot-bg-secondary border border-copilot-border-default rounded-copilot p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-copilot-text-primary">
-                    Informações de Cache
-                  </h3>
-                  <button
-                    onClick={() => handleClearCache()}
-                    className="btn-copilot-danger flex items-center gap-2"
-                  >
-                    <Trash2 size={18} />
-                    Limpar Tudo
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Object.entries(cacheInfo).map(([platform, info]) => (
-                    <div key={platform} className="bg-copilot-bg-tertiary border border-copilot-border-default rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-semibold text-copilot-text-primary capitalize">{platform}</h4>
-                        <button
-                          onClick={() => handleClearCache(platform)}
-                          className="p-1 hover:bg-copilot-bg-secondary rounded"
-                          title="Limpar cache"
-                        >
-                          <Trash2 size={16} className="text-copilot-accent-red" />
-                        </button>
-                      </div>
-
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-copilot-text-secondary">Vagas em cache:</span>
-                          <span className="text-copilot-text-primary font-semibold">
-                            {info.cached || 0}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-copilot-text-secondary">Status:</span>
-                          <span className={`
-                            px-2 py-0.5 rounded text-xs
-                            ${info.hasPlatformCache
-                              ? 'bg-copilot-accent-green bg-opacity-10 text-copilot-accent-green'
-                              : 'bg-copilot-text-tertiary bg-opacity-10 text-copilot-text-tertiary'
-                            }
-                          `}>
-                            {info.hasPlatformCache ? 'Cached' : 'Empty'}
-                          </span>
-                        </div>
                       </div>
                     </div>
                   ))}

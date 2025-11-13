@@ -10,6 +10,8 @@ import { Job } from './entities/job.entity';
 import { SavedJob } from './entities/saved-job.entity';
 import { JobBoard } from './entities/job-board.entity';
 import { JobBoardCompany } from './entities/job-board-company.entity';
+import { CronConfig } from './entities/cron-config.entity';
+import { RssFeed } from './entities/rss-feed.entity';
 
 // Services
 import { CompanyService } from './services/company.service';
@@ -18,6 +20,9 @@ import { JobBoardAggregatorService } from './services/job-board-aggregator.servi
 import { SavedJobService } from './services/saved-job.service';
 import { JobBoardCompanyService } from './services/job-board-company.service';
 import { RemoteJobsAdminService } from './services/remote-jobs-admin.service';
+import { JobScrapingCronService } from './services/job-scraping-cron.service';
+import { CronConfigService } from './services/cron-config.service';
+import { RssFeedService } from './services/rss-feed.service';
 
 // Scrapers
 import { GenericScraperService } from './scrapers/generic-scraper.service';
@@ -30,6 +35,7 @@ import { BuiltInScraperService } from './scrapers/builtin-scraper.service';
 import { WeWorkRemotelyScraperService } from './scrapers/weworkremotely-scraper.service';
 import { RemotiveScraperService } from './scrapers/remotive-scraper.service';
 import { RemoteYeahScraperService } from './scrapers/remoteyeah-scraper.service';
+import { RemoteYeahCompanyScraperService } from './scrapers/remoteyeah-company-scraper.service';
 
 // Controllers
 import { CompanyController } from './controllers/company.controller';
@@ -47,6 +53,8 @@ import { RemoteJobsAdminController } from './controllers/remote-jobs-admin.contr
       SavedJob,
       JobBoard,
       JobBoardCompany,
+      CronConfig,
+      RssFeed,
     ]),
     HttpModule,
     FirebaseModule,
@@ -68,6 +76,9 @@ import { RemoteJobsAdminController } from './controllers/remote-jobs-admin.contr
     SavedJobService,
     JobBoardCompanyService,
     RemoteJobsAdminService,
+    JobScrapingCronService,
+    CronConfigService,
+    RssFeedService,
     // Scrapers
     GenericScraperService,
     GreenhouseScraperService,
@@ -79,6 +90,7 @@ import { RemoteJobsAdminController } from './controllers/remote-jobs-admin.contr
     WeWorkRemotelyScraperService,
     RemotiveScraperService,
     RemoteYeahScraperService,
+    RemoteYeahCompanyScraperService,
   ],
   exports: [CompanyService, JobService, JobBoardAggregatorService],
 })

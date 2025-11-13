@@ -13,8 +13,10 @@ import {
   Logger,
 } from '@nestjs/common';
 import { RemoteJobsAdminService } from '../services/remote-jobs-admin.service';
+import { CronConfigService } from '../services/cron-config.service';
+import { JobScrapingCronService } from '../services/job-scraping-cron.service';
 import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
-import { RolesGuard } from '../../../common/guards/roles.guard';
+import { RolesGuard} from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 
 @Controller('admin/remote-jobs')
@@ -25,6 +27,8 @@ export class RemoteJobsAdminController {
 
   constructor(
     private readonly adminService: RemoteJobsAdminService,
+    private readonly cronConfigService: CronConfigService,
+    private readonly cronService: JobScrapingCronService,
   ) {}
 
   /**
@@ -257,30 +261,48 @@ export class RemoteJobsAdminController {
   }
 
   /**
-   * DELETE /admin/remote-jobs/cache/clear
-   * Clear all job cache
+   * GET /admin/remote-jobs/cron/config
+   * Get current cron configuration
    */
-  @Delete('cache/clear')
-  async clearCache(@Query('platform') platform?: string) {
-    await this.adminService.clearCache(platform);
+  @Get('cron/config')
+  async getCronConfig() {
+    const config = await this.cronConfigService.getCronConfig();
+    const description = this.cronConfigService.getCronDescription(config.value);
+    const suggestions = this.cronConfigService.getSuggestedExpressions();
+
     return {
       success: true,
-      message: platform
-        ? `Cache cleared for ${platform}`
-        : 'All cache cleared successfully',
+      data: {
+        expression: config.value,
+        description,
+        suggestions,
+      },
     };
   }
 
   /**
-   * GET /admin/remote-jobs/cache/info
-   * Get cache information
+   * PUT /admin/remote-jobs/cron/config
+   * Update cron expression
    */
-  @Get('cache/info')
-  async getCacheInfo() {
-    const info = await this.adminService.getCacheInfo();
+  @Put('cron/config')
+  async updateCronConfig(@Body('expression') expression: string) {
+    this.logger.log(`Admin updating cron expression to: ${expression}`);
+
+    const config = await this.cronConfigService.updateCronExpression(
+      expression,
+      this.cronService.handleCron.bind(this.cronService),
+    );
+
+    const description = this.cronConfigService.getCronDescription(config.value);
+
     return {
       success: true,
-      data: info,
+      data: {
+        expression: config.value,
+        description,
+      },
+      message: `Cron updated successfully: ${description}`,
     };
   }
+
 }

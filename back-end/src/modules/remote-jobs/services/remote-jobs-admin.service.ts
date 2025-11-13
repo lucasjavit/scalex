@@ -1,8 +1,6 @@
-import { Injectable, Logger, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 import { Company } from '../entities/company.entity';
 import { JobBoard } from '../entities/job-board.entity';
 import { JobBoardCompany } from '../entities/job-board-company.entity';
@@ -19,8 +17,6 @@ export class RemoteJobsAdminService {
     private readonly jobBoardRepository: Repository<JobBoard>,
     @InjectRepository(JobBoardCompany)
     private readonly jobBoardCompanyRepository: Repository<JobBoardCompany>,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
     private readonly aggregatorService: JobBoardAggregatorService,
   ) {}
 
@@ -38,11 +34,8 @@ export class RemoteJobsAdminService {
       where: { enabled: true },
     });
 
-    // Get scraping stats from cache
-    const scrapingStats = await this.cacheManager.get<any>('job-boards:last-scrape');
-
-    // Get cache info
-    const cacheInfo = await this.getCacheInfo();
+    // Get scraping stats from PostgreSQL
+    const scrapingStats = await this.aggregatorService.getScrapingStats();
 
     return {
       companies: {
@@ -58,11 +51,10 @@ export class RemoteJobsAdminService {
         disabled: totalJobBoardCompanies - enabledJobBoardCompanies,
       },
       scraping: {
-        lastRun: scrapingStats?.timestamp || null,
+        lastRun: null, // Now handled by cron service automatically
         totalJobs: scrapingStats?.total || 0,
         byPlatform: scrapingStats?.byPlatform || {},
       },
-      cache: cacheInfo,
     };
   }
 
@@ -364,67 +356,4 @@ export class RemoteJobsAdminService {
     return history;
   }
 
-  /**
-   * Clear cache
-   */
-  async clearCache(platform?: string) {
-    if (platform) {
-      // Clear specific platform cache
-      await this.cacheManager.del(`jobs:${platform}`);
-      await this.cacheManager.del(`jobs:platform:${platform}`);
-      this.logger.log(`Cache cleared for platform: ${platform}`);
-    } else {
-      // Clear all job caches
-      const platforms = [
-        'all',
-        'greenhouse',
-        'lever',
-        'workable',
-        'ashby',
-        'wellfound',
-        'builtin',
-        'weworkremotely',
-        'remotive',
-        'remoteyeah',
-      ];
-
-      for (const p of platforms) {
-        await this.cacheManager.del(`jobs:${p}`);
-        await this.cacheManager.del(`jobs:platform:${p}`);
-      }
-
-      await this.cacheManager.del('job-boards:last-scrape');
-      this.logger.log('All cache cleared');
-    }
-  }
-
-  /**
-   * Get cache information
-   */
-  async getCacheInfo() {
-    const platforms = [
-      'all',
-      'greenhouse',
-      'lever',
-      'workable',
-      'ashby',
-      'wellfound',
-      'builtin',
-      'weworkremotely',
-      'remotive',
-      'remoteyeah',
-    ];
-
-    const info: Record<string, any> = {};
-
-    for (const platform of platforms) {
-      const jobs = await this.cacheManager.get<any[]>(`jobs:platform:${platform}`);
-      info[platform] = {
-        cached: jobs ? jobs.length : 0,
-        hasPlatformCache: !!jobs,
-      };
-    }
-
-    return info;
-  }
 }

@@ -15,6 +15,7 @@ import { Company } from './company.entity';
 @Index(['companySlug'])
 @Index(['publishedAt'])
 @Index(['status'])
+@Index(['isActive'])
 export class Job {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -26,10 +27,13 @@ export class Job {
   platform: string; // Nome do job board/plataforma
 
   @Column({ nullable: true })
-  companySlug?: string; // FK para Company (opcional para testing)
+  companySlug?: string; // Deprecated: kept for backward compatibility, use companyId
+
+  @Column({ nullable: true })
+  companyId?: string; // FK para Company (UUID)
 
   @ManyToOne(() => Company, { nullable: true })
-  @JoinColumn({ name: 'companySlug', referencedColumnName: 'slug' })
+  @JoinColumn({ name: 'companyId' })
   company?: Company;
 
   @Column()
@@ -55,7 +59,7 @@ export class Job {
 
   @Column({
     type: 'enum',
-    enum: ['intern', 'junior', 'mid', 'senior', 'staff', 'principal'],
+    enum: ['entry', 'intern', 'junior', 'mid', 'senior', 'staff', 'principal'],
     nullable: true,
   })
   seniority: string;
@@ -84,6 +88,15 @@ export class Job {
 
   @Column({ type: 'timestamp' })
   scrapedAt: Date; // Quando foi coletado
+
+  @Column({ type: 'timestamp', nullable: true })
+  firstSeenAt: Date; // Quando a vaga foi vista pela primeira vez
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastSeenAt: Date; // Última vez que a vaga foi vista no scraping
+
+  @Column({ default: true })
+  isActive: boolean; // Se a vaga está ativa (ainda aparece no job board)
 
   @Column({
     type: 'enum',

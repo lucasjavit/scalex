@@ -71,15 +71,15 @@ class SavedJobsService {
   /**
    * Save a job for the user
    * @param {string} userId - User ID
-   * @param {Object} scrapedJob - Job data from scraping (Redis)
+   * @param {string} jobId - Job UUID from PostgreSQL
    * @returns {Promise<Object>} Saved job with all details
    */
-  async saveJob(userId, scrapedJob) {
+  async saveJob(userId, jobId) {
     return this.request('/remote-jobs/saved-jobs', {
       method: 'POST',
       body: JSON.stringify({
         userId,
-        scrapedJob,
+        jobId,
       }),
     });
   }
