@@ -92,6 +92,11 @@ import UserRolesManagement from "../pages/AdminPanel/UserRolesManagement";
 // Test Environment Variables
 import TestEnv from "../test-env";
 
+// Remote Jobs Module
+import JobsPage from "../modules/remote-jobs/pages/JobsPage";
+import SavedJobsPage from "../modules/remote-jobs/pages/SavedJobsPage";
+import JobDetailsPage from "../modules/remote-jobs/pages/JobDetailsPage";
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
@@ -214,11 +219,28 @@ export default function AppRoutes() {
                 </PrivateRoute>
               }
             />
+            {/* Remote Jobs Module */}
             <Route
-              path="/jobs/*"
+              path="/jobs"
               element={
                 <PrivateRoute>
-                  <ComingSoonPage moduleName="Vagas Remotas" moduleIcon="🌍" />
+                  <JobsPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/jobs/saved"
+              element={
+                <PrivateRoute>
+                  <SavedJobsPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/jobs/details/:id"
+              element={
+                <PrivateRoute>
+                  <JobDetailsPage />
                 </PrivateRoute>
               }
             />

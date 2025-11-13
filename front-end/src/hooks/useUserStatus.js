@@ -37,7 +37,14 @@ export const useUserStatus = () => {
         }
       } catch (err) {
         console.error('Error checking user status:', err);
-        setError('Error checking user status');
+        
+        // Handle connection errors gracefully
+        if (err.message?.includes('Failed to fetch') || err.message?.includes('ERR_CONNECTION_REFUSED')) {
+          console.warn('Backend server is not available. Please ensure the backend is running on port 3000.');
+          setError('Backend server unavailable. Please start the backend server.');
+        } else {
+          setError('Error checking user status');
+        }
         setUserStatus(null);
       } finally {
         setLoading(false);

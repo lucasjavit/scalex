@@ -1,12 +1,9 @@
 // Video Call Service
 // Handles video call related operations
-import { auth } from '../../../auth-social/services/firebaseAuth';
 import { getApiUrl } from '../../../../utils/apiUrl';
+import { auth } from '../../../auth-social/services/firebaseAuth';
 
 class VideoCallService {
-  constructor() {
-    this.baseURL = import.meta?.env?.VITE_API_URL ?? 'http://localhost:3000';
-  }
 
   // Helper to get auth headers with Firebase token
   async getAuthHeaders() {

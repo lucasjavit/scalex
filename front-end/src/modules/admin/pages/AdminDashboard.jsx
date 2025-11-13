@@ -4,6 +4,7 @@ import BackButton from '../../../components/BackButton';
 import { useUserStatus } from '../../../hooks/useUserStatus';
 import AdminLayout from '../components/AdminLayout';
 import adminApi from '../services/adminApi';
+import remoteJobsAdminService from '../../../services/remoteJobsAdminService';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -17,6 +18,11 @@ const AdminDashboard = () => {
     totalStages: '---',
     activeSessions: '---',
     totalUsers: '---',
+  });
+  const [remoteJobsStats, setRemoteJobsStats] = useState({
+    totalCompanies: '---',
+    totalJobs: '---',
+    activeJobBoards: '---',
   });
 
   // Fetch user statistics
@@ -78,6 +84,34 @@ const AdminDashboard = () => {
     }
   }, [userStatus]);
 
+  // Fetch Remote Jobs statistics
+  useEffect(() => {
+    const fetchRemoteJobsStats = async () => {
+      try {
+        console.log('🔍 Fetching Remote Jobs stats...');
+        const dashboard = await remoteJobsAdminService.getDashboard();
+
+        console.log('📊 Dashboard:', dashboard);
+
+        const stats = {
+          totalCompanies: dashboard?.data?.companies?.total || 0,
+          totalJobs: dashboard?.data?.scraping?.totalJobs || 0,
+          activeJobBoards: dashboard?.data?.jobBoards?.total || 0,
+        };
+
+        console.log('✅ Remote Jobs Stats:', stats);
+
+        setRemoteJobsStats(stats);
+      } catch (error) {
+        console.error('❌ Error fetching Remote Jobs statistics:', error);
+      }
+    };
+
+    if (userStatus?.role === 'admin') {
+      fetchRemoteJobsStats();
+    }
+  }, [userStatus]);
+
   const allModules = [
     {
       title: 'User Management',
@@ -111,6 +145,21 @@ const AdminDashboard = () => {
         { label: 'Video Call Sessions', href: '/admin/english-learning/video-call', icon: '🎥' },
       ]
       // No roles restriction - both admin and partner_english_course can see this
+    },
+    {
+      title: 'Remote Jobs Module',
+      description: 'Manage remote job listings and companies',
+      icon: '💼',
+      color: 'from-green-500 to-teal-500',
+      stats: [
+        { label: 'Total Companies', value: remoteJobsStats.totalCompanies, icon: '🏢' },
+        { label: 'Total Jobs', value: remoteJobsStats.totalJobs, icon: '💼' },
+        { label: 'Job Boards', value: remoteJobsStats.activeJobBoards, icon: '📋' },
+      ],
+      actions: [
+        { label: 'Manage Remote Jobs', href: '/admin/remote-jobs', icon: '💼' },
+      ],
+      roles: ['admin'] // Only admin can see this
     },
   ];
 
@@ -215,6 +264,13 @@ const AdminDashboard = () => {
                   <span className="text-3xl">🔑</span>
                   <span className="font-medium text-copilot-text-primary">Manage Roles</span>
                 </button>
+                <button
+                  onClick={() => navigate('/admin/remote-jobs')}
+                  className="flex flex-col items-center gap-2 p-4 bg-copilot-bg-primary hover:bg-teal-50 border border-copilot-border-default rounded-copilot transition-colors"
+                >
+                  <span className="text-3xl">💼</span>
+                  <span className="font-medium text-copilot-text-primary">Remote Jobs</span>
+                </button>
               </>
             )}
             <button
@@ -236,7 +292,8 @@ const AdminDashboard = () => {
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• All administrative functions are centralized in this panel</li>
                 <li>• User Management: View and manage all platform users</li>
-                <li>• Video Call: Control session schedules and monitor active calls</li>
+                <li>• English Learning: Manage courses, progress, and video call sessions</li>
+                <li>• Remote Jobs: Manage job listings, companies, and job board integrations</li>
               </ul>
             </div>
           </div>

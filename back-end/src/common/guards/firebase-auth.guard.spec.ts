@@ -10,6 +10,7 @@ describe('FirebaseAuthGuard', () => {
   let reflector: Reflector;
   let firebaseAdminService: jest.Mocked<FirebaseAdminService>;
   let usersService: jest.Mocked<UsersService>;
+  let logger: any;
 
   beforeEach(() => {
     reflector = new Reflector();
@@ -21,11 +22,19 @@ describe('FirebaseAuthGuard', () => {
       findByFirebaseUid: jest.fn(),
       create: jest.fn(),
     } as any;
+    logger = {
+      info: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      debug: jest.fn(),
+      setContext: jest.fn(),
+    } as any;
 
     guard = new FirebaseAuthGuard(
       reflector,
       firebaseAdminService,
       usersService,
+      logger,
     );
   });
 

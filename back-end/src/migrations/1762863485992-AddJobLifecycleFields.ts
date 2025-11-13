@@ -1,0 +1,30 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class AddJobLifecycleFields1762863485992 implements MigrationInterface {
+    name = 'AddJobLifecycleFields1762863485992'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`DROP INDEX "public"."IDX_job_board_company_unique"`);
+        await queryRunner.query(`ALTER TABLE "jobs" ADD "firstSeenAt" TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "jobs" ADD "lastSeenAt" TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "jobs" ADD "isActive" boolean NOT NULL DEFAULT true`);
+        await queryRunner.query(`COMMENT ON COLUMN "job_board_companies"."scraper_url" IS NULL`);
+        await queryRunner.query(`COMMENT ON COLUMN "job_board_companies"."scraping_status" IS NULL`);
+        await queryRunner.query(`ALTER TABLE "user_card_progress" ALTER COLUMN "ease_factor" SET DEFAULT '2.5'`);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_0c88f6b797898401b77526a525" ON "job_board_companies" ("job_board_id", "company_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_0438611f1bd3705dc884cfcc06" ON "jobs" ("isActive") `);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`DROP INDEX "public"."IDX_0438611f1bd3705dc884cfcc06"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_0c88f6b797898401b77526a525"`);
+        await queryRunner.query(`ALTER TABLE "user_card_progress" ALTER COLUMN "ease_factor" SET DEFAULT 2.5`);
+        await queryRunner.query(`COMMENT ON COLUMN "job_board_companies"."scraping_status" IS 'Status do último scraping: success, error, pending'`);
+        await queryRunner.query(`COMMENT ON COLUMN "job_board_companies"."scraper_url" IS 'URL específica para scraping dessa empresa nesse job board'`);
+        await queryRunner.query(`ALTER TABLE "jobs" DROP COLUMN "isActive"`);
+        await queryRunner.query(`ALTER TABLE "jobs" DROP COLUMN "lastSeenAt"`);
+        await queryRunner.query(`ALTER TABLE "jobs" DROP COLUMN "firstSeenAt"`);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_job_board_company_unique" ON "job_board_companies" ("job_board_id", "company_id") `);
+    }
+
+}

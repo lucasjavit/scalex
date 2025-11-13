@@ -10,7 +10,7 @@ describe('StagesController', () => {
   let service: StagesService;
 
   const mockStagesService = {
-    findAll: jest.fn(),
+    findAllWithProgress: jest.fn(),
     findOne: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -57,18 +57,18 @@ describe('StagesController', () => {
         },
       ];
 
-      mockStagesService.findAll.mockResolvedValue(mockStages);
+      mockStagesService.findAllWithProgress.mockResolvedValue(mockStages);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll('user-123');
 
       expect(result).toEqual(mockStages);
-      expect(service.findAll).toHaveBeenCalled();
+      expect(service.findAllWithProgress).toHaveBeenCalledWith('user-123');
     });
 
     it('should return empty array if no stages exist', async () => {
-      mockStagesService.findAll.mockResolvedValue([]);
+      mockStagesService.findAllWithProgress.mockResolvedValue([]);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll('user-123');
 
       expect(result).toEqual([]);
     });
@@ -123,7 +123,7 @@ describe('StagesController', () => {
 
       mockStagesService.create.mockResolvedValue(createdStage);
 
-      const result = await controller.create(createStageDto, mockUser);
+      const result = await controller.create(createStageDto, mockUser.id);
 
       expect(result).toEqual(createdStage);
       expect(service.create).toHaveBeenCalledWith(createStageDto, mockUser.id);
@@ -145,7 +145,7 @@ describe('StagesController', () => {
         ...invalidDto,
       });
 
-      await controller.create(invalidDto, mockUser);
+      await controller.create(invalidDto, mockUser.id);
 
       expect(service.create).toHaveBeenCalledWith(invalidDto, mockUser.id);
     });
@@ -172,7 +172,7 @@ describe('StagesController', () => {
 
       mockStagesService.update.mockResolvedValue(updatedStage);
 
-      const result = await controller.update(stageId, updateStageDto, mockUser);
+      const result = await controller.update(stageId, updateStageDto, mockUser.id);
 
       expect(result).toEqual(updatedStage);
       expect(service.update).toHaveBeenCalledWith(
@@ -198,7 +198,7 @@ describe('StagesController', () => {
         orderIndex: 1,
       });
 
-      const result = await controller.update(stageId, updateStageDto, mockUser);
+      const result = await controller.update(stageId, updateStageDto, mockUser.id);
 
       expect(service.update).toHaveBeenCalledWith(
         stageId,
@@ -215,7 +215,7 @@ describe('StagesController', () => {
       );
 
       await expect(
-        controller.update('stage-999', { title: 'Test' }, mockUser),
+        controller.update('stage-999', { title: 'Test' }, mockUser.id),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -227,7 +227,7 @@ describe('StagesController', () => {
 
       mockStagesService.remove.mockResolvedValue(undefined);
 
-      await controller.remove(stageId, mockUser);
+      await controller.remove(stageId, mockUser.id);
 
       expect(service.remove).toHaveBeenCalledWith(stageId, mockUser.id);
     });
@@ -239,7 +239,7 @@ describe('StagesController', () => {
         new NotFoundException('Stage with ID stage-999 not found'),
       );
 
-      await expect(controller.remove('stage-999', mockUser)).rejects.toThrow(
+      await expect(controller.remove('stage-999', mockUser.id)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -253,7 +253,7 @@ describe('StagesController', () => {
       // The service should handle soft delete via deletedAt field
       mockStagesService.remove.mockResolvedValue(undefined);
 
-      await controller.remove(stageId, mockUser);
+      await controller.remove(stageId, mockUser.id);
 
       expect(service.remove).toHaveBeenCalledWith(stageId, mockUser.id);
       // Soft deletion is handled at service level

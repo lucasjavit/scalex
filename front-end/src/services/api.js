@@ -2,12 +2,7 @@
 import { auth } from '../modules/auth-social/services/firebaseAuth';
 import { getApiUrl } from '../utils/apiUrl';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
 class ApiService {
-  constructor() {
-    this.baseURL = API_BASE_URL;
-  }
 
   // Get Firebase auth token
   async getAuthToken() {
@@ -69,6 +64,13 @@ class ApiService {
         return null;
       }
     } catch (error) {
+      // Provide more helpful error messages for connection issues
+      if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
+        const connectionError = new Error('Connection refused. Please ensure the backend server is running on port 3000.');
+        connectionError.originalError = error;
+        console.error('API request failed:', connectionError);
+        throw connectionError;
+      }
       console.error('API request failed:', error);
       throw error;
     }

@@ -241,7 +241,7 @@ export default function Home() {
                 title={t('home.business.jobs', 'Vagas Remotas')}
                 description={t('home.business.jobsDesc', 'Trabalho internacional')}
                 onClick={() => navigate('/jobs')}
-                status="coming-soon"
+                status="active"
               />
               <MacroModuleCard
                 icon="🛡️"
