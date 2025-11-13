@@ -1,10 +1,17 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { seedATSPlatforms } from '../seeds/seed-ats-platforms';
+import { seedAggregators } from '../seeds/seed-aggregators';
 import { seedPopularCompanies } from '../seeds/seed-popular-companies';
 
 /**
  * Serviço responsável por inicializar o banco de dados
  * Roda seeds automaticamente quando o backend inicia
+ *
+ * Ordem de execução:
+ * 1. ATS Platforms (lever, greenhouse, workable, ashby)
+ * 2. Aggregators (wellfound, builtin, weworkremotely, remotive, remoteyeah)
+ * 3. Popular Companies (93 empresas que usam as plataformas acima)
  */
 @Injectable()
 export class DatabaseInitService implements OnModuleInit {
@@ -16,10 +23,38 @@ export class DatabaseInitService implements OnModuleInit {
     this.logger.log('🔧 Initializing database...');
 
     try {
-      // Roda o seed de empresas populares
+      // 1. Criar job_boards para plataformas ATS (DEVE vir primeiro)
+      await this.runATSPlatformsSeed();
+
+      // 2. Criar job_boards para agregadores
+      await this.runAggregatorsSeed();
+
+      // 3. Criar empresas populares (depende dos job_boards criados acima)
       await this.runPopularCompaniesSeed();
+
+      this.logger.log('✅ Database initialization completed successfully');
     } catch (error) {
       this.logger.error(`❌ Error during database initialization: ${error.message}`);
+    }
+  }
+
+  private async runATSPlatformsSeed() {
+    try {
+      this.logger.log('🌱 Running ATS platforms seed...');
+      await seedATSPlatforms(this.dataSource);
+      this.logger.log('✅ ATS platforms seed completed');
+    } catch (error) {
+      this.logger.error(`❌ Error running ATS platforms seed: ${error.message}`);
+    }
+  }
+
+  private async runAggregatorsSeed() {
+    try {
+      this.logger.log('🌱 Running aggregators seed...');
+      await seedAggregators(this.dataSource);
+      this.logger.log('✅ Aggregators seed completed');
+    } catch (error) {
+      this.logger.error(`❌ Error running aggregators seed: ${error.message}`);
     }
   }
 
