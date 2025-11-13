@@ -4,7 +4,8 @@ export class AddJobLifecycleFields1762863485992 implements MigrationInterface {
     name = 'AddJobLifecycleFields1762863485992'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_job_board_company_unique"`);
+        // Drop the actual index that was created by CreateJobBoardCompaniesTable migration
+        await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_job_board_companies_job_board_company"`);
         await queryRunner.query(`ALTER TABLE "jobs" ADD COLUMN IF NOT EXISTS "firstSeenAt" TIMESTAMP`);
         await queryRunner.query(`ALTER TABLE "jobs" ADD COLUMN IF NOT EXISTS "lastSeenAt" TIMESTAMP`);
         await queryRunner.query(`ALTER TABLE "jobs" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true`);
@@ -24,7 +25,8 @@ export class AddJobLifecycleFields1762863485992 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "jobs" DROP COLUMN "isActive"`);
         await queryRunner.query(`ALTER TABLE "jobs" DROP COLUMN "lastSeenAt"`);
         await queryRunner.query(`ALTER TABLE "jobs" DROP COLUMN "firstSeenAt"`);
-        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_job_board_company_unique" ON "job_board_companies" ("job_board_id", "company_id") `);
+        // Recreate the original index that was dropped in the up() method
+        await queryRunner.query(`CREATE INDEX "IDX_job_board_companies_job_board_company" ON "job_board_companies" ("job_board_id", "company_id") `);
     }
 
 }
