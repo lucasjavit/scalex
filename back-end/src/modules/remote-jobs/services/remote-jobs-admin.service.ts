@@ -1,10 +1,16 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Company } from '../entities/company.entity';
 import { JobBoard } from '../entities/job-board.entity';
 import { JobBoardCompany } from '../entities/job-board-company.entity';
 import { JobBoardAggregatorService } from './job-board-aggregator.service';
+import { seedWorkableCompanies } from '../seeds/seed-workable-companies';
+import { seedLeverCompanies } from '../seeds/seed-lever-companies';
+import { seedGreenhouseCompanies } from '../seeds/seed-greenhouse-companies';
+import { seedAshbyCompanies } from '../seeds/seed-ashby-companies';
+import { seedBuiltInCompanies } from '../seeds/seed-builtin-companies';
+import { seedAggregators } from '../seeds/seed-aggregators';
 
 @Injectable()
 export class RemoteJobsAdminService {
@@ -18,6 +24,7 @@ export class RemoteJobsAdminService {
     @InjectRepository(JobBoardCompany)
     private readonly jobBoardCompanyRepository: Repository<JobBoardCompany>,
     private readonly aggregatorService: JobBoardAggregatorService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -354,6 +361,107 @@ export class RemoteJobsAdminService {
       .getMany();
 
     return history;
+  }
+
+  /**
+   * Run all seeds to populate companies and job boards
+   * This will populate the database with companies from all platforms
+   */
+  async runAllSeeds() {
+    this.logger.log('🌍 Iniciando execução de todos os seeds...');
+
+    const results = {
+      workable: { success: false, error: null },
+      lever: { success: false, error: null },
+      greenhouse: { success: false, error: null },
+      ashby: { success: false, error: null },
+      builtin: { success: false, error: null },
+      aggregators: { success: false, error: null },
+    };
+
+    try {
+      // 1. Workable
+      this.logger.log('📍 [1/6] Executando seed Workable...');
+      try {
+        await seedWorkableCompanies(this.dataSource);
+        results.workable.success = true;
+        this.logger.log('✅ Workable concluído');
+      } catch (error) {
+        results.workable.error = error.message;
+        this.logger.error(`❌ Erro no seed Workable: ${error.message}`);
+      }
+
+      // 2. Lever
+      this.logger.log('📍 [2/6] Executando seed Lever...');
+      try {
+        await seedLeverCompanies(this.dataSource);
+        results.lever.success = true;
+        this.logger.log('✅ Lever concluído');
+      } catch (error) {
+        results.lever.error = error.message;
+        this.logger.error(`❌ Erro no seed Lever: ${error.message}`);
+      }
+
+      // 3. Greenhouse
+      this.logger.log('📍 [3/6] Executando seed Greenhouse...');
+      try {
+        await seedGreenhouseCompanies(this.dataSource);
+        results.greenhouse.success = true;
+        this.logger.log('✅ Greenhouse concluído');
+      } catch (error) {
+        results.greenhouse.error = error.message;
+        this.logger.error(`❌ Erro no seed Greenhouse: ${error.message}`);
+      }
+
+      // 4. Ashby
+      this.logger.log('📍 [4/6] Executando seed Ashby...');
+      try {
+        await seedAshbyCompanies(this.dataSource);
+        results.ashby.success = true;
+        this.logger.log('✅ Ashby concluído');
+      } catch (error) {
+        results.ashby.error = error.message;
+        this.logger.error(`❌ Erro no seed Ashby: ${error.message}`);
+      }
+
+      // 5. Built In
+      this.logger.log('📍 [5/6] Executando seed Built In...');
+      try {
+        await seedBuiltInCompanies(this.dataSource);
+        results.builtin.success = true;
+        this.logger.log('✅ Built In concluído');
+      } catch (error) {
+        results.builtin.error = error.message;
+        this.logger.error(`❌ Erro no seed Built In: ${error.message}`);
+      }
+
+      // 6. Agregadores
+      this.logger.log('📍 [6/6] Executando seed Agregadores...');
+      try {
+        await seedAggregators(this.dataSource);
+        results.aggregators.success = true;
+        this.logger.log('✅ Agregadores concluído');
+      } catch (error) {
+        results.aggregators.error = error.message;
+        this.logger.error(`❌ Erro no seed Agregadores: ${error.message}`);
+      }
+
+      const successCount = Object.values(results).filter(r => r.success).length;
+      this.logger.log(`🎉 Seeds concluídos: ${successCount}/6 com sucesso`);
+
+      return {
+        success: successCount > 0,
+        results,
+        summary: {
+          total: 6,
+          successful: successCount,
+          failed: 6 - successCount,
+        },
+      };
+    } catch (error) {
+      this.logger.error(`❌ Erro geral ao executar seeds: ${error.message}`);
+      throw error;
+    }
   }
 
 }

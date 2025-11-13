@@ -305,4 +305,20 @@ export class RemoteJobsAdminController {
     };
   }
 
+  /**
+   * POST /admin/remote-jobs/seeds/run-all
+   * Run all seeds to populate companies and job boards
+   * This will populate the database with companies from all platforms
+   */
+  @Post('seeds/run-all')
+  async runAllSeeds() {
+    this.logger.log('Admin triggered seed execution');
+    const result = await this.adminService.runAllSeeds();
+    return {
+      success: true,
+      data: result,
+      message: `Seeds executed: ${result.summary.successful}/${result.summary.total} successful`,
+    };
+  }
+
 }
