@@ -97,6 +97,11 @@ import JobsPage from "../modules/remote-jobs/pages/JobsPage";
 import SavedJobsPage from "../modules/remote-jobs/pages/SavedJobsPage";
 import JobDetailsPage from "../modules/remote-jobs/pages/JobDetailsPage";
 
+// Accounting Module
+import RequestCNPJ from "../modules/accounting/pages/RequestCNPJ";
+import MyRequests from "../modules/accounting/pages/MyRequests";
+import RequestDetails from "../modules/accounting/pages/RequestDetails";
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
@@ -202,12 +207,28 @@ export default function AppRoutes() {
               }
             />
 
-            {/* New Modules - Placeholder Routes */}
+            {/* Accounting Module Routes */}
             <Route
-              path="/accounting/*"
+              path="/accounting/request-cnpj"
               element={
                 <PrivateRoute>
-                  <ComingSoonPage moduleName="Contabilidade" moduleIcon="📊" />
+                  <RequestCNPJ />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/my-requests"
+              element={
+                <PrivateRoute>
+                  <MyRequests />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/requests/:id"
+              element={
+                <PrivateRoute>
+                  <RequestDetails />
                 </PrivateRoute>
               }
             />
