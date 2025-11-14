@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CompanyRegistrationRequest } from './entities/company-registration-request.entity';
 import { RequestDocument } from './entities/request-document.entity';
 import { RegistrationRequestService } from './services/registration-request.service';
+import { RegistrationRequestController } from './controllers/registration-request.controller';
 import { User } from '../../users/entities/user.entity';
 
 /**
@@ -25,7 +26,7 @@ import { User } from '../../users/entities/user.entity';
       User, // Needed for accountant assignment
     ]),
   ],
-  controllers: [],
+  controllers: [RegistrationRequestController],
   providers: [RegistrationRequestService],
   exports: [RegistrationRequestService],
 })
