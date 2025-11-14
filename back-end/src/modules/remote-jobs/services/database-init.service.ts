@@ -5,8 +5,8 @@ import { seedAshbyCompanies } from '../seeds/seed-ashby-companies';
 import { seedATSPlatforms } from '../seeds/seed-ats-platforms';
 import { seedBuiltInCompanies } from '../seeds/seed-builtin-companies';
 import { seedPopularCompanies } from '../seeds/seed-popular-companies';
-import { seedWeWorkRemotelyCompanies } from '../seeds/seed-weworkremotely-companies';
 import { seedRemotiveCompanies } from '../seeds/seed-remotive-companies';
+import { seedWeWorkRemotelyCompanies } from '../seeds/seed-weworkremotely-companies';
 
 /**
  * Serviço responsável por inicializar o banco de dados
