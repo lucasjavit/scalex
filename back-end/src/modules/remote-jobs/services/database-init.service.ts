@@ -5,6 +5,7 @@ import { seedAshbyCompanies } from '../seeds/seed-ashby-companies';
 import { seedATSPlatforms } from '../seeds/seed-ats-platforms';
 import { seedBuiltInCompanies } from '../seeds/seed-builtin-companies';
 import { seedPopularCompanies } from '../seeds/seed-popular-companies';
+import { seedRemotiveCompanies } from '../seeds/seed-remotive-companies';
 import { seedWeWorkRemotelyCompanies } from '../seeds/seed-weworkremotely-companies';
 
 /**
@@ -17,7 +18,8 @@ import { seedWeWorkRemotelyCompanies } from '../seeds/seed-weworkremotely-compan
  * 3. Ashby Companies - popula empresas do Ashby (depende do job_board ashby)
  * 4. Built In Companies - popula empresas do Built In (depende do job_board builtin)
  * 5. We Work Remotely Companies - popula empresas do We Work Remotely (depende do job_board weworkremotely)
- * 6. Popular Companies (93 empresas que usam as plataformas acima)
+ * 6. Remotive Companies - popula empresas do Remotive (depende do job_board remotive)
+ * 7. Popular Companies (93 empresas que usam as plataformas acima)
  */
 @Injectable()
 export class DatabaseInitService implements OnModuleInit {
@@ -44,7 +46,10 @@ export class DatabaseInitService implements OnModuleInit {
       // 5. Popular empresas do We Work Remotely (depende do job_board weworkremotely criado acima)
       await this.runWeWorkRemotelyCompaniesSeed();
 
-      // 6. Criar empresas populares (depende dos job_boards criados acima)
+      // 6. Popular empresas do Remotive (depende do job_board remotive criado acima)
+      await this.runRemotiveCompaniesSeed();
+
+      // 7. Criar empresas populares (depende dos job_boards criados acima)
       await this.runPopularCompaniesSeed();
 
       this.logger.log('✅ Database initialization completed successfully');
@@ -100,6 +105,16 @@ export class DatabaseInitService implements OnModuleInit {
       this.logger.log('✅ We Work Remotely companies seed completed');
     } catch (error) {
       this.logger.error(`❌ Error running We Work Remotely companies seed: ${error.message}`);
+    }
+  }
+
+  private async runRemotiveCompaniesSeed() {
+    try {
+      this.logger.log('🌱 Running Remotive companies seed...');
+      await seedRemotiveCompanies(this.dataSource);
+      this.logger.log('✅ Remotive companies seed completed');
+    } catch (error) {
+      this.logger.error(`❌ Error running Remotive companies seed: ${error.message}`);
     }
   }
 
