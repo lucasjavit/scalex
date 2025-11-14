@@ -1,6 +1,6 @@
+import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 import { seedRemoteYeahCompanies } from './seed-remoteyeah-companies';
-import * as dotenv from 'dotenv';
 
 // Carrega variáveis de ambiente
 dotenv.config();
@@ -23,12 +23,12 @@ async function runSeed() {
     await dataSource.initialize();
     console.log('✅ Conectado!\n');
 
-    // Executa o seed do RemoteYeah empresas
+    // Executa o seed do RemoteYeah Companies
     await seedRemoteYeahCompanies(dataSource);
 
     console.log('\n🎉 Processo finalizado com sucesso!');
   } catch (error) {
-    console.error('❌ Erro ao executar seed:', error);
+    console.error('\n❌ Erro ao executar seed:', error);
     process.exit(1);
   } finally {
     await dataSource.destroy();
