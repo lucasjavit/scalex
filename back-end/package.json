@@ -33,6 +33,7 @@
     "seed:ashby:discover": "ts-node src/modules/remote-jobs/seeds/run-discover-ashby.ts",
     "seed:builtin": "ts-node src/modules/remote-jobs/seeds/run-seed-builtin.ts",
     "seed:weworkremotely-companies": "ts-node src/modules/remote-jobs/seeds/run-seed-weworkremotely-companies.ts",
+    "seed:remotive-companies": "ts-node src/modules/remote-jobs/seeds/run-seed-remotive-companies.ts",
     "seed:aggregators": "ts-node src/modules/remote-jobs/seeds/run-seed-aggregators.ts",
     "seed:all": "ts-node src/modules/remote-jobs/seeds/run-seed-all.ts",
     "seed:remote-companies": "ts-node scripts/seed-remote-companies.ts",
