@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { accountingApi } from '../../../services/accountingApi';
+import ChatBox from '../components/ChatBox';
 
 const STATUS_LABELS = {
   pending: 'Pendente',
@@ -198,6 +199,43 @@ export default function RequestDetails() {
           </div>
         )}
       </div>
+
+      {/* Chat Section - Only show if accountant is assigned */}
+      {request.assignedToId && (
+        <div className="mt-8 bg-white shadow-lg rounded-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Chat com o Contador
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Converse diretamente com {request.assignedTo?.full_name || 'seu contador'} sobre sua solicitação.
+          </p>
+
+          <ChatBox
+            requestId={request.id}
+            receiverId={request.assignedToId}
+            currentUserId={localStorage.getItem('userId')}
+          />
+        </div>
+      )}
+
+      {/* Info box when no accountant assigned yet */}
+      {!request.assignedToId && request.status === 'pending' && (
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="flex items-start">
+            <svg className="w-6 h-6 text-blue-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                Aguardando atribuição de contador
+              </h3>
+              <p className="text-blue-800">
+                Em breve um contador será atribuído à sua solicitação e você poderá conversar diretamente com ele através do chat.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
