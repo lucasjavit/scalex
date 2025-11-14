@@ -98,6 +98,7 @@ import SavedJobsPage from "../modules/remote-jobs/pages/SavedJobsPage";
 import JobDetailsPage from "../modules/remote-jobs/pages/JobDetailsPage";
 
 // Accounting Module
+import AccountingHome from "../modules/accounting/pages/AccountingHome";
 import RequestCNPJ from "../modules/accounting/pages/RequestCNPJ";
 import MyRequests from "../modules/accounting/pages/MyRequests";
 import RequestDetails from "../modules/accounting/pages/RequestDetails";
@@ -208,6 +209,14 @@ export default function AppRoutes() {
             />
 
             {/* Accounting Module Routes */}
+            <Route
+              path="/accounting"
+              element={
+                <PrivateRoute>
+                  <AccountingHome />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/accounting/request-cnpj"
               element={
