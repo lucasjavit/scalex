@@ -10,6 +10,7 @@ import { EnglishCourseModule } from './modules/english-learning/course/english-c
 import { UsersModule } from './users/users.module';
 import { FirebaseModule } from './common/firebase/firebase.module';
 import { RemoteJobsModule } from './modules/remote-jobs/remote-jobs.module';
+import { AccountingModule } from './modules/accounting/accounting.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { RemoteJobsModule } from './modules/remote-jobs/remote-jobs.module';
     EnglishCourseModule,
     FirebaseModule,
     RemoteJobsModule,
+    AccountingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

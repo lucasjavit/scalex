@@ -6,6 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  BaseEntity,
 } from 'typeorm';
 import { User } from '../../../users/entities/user.entity';
 
@@ -38,7 +39,7 @@ export enum RequestStatus {
  * Can be CANCELLED at any stage.
  */
 @Entity('company_registration_requests')
-export class CompanyRegistrationRequest {
+export class CompanyRegistrationRequest extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
