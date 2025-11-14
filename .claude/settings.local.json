@@ -55,7 +55,9 @@
       "Bash(git checkout:*)",
       "Bash(npm run start:dev:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(timeout 30 npm run start:dev)",
+      "Bash(npm test:*)"
     ],
     "deny": [],
     "ask": []
