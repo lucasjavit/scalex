@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
@@ -81,4 +82,10 @@ export class CompanyRegistrationRequest extends BaseEntity {
 
   @Column({ name: 'cancelled_at', type: 'timestamp with time zone', nullable: true })
   cancelledAt: Date | null;
+
+  /**
+   * Chat messages related to this request
+   */
+  @OneToMany('AccountingMessage', 'request')
+  messages: any[]; // Use 'any' to avoid circular dependency
 }
