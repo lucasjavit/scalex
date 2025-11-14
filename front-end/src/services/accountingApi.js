@@ -157,6 +157,62 @@ class AccountingApiService {
   async cancelRequest(requestId, reason = null) {
     return this.updateRequestStatus(requestId, 'cancelled', reason);
   }
+
+  // ==================== MESSAGING METHODS ====================
+
+  /**
+   * Send a message
+   * @param {Object} messageData - Message data
+   * @param {string} messageData.requestId - Request ID (optional)
+   * @param {string} messageData.companyId - Company ID (optional)
+   * @param {string} messageData.receiverId - Receiver user ID
+   * @param {string} messageData.message - Message content
+   * @param {string} messageData.attachment - Attachment path (optional)
+   * @returns {Promise<Object>} Created message
+   */
+  async sendMessage(messageData) {
+    return this.request('/accounting/messages', {
+      method: 'POST',
+      body: JSON.stringify(messageData),
+    });
+  }
+
+  /**
+   * Get messages for a request
+   * @param {string} requestId - Request ID
+   * @returns {Promise<Array>} Array of messages
+   */
+  async getMessagesByRequest(requestId) {
+    return this.request(`/accounting/messages/request/${requestId}`);
+  }
+
+  /**
+   * Get messages for a company
+   * @param {string} companyId - Company ID
+   * @returns {Promise<Array>} Array of messages
+   */
+  async getMessagesByCompany(companyId) {
+    return this.request(`/accounting/messages/company/${companyId}`);
+  }
+
+  /**
+   * Mark a message as read
+   * @param {string} messageId - Message ID
+   * @returns {Promise<Object>} Updated message
+   */
+  async markMessageAsRead(messageId) {
+    return this.request(`/accounting/messages/${messageId}/read`, {
+      method: 'PATCH',
+    });
+  }
+
+  /**
+   * Get count of unread messages
+   * @returns {Promise<Object>} Object with count property
+   */
+  async getUnreadMessageCount() {
+    return this.request('/accounting/messages/unread-count');
+  }
 }
 
 // Create and export a singleton instance
