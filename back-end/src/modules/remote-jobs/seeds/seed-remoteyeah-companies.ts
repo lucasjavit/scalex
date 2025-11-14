@@ -1,108 +1,719 @@
 import { DataSource } from 'typeorm';
-import * as fs from 'fs';
-import * as path from 'path';
 
 /**
- * Script para popular companies com empresas do RemoteYeah
- * Execute com: npm run seed:remoteyeah
+ * Script para popular job_boards e job_board_companies com empresas do RemoteYeah
+ * RemoteYeah lista empresas em: https://remoteyeah.com/remote-companies
+ * Execute com: npm run seed:remoteyeah-companies
  */
 export async function seedRemoteYeahCompanies(dataSource: DataSource) {
-  const companyRepo = dataSource.getRepository('companies');
   const jobBoardRepo = dataSource.getRepository('job_boards');
-  const jobBoardCompanyRepo = dataSource.getRepository('job_board_companies');
+  const companyRepo = dataSource.getRepository('companies');
+  const jbcRepo = dataSource.getRepository('job_board_companies');
 
-  console.log('🌱 Iniciando seed das empresas do RemoteYeah...');
+  console.log('🌱 Iniciando seed das empresas RemoteYeah...');
 
-  // Carrega JSON file (está na raiz do projeto back-end)
-  const jsonPath = path.join(process.cwd(), 'remoteyeah-companies.json');
-  const remoteyeahData = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
-
-  // 1. Buscar job_board remoteyeah
-  const remoteyeahBoard = await jobBoardRepo.findOne({
+  // 1. Criar/buscar o job board "remoteyeah"
+  let remoteyeahBoard = await jobBoardRepo.findOne({
     where: { slug: 'remoteyeah' },
   });
 
   if (!remoteyeahBoard) {
-    console.error('❌ Job board "remoteyeah" não encontrado');
-    console.log('💡 Execute o seed de agregadores primeiro: npm run seed:aggregators');
-    return;
+    remoteyeahBoard = await jobBoardRepo.save({
+      slug: 'remoteyeah',
+      name: 'RemoteYeah',
+      url: 'https://remoteyeah.com',
+      scraper: 'remoteyeah',
+      enabled: true,
+      priority: 4,
+      description: 'Agregador de vagas remotas curadas',
+    });
+    console.log('✅ Job board "remoteyeah" criado');
+  } else {
+    console.log('ℹ️  Job board "remoteyeah" já existe');
   }
 
-  console.log('✅ Job board "remoteyeah" encontrado');
+  // 2. Lista de empresas do RemoteYeah
+  // RemoteYeah URL pattern: https://remoteyeah.com/remote-companies/{slug}
+  const companies = [
+    // 🚀 Tech Giants & Unicorns
+    { slug: 'stripe', name: 'Stripe', description: 'Payment infrastructure' },
+    { slug: 'airbnb', name: 'Airbnb', description: 'Vacation rentals and experiences' },
+    { slug: 'coinbase', name: 'Coinbase', description: 'Cryptocurrency exchange' },
+    { slug: 'notion', name: 'Notion', description: 'Productivity and note-taking' },
+    { slug: 'figma', name: 'Figma', description: 'Design and prototyping' },
+    { slug: 'github', name: 'GitHub', description: 'Code hosting platform' },
+    { slug: 'gitlab', name: 'GitLab', description: 'DevOps platform' },
+    { slug: 'shopify', name: 'Shopify', description: 'E-commerce platform' },
+    { slug: 'dropbox', name: 'Dropbox', description: 'Cloud storage' },
+    { slug: 'automattic', name: 'Automattic', description: 'WordPress.com' },
+    { slug: 'buffer', name: 'Buffer', description: 'Social media management' },
+    { slug: 'toptal', name: 'Toptal', description: 'Freelance talent network' },
+    { slug: 'zapier', name: 'Zapier', description: 'Automation platform' },
+    { slug: 'basecamp', name: 'Basecamp', description: 'Project management' },
+    { slug: '37signals', name: '37signals', description: 'Basecamp, HEY' },
+    { slug: 'duckduckgo', name: 'DuckDuckGo', description: 'Privacy-focused search' },
+    { slug: 'mozilla', name: 'Mozilla', description: 'Firefox, web standards' },
+    { slug: 'elastic', name: 'Elastic', description: 'Search and analytics' },
+    { slug: 'mongodb', name: 'MongoDB', description: 'NoSQL database' },
+    { slug: 'redis', name: 'Redis', description: 'In-memory database' },
+    { slug: 'datadog', name: 'Datadog', description: 'Monitoring and analytics' },
+    { slug: 'newrelic', name: 'New Relic', description: 'Observability platform' },
+    { slug: 'sentry', name: 'Sentry', description: 'Error tracking' },
+    { slug: 'rollbar', name: 'Rollbar', description: 'Error tracking' },
+    { slug: 'cloudflare', name: 'Cloudflare', description: 'CDN and security' },
+    { slug: 'fastly', name: 'Fastly', description: 'Edge cloud platform' },
+    { slug: 'twilio', name: 'Twilio', description: 'Communications APIs' },
+    { slug: 'auth0', name: 'Auth0', description: 'Identity platform' },
+    { slug: 'okta', name: 'Okta', description: 'Identity management' },
+    { slug: '1password', name: '1Password', description: 'Password manager' },
+    { slug: 'lastpass', name: 'LastPass', description: 'Password manager' },
+    { slug: 'hashicorp', name: 'HashiCorp', description: 'Infrastructure tools' },
+    { slug: 'circleci', name: 'CircleCI', description: 'CI/CD platform' },
+    { slug: 'travisci', name: 'Travis CI', description: 'CI/CD platform' },
+    { slug: 'netlify', name: 'Netlify', description: 'Web hosting' },
+    { slug: 'vercel', name: 'Vercel', description: 'Frontend cloud platform' },
+    { slug: 'render', name: 'Render', description: 'Cloud hosting' },
+    { slug: 'railway', name: 'Railway', description: 'Cloud platform' },
+    { slug: 'fly', name: 'Fly.io', description: 'Edge computing' },
+    { slug: 'planetscale', name: 'PlanetScale', description: 'MySQL platform' },
+    { slug: 'supabase', name: 'Supabase', description: 'Firebase alternative' },
+    { slug: 'convex', name: 'Convex', description: 'Backend platform' },
+    { slug: 'firebase', name: 'Firebase', description: 'Google backend' },
+    { slug: 'aws', name: 'AWS', description: 'Amazon Web Services' },
+    { slug: 'gcp', name: 'Google Cloud', description: 'Google Cloud Platform' },
+    { slug: 'azure', name: 'Microsoft Azure', description: 'Cloud platform' },
+    { slug: 'digitalocean', name: 'DigitalOcean', description: 'Cloud hosting' },
+    { slug: 'heroku', name: 'Heroku', description: 'Platform as a service' },
 
-  let created = 0;
-  let updated = 0;
-  let skipped = 0;
-  let relationsCreated = 0;
+    // 💰 FinTech
+    { slug: 'chime', name: 'Chime', description: 'Mobile banking' },
+    { slug: 'robinhood', name: 'Robinhood', description: 'Stock trading app' },
+    { slug: 'square', name: 'Square', description: 'Payment processing' },
+    { slug: 'plaid', name: 'Plaid', description: 'Financial services API' },
+    { slug: 'brex', name: 'Brex', description: 'Corporate cards' },
+    { slug: 'ramp', name: 'Ramp', description: 'Corporate finance' },
+    { slug: 'mercury', name: 'Mercury', description: 'Banking for startups' },
+    { slug: 'gusto', name: 'Gusto', description: 'Payroll and benefits' },
+    { slug: 'deel', name: 'Deel', description: 'Global payroll' },
+    { slug: 'wise', name: 'Wise', description: 'Money transfer' },
+    { slug: 'revolut', name: 'Revolut', description: 'Digital banking' },
+    { slug: 'n26', name: 'N26', description: 'Digital banking' },
+    { slug: 'affirm', name: 'Affirm', description: 'Buy now pay later' },
+    { slug: 'klarna', name: 'Klarna', description: 'Buy now pay later' },
+    { slug: 'paypal', name: 'PayPal', description: 'Payments' },
+    { slug: 'adyen', name: 'Adyen', description: 'Payments' },
 
-  const companies = remoteyeahData.companies;
-  console.log(`📋 ${companies.length} empresas para processar\n`);
+    // 🤖 AI & Machine Learning
+    { slug: 'openai', name: 'OpenAI', description: 'AI research and deployment' },
+    { slug: 'anthropic', name: 'Anthropic', description: 'AI safety research' },
+    { slug: 'cohere', name: 'Cohere', description: 'Enterprise AI' },
+    { slug: 'scale', name: 'Scale AI', description: 'AI data platform' },
+    { slug: 'huggingface', name: 'Hugging Face', description: 'ML model hub' },
+    { slug: 'replicate', name: 'Replicate', description: 'ML model deployment' },
+    { slug: 'weights-biases', name: 'Weights & Biases', description: 'ML platform' },
 
+    // 🛠️ SaaS & B2B
+    { slug: 'salesforce', name: 'Salesforce', description: 'CRM' },
+    { slug: 'hubspot', name: 'HubSpot', description: 'Marketing and sales software' },
+    { slug: 'atlassian', name: 'Atlassian', description: 'Jira, Confluence' },
+    { slug: 'slack', name: 'Slack', description: 'Team messaging' },
+    { slug: 'zoom', name: 'Zoom', description: 'Video conferencing' },
+    { slug: 'asana', name: 'Asana', description: 'Project management' },
+    { slug: 'airtable', name: 'Airtable', description: 'Collaborative database' },
+    { slug: 'monday', name: 'Monday.com', description: 'Work OS' },
+    { slug: 'clickup', name: 'ClickUp', description: 'Productivity platform' },
+    { slug: 'miro', name: 'Miro', description: 'Online whiteboard' },
+    { slug: 'webflow', name: 'Webflow', description: 'No-code website builder' },
+    { slug: 'canva', name: 'Canva', description: 'Graphic design platform' },
+    { slug: 'intercom', name: 'Intercom', description: 'Customer messaging' },
+    { slug: 'zendesk', name: 'Zendesk', description: 'Customer service' },
+    { slug: 'loom', name: 'Loom', description: 'Video messaging' },
+    { slug: 'grammarly', name: 'Grammarly', description: 'Writing assistant' },
+    { slug: 'calendly', name: 'Calendly', description: 'Scheduling platform' },
+    { slug: 'roam', name: 'Roam Research', description: 'Note-taking' },
+    { slug: 'obsidian', name: 'Obsidian', description: 'Knowledge base' },
+    { slug: 'linear', name: 'Linear', description: 'Issue tracking' },
+    { slug: 'jira', name: 'Jira', description: 'Project management' },
+    { slug: 'confluence', name: 'Confluence', description: 'Team collaboration' },
+
+    // 🎮 Gaming & Entertainment
+    { slug: 'epic', name: 'Epic Games', description: 'Gaming (Fortnite, Unreal)' },
+    { slug: 'riot', name: 'Riot Games', description: 'Gaming (League of Legends)' },
+    { slug: 'unity', name: 'Unity', description: 'Game engine' },
+    { slug: 'roblox', name: 'Roblox', description: 'User-generated games' },
+    { slug: 'twitch', name: 'Twitch', description: 'Live streaming' },
+    { slug: 'spotify', name: 'Spotify', description: 'Music streaming' },
+    { slug: 'netflix', name: 'Netflix', description: 'Streaming service' },
+
+    // 🛒 E-commerce & Marketplaces
+    { slug: 'etsy', name: 'Etsy', description: 'Handmade marketplace' },
+    { slug: 'wayfair', name: 'Wayfair', description: 'Home goods' },
+    { slug: 'stockx', name: 'StockX', description: 'Sneaker marketplace' },
+    { slug: 'poshmark', name: 'Poshmark', description: 'Fashion marketplace' },
+    { slug: 'faire', name: 'Faire', description: 'Wholesale marketplace' },
+    { slug: 'flexport', name: 'Flexport', description: 'Freight forwarding' },
+    { slug: 'shippo', name: 'Shippo', description: 'Shipping API' },
+
+    // 🏥 HealthTech
+    { slug: 'oscar', name: 'Oscar Health', description: 'Health insurance' },
+    { slug: 'headway', name: 'Headway', description: 'Mental health' },
+    { slug: 'ro', name: 'Ro', description: 'Telehealth' },
+    { slug: 'hims', name: 'Hims & Hers', description: 'Telehealth' },
+    { slug: 'tempus', name: 'Tempus', description: 'AI healthcare' },
+    { slug: '23andme', name: '23andMe', description: 'Genetic testing' },
+
+    // 🏠 Real Estate Tech
+    { slug: 'opendoor', name: 'Opendoor', description: 'iBuying' },
+    { slug: 'compass', name: 'Compass', description: 'Real estate platform' },
+    { slug: 'zillow', name: 'Zillow', description: 'Real estate platform' },
+    { slug: 'redfin', name: 'Redfin', description: 'Real estate tech' },
+
+    // 🌍 Travel & Hospitality
+    { slug: 'booking', name: 'Booking.com', description: 'Travel booking' },
+    { slug: 'expedia', name: 'Expedia', description: 'Travel booking' },
+    { slug: 'tripadvisor', name: 'TripAdvisor', description: 'Travel reviews' },
+
+    // 🎓 EdTech
+    { slug: 'coursera', name: 'Coursera', description: 'Online learning' },
+    { slug: 'udemy', name: 'Udemy', description: 'Online courses' },
+    { slug: 'khan', name: 'Khan Academy', description: 'Free education' },
+    { slug: 'codecademy', name: 'Codecademy', description: 'Coding education' },
+    { slug: 'pluralsight', name: 'Pluralsight', description: 'Tech training' },
+    { slug: 'duolingo', name: 'Duolingo', description: 'Language learning' },
+
+    // 🔒 Security & Compliance
+    { slug: 'crowdstrike', name: 'CrowdStrike', description: 'Cybersecurity' },
+    { slug: 'paloalto', name: 'Palo Alto Networks', description: 'Cybersecurity' },
+    { slug: 'vanta', name: 'Vanta', description: 'Security compliance' },
+    { slug: 'drata', name: 'Drata', description: 'Security compliance' },
+    { slug: 'secureframe', name: 'Secureframe', description: 'Compliance platform' },
+
+    // 🌎 LATAM Companies - BRASIL
+    { slug: 'nubank', name: 'Nubank', description: 'Digital bank Brasil' },
+    { slug: 'mercadolibre', name: 'Mercado Libre', description: 'E-commerce LATAM' },
+    { slug: 'rappi', name: 'Rappi', description: 'Super app delivery LATAM' },
+    { slug: 'quintoandar', name: 'QuintoAndar', description: 'PropTech Brasil' },
+    { slug: 'loft', name: 'Loft', description: 'Real estate tech Brasil' },
+    { slug: 'creditas', name: 'Creditas', description: 'FinTech Brasil' },
+    { slug: 'stone', name: 'Stone', description: 'Payments Brasil' },
+    { slug: 'ifood', name: 'iFood', description: 'Food delivery Brasil' },
+    { slug: 'vtex', name: 'VTEX', description: 'E-commerce platform Brasil' },
+    { slug: 'wildlife', name: 'Wildlife Studios', description: 'Mobile gaming Brasil' },
+    { slug: 'picpay', name: 'PicPay', description: 'Digital wallet Brasil' },
+    { slug: 'banco-inter', name: 'Banco Inter', description: 'Digital bank Brasil' },
+    { slug: 'c6-bank', name: 'C6 Bank', description: 'Digital bank Brasil' },
+    { slug: 'merama', name: 'Merama', description: 'E-commerce aggregator LATAM' },
+    { slug: 'madeira-madeira', name: 'MadeiraMadeira', description: 'E-commerce Brasil' },
+    { slug: 'olist', name: 'Olist', description: 'E-commerce marketplace Brasil' },
+    { slug: 'loggi', name: 'Loggi', description: 'Logistics Brasil' },
+    { slug: 'ebanx', name: 'EBANX', description: 'Cross-border payments Brasil' },
+    { slug: 'pagseguro', name: 'PagSeguro', description: 'Payments Brasil' },
+    { slug: 'gympass', name: 'Gympass', description: 'Corporate wellness Brasil' },
+    { slug: 'resultados-digitais', name: 'RD Station', description: 'Marketing automation Brasil' },
+    { slug: 'totvs', name: 'TOTVS', description: 'Enterprise software Brasil' },
+    { slug: 'ciandt', name: 'CI&T', description: 'Digital transformation Brasil' },
+    { slug: 'thoughtworks', name: 'Thoughtworks', description: 'Software consultancy' },
+    { slug: 'accenture', name: 'Accenture', description: 'Consulting' },
+    { slug: 'capgemini', name: 'Capgemini', description: 'Consulting' },
+    { slug: 'cognizant', name: 'Cognizant', description: 'IT services' },
+    { slug: 'wipro', name: 'Wipro', description: 'IT services' },
+    { slug: 'tcs', name: 'TCS', description: 'IT services' },
+    { slug: 'infosys', name: 'Infosys', description: 'IT services' },
+    { slug: 'epam', name: 'EPAM', description: 'Software engineering' },
+    { slug: 'andela', name: 'Andela', description: 'Remote engineering' },
+    { slug: 'turing', name: 'Turing', description: 'Remote engineering' },
+    { slug: 'crossover', name: 'Crossover', description: 'Remote work platform' },
+
+    // 🌎 LATAM Companies - MÉXICO
+    { slug: 'clip', name: 'Clip', description: 'Payments México' },
+    { slug: 'konfio', name: 'Konfio', description: 'FinTech lending México' },
+    { slug: 'credijusto', name: 'Credijusto', description: 'FinTech México' },
+    { slug: 'bitso', name: 'Bitso', description: 'Crypto exchange México' },
+    { slug: 'stori', name: 'Stori', description: 'Digital bank México' },
+    { slug: 'justo', name: 'Justo', description: 'Grocery delivery México' },
+    { slug: 'cornershop', name: 'Cornershop', description: 'Grocery delivery LATAM' },
+    { slug: 'softtek', name: 'Softtek', description: 'IT services México' },
+    { slug: 'wizeline', name: 'Wizeline', description: 'Product development México' },
+    { slug: 'globant', name: 'Globant', description: 'Digital transformation' },
+    { slug: 'endava', name: 'Endava', description: 'Software engineering' },
+    { slug: 'belatrix', name: 'Belatrix', description: 'Software development' },
+    { slug: 'bairesdev', name: 'BairesDev', description: 'Software development LATAM' },
+    { slug: 'rootstrap', name: 'Rootstrap', description: 'Product development' },
+    { slug: 'abstracta', name: 'Abstracta', description: 'QA & Testing' },
+
+    // 🌎 LATAM Companies - ARGENTINA
+    { slug: 'uala', name: 'Ualá', description: 'FinTech Argentina' },
+    { slug: 'mercadopago', name: 'Mercado Pago', description: 'Payments Argentina' },
+    { slug: 'despegar', name: 'Despegar', description: 'Travel booking Argentina' },
+    { slug: 'pedidosya', name: 'PedidosYa', description: 'Food delivery Argentina' },
+    { slug: 'wolox', name: 'Wolox', description: 'Software development Argentina' },
+    { slug: 'baufest', name: 'Baufest', description: 'Software development Argentina' },
+    { slug: 'intive', name: 'Intive', description: 'Digital product development' },
+
+    // 🌎 LATAM Companies - COLÔMBIA
+    { slug: 'lulo-bank', name: 'Lulo Bank', description: 'Digital bank Colômbia' },
+    { slug: 'nequi', name: 'Nequi', description: 'Digital wallet Colômbia' },
+    { slug: 'daviplata', name: 'Daviplata', description: 'Digital wallet Colômbia' },
+    { slug: 'addi', name: 'Addi', description: 'BNPL Colômbia' },
+    { slug: 'tul', name: 'Tul', description: 'FinTech Colômbia' },
+
+    // 🌎 LATAM Companies - OUTROS
+    { slug: 'dlocal', name: 'dLocal', description: 'Cross-border payments Uruguai' },
+    { slug: 'kushki', name: 'Kushki', description: 'Payments Equador' },
+    { slug: 'yuno', name: 'Yuno', description: 'Payments orchestration LATAM' },
+    { slug: 'clara', name: 'Clara', description: 'Corporate cards México/Brasil' },
+    { slug: 'connectly', name: 'Connectly', description: 'Customer messaging LATAM' },
+    { slug: 'bluelight', name: 'Bluelight Consulting', description: 'Software consultancy LATAM' },
+    { slug: 'idt', name: 'IDT', description: 'Telecom & fintech LATAM' },
+    { slug: 'welocalize', name: 'Welocalize', description: 'Localization services México' },
+    { slug: 'workana', name: 'Workana', description: 'Freelance marketplace LATAM' },
+    { slug: 'onfly', name: 'Onfly', description: 'Travel and expense management LATAM' },
+    { slug: 'qubika', name: 'Qubika', description: 'Software development Uruguai' },
+    { slug: 'uds', name: 'UDS Tecnologia', description: 'Software development Brasil' },
+
+    // 🚀 Remote-First Companies (frequentemente no RemoteYeah)
+    { slug: 'doist', name: 'Doist', description: 'Todoist, Twist' },
+    { slug: 'automattic', name: 'Automattic', description: 'WordPress.com' },
+    { slug: 'help-scout', name: 'Help Scout', description: 'Customer support' },
+    { slug: 'close', name: 'Close', description: 'CRM for sales' },
+    { slug: 'groove', name: 'Groove', description: 'Customer support' },
+    { slug: 'convertkit', name: 'ConvertKit', description: 'Email marketing' },
+    { slug: 'dribbble', name: 'Dribbble', description: 'Design community' },
+    { slug: 'behance', name: 'Behance', description: 'Creative portfolio' },
+    { slug: 'upwork', name: 'Upwork', description: 'Freelance marketplace' },
+    { slug: 'fiverr', name: 'Fiverr', description: 'Freelance marketplace' },
+    { slug: 'freelancer', name: 'Freelancer', description: 'Freelance marketplace' },
+    { slug: 'peopleperhour', name: 'PeoplePerHour', description: 'Freelance marketplace' },
+    { slug: 'remote', name: 'Remote', description: 'Global HR platform' },
+    { slug: 'oyster', name: 'Oyster', description: 'Global employment platform' },
+    { slug: 'papaya', name: 'Papaya Global', description: 'Global payroll' },
+    { slug: 'boundless', name: 'Boundless', description: 'Employment platform' },
+    { slug: 'lano', name: 'Lano', description: 'Global payroll' },
+    { slug: 'remote-first', name: 'Remote First', description: 'Remote work tools' },
+    { slug: 'remoteok', name: 'RemoteOK', description: 'Remote job board' },
+    { slug: 'remotive', name: 'Remotive', description: 'Remote job board' },
+    { slug: 'flexjobs', name: 'FlexJobs', description: 'Remote job board' },
+    { slug: 'dynamite-jobs', name: 'Dynamite Jobs', description: 'Remote job board' },
+    { slug: 'justremote', name: 'JustRemote', description: 'Remote job board' },
+    { slug: 'remote-co', name: 'Remote.co', description: 'Remote job board' },
+    { slug: 'working-nomads', name: 'Working Nomads', description: 'Remote job board' },
+    { slug: 'jobspresso', name: 'Jobspresso', description: 'Remote job board' },
+    { slug: 'pangian', name: 'Pangian', description: 'Remote job board' },
+    { slug: 'skip-the-drive', name: 'Skip The Drive', description: 'Remote job board' },
+    { slug: 'virtual-vocations', name: 'Virtual Vocations', description: 'Remote job board' },
+    { slug: 'weworkremotely', name: 'We Work Remotely', description: 'Remote job board' },
+
+    // 🏢 Mais empresas conhecidas do RemoteYeah
+    { slug: 'accela', name: 'Accela', description: 'Government software' },
+    { slug: 'accelerated-focus', name: 'Accelerated Focus', description: 'Software development' },
+    { slug: 'accelerize', name: 'Accelerize 360', description: 'Digital marketing' },
+    { slug: 'accellor', name: 'Accellor', description: 'Digital transformation' },
+    { slug: 'accenture-federal', name: 'Accenture Federal Services', description: 'Federal consulting' },
+    { slug: 'accepted', name: 'Accepted Ltd', description: 'Software development' },
+    { slug: 'accertify', name: 'Accertify', description: 'Fraud prevention' },
+    { slug: 'accesa', name: 'Accesa', description: 'Software development' },
+    { slug: 'access-softek', name: 'Access Softek', description: 'Financial software' },
+    { slug: 'activecampaign', name: 'ActiveCampaign', description: 'Marketing automation' },
+    { slug: 'adroll', name: 'AdRoll', description: 'Marketing platform' },
+    { slug: 'agilebits', name: 'AgileBits', description: '1Password' },
+    { slug: 'aha', name: 'Aha!', description: 'Product management' },
+    { slug: 'airbrake', name: 'Airbrake', description: 'Error tracking' },
+    { slug: 'airtable', name: 'Airtable', description: 'Collaborative database' },
+    { slug: 'algolia', name: 'Algolia', description: 'Search API' },
+    { slug: 'allbirds', name: 'Allbirds', description: 'Sustainable footwear' },
+    { slug: 'alltrails', name: 'AllTrails', description: 'Outdoor recreation' },
+    { slug: 'amazon', name: 'Amazon', description: 'E-commerce, AWS' },
+    { slug: 'american-express', name: 'American Express', description: 'Financial services' },
+    { slug: 'amplitude', name: 'Amplitude', description: 'Product analytics' },
+    { slug: 'angellist', name: 'AngelList', description: 'Startup platform' },
+    { slug: 'apollo', name: 'Apollo', description: 'GraphQL platform' },
+    { slug: 'appfolio', name: 'AppFolio', description: 'Property management' },
+    { slug: 'appian', name: 'Appian', description: 'Low-code platform' },
+    { slug: 'applovin', name: 'AppLovin', description: 'Mobile marketing' },
+    { slug: 'appsignal', name: 'AppSignal', description: 'Application monitoring' },
+    { slug: 'arista', name: 'Arista Networks', description: 'Cloud networking' },
+    { slug: 'arm', name: 'ARM', description: 'Semiconductor design' },
+    { slug: 'asana', name: 'Asana', description: 'Project management' },
+    { slug: 'atlassian', name: 'Atlassian', description: 'Jira, Confluence' },
+    { slug: 'auth0', name: 'Auth0', description: 'Identity platform' },
+    { slug: 'automattic', name: 'Automattic', description: 'WordPress.com' },
+    { slug: 'autotrader', name: 'AutoTrader', description: 'Car marketplace' },
+    { slug: 'bamboohr', name: 'BambooHR', description: 'HR software' },
+    { slug: 'bandcamp', name: 'Bandcamp', description: 'Music platform' },
+    { slug: 'bannerbear', name: 'Bannerbear', description: 'Image generation API' },
+    { slug: 'bazaarvoice', name: 'Bazaarvoice', description: 'Social commerce' },
+    { slug: 'bench', name: 'Bench', description: 'Bookkeeping' },
+    { slug: 'betterup', name: 'BetterUp', description: 'Coaching platform' },
+    { slug: 'bigcommerce', name: 'BigCommerce', description: 'E-commerce platform' },
+    { slug: 'bitwarden', name: 'Bitwarden', description: 'Password manager' },
+    { slug: 'blinkist', name: 'Blinkist', description: 'Book summaries' },
+    { slug: 'bloomberg', name: 'Bloomberg', description: 'Financial data' },
+    { slug: 'blue-apron', name: 'Blue Apron', description: 'Meal kit delivery' },
+    { slug: 'booking', name: 'Booking.com', description: 'Travel booking' },
+    { slug: 'box', name: 'Box', description: 'Cloud storage' },
+    { slug: 'braintree', name: 'Braintree', description: 'Payment processing' },
+    { slug: 'braze', name: 'Braze', description: 'Customer engagement' },
+    { slug: 'brex', name: 'Brex', description: 'Corporate cards' },
+    { slug: 'brightcove', name: 'Brightcove', description: 'Video platform' },
+    { slug: 'brigade', name: 'Brigade', description: 'Civic engagement' },
+    { slug: 'british-telecom', name: 'British Telecom', description: 'Telecommunications' },
+    { slug: 'buffer', name: 'Buffer', description: 'Social media management' },
+    { slug: 'bugsnag', name: 'Bugsnag', description: 'Error monitoring' },
+    { slug: 'bumble', name: 'Bumble', description: 'Dating app' },
+    { slug: 'calendly', name: 'Calendly', description: 'Scheduling platform' },
+    { slug: 'canva', name: 'Canva', description: 'Graphic design platform' },
+    { slug: 'capital-one', name: 'Capital One', description: 'Banking' },
+    { slug: 'carbon', name: 'Carbon', description: '3D printing' },
+    { slug: 'careem', name: 'Careem', description: 'Ride-hailing' },
+    { slug: 'carta', name: 'Carta', description: 'Equity management' },
+    { slug: 'cash-app', name: 'Cash App', description: 'Mobile payments' },
+    { slug: 'castlight', name: 'Castlight Health', description: 'Healthcare navigation' },
+    { slug: 'catalyst', name: 'Catalyst', description: 'Diversity & inclusion' },
+    { slug: 'cerner', name: 'Cerner', description: 'Healthcare IT' },
+    { slug: 'chainlink', name: 'Chainlink', description: 'Blockchain oracle' },
+    { slug: 'chargebee', name: 'Chargebee', description: 'Subscription billing' },
+    { slug: 'checkr', name: 'Checkr', description: 'Background checks' },
+    { slug: 'chegg', name: 'Chegg', description: 'Education technology' },
+    { slug: 'circle', name: 'Circle', description: 'Community platform' },
+    { slug: 'circleci', name: 'CircleCI', description: 'CI/CD platform' },
+    { slug: 'cisco', name: 'Cisco', description: 'Networking' },
+    { slug: 'citrix', name: 'Citrix', description: 'Virtualization' },
+    { slug: 'clari', name: 'Clari', description: 'Revenue operations' },
+    { slug: 'clearbit', name: 'Clearbit', description: 'Data enrichment' },
+    { slug: 'clever', name: 'Clever', description: 'Education platform' },
+    { slug: 'clickup', name: 'ClickUp', description: 'Productivity platform' },
+    { slug: 'cloudflare', name: 'Cloudflare', description: 'CDN and security' },
+    { slug: 'clubhouse', name: 'Clubhouse', description: 'Social audio' },
+    { slug: 'cockroach-labs', name: 'Cockroach Labs', description: 'Distributed database' },
+    { slug: 'codecademy', name: 'Codecademy', description: 'Coding education' },
+    { slug: 'coinbase', name: 'Coinbase', description: 'Cryptocurrency exchange' },
+    { slug: 'comcast', name: 'Comcast', description: 'Telecommunications' },
+    { slug: 'compass', name: 'Compass', description: 'Real estate platform' },
+    { slug: 'confluent', name: 'Confluent', description: 'Data streaming' },
+    { slug: 'consensys', name: 'ConsenSys', description: 'Ethereum infrastructure' },
+    { slug: 'contentful', name: 'Contentful', description: 'Content platform' },
+    { slug: 'convertkit', name: 'ConvertKit', description: 'Email marketing' },
+    { slug: 'coursera', name: 'Coursera', description: 'Online learning' },
+    { slug: 'coveo', name: 'Coveo', description: 'Search platform' },
+    { slug: 'crowdstrike', name: 'CrowdStrike', description: 'Cybersecurity' },
+    { slug: 'cruise', name: 'Cruise', description: 'Autonomous vehicles' },
+    { slug: 'crunchbase', name: 'Crunchbase', description: 'Company database' },
+    { slug: 'crypto', name: 'Crypto.com', description: 'Cryptocurrency exchange' },
+    { slug: 'datadog', name: 'Datadog', description: 'Monitoring and analytics' },
+    { slug: 'databricks', name: 'Databricks', description: 'Data & AI platform' },
+    { slug: 'dbt', name: 'dbt Labs', description: 'Data transformation' },
+    { slug: 'deel', name: 'Deel', description: 'Global payroll' },
+    { slug: 'deliveroo', name: 'Deliveroo', description: 'Food delivery' },
+    { slug: 'delivery-hero', name: 'Delivery Hero', description: 'Food delivery' },
+    { slug: 'dentalplans', name: 'DentalPlans', description: 'Dental insurance' },
+    { slug: 'devops', name: 'DevOps.com', description: 'DevOps platform' },
+    { slug: 'dice', name: 'Dice', description: 'Tech jobs' },
+    { slug: 'digitalocean', name: 'DigitalOcean', description: 'Cloud hosting' },
+    { slug: 'discord', name: 'Discord', description: 'Communication platform' },
+    { slug: 'disney', name: 'Disney', description: 'Entertainment' },
+    { slug: 'docusign', name: 'DocuSign', description: 'E-signature' },
+    { slug: 'doordash', name: 'DoorDash', description: 'Food delivery' },
+    { slug: 'dribbble', name: 'Dribbble', description: 'Design community' },
+    { slug: 'dropbox', name: 'Dropbox', description: 'Cloud storage' },
+    { slug: 'duolingo', name: 'Duolingo', description: 'Language learning' },
+    { slug: 'ebay', name: 'eBay', description: 'E-commerce marketplace' },
+    { slug: 'edx', name: 'edX', description: 'Online learning' },
+    { slug: 'elastic', name: 'Elastic', description: 'Search and analytics' },
+    { slug: 'envoy', name: 'Envoy', description: 'Workplace platform' },
+    { slug: 'epic-games', name: 'Epic Games', description: 'Gaming (Fortnite, Unreal)' },
+    { slug: 'etsy', name: 'Etsy', description: 'Handmade marketplace' },
+    { slug: 'evernote', name: 'Evernote', description: 'Note-taking' },
+    { slug: 'expedia', name: 'Expedia', description: 'Travel booking' },
+    { slug: 'facebook', name: 'Facebook', description: 'Social media' },
+    { slug: 'fastly', name: 'Fastly', description: 'Edge cloud platform' },
+    { slug: 'figma', name: 'Figma', description: 'Design and prototyping' },
+    { slug: 'firebase', name: 'Firebase', description: 'Google backend' },
+    { slug: 'flexport', name: 'Flexport', description: 'Freight forwarding' },
+    { slug: 'flipkart', name: 'Flipkart', description: 'E-commerce India' },
+    { slug: 'flutterwave', name: 'Flutterwave', description: 'Payments Africa' },
+    { slug: 'foursquare', name: 'Foursquare', description: 'Location intelligence' },
+    { slug: 'freshworks', name: 'Freshworks', description: 'Customer engagement' },
+    { slug: 'front', name: 'Front', description: 'Shared inbox' },
+    { slug: 'fullstory', name: 'FullStory', description: 'Digital experience' },
+    { slug: 'garmin', name: 'Garmin', description: 'GPS technology' },
+    { slug: 'gatsby', name: 'Gatsby', description: 'Static site generator' },
+    { slug: 'general-assembly', name: 'General Assembly', description: 'Tech education' },
+    { slug: 'getaround', name: 'Getaround', description: 'Car sharing' },
+    { slug: 'getstream', name: 'GetStream', description: 'Activity feeds' },
+    { slug: 'github', name: 'GitHub', description: 'Code hosting platform' },
+    { slug: 'gitlab', name: 'GitLab', description: 'DevOps platform' },
+    { slug: 'glassdoor', name: 'Glassdoor', description: 'Job reviews' },
+    { slug: 'glitch', name: 'Glitch', description: 'Code editor' },
+    { slug: 'gocardless', name: 'GoCardless', description: 'Payment processing' },
+    { slug: 'godaddy', name: 'GoDaddy', description: 'Domain registrar' },
+    { slug: 'goldman-sachs', name: 'Goldman Sachs', description: 'Investment bank' },
+    { slug: 'google', name: 'Google', description: 'Search, Cloud, AI' },
+    { slug: 'grammarly', name: 'Grammarly', description: 'Writing assistant' },
+    { slug: 'graphql', name: 'GraphQL Foundation', description: 'GraphQL' },
+    { slug: 'greenhouse', name: 'Greenhouse', description: 'ATS platform' },
+    { slug: 'grubhub', name: 'Grubhub', description: 'Food delivery' },
+    { slug: 'gusto', name: 'Gusto', description: 'Payroll and benefits' },
+    { slug: 'hashicorp', name: 'HashiCorp', description: 'Infrastructure tools' },
+    { slug: 'headspace', name: 'Headspace', description: 'Meditation app' },
+    { slug: 'heap', name: 'Heap', description: 'Product analytics' },
+    { slug: 'hellosign', name: 'HelloSign', description: 'E-signature' },
+    { slug: 'help-scout', name: 'Help Scout', description: 'Customer support' },
+    { slug: 'heroku', name: 'Heroku', description: 'Platform as a service' },
+    { slug: 'hims', name: 'Hims & Hers', description: 'Telehealth' },
+    { slug: 'hipcamp', name: 'Hipcamp', description: 'Outdoor stays' },
+    { slug: 'hootsuite', name: 'Hootsuite', description: 'Social media management' },
+    { slug: 'hotjar', name: 'Hotjar', description: 'Analytics and heatmaps' },
+    { slug: 'hubspot', name: 'HubSpot', description: 'Marketing and sales software' },
+    { slug: 'hulu', name: 'Hulu', description: 'Streaming service' },
+    { slug: 'ibm', name: 'IBM', description: 'Enterprise tech' },
+    { slug: 'ifood', name: 'iFood', description: 'Food delivery Brasil' },
+    { slug: 'indeed', name: 'Indeed', description: 'Job search' },
+    { slug: 'influxdata', name: 'InfluxData', description: 'Time series database' },
+    { slug: 'inmobi', name: 'InMobi', description: 'Mobile advertising' },
+    { slug: 'instacart', name: 'Instacart', description: 'Grocery delivery' },
+    { slug: 'instagram', name: 'Instagram', description: 'Social media' },
+    { slug: 'intercom', name: 'Intercom', description: 'Customer messaging' },
+    { slug: 'intuit', name: 'Intuit', description: 'Financial software' },
+    { slug: 'invision', name: 'InVision', description: 'Design collaboration' },
+    { slug: 'ironclad', name: 'Ironclad', description: 'Contract management' },
+    { slug: 'iterable', name: 'Iterable', description: 'Marketing automation' },
+    { slug: 'jamf', name: 'Jamf', description: 'Apple device management' },
+    { slug: 'jetbrains', name: 'JetBrains', description: 'IDE developer' },
+    { slug: 'jira', name: 'Jira', description: 'Project management' },
+    { slug: 'jobvite', name: 'Jobvite', description: 'Recruiting software' },
+    { slug: 'jpmorgan', name: 'JPMorgan Chase', description: 'Banking' },
+    { slug: 'justworks', name: 'Justworks', description: 'HR platform' },
+    { slug: 'khan-academy', name: 'Khan Academy', description: 'Free education' },
+    { slug: 'kickstarter', name: 'Kickstarter', description: 'Crowdfunding' },
+    { slug: 'klaviyo', name: 'Klaviyo', description: 'Email marketing' },
+    { slug: 'klarna', name: 'Klarna', description: 'Buy now pay later' },
+    { slug: 'kraken', name: 'Kraken', description: 'Crypto exchange' },
+    { slug: 'lattice', name: 'Lattice', description: 'Performance management' },
+    { slug: 'lever', name: 'Lever', description: 'ATS platform' },
+    { slug: 'linkedin', name: 'LinkedIn', description: 'Professional network' },
+    { slug: 'linode', name: 'Linode', description: 'Cloud hosting' },
+    { slug: 'liveperson', name: 'LivePerson', description: 'Conversational AI' },
+    { slug: 'loom', name: 'Loom', description: 'Video messaging' },
+    { slug: 'lyft', name: 'Lyft', description: 'Ride-sharing' },
+    { slug: 'mailchimp', name: 'Mailchimp', description: 'Email marketing' },
+    { slug: 'mapbox', name: 'Mapbox', description: 'Maps platform' },
+    { slug: 'mastercard', name: 'Mastercard', description: 'Payment processing' },
+    { slug: 'mattermost', name: 'Mattermost', description: 'Team messaging' },
+    { slug: 'medium', name: 'Medium', description: 'Publishing platform' },
+    { slug: 'mercury', name: 'Mercury', description: 'Banking for startups' },
+    { slug: 'meta', name: 'Meta', description: 'Social media' },
+    { slug: 'microsoft', name: 'Microsoft', description: 'Cloud, Software' },
+    { slug: 'mixpanel', name: 'Mixpanel', description: 'Product analytics' },
+    { slug: 'monday', name: 'Monday.com', description: 'Work OS' },
+    { slug: 'mongodb', name: 'MongoDB', description: 'NoSQL database' },
+    { slug: 'mozilla', name: 'Mozilla', description: 'Firefox, web standards' },
+    { slug: 'mural', name: 'Mural', description: 'Visual collaboration' },
+    { slug: 'n26', name: 'N26', description: 'Digital banking' },
+    { slug: 'nasa', name: 'NASA', description: 'Space agency' },
+    { slug: 'netflix', name: 'Netflix', description: 'Streaming service' },
+    { slug: 'new-relic', name: 'New Relic', description: 'Observability platform' },
+    { slug: 'nextdoor', name: 'Nextdoor', description: 'Neighborhood network' },
+    { slug: 'nextjs', name: 'Next.js', description: 'React framework' },
+    { slug: 'nike', name: 'Nike', description: 'Sportswear' },
+    { slug: 'notion', name: 'Notion', description: 'All-in-one workspace' },
+    { slug: 'nubank', name: 'Nubank', description: 'Digital bank Brasil' },
+    { slug: 'nvidia', name: 'NVIDIA', description: 'AI chips' },
+    { slug: 'okta', name: 'Okta', description: 'Identity management' },
+    { slug: 'okcupid', name: 'OkCupid', description: 'Dating app' },
+    { slug: 'olx', name: 'OLX', description: 'Classifieds marketplace' },
+    { slug: 'opendoor', name: 'Opendoor', description: 'iBuying' },
+    { slug: 'openai', name: 'OpenAI', description: 'AI research and deployment' },
+    { slug: 'oracle', name: 'Oracle', description: 'Enterprise software' },
+    { slug: 'pagerduty', name: 'PagerDuty', description: 'Incident response' },
+    { slug: 'palantir', name: 'Palantir', description: 'Big data analytics' },
+    { slug: 'palo-alto', name: 'Palo Alto Networks', description: 'Cybersecurity' },
+    { slug: 'pandora', name: 'Pandora', description: 'Music streaming' },
+    { slug: 'patreon', name: 'Patreon', description: 'Creator platform' },
+    { slug: 'paypal', name: 'PayPal', description: 'Payments' },
+    { slug: 'pendo', name: 'Pendo', description: 'Product analytics' },
+    { slug: 'pinterest', name: 'Pinterest', description: 'Visual discovery' },
+    { slug: 'pivotal', name: 'Pivotal', description: 'Software development' },
+    { slug: 'plaid', name: 'Plaid', description: 'Financial services API' },
+    { slug: 'planetscale', name: 'PlanetScale', description: 'MySQL platform' },
+    { slug: 'pluralsight', name: 'Pluralsight', description: 'Tech training' },
+    { slug: 'postman', name: 'Postman', description: 'API development' },
+    { slug: 'prezi', name: 'Prezi', description: 'Presentation software' },
+    { slug: 'primer', name: 'Primer', description: 'Payment infrastructure' },
+    { slug: 'procore', name: 'Procore', description: 'Construction management' },
+    { slug: 'productboard', name: 'Productboard', description: 'Product management' },
+    { slug: 'puppet', name: 'Puppet', description: 'Configuration management' },
+    { slug: 'qualtrics', name: 'Qualtrics', description: 'Experience management' },
+    { slug: 'quora', name: 'Quora', description: 'Q&A platform' },
+    { slug: 'rabbitmq', name: 'RabbitMQ', description: 'Message broker' },
+    { slug: 'ramp', name: 'Ramp', description: 'Corporate finance' },
+    { slug: 'rapid7', name: 'Rapid7', description: 'Security analytics' },
+    { slug: 'reddit', name: 'Reddit', description: 'Social network' },
+    { slug: 'redfin', name: 'Redfin', description: 'Real estate tech' },
+    { slug: 'redis', name: 'Redis', description: 'In-memory database' },
+    { slug: 'red-ventures', name: 'Red Ventures', description: 'Digital marketing' },
+    { slug: 'remitly', name: 'Remitly', description: 'Money transfer' },
+    { slug: 'replit', name: 'Replit', description: 'Online IDE' },
+    { slug: 'revolut', name: 'Revolut', description: 'Digital banking' },
+    { slug: 'riot-games', name: 'Riot Games', description: 'Gaming (League of Legends)' },
+    { slug: 'robinhood', name: 'Robinhood', description: 'Stock trading app' },
+    { slug: 'roblox', name: 'Roblox', description: 'User-generated games' },
+    { slug: 'rollbar', name: 'Rollbar', description: 'Error tracking' },
+    { slug: 'ruby-on-rails', name: 'Ruby on Rails', description: 'Web framework' },
+    { slug: 'salesforce', name: 'Salesforce', description: 'CRM' },
+    { slug: 'samsara', name: 'Samsara', description: 'IoT platform' },
+    { slug: 'sap', name: 'SAP', description: 'Enterprise software' },
+    { slug: 'scale', name: 'Scale AI', description: 'AI data platform' },
+    { slug: 'scaleway', name: 'Scaleway', description: 'Cloud provider' },
+    { slug: 'segment', name: 'Segment', description: 'Customer data platform' },
+    { slug: 'sendgrid', name: 'SendGrid', description: 'Email API' },
+    { slug: 'sentry', name: 'Sentry', description: 'Error tracking' },
+    { slug: 'servicenow', name: 'ServiceNow', description: 'IT management' },
+    { slug: 'shopify', name: 'Shopify', description: 'E-commerce platform' },
+    { slug: 'shutterstock', name: 'Shutterstock', description: 'Stock media' },
+    { slug: 'sift', name: 'Sift', description: 'Fraud prevention' },
+    { slug: 'signal', name: 'Signal', description: 'Encrypted messaging' },
+    { slug: 'slack', name: 'Slack', description: 'Team messaging' },
+    { slug: 'snapchat', name: 'Snapchat', description: 'Social media' },
+    { slug: 'snowflake', name: 'Snowflake', description: 'Data cloud' },
+    { slug: 'snyk', name: 'Snyk', description: 'Security platform' },
+    { slug: 'solarwinds', name: 'SolarWinds', description: 'IT management' },
+    { slug: 'sonos', name: 'Sonos', description: 'Audio systems' },
+    { slug: 'soundcloud', name: 'SoundCloud', description: 'Music platform' },
+    { slug: 'spacex', name: 'SpaceX', description: 'Aerospace' },
+    { slug: 'splunk', name: 'Splunk', description: 'Data platform' },
+    { slug: 'spotify', name: 'Spotify', description: 'Music streaming' },
+    { slug: 'square', name: 'Square', description: 'Payment processing' },
+    { slug: 'squarespace', name: 'Squarespace', description: 'Website builder' },
+    { slug: 'stack-overflow', name: 'Stack Overflow', description: 'Developer Q&A' },
+    { slug: 'starbucks', name: 'Starbucks', description: 'Coffee chain' },
+    { slug: 'stash', name: 'Stash', description: 'Investment app' },
+    { slug: 'stripe', name: 'Stripe', description: 'Payment infrastructure' },
+    { slug: 'sumo-logic', name: 'Sumo Logic', description: 'Log management' },
+    { slug: 'supabase', name: 'Supabase', description: 'Firebase alternative' },
+    { slug: 'tableau', name: 'Tableau', description: 'Business intelligence' },
+    { slug: 'talent', name: 'Talent.io', description: 'Tech recruitment' },
+    { slug: 'target', name: 'Target', description: 'Retail' },
+    { slug: 'teamviewer', name: 'TeamViewer', description: 'Remote access' },
+    { slug: 'telegram', name: 'Telegram', description: 'Messaging app' },
+    { slug: 'tesla', name: 'Tesla', description: 'Electric vehicles' },
+    { slug: 'the-weather-channel', name: 'The Weather Channel', description: 'Weather service' },
+    { slug: 'thoughtworks', name: 'Thoughtworks', description: 'Software consultancy' },
+    { slug: 'tiktok', name: 'TikTok', description: 'Social media' },
+    { slug: 'tinder', name: 'Tinder', description: 'Dating app' },
+    { slug: 'todoist', name: 'Todoist', description: 'Task management' },
+    { slug: 'toptal', name: 'Toptal', description: 'Freelance talent network' },
+    { slug: 'tripadvisor', name: 'TripAdvisor', description: 'Travel reviews' },
+    { slug: 'trulia', name: 'Trulia', description: 'Real estate' },
+    { slug: 'trustpilot', name: 'Trustpilot', description: 'Review platform' },
+    { slug: 'twilio', name: 'Twilio', description: 'Communications APIs' },
+    { slug: 'twitch', name: 'Twitch', description: 'Live streaming' },
+    { slug: 'twitter', name: 'Twitter', description: 'Social media' },
+    { slug: 'uber', name: 'Uber', description: 'Ride-sharing and delivery' },
+    { slug: 'udacity', name: 'Udacity', description: 'Online learning' },
+    { slug: 'udemy', name: 'Udemy', description: 'Online courses' },
+    { slug: 'unity', name: 'Unity', description: 'Game engine' },
+    { slug: 'upwork', name: 'Upwork', description: 'Freelance marketplace' },
+    { slug: 'vanta', name: 'Vanta', description: 'Security compliance' },
+    { slug: 'vercel', name: 'Vercel', description: 'Frontend cloud platform' },
+    { slug: 'verizon', name: 'Verizon', description: 'Telecommunications' },
+    { slug: 'viacomcbs', name: 'ViacomCBS', description: 'Media' },
+    { slug: 'vimeo', name: 'Vimeo', description: 'Video platform' },
+    { slug: 'visa', name: 'Visa', description: 'Payment processing' },
+    { slug: 'vmware', name: 'VMware', description: 'Cloud infrastructure' },
+    { slug: 'vox-media', name: 'Vox Media', description: 'Digital media' },
+    { slug: 'walmart', name: 'Walmart', description: 'Retail' },
+    { slug: 'wayfair', name: 'Wayfair', description: 'Home goods' },
+    { slug: 'waymo', name: 'Waymo', description: 'Autonomous vehicles' },
+    { slug: 'weebly', name: 'Weebly', description: 'Website builder' },
+    { slug: 'wellfound', name: 'Wellfound', description: 'Startup jobs' },
+    { slug: 'wework', name: 'WeWork', description: 'Coworking spaces' },
+    { slug: 'whatsapp', name: 'WhatsApp', description: 'Messaging app' },
+    { slug: 'workday', name: 'Workday', description: 'HR software' },
+    { slug: 'workiva', name: 'Workiva', description: 'Compliance platform' },
+    { slug: 'xero', name: 'Xero', description: 'Accounting software' },
+    { slug: 'yahoo', name: 'Yahoo', description: 'Web services' },
+    { slug: 'yelp', name: 'Yelp', description: 'Local reviews' },
+    { slug: 'youtube', name: 'YouTube', description: 'Video platform' },
+    { slug: 'zapier', name: 'Zapier', description: 'Automation platform' },
+    { slug: 'zendesk', name: 'Zendesk', description: 'Customer service' },
+    { slug: 'zenefits', name: 'Zenefits', description: 'HR platform' },
+    { slug: 'zillow', name: 'Zillow', description: 'Real estate platform' },
+    { slug: 'zocdoc', name: 'Zocdoc', description: 'Healthcare appointments' },
+    { slug: 'zoom', name: 'Zoom', description: 'Video conferencing' },
+    { slug: 'zscaler', name: 'Zscaler', description: 'Cloud security' },
+  ];
+
+  let createdCompanies = 0;
+  let updatedCompanies = 0;
+  let createdRelations = 0;
+  let skippedRelations = 0;
+
+  // 3. Para cada empresa, criar/buscar e relacionar com remoteyeah
   for (const companyData of companies) {
-    try {
-      // Verifica se empresa já existe
-      const existing = await companyRepo.findOne({
-        where: { slug: companyData.slug },
-      });
+    // 3.1. Criar/buscar a company
+    let company = await companyRepo.findOne({
+      where: { slug: companyData.slug },
+    });
 
-      let companyId: string;
-
-      if (!existing) {
-        // Cria nova empresa
-        const newCompany = await companyRepo.save({
-          slug: companyData.slug,
-          name: companyData.name,
-          platform: 'remoteyeah',
-          website: companyData.url,
-        });
-        companyId = newCompany.id;
-        created++;
-        console.log(`  ✅ Empresa criada: ${companyData.name}`);
-      } else {
-        // Atualiza se necessário
-        if (existing.platform !== 'remoteyeah') {
-          await companyRepo.update(existing.id, {
-            platform: 'remoteyeah',
-            website: companyData.url,
-          });
-          updated++;
-          console.log(`  🔄 Empresa atualizada: ${companyData.name}`);
-        } else {
-          skipped++;
-          console.log(`  ℹ️  Empresa já existe: ${companyData.name}`);
-        }
-        companyId = existing.id;
-      }
-
-      // Criar relação com job_board se não existir
-      const existingRelation = await jobBoardCompanyRepo.findOne({
-        where: {
-          companyId: companyId,
-          jobBoardId: remoteyeahBoard.id,
+    if (!company) {
+      company = await companyRepo.save({
+        slug: companyData.slug,
+        name: companyData.name,
+        platform: 'remoteyeah',
+        featured: false,
+        featuredOrder: 0,
+        rating: 0,
+        reviewCount: 0,
+        totalJobs: 0,
+        metadata: {
+          description: companyData.description,
         },
       });
-
-      if (!existingRelation) {
-        await jobBoardCompanyRepo.save({
-          companyId: companyId,
-          jobBoardId: remoteyeahBoard.id,
-          scraperUrl: `https://remoteyeah.com/remote-companies/${companyData.slug}`,
-          enabled: true,
-          scrapingStatus: null,
-          lastScrapedAt: null,
-          errorMessage: null,
-        });
-        relationsCreated++;
+      createdCompanies++;
+      console.log(`  ✅ Empresa criada: ${companyData.name}`);
+    } else {
+      // Se a empresa já existe, atualizar o metadata se necessário
+      if (!company.metadata?.description) {
+        company.metadata = {
+          ...company.metadata,
+          description: companyData.description,
+        };
+        await companyRepo.save(company);
+        updatedCompanies++;
+        console.log(`  🔄 Metadata atualizado: ${companyData.name}`);
       }
-    } catch (error) {
-      console.error(`  ❌ Erro ao processar ${companyData.name}:`, error.message);
+    }
+
+    // 3.2. Criar a relação job_board_companies
+    // RemoteYeah URL pattern: https://remoteyeah.com/remote-companies/{slug}
+    const existingRelation = await jbcRepo.findOne({
+      where: {
+        jobBoardId: remoteyeahBoard.id,
+        companyId: company.id,
+      },
+    });
+
+    if (!existingRelation) {
+      await jbcRepo.save({
+        jobBoardId: remoteyeahBoard.id,
+        companyId: company.id,
+        scraperUrl: `https://remoteyeah.com/remote-companies/${companyData.slug}`,
+        enabled: true,
+        scrapingStatus: null,
+        lastScrapedAt: null,
+        errorMessage: null,
+      });
+      createdRelations++;
+      console.log(`  🔗 Relação criada para: ${companyData.name}`);
+    } else {
+      skippedRelations++;
     }
   }
 
   console.log('\n📊 Resumo:');
-  console.log(`  • Empresas criadas: ${created}`);
-  console.log(`  • Empresas atualizadas: ${updated}`);
-  console.log(`  • Empresas já existentes: ${skipped}`);
-  console.log(`  • Relações company-jobboard criadas: ${relationsCreated}`);
-  console.log('\n✅ Seed RemoteYeah empresas concluído!');
+  console.log(`  • Empresas criadas: ${createdCompanies}`);
+  console.log(`  • Empresas atualizadas: ${updatedCompanies}`);
+  console.log(`  • Relações criadas: ${createdRelations}`);
+  console.log(`  • Relações já existentes: ${skippedRelations}`);
+  console.log('\n✅ Seed RemoteYeah Companies concluído!');
 }
