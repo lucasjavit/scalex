@@ -5,8 +5,10 @@ import { RequestDocument } from './entities/request-document.entity';
 import { AccountingMessage } from './entities/accounting-message.entity';
 import { RegistrationRequestService } from './services/registration-request.service';
 import { MessageService } from './services/message.service';
+import { DocumentService } from './services/document.service';
 import { RegistrationRequestController } from './controllers/registration-request.controller';
 import { MessageController } from './controllers/message.controller';
+import { DocumentController } from './controllers/document.controller';
 import { User } from '../../users/entities/user.entity';
 
 /**
@@ -31,8 +33,12 @@ import { User } from '../../users/entities/user.entity';
       User, // Needed for accountant assignment
     ]),
   ],
-  controllers: [RegistrationRequestController, MessageController],
-  providers: [RegistrationRequestService, MessageService],
-  exports: [RegistrationRequestService, MessageService],
+  controllers: [
+    RegistrationRequestController,
+    MessageController,
+    DocumentController,
+  ],
+  providers: [RegistrationRequestService, MessageService, DocumentService],
+  exports: [RegistrationRequestService, MessageService, DocumentService],
 })
 export class AccountingModule {}
