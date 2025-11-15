@@ -213,6 +213,74 @@ class AccountingApiService {
   async getUnreadMessageCount() {
     return this.request('/accounting/messages/unread-count');
   }
+
+  // ========================================
+  // DOCUMENT METHODS
+  // ========================================
+
+  /**
+   * Upload a document for a registration request
+   * @param {string} requestId - Request ID
+   * @param {File} file - File to upload
+   * @param {string} documentType - Type of document (e.g., "RG", "CPF")
+   * @returns {Promise<Object>} Created document record
+   */
+  async uploadDocument(requestId, file, documentType) {
+    const token = await auth.currentUser?.getIdToken();
+    if (!token) {
+      throw new Error('User not authenticated');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('requestId', requestId);
+    formData.append('documentType', documentType);
+
+    const response = await fetch(`${this.baseUrl}/accounting/documents/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        // Don't set Content-Type - browser will set it automatically with boundary
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to upload document');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Get documents for a registration request
+   * @param {string} requestId - Request ID
+   * @returns {Promise<Array>} Array of documents
+   */
+  async getRequestDocuments(requestId) {
+    return this.request(`/accounting/documents/request/${requestId}`);
+  }
+
+  /**
+   * Delete a document
+   * @param {string} documentId - Document ID
+   * @returns {Promise<void>}
+   */
+  async deleteDocument(documentId) {
+    return this.request(`/accounting/documents/${documentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Get download path for a document
+   * @param {string} documentId - Document ID
+   * @returns {Promise<Object>} Object with filePath property
+   */
+  async getDocumentDownloadPath(documentId) {
+    return this.request(`/accounting/documents/${documentId}/download`);
+  }
 }
 
 // Create and export a singleton instance

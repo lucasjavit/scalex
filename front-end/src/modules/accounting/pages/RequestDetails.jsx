@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { accountingApi } from '../../../services/accountingApi';
 import ChatBox from '../components/ChatBox';
+import DocumentUpload from '../components/DocumentUpload';
 
 const STATUS_LABELS = {
   pending: 'Pendente',
@@ -234,6 +235,23 @@ export default function RequestDetails() {
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Documents Section - Show when not cancelled or completed */}
+      {request.status !== 'cancelled' && request.status !== 'completed' && (
+        <div className="mt-8 bg-white shadow-lg rounded-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Documentos
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Envie os documentos solicitados pelo contador para agilizar o processo de abertura do CNPJ.
+          </p>
+
+          <DocumentUpload
+            requestId={request.id}
+            currentUserId={localStorage.getItem('userId')}
+          />
         </div>
       )}
     </div>
