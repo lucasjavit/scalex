@@ -195,4 +195,54 @@ export class RegistrationRequestController {
 
     return await this.registrationRequestService.assignAccountant(id, accountantId);
   }
+
+  /**
+   * Get pending requests for the authenticated accountant
+   *
+   * Returns all pending requests assigned to the current accountant,
+   * ordered by creation date (oldest first - most urgent).
+   *
+   * @param req - Request with authenticated user
+   * @returns Array of pending requests
+   */
+  @Get('accountant/pending')
+  @HttpCode(HttpStatus.OK)
+  async getAccountantPendingRequests(@Req() req: any) {
+    return await this.registrationRequestService.getAccountantPendingRequests(
+      req.user.id,
+    );
+  }
+
+  /**
+   * Get active requests for the authenticated accountant
+   *
+   * Returns all active requests (in_progress, waiting_documents, processing)
+   * assigned to the current accountant.
+   *
+   * @param req - Request with authenticated user
+   * @returns Array of active requests
+   */
+  @Get('accountant/active')
+  @HttpCode(HttpStatus.OK)
+  async getAccountantActiveRequests(@Req() req: any) {
+    return await this.registrationRequestService.getAccountantActiveRequests(
+      req.user.id,
+    );
+  }
+
+  /**
+   * Get completed/cancelled requests for the authenticated accountant
+   *
+   * Returns all completed or cancelled requests assigned to the current accountant.
+   *
+   * @param req - Request with authenticated user
+   * @returns Array of completed/cancelled requests
+   */
+  @Get('accountant/completed')
+  @HttpCode(HttpStatus.OK)
+  async getAccountantCompletedRequests(@Req() req: any) {
+    return await this.registrationRequestService.getAccountantCompletedRequests(
+      req.user.id,
+    );
+  }
 }

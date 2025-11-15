@@ -17,6 +17,9 @@ describe('RegistrationRequestController', () => {
     getRequestById: jest.fn(),
     updateRequestStatus: jest.fn(),
     assignAccountant: jest.fn(),
+    getAccountantPendingRequests: jest.fn(),
+    getAccountantActiveRequests: jest.fn(),
+    getAccountantCompletedRequests: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -260,6 +263,58 @@ describe('RegistrationRequestController', () => {
       await expect(controller.assignAccountant('123', 'acc1', req)).rejects.toThrow(
         ForbiddenException,
       );
+    });
+  });
+
+  describe('getAccountantPendingRequests', () => {
+    it('should return pending requests for authenticated accountant', async () => {
+      const mockRequests = [
+        { id: '1', status: 'pending' },
+        { id: '2', status: 'pending' },
+      ];
+
+      const req = { user: { id: 'accountant1' } };
+      mockService.getAccountantPendingRequests.mockResolvedValue(mockRequests);
+
+      const result = await controller.getAccountantPendingRequests(req);
+
+      expect(service.getAccountantPendingRequests).toHaveBeenCalledWith('accountant1');
+      expect(result).toEqual(mockRequests);
+    });
+  });
+
+  describe('getAccountantActiveRequests', () => {
+    it('should return active requests for authenticated accountant', async () => {
+      const mockRequests = [
+        { id: '1', status: 'in_progress' },
+        { id: '2', status: 'waiting_documents' },
+        { id: '3', status: 'processing' },
+      ];
+
+      const req = { user: { id: 'accountant1' } };
+      mockService.getAccountantActiveRequests.mockResolvedValue(mockRequests);
+
+      const result = await controller.getAccountantActiveRequests(req);
+
+      expect(service.getAccountantActiveRequests).toHaveBeenCalledWith('accountant1');
+      expect(result).toEqual(mockRequests);
+    });
+  });
+
+  describe('getAccountantCompletedRequests', () => {
+    it('should return completed requests for authenticated accountant', async () => {
+      const mockRequests = [
+        { id: '1', status: 'completed' },
+        { id: '2', status: 'cancelled' },
+      ];
+
+      const req = { user: { id: 'accountant1' } };
+      mockService.getAccountantCompletedRequests.mockResolvedValue(mockRequests);
+
+      const result = await controller.getAccountantCompletedRequests(req);
+
+      expect(service.getAccountantCompletedRequests).toHaveBeenCalledWith('accountant1');
+      expect(result).toEqual(mockRequests);
     });
   });
 });
