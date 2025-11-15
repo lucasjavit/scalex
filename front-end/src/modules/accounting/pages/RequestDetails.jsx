@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { accountingApi } from '../../../services/accountingApi';
 import ChatBox from '../components/ChatBox';
 import DocumentUpload from '../components/DocumentUpload';
+import CompanyForm from '../components/CompanyForm';
 
 const STATUS_LABELS = {
   pending: 'Pendente',
@@ -20,6 +21,7 @@ export default function RequestDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [canceling, setCanceling] = useState(false);
+  const [showCompanyForm, setShowCompanyForm] = useState(false);
 
   useEffect(() => {
     loadRequest();
@@ -54,6 +56,13 @@ export default function RequestDetails() {
     } finally {
       setCanceling(false);
     }
+  };
+
+  const handleCompanyCreated = async (company) => {
+    alert('Empresa criada com sucesso! A solicitação foi marcada como concluída.');
+    setShowCompanyForm(false);
+    await loadRequest(); // Reload to show updated status
+    navigate(`/accounting/companies/${company.id}`); // Navigate to company details
   };
 
   if (loading) {
@@ -238,14 +247,65 @@ export default function RequestDetails() {
         </div>
       )}
 
+      {/* Company Registration Form - Show for accountants when processing */}
+      {request.assignedToId &&
+        request.status !== 'cancelled' &&
+        request.status !== 'completed' &&
+        request.status !== 'pending' && (
+          <div className="mt-8">
+            {!showCompanyForm ? (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start">
+                    <svg
+                      className="w-6 h-6 text-green-600 mr-3 mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <div>
+                      <h3 className="text-lg font-semibold text-green-900 mb-2">
+                        Processo de CNPJ Concluído?
+                      </h3>
+                      <p className="text-green-800 mb-4">
+                        Se você já finalizou a abertura do CNPJ, registre a empresa no sistema para
+                        concluir a solicitação.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowCompanyForm(true)}
+                  className="mt-4 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                >
+                  Registrar Empresa
+                </button>
+              </div>
+            ) : (
+              <CompanyForm
+                requestId={request.id}
+                request={request}
+                onSuccess={handleCompanyCreated}
+                onCancel={() => setShowCompanyForm(false)}
+              />
+            )}
+          </div>
+        )}
+
       {/* Documents Section - Show when not cancelled or completed */}
       {request.status !== 'cancelled' && request.status !== 'completed' && (
         <div className="mt-8 bg-white shadow-lg rounded-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Documentos
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Documentos</h2>
           <p className="text-gray-600 mb-6">
-            Envie os documentos solicitados pelo contador para agilizar o processo de abertura do CNPJ.
+            Envie os documentos solicitados pelo contador para agilizar o processo de abertura do
+            CNPJ.
           </p>
 
           <DocumentUpload

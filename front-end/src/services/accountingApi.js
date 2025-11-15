@@ -309,6 +309,63 @@ class AccountingApiService {
   async getDocumentDownloadPath(documentId) {
     return this.request(`/accounting/documents/${documentId}/download`);
   }
+
+  // ========================================
+  // COMPANY METHODS
+  // ========================================
+
+  /**
+   * Create a company from a registration request
+   * @param {string} requestId - Request ID
+   * @param {Object} companyData - Company information
+   * @returns {Promise<Object>} Created company
+   */
+  async createCompany(requestId, companyData) {
+    return this.request(`/accounting/companies/${requestId}`, {
+      method: 'POST',
+      body: JSON.stringify(companyData),
+    });
+  }
+
+  /**
+   * Get all companies owned by authenticated user
+   * @returns {Promise<Array>} Array of user's companies
+   */
+  async getMyCompanies() {
+    return this.request('/accounting/companies/my-companies');
+  }
+
+  /**
+   * Get all companies managed by authenticated accountant
+   * @param {string} status - Optional status filter (active, inactive, suspended)
+   * @returns {Promise<Array>} Array of accountant's companies
+   */
+  async getAccountantCompanies(status = null) {
+    const queryString = status ? `?status=${status}` : '';
+    return this.request(`/accounting/companies/accountant${queryString}`);
+  }
+
+  /**
+   * Get detailed information about a company
+   * @param {string} companyId - Company ID
+   * @returns {Promise<Object>} Company details
+   */
+  async getCompanyById(companyId) {
+    return this.request(`/accounting/companies/${companyId}`);
+  }
+
+  /**
+   * Update company information
+   * @param {string} companyId - Company ID
+   * @param {Object} updateData - Partial company data to update
+   * @returns {Promise<Object>} Updated company
+   */
+  async updateCompany(companyId, updateData) {
+    return this.request(`/accounting/companies/${companyId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updateData),
+    });
+  }
 }
 
 // Create and export a singleton instance
