@@ -3,9 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CompanyRegistrationRequest } from './entities/company-registration-request.entity';
 import { RequestDocument } from './entities/request-document.entity';
 import { AccountingMessage } from './entities/accounting-message.entity';
+import { Company } from './entities/company.entity';
 import { RegistrationRequestService } from './services/registration-request.service';
 import { MessageService } from './services/message.service';
 import { DocumentService } from './services/document.service';
+import { CompanyService } from './services/company.service';
 import { RegistrationRequestController } from './controllers/registration-request.controller';
 import { MessageController } from './controllers/message.controller';
 import { DocumentController } from './controllers/document.controller';
@@ -30,6 +32,7 @@ import { User } from '../../users/entities/user.entity';
       CompanyRegistrationRequest,
       RequestDocument,
       AccountingMessage,
+      Company,
       User, // Needed for accountant assignment
     ]),
   ],
@@ -38,7 +41,17 @@ import { User } from '../../users/entities/user.entity';
     MessageController,
     DocumentController,
   ],
-  providers: [RegistrationRequestService, MessageService, DocumentService],
-  exports: [RegistrationRequestService, MessageService, DocumentService],
+  providers: [
+    RegistrationRequestService,
+    MessageService,
+    DocumentService,
+    CompanyService,
+  ],
+  exports: [
+    RegistrationRequestService,
+    MessageService,
+    DocumentService,
+    CompanyService,
+  ],
 })
 export class AccountingModule {}
