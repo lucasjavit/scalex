@@ -11,6 +11,7 @@ import { CompanyService } from './services/company.service';
 import { RegistrationRequestController } from './controllers/registration-request.controller';
 import { MessageController } from './controllers/message.controller';
 import { DocumentController } from './controllers/document.controller';
+import { CompanyController } from './controllers/company.controller';
 import { User } from '../../users/entities/user.entity';
 
 /**
@@ -40,6 +41,7 @@ import { User } from '../../users/entities/user.entity';
     RegistrationRequestController,
     MessageController,
     DocumentController,
+    CompanyController,
   ],
   providers: [
     RegistrationRequestService,
