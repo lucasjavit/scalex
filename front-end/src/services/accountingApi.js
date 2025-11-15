@@ -158,6 +158,34 @@ class AccountingApiService {
     return this.updateRequestStatus(requestId, 'cancelled', reason);
   }
 
+  // ========================================
+  // ACCOUNTANT DASHBOARD METHODS
+  // ========================================
+
+  /**
+   * Get pending requests for the authenticated accountant
+   * @returns {Promise<Array>} Array of pending requests
+   */
+  async getAccountantPendingRequests() {
+    return this.request('/accounting/requests/accountant/pending');
+  }
+
+  /**
+   * Get active requests for the authenticated accountant
+   * @returns {Promise<Array>} Array of active requests (in_progress, waiting_documents, processing)
+   */
+  async getAccountantActiveRequests() {
+    return this.request('/accounting/requests/accountant/active');
+  }
+
+  /**
+   * Get completed/cancelled requests for the authenticated accountant
+   * @returns {Promise<Array>} Array of completed/cancelled requests
+   */
+  async getAccountantCompletedRequests() {
+    return this.request('/accounting/requests/accountant/completed');
+  }
+
   // ==================== MESSAGING METHODS ====================
 
   /**
