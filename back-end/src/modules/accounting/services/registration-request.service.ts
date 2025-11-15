@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { CompanyRegistrationRequest, RequestStatus } from '../entities/company-registration-request.entity';
 import { User } from '../../../users/entities/user.entity';
 import { CreateRegistrationRequestDto } from '../dto/create-registration-request.dto';
@@ -211,5 +211,75 @@ export class RegistrationRequestService {
       .getRawOne();
 
     return result ? result.userId : null;
+  }
+
+  /**
+   * Get pending requests for an accountant
+   *
+   * Returns requests that are pending and assigned to the accountant,
+   * ordered by creation date (oldest first - most urgent).
+   *
+   * @param accountantId - Accountant user ID
+   * @returns Array of pending requests
+   */
+  async getAccountantPendingRequests(
+    accountantId: string,
+  ): Promise<CompanyRegistrationRequest[]> {
+    return await this.requestRepository.find({
+      where: {
+        assignedToId: accountantId,
+        status: RequestStatus.PENDING,
+      },
+      order: { createdAt: 'ASC' }, // Oldest first (most urgent)
+      relations: ['user'],
+    });
+  }
+
+  /**
+   * Get active requests for an accountant
+   *
+   * Returns requests that are in progress, waiting for documents, or processing,
+   * ordered by creation date (newest first).
+   *
+   * @param accountantId - Accountant user ID
+   * @returns Array of active requests
+   */
+  async getAccountantActiveRequests(
+    accountantId: string,
+  ): Promise<CompanyRegistrationRequest[]> {
+    return await this.requestRepository.find({
+      where: {
+        assignedToId: accountantId,
+        status: In([
+          RequestStatus.IN_PROGRESS,
+          RequestStatus.WAITING_DOCUMENTS,
+          RequestStatus.PROCESSING,
+        ]),
+      },
+      order: { createdAt: 'DESC' },
+      relations: ['user'],
+    });
+  }
+
+  /**
+   * Get completed/cancelled requests for an accountant
+   *
+   * Returns requests that are completed or cancelled,
+   * ordered by updated date (newest first).
+   *
+   * @param accountantId - Accountant user ID
+   * @returns Array of completed/cancelled requests
+   */
+  async getAccountantCompletedRequests(
+    accountantId: string,
+  ): Promise<CompanyRegistrationRequest[]> {
+    return await this.requestRepository.find({
+      where: {
+        assignedToId: accountantId,
+        status: In([RequestStatus.COMPLETED, RequestStatus.CANCELLED]),
+      },
+      order: { updatedAt: 'DESC' },
+      relations: ['user'],
+    });
   }
 }

@@ -385,4 +385,133 @@ describe('RegistrationRequestService', () => {
       expect(result).toBeNull();
     });
   });
+
+  describe('getAccountantPendingRequests', () => {
+    const accountantId = '123e4567-e89b-12d3-a456-426614174002';
+
+    it('should return pending requests for accountant', async () => {
+      const mockRequests = [
+        {
+          id: '1',
+          assignedToId: accountantId,
+          status: RequestStatus.PENDING,
+          createdAt: new Date('2024-01-01'),
+        },
+      ];
+
+      mockRequestRepository.find.mockResolvedValue(mockRequests);
+
+      const result = await service.getAccountantPendingRequests(accountantId);
+
+      expect(requestRepository.find).toHaveBeenCalledWith({
+        where: {
+          assignedToId: accountantId,
+          status: RequestStatus.PENDING,
+        },
+        order: { createdAt: 'ASC' },
+        relations: ['user'],
+      });
+      expect(result).toEqual(mockRequests);
+    });
+
+    it('should return empty array when no pending requests', async () => {
+      mockRequestRepository.find.mockResolvedValue([]);
+
+      const result = await service.getAccountantPendingRequests(accountantId);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getAccountantActiveRequests', () => {
+    const accountantId = '123e4567-e89b-12d3-a456-426614174002';
+
+    it('should return active requests for accountant', async () => {
+      const mockRequests = [
+        {
+          id: '1',
+          assignedToId: accountantId,
+          status: RequestStatus.IN_PROGRESS,
+          createdAt: new Date('2024-01-02'),
+        },
+        {
+          id: '2',
+          assignedToId: accountantId,
+          status: RequestStatus.WAITING_DOCUMENTS,
+          createdAt: new Date('2024-01-01'),
+        },
+        {
+          id: '3',
+          assignedToId: accountantId,
+          status: RequestStatus.PROCESSING,
+          createdAt: new Date('2024-01-03'),
+        },
+      ];
+
+      mockRequestRepository.find.mockResolvedValue(mockRequests);
+
+      const result = await service.getAccountantActiveRequests(accountantId);
+
+      expect(requestRepository.find).toHaveBeenCalledWith({
+        where: {
+          assignedToId: accountantId,
+          status: expect.any(Object), // In() operator
+        },
+        order: { createdAt: 'DESC' },
+        relations: ['user'],
+      });
+      expect(result).toEqual(mockRequests);
+    });
+
+    it('should return empty array when no active requests', async () => {
+      mockRequestRepository.find.mockResolvedValue([]);
+
+      const result = await service.getAccountantActiveRequests(accountantId);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getAccountantCompletedRequests', () => {
+    const accountantId = '123e4567-e89b-12d3-a456-426614174002';
+
+    it('should return completed and cancelled requests for accountant', async () => {
+      const mockRequests = [
+        {
+          id: '1',
+          assignedToId: accountantId,
+          status: RequestStatus.COMPLETED,
+          updatedAt: new Date('2024-01-03'),
+        },
+        {
+          id: '2',
+          assignedToId: accountantId,
+          status: RequestStatus.CANCELLED,
+          updatedAt: new Date('2024-01-02'),
+        },
+      ];
+
+      mockRequestRepository.find.mockResolvedValue(mockRequests);
+
+      const result = await service.getAccountantCompletedRequests(accountantId);
+
+      expect(requestRepository.find).toHaveBeenCalledWith({
+        where: {
+          assignedToId: accountantId,
+          status: expect.any(Object), // In() operator
+        },
+        order: { updatedAt: 'DESC' },
+        relations: ['user'],
+      });
+      expect(result).toEqual(mockRequests);
+    });
+
+    it('should return empty array when no completed requests', async () => {
+      mockRequestRepository.find.mockResolvedValue([]);
+
+      const result = await service.getAccountantCompletedRequests(accountantId);
+
+      expect(result).toEqual([]);
+    });
+  });
 });
