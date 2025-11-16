@@ -5,6 +5,7 @@ import { RequestDocument } from './entities/request-document.entity';
 import { AccountingMessage } from './entities/accounting-message.entity';
 import { Company } from './entities/company.entity';
 import { TaxObligation } from './entities/tax-obligation.entity';
+import { CompanyDocument } from './entities/company-document.entity';
 import { RegistrationRequestService } from './services/registration-request.service';
 import { MessageService } from './services/message.service';
 import { DocumentService } from './services/document.service';
@@ -38,6 +39,7 @@ import { User } from '../../users/entities/user.entity';
       AccountingMessage,
       Company,
       TaxObligation,
+      CompanyDocument,
       User, // Needed for accountant assignment
     ]),
   ],
