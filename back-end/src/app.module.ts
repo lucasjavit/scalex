@@ -44,7 +44,7 @@ import { AccountingModule } from './modules/accounting/accounting.module';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: false, // IMPORTANT: Disabled - using migrations instead
-        migrationsRun: false, // Run migrations manually via CLI
+        migrationsRun: true, // Run pending migrations automatically on startup
         logging: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
