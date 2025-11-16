@@ -366,6 +366,79 @@ class AccountingApiService {
       body: JSON.stringify(updateData),
     });
   }
+
+  // ========================================
+  // TAX OBLIGATION METHODS
+  // ========================================
+
+  /**
+   * Create a tax obligation for a company
+   * @param {Object} taxData - Tax obligation data
+   * @returns {Promise<Object>} Created tax obligation
+   */
+  async createTaxObligation(taxData) {
+    return this.request('/accounting/tax-obligations', {
+      method: 'POST',
+      body: JSON.stringify(taxData),
+    });
+  }
+
+  /**
+   * Get all tax obligations for a specific company
+   * @param {string} companyId - Company ID
+   * @param {string} status - Optional status filter (pending, paid, overdue, cancelled)
+   * @returns {Promise<Array>} Array of tax obligations
+   */
+  async getCompanyTaxObligations(companyId, status = null) {
+    const queryString = status ? `?status=${status}` : '';
+    return this.request(`/accounting/tax-obligations/company/${companyId}${queryString}`);
+  }
+
+  /**
+   * Get a single tax obligation by ID
+   * @param {string} taxId - Tax obligation ID
+   * @returns {Promise<Object>} Tax obligation details
+   */
+  async getTaxObligationById(taxId) {
+    return this.request(`/accounting/tax-obligations/${taxId}`);
+  }
+
+  /**
+   * Confirm payment of a tax obligation
+   * @param {string} taxId - Tax obligation ID
+   * @param {Object} paymentData - Payment confirmation data (paidAmount, paymentConfirmation)
+   * @returns {Promise<Object>} Updated tax obligation
+   */
+  async confirmTaxPayment(taxId, paymentData) {
+    return this.request(`/accounting/tax-obligations/${taxId}/confirm-payment`, {
+      method: 'PATCH',
+      body: JSON.stringify(paymentData),
+    });
+  }
+
+  /**
+   * Update a tax obligation
+   * @param {string} taxId - Tax obligation ID
+   * @param {Object} updateData - Partial tax obligation data to update
+   * @returns {Promise<Object>} Updated tax obligation
+   */
+  async updateTaxObligation(taxId, updateData) {
+    return this.request(`/accounting/tax-obligations/${taxId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    });
+  }
+
+  /**
+   * Cancel a tax obligation
+   * @param {string} taxId - Tax obligation ID
+   * @returns {Promise<Object>} Cancelled tax obligation
+   */
+  async cancelTaxObligation(taxId) {
+    return this.request(`/accounting/tax-obligations/${taxId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 // Create and export a singleton instance
