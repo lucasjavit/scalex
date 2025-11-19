@@ -12,7 +12,7 @@ import {
 import { CompanyService } from '../services/company.service';
 import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
 import { CreateCompanyDto } from '../dto/create-company.dto';
-import { CompanyStatus } from '../entities/company.entity';
+import { CompanyStatus } from '../entities/accounting-company.entity';
 
 /**
  * CompanyController
@@ -48,7 +48,7 @@ export class CompanyController {
    *
    * @param requestId - Registration request ID
    * @param createCompanyDto - Company information
-   * @returns Created company
+   * @returns Created accounting company
    */
   @Post(':requestId')
   async createCompany(
@@ -86,6 +86,30 @@ export class CompanyController {
   @Get('accountant')
   async getAccountantCompanies(@Req() req: any, @Query('status') status?: CompanyStatus) {
     return await this.companyService.getCompaniesByAccountant(req.user.id, status);
+  }
+
+  /**
+   * Search companies by user CPF
+   *
+   * Allows accountants to find all companies owned by a client
+   * using only their CPF. This is more practical than searching by user ID.
+   *
+   * Use Case:
+   * - Accountant wants to upload monthly taxes for a client
+   * - Searches by client's CPF to get all their companies
+   * - Selects the appropriate company to upload taxes
+   *
+   * Returns companies with full relations (user, accountant, request).
+   * Ordered by creation date (newest first).
+   *
+   * @param cpf - User's CPF (can be formatted: 123.456.789-00 or raw: 12345678900)
+   * @returns Array of companies owned by the user with that CPF
+   *
+   * Example: GET /api/accounting/companies/by-cpf/12345678900
+   */
+  @Get('by-cpf/:cpf')
+  async getCompaniesByCpf(@Param('cpf') cpf: string) {
+    return await this.companyService.findCompaniesByUserCpf(cpf);
   }
 
   /**
