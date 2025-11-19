@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   BaseEntity,
 } from 'typeorm';
-import { Company } from './company.entity';
+import { AccountingCompany } from './accounting-company.entity';
 import { User } from '../../../users/entities/user.entity';
 
 /**
@@ -61,9 +61,9 @@ export class TaxObligation extends BaseEntity {
   @Column({ name: 'company_id' })
   companyId: string;
 
-  @ManyToOne(() => Company, { eager: true })
+  @ManyToOne(() => AccountingCompany, { eager: true })
   @JoinColumn({ name: 'company_id' })
-  company: Company;
+  company: AccountingCompany;
 
   @Column({ name: 'generated_by_id' })
   generatedById: string;
@@ -80,12 +80,47 @@ export class TaxObligation extends BaseEntity {
   taxType: TaxType;
 
   @Column({
-    type: 'varchar',
-    length: 7,
+    type: 'integer',
     name: 'reference_month',
-    comment: 'Format: YYYY-MM',
+    comment: 'Month of the tax obligation (1-12)',
   })
-  referenceMonth: string;
+  referenceMonth: number;
+
+  @Column({
+    type: 'integer',
+    name: 'reference_year',
+    comment: 'Year of the tax obligation (YYYY format)',
+  })
+  referenceYear: number;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    name: 'file_name',
+  })
+  fileName: string;
+
+  @Column({
+    type: 'varchar',
+    length: 500,
+    name: 'file_path',
+  })
+  filePath: string;
+
+  @Column({
+    type: 'integer',
+    name: 'file_size',
+    nullable: true,
+  })
+  fileSize?: number;
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+    name: 'mime_type',
+    nullable: true,
+  })
+  mimeType?: string;
 
   @Column({ type: 'date', name: 'due_date' })
   dueDate: Date;
@@ -200,10 +235,9 @@ export class TaxObligation extends BaseEntity {
 
   /**
    * Format reference month for display
-   * 2024-01 → Janeiro/2024
+   * (1, 2024) → Janeiro/2024
    */
   getFormattedReferenceMonth(): string {
-    const [year, month] = this.referenceMonth.split('-');
     const months = [
       'Janeiro',
       'Fevereiro',
@@ -218,7 +252,16 @@ export class TaxObligation extends BaseEntity {
       'Novembro',
       'Dezembro',
     ];
-    return `${months[parseInt(month) - 1]}/${year}`;
+    return `${months[this.referenceMonth - 1]}/${this.referenceYear}`;
+  }
+
+  /**
+   * Get reference period as string (YYYY-MM format)
+   * (1, 2024) → "2024-01"
+   */
+  getReferencePeriod(): string {
+    const monthStr = this.referenceMonth.toString().padStart(2, '0');
+    return `${this.referenceYear}-${monthStr}`;
   }
 
   /**
