@@ -9,11 +9,20 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
+import { createReadStream } from 'fs';
 import { TaxObligationService } from '../services/tax-obligation.service';
 import { CreateTaxObligationDto } from '../dto/create-tax-obligation.dto';
 import { UpdateTaxObligationDto } from '../dto/update-tax-obligation.dto';
 import { ConfirmPaymentDto } from '../dto/confirm-payment.dto';
+import { UploadMonthlyTaxDto } from '../dto/upload-monthly-tax.dto';
 import { TaxObligation, TaxObligationStatus } from '../entities/tax-obligation.entity';
 import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
@@ -28,7 +37,7 @@ import { CurrentUser } from '../../../common/decorators/current-user.decorator';
  * - Update tax obligations (amount, fines, interest)
  * - Cancel tax obligations
  *
- * Company Owner Features:
+ * AccountingCompany Owner Features:
  * - View tax obligations for their companies
  * - Confirm payment with receipt/confirmation number
  * - Track payment status and overdue taxes
@@ -148,5 +157,82 @@ export class TaxObligationController {
   @Delete(':id')
   async cancelTaxObligation(@Param('id') id: string): Promise<TaxObligation> {
     return this.taxObligationService.cancelTaxObligation(id);
+  }
+
+  /**
+   * Upload monthly tax PDF
+   *
+   * POST /accounting/tax-obligations/upload-monthly-tax
+   *
+   * Used by accountants to upload government-generated tax PDFs (DAS, DARF, GPS, etc.)
+   * for a specific company, month, and year. The system validates the PDF file,
+   * prevents duplicates, and stores file metadata.
+   *
+   * Request format: multipart/form-data
+   * - file: PDF file (required, validated as application/pdf)
+   * - companyId: Company UUID (required)
+   * - taxType: Tax type enum (DAS, DARF, GPS, etc.) (required)
+   * - referenceMonth: Month number 1-12 (required)
+   * - referenceYear: Year 2000-2100 (required)
+   * - dueDate: Due date (required)
+   * - amount: Tax amount (required)
+   * - fineAmount: Fine amount (optional)
+   * - interestAmount: Interest amount (optional)
+   * - barcode: Payment barcode (optional)
+   * - paymentLink: Payment link (optional)
+   * - notes: Additional notes (optional)
+   *
+   * @param user - Current authenticated user (accountant)
+   * @param file - Uploaded PDF file from multipart/form-data
+   * @param uploadDto - Tax obligation metadata
+   * @returns Created tax obligation with file metadata
+   * @throws BadRequestException if file is missing, not PDF, or duplicate month/year
+   * @throws NotFoundException if company not found
+   */
+  @Post('upload-monthly-tax')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadMonthlyTaxPdf(
+    @CurrentUser() user: any,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() uploadDto: UploadMonthlyTaxDto,
+  ): Promise<TaxObligation> {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    return this.taxObligationService.uploadMonthlyTaxPdf(user.uid, uploadDto, file);
+  }
+
+  /**
+   * Download tax obligation PDF
+   *
+   * GET /accounting/tax-obligations/:id/download
+   *
+   * Downloads the PDF file associated with a tax obligation.
+   * Returns the file as a stream with proper content-type and content-disposition headers.
+   *
+   * Used by both accountants and company owners to download tax PDFs.
+   *
+   * @param id - Tax obligation ID
+   * @param res - Express response object
+   * @returns StreamableFile with PDF content
+   * @throws NotFoundException if tax obligation not found or file doesn't exist
+   */
+  @Get(':id/download')
+  async downloadTaxPdf(@Param('id') id: string, @Res({ passthrough: true }) res: Response) {
+    const taxObligation = await this.taxObligationService.getTaxObligationById(id);
+
+    if (!taxObligation.filePath) {
+      throw new BadRequestException('This tax obligation does not have an associated file');
+    }
+
+    const file = createReadStream(taxObligation.filePath);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${taxObligation.fileName}"`,
+    });
+
+    return new StreamableFile(file);
   }
 }
