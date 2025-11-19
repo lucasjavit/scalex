@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Company, CompanyStatus } from '../entities/company.entity';
+import { AccountingCompany, CompanyStatus } from '../entities/accounting-company.entity';
 import { CompanyRegistrationRequest, RequestStatus } from '../entities/company-registration-request.entity';
 import { CreateCompanyDto } from '../dto/create-company.dto';
 
@@ -26,8 +26,8 @@ import { CreateCompanyDto } from '../dto/create-company.dto';
 @Injectable()
 export class CompanyService {
   constructor(
-    @InjectRepository(Company)
-    private readonly companyRepository: Repository<Company>,
+    @InjectRepository(AccountingCompany)
+    private readonly companyRepository: Repository<AccountingCompany>,
     @InjectRepository(CompanyRegistrationRequest)
     private readonly requestRepository: Repository<CompanyRegistrationRequest>,
   ) {}
@@ -46,14 +46,14 @@ export class CompanyService {
    *
    * @param requestId - ID of the registration request
    * @param createCompanyDto - Company information
-   * @returns Created company
+   * @returns Created accounting company
    * @throws NotFoundException if request not found
    * @throws BadRequestException if request already completed or CNPJ exists
    */
   async createCompanyFromRequest(
     requestId: string,
     createCompanyDto: CreateCompanyDto,
-  ): Promise<Company> {
+  ): Promise<AccountingCompany> {
     // Validate request exists
     const request = await this.requestRepository.findOne({
       where: { id: requestId },
@@ -81,7 +81,7 @@ export class CompanyService {
     const company = this.companyRepository.create({
       ...createCompanyDto,
       userId: request.userId,
-      accountantId: request.assignedToId,
+      accountantId: request.assignedToId ?? undefined,
       requestId: request.id,
       status: CompanyStatus.ACTIVE,
     });
@@ -90,6 +90,7 @@ export class CompanyService {
 
     // Update request status to completed
     request.status = RequestStatus.COMPLETED;
+    request.completedAt = new Date();
     await this.requestRepository.save(request);
 
     return savedCompany;
@@ -101,7 +102,7 @@ export class CompanyService {
    * @param userId - User ID
    * @returns Array of companies with relations
    */
-  async getCompaniesByUser(userId: string): Promise<Company[]> {
+  async getCompaniesByUser(userId: string): Promise<AccountingCompany[]> {
     return await this.companyRepository.find({
       where: { userId },
       order: { createdAt: 'DESC' },
@@ -119,7 +120,7 @@ export class CompanyService {
   async getCompaniesByAccountant(
     accountantId: string,
     status?: CompanyStatus,
-  ): Promise<Company[]> {
+  ): Promise<AccountingCompany[]> {
     const where: any = { accountantId };
 
     if (status) {
@@ -140,7 +141,7 @@ export class CompanyService {
    * @returns Company with all relations
    * @throws NotFoundException if company not found
    */
-  async getCompanyDetails(companyId: string): Promise<Company> {
+  async getCompanyDetails(companyId: string): Promise<AccountingCompany> {
     const company = await this.companyRepository.findOne({
       where: { id: companyId },
       relations: ['user', 'accountant', 'request'],
@@ -164,7 +165,7 @@ export class CompanyService {
    * @returns Updated company
    * @throws NotFoundException if company not found
    */
-  async updateCompany(companyId: string, updateData: Partial<CreateCompanyDto>): Promise<Company> {
+  async updateCompany(companyId: string, updateData: Partial<CreateCompanyDto>): Promise<AccountingCompany> {
     const company = await this.companyRepository.findOne({
       where: { id: companyId },
     });
@@ -187,7 +188,7 @@ export class CompanyService {
    * @param cnpj - CNPJ to search for
    * @returns Company or null if not found
    */
-  async getCompanyByCnpj(cnpj: string): Promise<Company | null> {
+  async getCompanyByCnpj(cnpj: string): Promise<AccountingCompany | null> {
     return await this.companyRepository.findOne({
       where: { cnpj },
     });
@@ -203,7 +204,7 @@ export class CompanyService {
    * @returns Updated company
    * @throws NotFoundException if company not found
    */
-  async updateCompanyStatus(companyId: string, status: CompanyStatus): Promise<Company> {
+  async updateCompanyStatus(companyId: string, status: CompanyStatus): Promise<AccountingCompany> {
     const company = await this.companyRepository.findOne({
       where: { id: companyId },
     });
@@ -215,5 +216,29 @@ export class CompanyService {
     company.status = status;
 
     return await this.companyRepository.save(company);
+  }
+
+  /**
+   * Find all companies by user CPF
+   *
+   * Allows accountants to search for all companies owned by a client
+   * using only their CPF. Returns all companies with full relations.
+   *
+   * Use Case:
+   * - Accountant needs to manage monthly taxes for a client
+   * - Instead of searching by user ID, search by CPF (more practical)
+   * - Returns all companies to allow accountant to select which one
+   *
+   * @param cpf - User's CPF (can be formatted or raw)
+   * @returns Array of companies owned by the user
+   */
+  async findCompaniesByUserCpf(cpf: string): Promise<AccountingCompany[]> {
+    return await this.companyRepository.find({
+      where: {
+        user: { cpf },
+      },
+      relations: ['user', 'accountant', 'request'],
+      order: { createdAt: 'DESC' },
+    });
   }
 }
