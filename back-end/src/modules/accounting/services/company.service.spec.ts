@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CompanyService } from './company.service';
-import { Company, CompanyStatus, CompanyType, TaxRegime } from '../entities/company.entity';
+import { AccountingCompany, CompanyStatus, CompanyType, TaxRegime } from '../entities/accounting-company.entity';
 import { CompanyRegistrationRequest, RequestStatus } from '../entities/company-registration-request.entity';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('CompanyService', () => {
   let service: CompanyService;
-  let companyRepository: Repository<Company>;
+  let companyRepository: Repository<AccountingCompany>;
   let requestRepository: Repository<CompanyRegistrationRequest>;
 
   const mockCompanyRepository = {
@@ -28,7 +28,7 @@ describe('CompanyService', () => {
       providers: [
         CompanyService,
         {
-          provide: getRepositoryToken(Company),
+          provide: getRepositoryToken(AccountingCompany),
           useValue: mockCompanyRepository,
         },
         {
@@ -39,7 +39,7 @@ describe('CompanyService', () => {
     }).compile();
 
     service = module.get<CompanyService>(CompanyService);
-    companyRepository = module.get<Repository<Company>>(getRepositoryToken(Company));
+    companyRepository = module.get<Repository<AccountingCompany>>(getRepositoryToken(AccountingCompany));
     requestRepository = module.get<Repository<CompanyRegistrationRequest>>(
       getRepositoryToken(CompanyRegistrationRequest),
     );
@@ -63,7 +63,7 @@ describe('CompanyService', () => {
       desiredTradeName: 'My Company',
       estimatedRevenue: 100000,
       mainActivityDescription: 'Software Development',
-    } as CompanyRegistrationRequest;
+    } as unknown as CompanyRegistrationRequest;
 
     const createCompanyDto = {
       legalName: 'My Company LTDA',
@@ -503,6 +503,122 @@ describe('CompanyService', () => {
       ).rejects.toThrow(NotFoundException);
 
       expect(mockCompanyRepository.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findCompaniesByUserCpf', () => {
+    const cpf = '123.456.789-00';
+
+    it('should return all companies for a user identified by CPF', async () => {
+      const mockCompanies = [
+        {
+          id: 'company-1',
+          legalName: 'Company One LTDA',
+          cnpj: '11.111.111/0001-11',
+          status: CompanyStatus.ACTIVE,
+          userId: 'user-123',
+          user: {
+            id: 'user-123',
+            name: 'John Doe',
+            cpf: '123.456.789-00',
+          },
+        },
+        {
+          id: 'company-2',
+          legalName: 'Company Two ME',
+          cnpj: '22.222.222/0001-22',
+          status: CompanyStatus.ACTIVE,
+          userId: 'user-123',
+          user: {
+            id: 'user-123',
+            name: 'John Doe',
+            cpf: '123.456.789-00',
+          },
+        },
+      ];
+
+      mockCompanyRepository.find.mockResolvedValue(mockCompanies);
+
+      const result = await service.findCompaniesByUserCpf(cpf);
+
+      expect(mockCompanyRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: { cpf },
+        },
+        relations: ['user', 'accountant', 'request'],
+        order: { createdAt: 'DESC' },
+      });
+
+      expect(result).toEqual(mockCompanies);
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return empty array when no companies found for CPF', async () => {
+      mockCompanyRepository.find.mockResolvedValue([]);
+
+      const result = await service.findCompaniesByUserCpf(cpf);
+
+      expect(mockCompanyRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: { cpf },
+        },
+        relations: ['user', 'accountant', 'request'],
+        order: { createdAt: 'DESC' },
+      });
+
+      expect(result).toEqual([]);
+      expect(result).toHaveLength(0);
+    });
+
+    it('should handle CPF with different formatting', async () => {
+      const formattedCpf = '12345678900'; // Without dots and dash
+      mockCompanyRepository.find.mockResolvedValue([]);
+
+      await service.findCompaniesByUserCpf(formattedCpf);
+
+      expect(mockCompanyRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: { cpf: formattedCpf },
+        },
+        relations: ['user', 'accountant', 'request'],
+        order: { createdAt: 'DESC' },
+      });
+    });
+
+    it('should include all company relations (user, accountant, request)', async () => {
+      const mockCompany = {
+        id: 'company-1',
+        legalName: 'Full Company LTDA',
+        cnpj: '11.111.111/0001-11',
+        status: CompanyStatus.ACTIVE,
+        userId: 'user-123',
+        accountantId: 'accountant-456',
+        requestId: 'request-789',
+        user: {
+          id: 'user-123',
+          name: 'John Doe',
+          cpf,
+          email: 'john@example.com',
+        },
+        accountant: {
+          id: 'accountant-456',
+          name: 'Jane Smith',
+          email: 'jane@example.com',
+        },
+        request: {
+          id: 'request-789',
+          status: RequestStatus.COMPLETED,
+        },
+      };
+
+      mockCompanyRepository.find.mockResolvedValue([mockCompany]);
+
+      const result = await service.findCompaniesByUserCpf(cpf);
+
+      expect(result[0]).toHaveProperty('user');
+      expect(result[0]).toHaveProperty('accountant');
+      expect(result[0]).toHaveProperty('request');
+      expect(result[0].user.cpf).toBe(cpf);
     });
   });
 });
