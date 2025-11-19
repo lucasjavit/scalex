@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaxObligation, TaxObligationStatus } from '../entities/tax-obligation.entity';
-import { Company } from '../entities/company.entity';
+import { AccountingCompany } from '../entities/accounting-company.entity';
 import { CreateTaxObligationDto } from '../dto/create-tax-obligation.dto';
 import { UpdateTaxObligationDto } from '../dto/update-tax-obligation.dto';
 import { ConfirmPaymentDto } from '../dto/confirm-payment.dto';
@@ -27,8 +27,8 @@ export class TaxObligationService {
   constructor(
     @InjectRepository(TaxObligation)
     private readonly taxRepository: Repository<TaxObligation>,
-    @InjectRepository(Company)
-    private readonly companyRepository: Repository<Company>,
+    @InjectRepository(AccountingCompany)
+    private readonly companyRepository: Repository<AccountingCompany>,
   ) {}
 
   /**
@@ -204,6 +204,88 @@ export class TaxObligationService {
     }
 
     taxObligation.status = TaxObligationStatus.CANCELLED;
+
+    return await this.taxRepository.save(taxObligation);
+  }
+
+  /**
+   * Upload monthly tax PDF
+   *
+   * Accountants upload government-generated tax PDFs (DAS, DARF, GPS, etc.)
+   * for a specific company, month, and year. The PDF file is stored and
+   * metadata is saved to the database.
+   *
+   * @param accountantId - ID of the accountant uploading the tax
+   * @param uploadDto - Tax obligation data (company, type, month, year, amounts)
+   * @param file - Uploaded PDF file (from Multer)
+   * @returns Created tax obligation with file metadata
+   * @throws NotFoundException if company not found
+   * @throws BadRequestException if file is not PDF, or tax already exists for same month/year
+   */
+  async uploadMonthlyTaxPdf(
+    accountantId: string,
+    uploadDto: any,
+    file: Express.Multer.File,
+  ): Promise<TaxObligation> {
+    // Validate company exists
+    const company = await this.companyRepository.findOne({
+      where: { id: uploadDto.companyId },
+    });
+
+    if (!company) {
+      throw new NotFoundException(`Company with ID ${uploadDto.companyId} not found`);
+    }
+
+    // Validate file is PDF
+    if (file.mimetype !== 'application/pdf') {
+      throw new BadRequestException('Only PDF files are allowed');
+    }
+
+    // Validate reference month (1-12)
+    if (uploadDto.referenceMonth < 1 || uploadDto.referenceMonth > 12) {
+      throw new BadRequestException('Reference month must be between 1 and 12');
+    }
+
+    // Validate reference year (2000-2100)
+    if (uploadDto.referenceYear < 2000 || uploadDto.referenceYear > 2100) {
+      throw new BadRequestException('Reference year must be between 2000 and 2100');
+    }
+
+    // Check if tax already exists for this company, type, month, and year
+    const existingTax = await this.taxRepository.findOne({
+      where: {
+        companyId: uploadDto.companyId,
+        taxType: uploadDto.taxType,
+        referenceMonth: uploadDto.referenceMonth,
+        referenceYear: uploadDto.referenceYear,
+      },
+    });
+
+    if (existingTax) {
+      throw new BadRequestException(
+        `Tax obligation for ${uploadDto.taxType} already exists for ${uploadDto.referenceMonth}/${uploadDto.referenceYear}`,
+      );
+    }
+
+    // Calculate total amount
+    const amount = Number(uploadDto.amount);
+    const fineAmount = Number(uploadDto.fineAmount || 0);
+    const interestAmount = Number(uploadDto.interestAmount || 0);
+    const totalAmount = amount + fineAmount + interestAmount;
+
+    // Create tax obligation with file metadata
+    const taxObligation = this.taxRepository.create({
+      ...uploadDto,
+      fileName: file.filename,
+      filePath: file.path,
+      fileSize: file.size,
+      mimeType: file.mimetype,
+      generatedById: accountantId,
+      totalAmount,
+      fineAmount,
+      interestAmount,
+      status: TaxObligationStatus.PENDING,
+    });
 
     return await this.taxRepository.save(taxObligation);
   }

@@ -7,13 +7,13 @@ import {
   TaxType,
   TaxObligationStatus,
 } from '../entities/tax-obligation.entity';
-import { Company } from '../entities/company.entity';
+import { AccountingCompany } from '../entities/accounting-company.entity';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('TaxObligationService', () => {
   let service: TaxObligationService;
   let taxRepository: Repository<TaxObligation>;
-  let companyRepository: Repository<Company>;
+  let companyRepository: Repository<AccountingCompany>;
 
   const mockTaxRepository = {
     create: jest.fn(),
@@ -35,7 +35,7 @@ describe('TaxObligationService', () => {
           useValue: mockTaxRepository,
         },
         {
-          provide: getRepositoryToken(Company),
+          provide: getRepositoryToken(AccountingCompany),
           useValue: mockCompanyRepository,
         },
       ],
@@ -43,7 +43,7 @@ describe('TaxObligationService', () => {
 
     service = module.get<TaxObligationService>(TaxObligationService);
     taxRepository = module.get<Repository<TaxObligation>>(getRepositoryToken(TaxObligation));
-    companyRepository = module.get<Repository<Company>>(getRepositoryToken(Company));
+    companyRepository = module.get<Repository<AccountingCompany>>(getRepositoryToken(AccountingCompany));
   });
 
   afterEach(() => {
@@ -353,6 +353,202 @@ describe('TaxObligationService', () => {
       mockTaxRepository.findOne.mockResolvedValue(paidTax);
 
       await expect(service.cancelTaxObligation(taxId)).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('uploadMonthlyTaxPdf', () => {
+    const accountantId = 'accountant-123';
+    const uploadDto = {
+      companyId: 'company-123',
+      taxType: TaxType.DAS,
+      referenceMonth: 1, // Janeiro
+      referenceYear: 2024,
+      dueDate: new Date('2024-02-20'),
+      amount: 500.0,
+      barcode: '12345678901234567890',
+      paymentLink: 'https://payment.com/12345',
+      notes: 'DAS Janeiro 2024',
+    };
+    const mockFile = {
+      originalname: 'DAS_JAN_2024.pdf',
+      mimetype: 'application/pdf',
+      size: 150000,
+      path: 'uploads/tax-obligations/das-jan-2024-abc123.pdf',
+      filename: 'das-jan-2024-abc123.pdf',
+    } as Express.Multer.File;
+
+    it('should upload monthly tax PDF successfully with all file metadata', async () => {
+      const mockCompany = {
+        id: 'company-123',
+        legalName: 'Test Company LTDA',
+        cnpj: '12345678000190',
+      };
+      mockCompanyRepository.findOne.mockResolvedValue(mockCompany);
+
+      // No existing tax for this month/year
+      mockTaxRepository.findOne.mockResolvedValue(null);
+
+      const savedTax = {
+        id: 'tax-001',
+        ...uploadDto,
+        fileName: mockFile.filename,
+        filePath: mockFile.path,
+        fileSize: mockFile.size,
+        mimeType: mockFile.mimetype,
+        generatedById: accountantId,
+        totalAmount: 500.0,
+        fineAmount: 0,
+        interestAmount: 0,
+        status: TaxObligationStatus.PENDING,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockTaxRepository.create.mockReturnValue(savedTax);
+      mockTaxRepository.save.mockResolvedValue(savedTax);
+
+      const result = await service.uploadMonthlyTaxPdf(accountantId, uploadDto, mockFile);
+
+      expect(mockCompanyRepository.findOne).toHaveBeenCalledWith({
+        where: { id: uploadDto.companyId },
+      });
+
+      expect(mockTaxRepository.findOne).toHaveBeenCalledWith({
+        where: {
+          companyId: uploadDto.companyId,
+          taxType: uploadDto.taxType,
+          referenceMonth: uploadDto.referenceMonth,
+          referenceYear: uploadDto.referenceYear,
+        },
+      });
+
+      expect(mockTaxRepository.create).toHaveBeenCalledWith({
+        ...uploadDto,
+        fileName: mockFile.filename,
+        filePath: mockFile.path,
+        fileSize: mockFile.size,
+        mimeType: mockFile.mimetype,
+        generatedById: accountantId,
+        totalAmount: 500.0,
+        fineAmount: 0,
+        interestAmount: 0,
+        status: TaxObligationStatus.PENDING,
+      });
+
+      expect(result).toEqual(savedTax);
+      expect(result.fileName).toBe('das-jan-2024-abc123.pdf');
+      expect(result.filePath).toBe('uploads/tax-obligations/das-jan-2024-abc123.pdf');
+      expect(result.fileSize).toBe(150000);
+      expect(result.mimeType).toBe('application/pdf');
+    });
+
+    it('should throw NotFoundException when company does not exist', async () => {
+      mockCompanyRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.uploadMonthlyTaxPdf(accountantId, uploadDto, mockFile),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(mockTaxRepository.create).not.toHaveBeenCalled();
+      expect(mockTaxRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when file is not PDF', async () => {
+      const mockCompany = { id: 'company-123' };
+      mockCompanyRepository.findOne.mockResolvedValue(mockCompany);
+
+      const invalidFile = {
+        ...mockFile,
+        mimetype: 'image/jpeg',
+        originalname: 'document.jpg',
+      } as Express.Multer.File;
+
+      await expect(
+        service.uploadMonthlyTaxPdf(accountantId, uploadDto, invalidFile),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(mockTaxRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when tax for same month/year already exists', async () => {
+      const mockCompany = { id: 'company-123' };
+      mockCompanyRepository.findOne.mockResolvedValue(mockCompany);
+
+      const existingTax = {
+        id: 'tax-existing',
+        companyId: uploadDto.companyId,
+        taxType: uploadDto.taxType,
+        referenceMonth: uploadDto.referenceMonth,
+        referenceYear: uploadDto.referenceYear,
+        status: TaxObligationStatus.PENDING,
+      };
+      mockTaxRepository.findOne.mockResolvedValue(existingTax);
+
+      await expect(
+        service.uploadMonthlyTaxPdf(accountantId, uploadDto, mockFile),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(mockTaxRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('should calculate total amount correctly with fine and interest', async () => {
+      const mockCompany = { id: 'company-123' };
+      mockCompanyRepository.findOne.mockResolvedValue(mockCompany);
+      mockTaxRepository.findOne.mockResolvedValue(null);
+
+      const dtoWithFines = {
+        ...uploadDto,
+        fineAmount: 25.0,
+        interestAmount: 10.5,
+      };
+
+      const savedTax = {
+        ...dtoWithFines,
+        fileName: mockFile.filename,
+        filePath: mockFile.path,
+        fileSize: mockFile.size,
+        mimeType: mockFile.mimetype,
+        totalAmount: 535.5, // 500 + 25 + 10.5
+        generatedById: accountantId,
+      };
+
+      mockTaxRepository.create.mockReturnValue(savedTax);
+      mockTaxRepository.save.mockResolvedValue(savedTax);
+
+      const result = await service.uploadMonthlyTaxPdf(accountantId, dtoWithFines, mockFile);
+
+      expect(result.totalAmount).toBe(535.5);
+      expect(result.amount).toBe(500.0);
+      expect(result.fineAmount).toBe(25.0);
+      expect(result.interestAmount).toBe(10.5);
+    });
+
+    it('should validate reference month is between 1 and 12', async () => {
+      const mockCompany = { id: 'company-123' };
+      mockCompanyRepository.findOne.mockResolvedValue(mockCompany);
+
+      const invalidDto = {
+        ...uploadDto,
+        referenceMonth: 13, // Invalid month
+      };
+
+      await expect(
+        service.uploadMonthlyTaxPdf(accountantId, invalidDto, mockFile),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should validate reference year is in reasonable range', async () => {
+      const mockCompany = { id: 'company-123' };
+      mockCompanyRepository.findOne.mockResolvedValue(mockCompany);
+
+      const invalidDto = {
+        ...uploadDto,
+        referenceYear: 1999, // Below 2000
+      };
+
+      await expect(
+        service.uploadMonthlyTaxPdf(accountantId, invalidDto, mockFile),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });
