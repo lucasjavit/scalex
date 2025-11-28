@@ -32,6 +32,13 @@ export class CreateUserDto {
   @Length(1, 255, { message: 'Full name must be between 1 and 255 characters' })
   full_name: string;
 
+  @IsString()
+  @IsOptional()
+  @Matches(/^\d{11}$/, {
+    message: 'CPF must contain exactly 11 digits without formatting',
+  })
+  cpf?: string;
+
   @IsDateString({}, { message: 'Birth date must be a valid date' })
   @IsNotEmpty()
   birth_date: string;

@@ -11,7 +11,7 @@ import {
   Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CompanyType, TaxRegime } from '../entities/company.entity';
+import { CompanyType, TaxRegime } from '../entities/accounting-company.entity';
 
 /**
  * Address DTO for nested validation
@@ -97,7 +97,7 @@ export class CreateCompanyDto {
   mainActivity: string;
 
   @IsEnum(TaxRegime, {
-    message: 'Tax regime must be one of: Simples Nacional, Lucro Presumido, Lucro Real',
+    message: 'Regime tributário deve ser: Simples Nacional, Lucro Presumido ou Lucro Real',
   })
   taxRegime: TaxRegime;
 

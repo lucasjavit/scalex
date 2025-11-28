@@ -73,19 +73,28 @@ export class TaxObligationController {
    *
    * GET /accounting/tax-obligations/company/:companyId
    *
-   * Returns all tax obligations for a company with optional status filter.
+   * Returns all tax obligations for a company with optional filters.
    * Used by company owners to view their tax obligations.
    *
    * @param companyId - Company ID
    * @param status - Optional status filter (pending, paid, overdue, cancelled)
+   * @param referenceMonth - Optional reference month (1-12)
+   * @param referenceYear - Optional reference year
    * @returns List of tax obligations
    */
   @Get('company/:companyId')
   async getMyCompanyTaxObligations(
     @Param('companyId') companyId: string,
     @Query('status') status?: TaxObligationStatus,
+    @Query('referenceMonth') referenceMonth?: number,
+    @Query('referenceYear') referenceYear?: number,
   ): Promise<TaxObligation[]> {
-    return this.taxObligationService.getTaxObligationsByCompany(companyId, status);
+    return this.taxObligationService.getTaxObligationsByCompany(
+      companyId,
+      status,
+      referenceMonth ? Number(referenceMonth) : undefined,
+      referenceYear ? Number(referenceYear) : undefined,
+    );
   }
 
   /**
@@ -200,7 +209,7 @@ export class TaxObligationController {
       throw new BadRequestException('No file uploaded');
     }
 
-    return this.taxObligationService.uploadMonthlyTaxPdf(user.uid, uploadDto, file);
+    return this.taxObligationService.uploadMonthlyTaxPdf(user.id, uploadDto, file);
   }
 
   /**

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CompanyController } from './company.controller';
 import { CompanyService } from '../services/company.service';
 import { CreateCompanyDto } from '../dto/create-company.dto';
-import { Company, CompanyStatus, CompanyType, TaxRegime } from '../entities/company.entity';
+import { AccountingCompany, CompanyStatus, CompanyType, TaxRegime } from '../entities/accounting-company.entity';
 import { NotFoundException } from '@nestjs/common';
 import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
 
@@ -25,7 +25,7 @@ describe('CompanyController', () => {
     },
   };
 
-  const mockCompany: Partial<Company> = {
+  const mockCompany: Partial<AccountingCompany> = {
     id: 'company-001',
     legalName: 'My Company LTDA',
     tradeName: 'My Company',

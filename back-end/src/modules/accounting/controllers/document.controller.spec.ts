@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DocumentController } from './document.controller';
 import { DocumentService } from '../services/document.service';
 import { UploadDocumentDto } from '../dto/upload-document.dto';
+import { DocumentType } from '../entities/request-document.entity';
 
 describe('DocumentController', () => {
   let controller: DocumentController;
@@ -50,7 +51,7 @@ describe('DocumentController', () => {
 
     const uploadDto: UploadDocumentDto = {
       requestId: 'request-123',
-      documentType: 'RG',
+      documentType: DocumentType.RG,
     };
 
     it('should upload document successfully', async () => {
@@ -83,7 +84,7 @@ describe('DocumentController', () => {
       const req = { user: { id: 'user-456' } };
 
       await expect(
-        controller.uploadDocument(req, undefined, uploadDto),
+        controller.uploadDocument(req, null as any, uploadDto),
       ).rejects.toThrow();
     });
   });

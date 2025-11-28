@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { accountingApi } from '../../../../services/accountingApi';
+import { useUserStatus } from '../../../../hooks/useUserStatus';
+import BackButton from '../../../../components/BackButton';
 
 const STATUS_LABELS = {
   pending: 'Pendente',
@@ -22,11 +24,22 @@ const STATUS_COLORS = {
 
 export default function AccountantDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('pending'); // pending, active, completed
+  const { userStatus, loading: userLoading } = useUserStatus();
+  const [activeTab, setActiveTab] = useState('pending'); // pending, active, completed, inactive
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [stats, setStats] = useState({ pending: 0, active: 0, completed: 0 });
+  const [stats, setStats] = useState({ pending: 0, active: 0, completed: 0, inactive: 0 });
+
+  // Check if user has accountant role (partner_cnpj or admin)
+  const isAccountant = userStatus?.role === 'partner_cnpj' || userStatus?.role === 'admin';
+
+  // Redirect if user is not an accountant
+  useEffect(() => {
+    if (!userLoading && !isAccountant) {
+      navigate('/home');
+    }
+  }, [userLoading, isAccountant, navigate]);
 
   useEffect(() => {
     loadAllRequests();
@@ -38,16 +51,18 @@ export default function AccountantDashboard() {
 
   const loadAllRequests = async () => {
     try {
-      const [pending, active, completed] = await Promise.all([
+      const [pending, active, completed, inactive] = await Promise.all([
         accountingApi.getAccountantPendingRequests(),
         accountingApi.getAccountantActiveRequests(),
         accountingApi.getAccountantCompletedRequests(),
+        accountingApi.getAccountantCancelledRequests(),
       ]);
 
       setStats({
         pending: pending.length,
         active: active.length,
         completed: completed.length,
+        inactive: inactive.length,
       });
     } catch (err) {
       console.error('Error loading stats:', err);
@@ -64,8 +79,11 @@ export default function AccountantDashboard() {
         data = await accountingApi.getAccountantPendingRequests();
       } else if (tab === 'active') {
         data = await accountingApi.getAccountantActiveRequests();
-      } else {
+      } else if (tab === 'completed') {
         data = await accountingApi.getAccountantCompletedRequests();
+      } else {
+        // inactive tab
+        data = await accountingApi.getAccountantCancelledRequests();
       }
 
       setRequests(data);
@@ -87,12 +105,111 @@ export default function AccountantDashboard() {
     });
   };
 
+  const handleSelfAssign = async (requestId) => {
+    try {
+      await accountingApi.selfAssignRequest(requestId);
+      // Reload all data
+      await loadAllRequests();
+      await loadRequestsByTab(activeTab);
+    } catch (err) {
+      console.error('Error self-assigning request:', err);
+      alert('Erro ao atribuir solicitação: ' + err.message);
+    }
+  };
+
+  const handleUpdateStatus = async (requestId, newStatus) => {
+    try {
+      // If selecting "completed", ask for confirmation about the final status
+      if (newStatus === 'completed') {
+        const finalStatus = window.confirm(
+          '✅ O processo foi concluído com SUCESSO?\n\n' +
+          'Clique "OK" se a empresa foi criada com sucesso.\n' +
+          'Clique "Cancelar" se houve algum problema/erro no processo.'
+        );
+
+        // If user clicked "OK" -> completed (success)
+        // If user clicked "Cancel" -> cancelled (error/problem)
+        newStatus = finalStatus ? 'completed' : 'cancelled';
+
+        // If cancelled, ask for a reason
+        if (newStatus === 'cancelled') {
+          const reason = prompt(
+            'Por favor, informe o motivo do cancelamento:\n' +
+            '(Ex: Cliente desistiu, documentação incorreta, etc.)'
+          );
+
+          if (!reason || reason.trim() === '') {
+            alert('É necessário informar um motivo para o cancelamento.');
+            return;
+          }
+
+          // Update with cancellation reason
+          await accountingApi.updateRequestStatus(requestId, newStatus, reason);
+          await loadAllRequests();
+          await loadRequestsByTab(activeTab);
+          alert('Solicitação cancelada com sucesso.');
+          return;
+        }
+      }
+
+      await accountingApi.updateRequestStatus(requestId, newStatus);
+      // Reload all data
+      await loadAllRequests();
+      await loadRequestsByTab(activeTab);
+
+      if (newStatus === 'completed') {
+        alert('✅ Solicitação marcada como concluída com sucesso!');
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+      alert('Erro ao atualizar status: ' + err.message);
+    }
+  };
+
+  // Show loading while checking user role
+  if (userLoading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is not an accountant, show access denied (before redirect)
+  if (!isAccountant) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg">
+          <h2 className="text-xl font-semibold mb-2">Acesso Negado</h2>
+          <p>Você não tem permissão para acessar esta página.</p>
+          <p className="text-sm mt-2">Apenas contadores (Parceiro: Abertura de CNPJ) e administradores podem acessar o dashboard do contador.</p>
+          <button
+            onClick={() => navigate('/home')}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Voltar para Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard do Contador</h1>
+      {/* Back Button */}
+      <BackButton to="/accounting/accountant" />
+
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Solicitações de CNPJ</h1>
+        <p className="text-gray-600 mt-2">Gerencie as solicitações de abertura de empresas</p>
+      </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -134,6 +251,20 @@ export default function AccountantDashboard() {
             </div>
           </div>
         </div>
+
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-red-600 font-medium">Canceladas</p>
+              <p className="text-3xl font-bold text-red-900 mt-2">{stats.inactive}</p>
+            </div>
+            <div className="bg-red-200 rounded-full p-3">
+              <svg className="w-8 h-8 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -170,6 +301,16 @@ export default function AccountantDashboard() {
             >
               Concluídas ({stats.completed})
             </button>
+            <button
+              onClick={() => setActiveTab('inactive')}
+              className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
+                activeTab === 'inactive'
+                  ? 'border-red-500 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Canceladas ({stats.inactive})
+            </button>
           </nav>
         </div>
 
@@ -197,8 +338,7 @@ export default function AccountantDashboard() {
               {requests.map((request) => (
                 <div
                   key={request.id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
-                  onClick={() => navigate(`/accounting/requests/${request.id}`)}
+                  className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -225,9 +365,102 @@ export default function AccountantDashboard() {
                         </div>
                       </div>
                     </div>
-                    <button className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
-                      Ver Detalhes
-                    </button>
+                    <div className="ml-4 flex flex-col gap-2">
+                      {/* Show "Atribuir a mim" button for pending requests */}
+                      {activeTab === 'pending' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelfAssign(request.id);
+                          }}
+                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition text-sm whitespace-nowrap"
+                        >
+                          Atribuir a mim
+                        </button>
+                      )}
+
+                      {/* Show status update dropdown for active requests */}
+                      {activeTab === 'active' && (
+                        <select
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              handleUpdateStatus(request.id, e.target.value);
+                              e.target.value = ''; // Reset select
+                            }
+                          }}
+                          className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 cursor-pointer"
+                          defaultValue=""
+                        >
+                          <option value="" disabled>Atualizar Status</option>
+                          <option value="waiting_documents">Aguardando Documentos</option>
+                          <option value="processing">Processando</option>
+                          <option value="completed">Concluído</option>
+                          <option value="cancelled">Cancelar</option>
+                        </select>
+                      )}
+
+                      {/* Show status update dropdown for completed requests (allow reverting) */}
+                      {activeTab === 'completed' && (
+                        <select
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              const confirmed = window.confirm(
+                                'Tem certeza que deseja alterar o status desta solicitação já concluída?\n\n' +
+                                'Isso deve ser feito apenas se a marcação anterior estava incorreta.'
+                              );
+                              if (confirmed) {
+                                handleUpdateStatus(request.id, e.target.value);
+                              }
+                              e.target.value = ''; // Reset select
+                            }
+                          }}
+                          className="px-3 py-2 border border-yellow-400 bg-yellow-50 rounded-md text-sm hover:bg-yellow-100 cursor-pointer font-medium"
+                          defaultValue=""
+                        >
+                          <option value="" disabled>⚠️ Corrigir Status</option>
+                          <option value="in_progress">↩️ Voltar para Em Andamento</option>
+                          <option value="waiting_documents">📄 Aguardando Documentos</option>
+                          <option value="processing">⚙️ Processando</option>
+                          <option value="cancelled">❌ Marcar como Cancelado</option>
+                        </select>
+                      )}
+
+                      {/* Show status update dropdown for cancelled/inactive requests (allow reactivating) */}
+                      {activeTab === 'inactive' && (
+                        <select
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              const confirmed = window.confirm(
+                                'Tem certeza que deseja reativar esta solicitação cancelada?\n\n' +
+                                'A solicitação voltará ao status selecionado e aparecerá nas abas ativas.'
+                              );
+                              if (confirmed) {
+                                handleUpdateStatus(request.id, e.target.value);
+                              }
+                              e.target.value = ''; // Reset select
+                            }
+                          }}
+                          className="px-3 py-2 border border-red-400 bg-red-50 rounded-md text-sm hover:bg-red-100 cursor-pointer font-medium"
+                          defaultValue=""
+                        >
+                          <option value="" disabled>🔄 Reativar Solicitação</option>
+                          <option value="in_progress">↩️ Em Andamento</option>
+                          <option value="waiting_documents">📄 Aguardando Documentos</option>
+                          <option value="processing">⚙️ Processando</option>
+                          <option value="completed">✅ Concluído</option>
+                        </select>
+                      )}
+
+                      <button
+                        onClick={() => navigate(`/accounting/requests/${request.id}`)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm whitespace-nowrap"
+                      >
+                        Ver Detalhes
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

@@ -34,13 +34,13 @@ export enum CompanyType {
  * Tax Regime Enum
  */
 export enum TaxRegime {
-  SIMPLES_NACIONAL = 'Simples Nacional',
-  LUCRO_PRESUMIDO = 'Lucro Presumido',
-  LUCRO_REAL = 'Lucro Real',
+  SIMPLES_NACIONAL = 'SIMPLES_NACIONAL',
+  LUCRO_PRESUMIDO = 'LUCRO_PRESUMIDO',
+  LUCRO_REAL = 'LUCRO_REAL',
 }
 
 /**
- * Company Entity
+ * AccountingCompany Entity
  *
  * Represents a registered company that has been successfully created
  * through the accounting module after CNPJ opening.
@@ -57,8 +57,8 @@ export enum TaxRegime {
  * - ManyToOne with User (accountant)
  * - ManyToOne with CompanyRegistrationRequest (optional)
  */
-@Entity('companies')
-export class Company {
+@Entity('accounting_companies')
+export class AccountingCompany {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -79,6 +79,9 @@ export class Company {
 
   @Column({ type: 'varchar', length: 18, unique: true })
   cnpj: string;
+
+  @Column({ name: 'owner_cpf', type: 'varchar', length: 14 })
+  ownerCpf: string;
 
   @Column({ name: 'company_type', type: 'varchar', length: 50 })
   companyType: CompanyType;

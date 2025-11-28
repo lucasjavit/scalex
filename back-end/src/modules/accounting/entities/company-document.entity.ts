@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   BaseEntity,
 } from 'typeorm';
-import { Company } from './company.entity';
+import { AccountingCompany } from './accounting-company.entity';
 import { User } from '../../../users/entities/user.entity';
 
 /**
@@ -45,9 +45,9 @@ export class CompanyDocument extends BaseEntity {
   @Column({ name: 'company_id' })
   companyId: string;
 
-  @ManyToOne(() => Company, { eager: true })
+  @ManyToOne(() => AccountingCompany, { eager: true })
   @JoinColumn({ name: 'company_id' })
-  company: Company;
+  company: AccountingCompany;
 
   @Column({ name: 'uploaded_by_id' })
   uploadedById: string;

@@ -109,11 +109,12 @@ export class RegistrationRequestController {
   async getRequestById(@Param('id') id: string, @Req() req: any) {
     const request = await this.registrationRequestService.getRequestById(id);
 
-    // Authorization: User can only see their own requests OR assigned accountant can see it
+    // Authorization: User can only see their own requests OR any accountant can see it
     const isOwner = request.userId === req.user.id;
     const isAssignedAccountant = request.assignedToId === req.user.id;
+    const isAccountant = req.user.role === 'partner_cnpj' || req.user.role === 'admin';
 
-    if (!isOwner && !isAssignedAccountant) {
+    if (!isOwner && !isAssignedAccountant && !isAccountant) {
       throw new ForbiddenException('You do not have permission to view this request');
     }
 
@@ -244,5 +245,45 @@ export class RegistrationRequestController {
     return await this.registrationRequestService.getAccountantCompletedRequests(
       req.user.id,
     );
+  }
+
+  /**
+   * Get cancelled requests for the authenticated accountant
+   *
+   * Returns all cancelled requests assigned to the current accountant.
+   *
+   * @param req - Request with authenticated user
+   * @returns Array of cancelled requests
+   */
+  @Get('accountant/cancelled')
+  @HttpCode(HttpStatus.OK)
+  async getAccountantCancelledRequests(@Req() req: any) {
+    return await this.registrationRequestService.getAccountantCancelledRequests(
+      req.user.id,
+    );
+  }
+
+  /**
+   * Self-assign a pending request to the authenticated accountant
+   *
+   * PATCH /api/accounting/requests/:id/self-assign
+   *
+   * Allows an accountant to assign a pending request to themselves.
+   * Only works for requests that are pending and have no assigned accountant.
+   *
+   * @param id - Request ID
+   * @param req - Request with user info
+   * @returns Updated registration request
+   */
+  @Patch(':id/self-assign')
+  @HttpCode(HttpStatus.OK)
+  async selfAssignRequest(@Param('id') id: string, @Req() req: any) {
+    // Only accountants can self-assign
+    if (req.user.role !== 'partner_cnpj' && req.user.role !== 'admin') {
+      throw new ForbiddenException('Only accountants can self-assign requests');
+    }
+
+    const accountantId = req.user.id;
+    return await this.registrationRequestService.selfAssignRequest(id, accountantId);
   }
 }

@@ -578,7 +578,7 @@ describe('CompanyService', () => {
 
       expect(mockCompanyRepository.find).toHaveBeenCalledWith({
         where: {
-          user: { cpf: formattedCpf },
+          ownerCpf: cpf,
         },
         relations: ['user', 'accountant', 'request'],
         order: { createdAt: 'DESC' },
@@ -590,6 +590,7 @@ describe('CompanyService', () => {
         id: 'company-1',
         legalName: 'Full Company LTDA',
         cnpj: '11.111.111/0001-11',
+        ownerCpf: cpf,
         status: CompanyStatus.ACTIVE,
         userId: 'user-123',
         accountantId: 'accountant-456',
@@ -597,7 +598,6 @@ describe('CompanyService', () => {
         user: {
           id: 'user-123',
           name: 'John Doe',
-          cpf,
           email: 'john@example.com',
         },
         accountant: {
@@ -618,7 +618,7 @@ describe('CompanyService', () => {
       expect(result[0]).toHaveProperty('user');
       expect(result[0]).toHaveProperty('accountant');
       expect(result[0]).toHaveProperty('request');
-      expect(result[0].user.cpf).toBe(cpf);
+      expect(result[0].ownerCpf).toBe(cpf);
     });
   });
 });

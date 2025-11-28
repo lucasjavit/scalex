@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { FirebaseModule } from './common/firebase/firebase.module';
 import { RemoteJobsModule } from './modules/remote-jobs/remote-jobs.module';
 import { AccountingModule } from './modules/accounting/accounting.module';
+import { MessagingModule } from './modules/messaging/messaging.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { AccountingModule } from './modules/accounting/accounting.module';
     FirebaseModule,
     RemoteJobsModule,
     AccountingModule,
+    MessagingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

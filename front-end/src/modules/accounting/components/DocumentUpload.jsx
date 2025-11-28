@@ -9,7 +9,7 @@ import { accountingApi } from '../../../services/accountingApi';
  * Features:
  * - Upload documents (PDF, JPG, PNG) up to 10MB
  * - List uploaded documents
- * - Delete documents (only uploader can delete)
+ * - Delete documents (uploader or accountant can delete)
  * - File validation (type and size)
  * - Loading and error states
  * - Real-time document list updates
@@ -17,8 +17,9 @@ import { accountingApi } from '../../../services/accountingApi';
  * @param {Object} props
  * @param {string} props.requestId - Request ID to attach documents to
  * @param {string} props.currentUserId - Current user ID (for delete authorization)
+ * @param {boolean} props.isAccountant - Whether current user is an accountant (partner_cnpj or admin)
  */
-export default function DocumentUpload({ requestId, currentUserId }) {
+export default function DocumentUpload({ requestId, currentUserId, isAccountant = false }) {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -27,15 +28,17 @@ export default function DocumentUpload({ requestId, currentUserId }) {
   const [documentType, setDocumentType] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  // Common document types
+  // Common document types (value = backend enum, label = display)
   const documentTypes = [
-    'RG',
-    'CPF',
-    'Comprovante de Residência',
-    'Certidão de Casamento',
-    'Título de Eleitor',
-    'Contrato Social (se houver)',
-    'Outro',
+    { value: 'rg', label: 'RG' },
+    { value: 'cpf', label: 'CPF' },
+    { value: 'comprovante_residencia', label: 'Comprovante de Residência' },
+    { value: 'certidao_nascimento', label: 'Certidão de Nascimento' },
+    { value: 'certidao_casamento', label: 'Certidão de Casamento' },
+    { value: 'titulo_eleitor', label: 'Título de Eleitor' },
+    { value: 'contrato_social', label: 'Contrato Social' },
+    { value: 'requerimento_mei', label: 'Requerimento MEI' },
+    { value: 'outros', label: 'Outros' },
   ];
 
   // File validation
@@ -123,16 +126,48 @@ export default function DocumentUpload({ requestId, currentUserId }) {
   };
 
   const handleDelete = async (documentId) => {
-    if (!window.confirm('Tem certeza que deseja deletar este documento?')) {
-      return;
-    }
-
     try {
       await accountingApi.deleteDocument(documentId);
       await loadDocuments();
     } catch (err) {
       console.error('Error deleting document:', err);
       setError('Erro ao deletar documento: ' + err.message);
+    }
+  };
+
+  const handleViewDocument = async (documentId) => {
+    try {
+      const { filePath } = await accountingApi.getDocumentDownloadPath(documentId);
+      // Open file in new tab
+      window.open(`http://localhost:3000/${filePath}`, '_blank');
+    } catch (err) {
+      console.error('Error viewing document:', err);
+      setError('Erro ao visualizar documento: ' + err.message);
+    }
+  };
+
+  const handleDownloadDocument = async (documentId, fileName) => {
+    try {
+      const { filePath } = await accountingApi.getDocumentDownloadPath(documentId);
+
+      // Fetch the file and create a blob to force download
+      const response = await fetch(`http://localhost:3000/${filePath}`);
+      const blob = await response.blob();
+
+      // Create object URL and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading document:', err);
+      setError('Erro ao baixar documento: ' + err.message);
     }
   };
 
@@ -190,8 +225,8 @@ export default function DocumentUpload({ requestId, currentUserId }) {
             >
               <option value="">Selecione...</option>
               {documentTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
+                <option key={type.value} value={type.value}>
+                  {type.label}
                 </option>
               ))}
             </select>
@@ -265,7 +300,9 @@ export default function DocumentUpload({ requestId, currentUserId }) {
             {documents.map((doc) => (
               <div
                 key={doc.id}
-                className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition"
+                className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition cursor-pointer"
+                onClick={() => handleViewDocument(doc.id)}
+                title="Clique para visualizar o documento"
               >
                 <div className="flex items-center space-x-4">
                   {/* File Icon */}
@@ -308,15 +345,39 @@ export default function DocumentUpload({ requestId, currentUserId }) {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center space-x-2">
-                  {/* Delete Button - Only show if user is uploader */}
-                  {doc.uploadedBy === currentUserId && (
+                <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                  {/* Download Button */}
+                  <button
+                    onClick={() => handleDownloadDocument(doc.id, doc.fileName)}
+                    className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition"
+                    title="Baixar documento"
+                  >
+                    ⬇️ Download
+                  </button>
+
+                  {/* Delete Button - Show if user is uploader OR accountant */}
+                  {(() => {
+                    console.log('Debug Delete Button:', {
+                      docId: doc.id,
+                      uploadedBy: doc.uploadedBy,
+                      currentUserId,
+                      isAccountant,
+                      matches: doc.uploadedBy === currentUserId,
+                      fullDoc: doc
+                    });
+                    return (doc.uploadedBy === currentUserId || isAccountant);
+                  })() && (
                     <button
-                      onClick={() => handleDelete(doc.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm('Tem certeza que deseja deletar este documento?')) {
+                          handleDelete(doc.id);
+                        }
+                      }}
                       className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50 transition"
                       title="Deletar documento"
                     >
-                      Deletar
+                      🗑️ Deletar
                     </button>
                   )}
                 </div>

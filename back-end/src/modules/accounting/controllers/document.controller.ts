@@ -18,6 +18,7 @@ import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
 import { UploadDocumentDto } from '../dto/upload-document.dto';
 import { UploadCompanyDocumentDto } from '../dto/upload-company-document.dto';
 import { DocumentCategory } from '../entities/company-document.entity';
+import { DocumentType } from '../entities/request-document.entity';
 
 /**
  * DocumentController
@@ -83,7 +84,7 @@ export class DocumentController {
    */
   @Delete(':id')
   async deleteDocument(@Param('id') documentId: string, @Req() req: any) {
-    await this.documentService.deleteDocument(documentId, req.user.id);
+    await this.documentService.deleteDocument(documentId, req.user.id, req.user.role);
   }
 
   /**
@@ -110,7 +111,7 @@ export class DocumentController {
    * @param req - Request with authenticated user
    * @param file - File uploaded via multipart/form-data
    * @param dto - Upload metadata (companyId, category, documentType, expirationDate, notes)
-   * @returns Created company document record
+   * @returns Created accounting company document record
    */
   @Post('company/upload')
   @UseInterceptors(FileInterceptor('file'))
@@ -174,7 +175,7 @@ export class DocumentController {
    */
   @Delete('company/:id')
   async deleteCompanyDocument(@Param('id') documentId: string, @Req() req: any) {
-    await this.documentService.deleteCompanyDocument(documentId, req.user.id);
+    await this.documentService.deleteCompanyDocument(documentId, req.user.id, req.user.role);
   }
 
   /**

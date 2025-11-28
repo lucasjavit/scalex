@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { accountingApi } from '../../../services/accountingApi';
 import RequestTimeline from '../components/RequestTimeline';
+import BackButton from '../../../components/BackButton';
 
 /**
  * AccountingHome Page
@@ -24,6 +25,7 @@ export default function AccountingHome() {
   const [error, setError] = useState(null);
   const [requests, setRequests] = useState([]);
   const [activeRequest, setActiveRequest] = useState(null);
+  const [companies, setCompanies] = useState([]);
 
   useEffect(() => {
     loadUserData();
@@ -34,22 +36,20 @@ export default function AccountingHome() {
       setLoading(true);
       setError(null);
 
-      // Load user's requests
-      const userRequests = await accountingApi.getMyRequests();
+      // Load user's requests and companies
+      const [userRequests, userCompanies] = await Promise.all([
+        accountingApi.getMyRequests(),
+        accountingApi.getMyCompanies().catch(() => []), // Fallback to empty array if endpoint doesn't exist yet
+      ]);
+
       setRequests(userRequests || []);
+      setCompanies(userCompanies || []);
 
       // Find active request (not completed or cancelled)
       const active = userRequests?.find(
         req => req.status !== 'completed' && req.status !== 'cancelled'
       );
       setActiveRequest(active || null);
-
-      // TODO: Check if user has company (when companies API is ready)
-      // const companies = await accountingApi.getMyCompanies();
-      // if (companies && companies.length > 0) {
-      //   navigate(`/accounting/company/${companies[0].id}`);
-      //   return;
-      // }
 
     } catch (err) {
       console.error('Erro ao carregar dados:', err);
@@ -93,6 +93,41 @@ export default function AccountingHome() {
   if (!activeRequest) {
     return (
       <div className="max-w-6xl mx-auto p-6">
+        <BackButton to="/home" />
+        {/* My Companies Section */}
+        {companies.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-600 mb-6">Minhas Empresas</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {companies.map(company => (
+                <div
+                  key={company.id}
+                  className="bg-white border border-gray-200 rounded-lg p-6 cursor-pointer hover:shadow-lg transition"
+                  onClick={() => navigate(`/accounting/company/${company.id}`)}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="bg-blue-100 p-3 rounded-lg">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      company.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {company.status === 'active' ? 'Ativa' : company.status}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-lg text-gray-900 mb-2">{company.legalName}</h3>
+                  <p className="text-sm text-gray-600 mb-1">CNPJ: {company.cnpj}</p>
+                  <p className="text-sm text-gray-600">
+                    {company.companyType} • {company.taxRegime?.replace(/_/g, ' ')}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="text-center py-12">
           <div className="inline-block bg-blue-100 p-6 rounded-full mb-6">
             <svg className="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,13 +136,14 @@ export default function AccountingHome() {
           </div>
 
           <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            Abertura de CNPJ
+            {companies.length > 0 ? 'Abrir Nova Empresa' : 'Abertura de CNPJ'}
           </h1>
 
           <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
-            Ainda não identificamos nenhuma solicitação de abertura de empresa.
-            <br />
-            Deseja abrir um CNPJ com a ajuda de nossos contadores parceiros?
+            {companies.length > 0
+              ? 'Deseja abrir mais uma empresa com a ajuda de nossos contadores parceiros?'
+              : 'Ainda não identificamos nenhuma solicitação de abertura de empresa. Deseja abrir um CNPJ com a ajuda de nossos contadores parceiros?'
+            }
           </p>
 
           <button
@@ -160,6 +196,7 @@ export default function AccountingHome() {
   // STATE 2: Has active request → Show timeline
   return (
     <div className="max-w-6xl mx-auto p-6">
+      <BackButton to="/home" />
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800">
           Abertura de CNPJ em Andamento

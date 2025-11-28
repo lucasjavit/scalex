@@ -5,17 +5,14 @@ import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { CompanyRegistrationRequest } from './entities/company-registration-request.entity';
 import { RequestDocument } from './entities/request-document.entity';
-import { AccountingMessage } from './entities/accounting-message.entity';
 import { AccountingCompany } from './entities/accounting-company.entity';
 import { TaxObligation } from './entities/tax-obligation.entity';
 import { CompanyDocument } from './entities/company-document.entity';
 import { RegistrationRequestService } from './services/registration-request.service';
-import { MessageService } from './services/message.service';
 import { DocumentService } from './services/document.service';
 import { CompanyService } from './services/company.service';
 import { TaxObligationService } from './services/tax-obligation.service';
 import { RegistrationRequestController } from './controllers/registration-request.controller';
-import { MessageController } from './controllers/message.controller';
 import { DocumentController } from './controllers/document.controller';
 import { CompanyController } from './controllers/company.controller';
 import { TaxObligationController } from './controllers/tax-obligation.controller';
@@ -34,14 +31,12 @@ import { UsersModule } from '../../users/users.module';
  * - Assign accountants to requests
  * - Track request status (pending → in_progress → completed)
  * - Upload and manage request documents
- * - Chat/messaging between users and accountants
  */
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       CompanyRegistrationRequest,
       RequestDocument,
-      AccountingMessage,
       AccountingCompany,
       TaxObligation,
       CompanyDocument,
@@ -74,21 +69,18 @@ import { UsersModule } from '../../users/users.module';
   ],
   controllers: [
     RegistrationRequestController,
-    MessageController,
     DocumentController,
     CompanyController,
     TaxObligationController,
   ],
   providers: [
     RegistrationRequestService,
-    MessageService,
     DocumentService,
     CompanyService,
     TaxObligationService,
   ],
   exports: [
     RegistrationRequestService,
-    MessageService,
     DocumentService,
     CompanyService,
     TaxObligationService,

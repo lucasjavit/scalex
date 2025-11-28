@@ -186,60 +186,23 @@ class AccountingApiService {
     return this.request('/accounting/requests/accountant/completed');
   }
 
-  // ==================== MESSAGING METHODS ====================
-
   /**
-   * Send a message
-   * @param {Object} messageData - Message data
-   * @param {string} messageData.requestId - Request ID (optional)
-   * @param {string} messageData.companyId - Company ID (optional)
-   * @param {string} messageData.receiverId - Receiver user ID
-   * @param {string} messageData.message - Message content
-   * @param {string} messageData.attachment - Attachment path (optional)
-   * @returns {Promise<Object>} Created message
+   * Get cancelled requests for the authenticated accountant
+   * @returns {Promise<Array>} Array of cancelled requests
    */
-  async sendMessage(messageData) {
-    return this.request('/accounting/messages', {
-      method: 'POST',
-      body: JSON.stringify(messageData),
-    });
+  async getAccountantCancelledRequests() {
+    return this.request('/accounting/requests/accountant/cancelled');
   }
 
   /**
-   * Get messages for a request
+   * Self-assign a pending request to the authenticated accountant
    * @param {string} requestId - Request ID
-   * @returns {Promise<Array>} Array of messages
+   * @returns {Promise<Object>} Updated request
    */
-  async getMessagesByRequest(requestId) {
-    return this.request(`/accounting/messages/request/${requestId}`);
-  }
-
-  /**
-   * Get messages for a company
-   * @param {string} companyId - Company ID
-   * @returns {Promise<Array>} Array of messages
-   */
-  async getMessagesByCompany(companyId) {
-    return this.request(`/accounting/messages/company/${companyId}`);
-  }
-
-  /**
-   * Mark a message as read
-   * @param {string} messageId - Message ID
-   * @returns {Promise<Object>} Updated message
-   */
-  async markMessageAsRead(messageId) {
-    return this.request(`/accounting/messages/${messageId}/read`, {
+  async selfAssignRequest(requestId) {
+    return this.request(`/accounting/requests/${requestId}/self-assign`, {
       method: 'PATCH',
     });
-  }
-
-  /**
-   * Get count of unread messages
-   * @returns {Promise<Object>} Object with count property
-   */
-  async getUnreadMessageCount() {
-    return this.request('/accounting/messages/unread-count');
   }
 
   // ========================================
@@ -264,7 +227,9 @@ class AccountingApiService {
     formData.append('requestId', requestId);
     formData.append('documentType', documentType);
 
-    const response = await fetch(`${this.baseUrl}/accounting/documents/upload`, {
+    const url = getApiUrl('/accounting/documents/upload');
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -386,11 +351,18 @@ class AccountingApiService {
   /**
    * Get all tax obligations for a specific company
    * @param {string} companyId - Company ID
+   * @param {number} referenceMonth - Reference month (1-12)
+   * @param {number} referenceYear - Reference year
    * @param {string} status - Optional status filter (pending, paid, overdue, cancelled)
    * @returns {Promise<Array>} Array of tax obligations
    */
-  async getCompanyTaxObligations(companyId, status = null) {
-    const queryString = status ? `?status=${status}` : '';
+  async getCompanyTaxObligations(companyId, referenceMonth = null, referenceYear = null, status = null) {
+    const params = new URLSearchParams();
+    if (referenceMonth) params.append('referenceMonth', referenceMonth);
+    if (referenceYear) params.append('referenceYear', referenceYear);
+    if (status) params.append('status', status);
+
+    const queryString = params.toString() ? `?${params.toString()}` : '';
     return this.request(`/accounting/tax-obligations/company/${companyId}${queryString}`);
   }
 
@@ -438,6 +410,165 @@ class AccountingApiService {
     return this.request(`/accounting/tax-obligations/${taxId}`, {
       method: 'DELETE',
     });
+  }
+
+  // =====================
+  // Company Documents
+  // =====================
+
+  /**
+   * Upload a document for a company
+   * @param {string} companyId - Company ID
+   * @param {File} file - File to upload
+   * @param {string} category - Document category (constituicao, registros, certidoes, fiscais)
+   * @param {string} documentType - Specific document type (e.g., "Contrato Social")
+   * @param {string} expirationDate - Optional expiration date (YYYY-MM-DD) for certificates
+   * @param {string} notes - Optional notes
+   * @returns {Promise<Object>} Uploaded document
+   */
+  async uploadCompanyDocument(companyId, file, category, documentType, expirationDate = null, notes = null) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('companyId', companyId);
+    formData.append('category', category);
+    formData.append('documentType', documentType);
+    if (expirationDate) formData.append('expirationDate', expirationDate);
+    if (notes) formData.append('notes', notes);
+
+    const token = await this.getAuthToken();
+
+    const response = await fetch(`${this.baseURL}/accounting/documents/company/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        // Don't set Content-Type - browser will set it with boundary for multipart/form-data
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to upload document');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Get all documents for a company
+   * @param {string} companyId - Company ID
+   * @param {string} category - Optional category filter
+   * @returns {Promise<Array>} Array of documents
+   */
+  async getCompanyDocuments(companyId, category = null) {
+    const params = category ? `?category=${category}` : '';
+    return this.request(`/accounting/documents/company/${companyId}${params}`);
+  }
+
+  /**
+   * Delete a company document
+   * @param {string} documentId - Document ID
+   * @returns {Promise<void>}
+   */
+  async deleteCompanyDocument(documentId) {
+    return this.request(`/accounting/documents/company/${documentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Get download URL for a company document
+   * @param {string} documentId - Document ID
+   * @returns {Promise<Object>} Object with downloadUrl
+   */
+  async getCompanyDocumentDownloadUrl(documentId) {
+    return this.request(`/accounting/documents/company-doc/${documentId}/download`);
+  }
+
+  /**
+   * Get expiring documents for a company (within 30 days)
+   * @param {string} companyId - Company ID
+   * @returns {Promise<Array>} Array of expiring documents
+   */
+  async getExpiringDocuments(companyId) {
+    return this.request(`/accounting/documents/company/${companyId}/expiring`);
+  }
+
+  // ========================================
+  // NEW: COMPANY SEARCH BY CPF
+  // ========================================
+
+  /**
+   * Get all companies by user CPF
+   * @param {string} cpf - User CPF (with or without formatting)
+   * @returns {Promise<Array>} Array of companies
+   */
+  async getCompaniesByCpf(cpf) {
+    return this.request(`/accounting/companies/by-cpf/${cpf}`);
+  }
+
+  // ========================================
+  // NEW: TAX OBLIGATION PDF UPLOAD/DOWNLOAD
+  // ========================================
+
+  /**
+   * Upload monthly tax PDF for a company
+   * @param {Object} taxData - Tax obligation data
+   * @param {File} file - PDF file to upload
+   * @returns {Promise<Object>} Created tax obligation with file metadata
+   */
+  async uploadMonthlyTaxPdf(taxData, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Append all tax data fields
+    Object.keys(taxData).forEach(key => {
+      if (taxData[key] !== null && taxData[key] !== undefined) {
+        formData.append(key, taxData[key]);
+      }
+    });
+
+    const token = await this.getAuthToken();
+    const url = getApiUrl('/accounting/tax-obligations/upload-monthly-tax');
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        // Don't set Content-Type - browser will set it with boundary for multipart/form-data
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to upload tax PDF');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Download tax obligation PDF
+   * @param {string} taxId - Tax obligation ID
+   * @returns {Promise<Blob>} PDF file as blob
+   */
+  async downloadTaxPdf(taxId) {
+    const token = await this.getAuthToken();
+    const url = getApiUrl(`/accounting/tax-obligations/${taxId}/download`);
+
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to download tax PDF');
+    }
+
+    return response.blob();
   }
 }
 

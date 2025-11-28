@@ -119,9 +119,9 @@ export class CreateCompanyDocumentsTable1763322182694 implements MigrationInterf
     await queryRunner.createForeignKey(
       'company_documents',
       new TableForeignKey({
-        name: 'fk_company_documents_company',
+        name: 'fk_company_documents_accounting_company',
         columnNames: ['company_id'],
-        referencedTableName: 'companies',
+        referencedTableName: 'accounting_companies',
         referencedColumnNames: ['id'],
         onDelete: 'CASCADE',
       }),
@@ -198,7 +198,7 @@ export class CreateCompanyDocumentsTable1763322182694 implements MigrationInterf
     await queryRunner.dropIndex('company_documents', 'idx_company_documents_company_id');
 
     await queryRunner.dropForeignKey('company_documents', 'fk_company_documents_uploader');
-    await queryRunner.dropForeignKey('company_documents', 'fk_company_documents_company');
+    await queryRunner.dropForeignKey('company_documents', 'fk_company_documents_accounting_company');
 
     await queryRunner.dropTable('company_documents', true);
   }

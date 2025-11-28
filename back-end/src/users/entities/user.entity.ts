@@ -46,6 +46,15 @@ export class User {
   full_name: string;
 
   @Column({
+    type: 'varchar',
+    length: 14,
+    unique: true,
+    nullable: true,
+    comment: 'User CPF (Brazilian tax ID) - format: 00000000000 (11 digits)',
+  })
+  cpf: string;
+
+  @Column({
     type: 'date',
     nullable: false,
     comment: 'User date of birth',

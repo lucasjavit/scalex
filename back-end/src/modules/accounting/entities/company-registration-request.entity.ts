@@ -68,9 +68,6 @@ export class CompanyRegistrationRequest extends BaseEntity {
   @Column({ name: 'request_data', type: 'jsonb' })
   requestData: Record<string, any>;
 
-  @Column({ name: 'company_id', type: 'uuid', nullable: true })
-  companyId: string | null;
-
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
@@ -82,10 +79,4 @@ export class CompanyRegistrationRequest extends BaseEntity {
 
   @Column({ name: 'cancelled_at', type: 'timestamp with time zone', nullable: true })
   cancelledAt: Date | null;
-
-  /**
-   * Chat messages related to this request
-   */
-  @OneToMany('AccountingMessage', 'request')
-  messages: any[]; // Use 'any' to avoid circular dependency
 }

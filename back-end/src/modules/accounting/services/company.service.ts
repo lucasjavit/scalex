@@ -54,9 +54,10 @@ export class CompanyService {
     requestId: string,
     createCompanyDto: CreateCompanyDto,
   ): Promise<AccountingCompany> {
-    // Validate request exists
+    // Validate request exists and load user relation
     const request = await this.requestRepository.findOne({
       where: { id: requestId },
+      relations: ['user'],
     });
 
     if (!request) {
@@ -77,9 +78,20 @@ export class CompanyService {
       throw new BadRequestException(`A company with CNPJ ${createCompanyDto.cnpj} already exists`);
     }
 
+    // Get owner CPF from user or fallback to request data
+    let ownerCpf = request.user?.cpf || request.requestData?.cpf?.replace(/[^\d]/g, '') || '';
+
+    if (!ownerCpf) {
+      throw new BadRequestException('CPF not found in user profile or registration request data');
+    }
+
+    // Remove formatting if needed
+    ownerCpf = ownerCpf.replace(/[^\d]/g, '');
+
     // Create company
     const company = this.companyRepository.create({
       ...createCompanyDto,
+      ownerCpf,
       userId: request.userId,
       accountantId: request.assignedToId ?? undefined,
       requestId: request.id,
@@ -233,12 +245,21 @@ export class CompanyService {
    * @returns Array of companies owned by the user
    */
   async findCompaniesByUserCpf(cpf: string): Promise<AccountingCompany[]> {
-    return await this.companyRepository.find({
+    // Remove formatting from CPF (remove dots and dashes)
+    const cleanCpf = cpf.replace(/[^\d]/g, '');
+
+    console.log(`[CompanyService] Searching for companies with CPF: ${cleanCpf}`);
+
+    const companies = await this.companyRepository.find({
       where: {
-        user: { cpf },
+        ownerCpf: cleanCpf,
       },
       relations: ['user', 'accountant', 'request'],
       order: { createdAt: 'DESC' },
     });
+
+    console.log(`[CompanyService] Found ${companies.length} companies for CPF: ${cleanCpf}`);
+
+    return companies;
   }
 }

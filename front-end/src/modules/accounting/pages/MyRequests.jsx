@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { accountingApi } from '../../../services/accountingApi';
+import BackButton from '../../../components/BackButton';
 
 const STATUS_LABELS = {
   pending: 'Pendente',
@@ -67,6 +68,7 @@ export default function MyRequests() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
+      <BackButton to="/accounting" />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Minhas Solicitações</h1>
         <button

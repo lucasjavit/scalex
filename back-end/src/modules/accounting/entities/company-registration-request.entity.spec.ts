@@ -82,11 +82,9 @@ describe('CompanyRegistrationRequest Entity', () => {
       expect(request.assignedTo).toBeNull();
     });
 
-    it('should allow company to be null initially', () => {
+    it('should initialize without errors', () => {
       const request = new CompanyRegistrationRequest();
-      request.companyId = null;
-
-      expect(request.companyId).toBeNull();
+      expect(request).toBeDefined();
     });
   });
 

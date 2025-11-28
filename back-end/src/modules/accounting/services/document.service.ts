@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RequestDocument } from '../entities/request-document.entity';
+import { RequestDocument, DocumentType } from '../entities/request-document.entity';
 import { CompanyRegistrationRequest } from '../entities/company-registration-request.entity';
 import { CompanyDocument, DocumentCategory } from '../entities/company-document.entity';
-import { Company } from '../entities/company.entity';
+import { AccountingCompany } from '../entities/accounting-company.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -49,8 +49,8 @@ export class DocumentService {
     private readonly requestRepository: Repository<CompanyRegistrationRequest>,
     @InjectRepository(CompanyDocument)
     private readonly companyDocumentRepository: Repository<CompanyDocument>,
-    @InjectRepository(Company)
-    private readonly companyRepository: Repository<Company>,
+    @InjectRepository(AccountingCompany)
+    private readonly companyRepository: Repository<AccountingCompany>,
   ) {}
 
   /**
@@ -66,7 +66,7 @@ export class DocumentService {
     requestId: string,
     userId: string,
     file: Express.Multer.File,
-    documentType: string,
+    documentType: DocumentType,
   ): Promise<RequestDocument> {
     // 1. Validate request exists
     const request = await this.requestRepository.findOne({
@@ -124,10 +124,11 @@ export class DocumentService {
       fileName: sanitizedFileName,
       filePath,
       fileSize: file.size,
+      mimeType: file.mimetype,
     });
 
     // 9. Save to database
-    return await this.documentRepository.save(document);
+    return this.documentRepository.save(document);
   }
 
   /**
@@ -148,9 +149,10 @@ export class DocumentService {
    * Delete a document
    *
    * @param documentId - Document ID
-   * @param userId - User deleting (must be document uploader)
+   * @param userId - User deleting
+   * @param userRole - Role of the user deleting (to check if accountant)
    */
-  async deleteDocument(documentId: string, userId: string): Promise<void> {
+  async deleteDocument(documentId: string, userId: string, userRole: string): Promise<void> {
     // 1. Find document
     const document = await this.documentRepository.findOne({
       where: { id: documentId },
@@ -160,10 +162,15 @@ export class DocumentService {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
 
-    // 2. Validate authorization (only uploader can delete)
-    if (document.uploadedBy !== userId) {
+    // 2. Validate authorization
+    // Users can delete their own documents
+    // Accountants (partner_cnpj or admin) can delete any document
+    const isUploader = document.uploadedBy === userId;
+    const isAccountant = userRole === 'partner_cnpj' || userRole === 'admin';
+
+    if (!isUploader && !isAccountant) {
       throw new BadRequestException(
-        'Only the document uploader can delete this document',
+        'Only the document uploader or an accountant can delete this document',
       );
     }
 
@@ -219,7 +226,7 @@ export class DocumentService {
    * @param documentType - Specific document type
    * @param expirationDate - Optional expiration date for certificates
    * @param notes - Optional notes
-   * @returns Created company document record
+   * @returns Created accounting company document record
    */
   async uploadCompanyDocument(
     companyId: string,
@@ -343,9 +350,10 @@ export class DocumentService {
    * Delete a company document
    *
    * @param documentId - Document ID
-   * @param userId - User deleting (must be document uploader or company accountant)
+   * @param userId - User deleting
+   * @param userRole - Role of the user deleting (to check if accountant)
    */
-  async deleteCompanyDocument(documentId: string, userId: string): Promise<void> {
+  async deleteCompanyDocument(documentId: string, userId: string, userRole: string): Promise<void> {
     // 1. Find document with company relation
     const document = await this.companyDocumentRepository.findOne({
       where: { id: documentId },
@@ -356,13 +364,15 @@ export class DocumentService {
       throw new NotFoundException(`Company document with ID ${documentId} not found`);
     }
 
-    // 2. Validate authorization (uploader or company accountant can delete)
+    // 2. Validate authorization
+    // Users can delete their own documents
+    // Accountants (partner_cnpj or admin) can delete any document
     const isUploader = document.uploadedById === userId;
-    const isAccountant = document.company.accountantId === userId;
+    const isAccountant = userRole === 'partner_cnpj' || userRole === 'admin';
 
     if (!isUploader && !isAccountant) {
       throw new BadRequestException(
-        'Only the document uploader or company accountant can delete this document',
+        'Only the document uploader or an accountant can delete this document',
       );
     }
 

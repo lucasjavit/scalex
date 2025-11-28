@@ -21,7 +21,7 @@ export class CreateCompaniesTable1763205523962 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'companies',
+        name: 'accounting_companies',
         columns: [
           {
             name: 'id',
@@ -155,9 +155,9 @@ export class CreateCompaniesTable1763205523962 implements MigrationInterface {
 
     // Foreign Keys
     await queryRunner.createForeignKey(
-      'companies',
+      'accounting_companies',
       new TableForeignKey({
-        name: 'fk_companies_user',
+        name: 'fk_accounting_companies_user',
         columnNames: ['user_id'],
         referencedTableName: 'users',
         referencedColumnNames: ['id'],
@@ -166,9 +166,9 @@ export class CreateCompaniesTable1763205523962 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      'companies',
+      'accounting_companies',
       new TableForeignKey({
-        name: 'fk_companies_accountant',
+        name: 'fk_accounting_companies_accountant',
         columnNames: ['accountant_id'],
         referencedTableName: 'users',
         referencedColumnNames: ['id'],
@@ -177,9 +177,9 @@ export class CreateCompaniesTable1763205523962 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      'companies',
+      'accounting_companies',
       new TableForeignKey({
-        name: 'fk_companies_request',
+        name: 'fk_accounting_companies_request',
         columnNames: ['request_id'],
         referencedTableName: 'company_registration_requests',
         referencedColumnNames: ['id'],
@@ -189,85 +189,85 @@ export class CreateCompaniesTable1763205523962 implements MigrationInterface {
 
     // Indexes
     await queryRunner.createIndex(
-      'companies',
+      'accounting_companies',
       new TableIndex({
-        name: 'idx_companies_user_id',
+        name: 'idx_accounting_companies_user_id',
         columnNames: ['user_id'],
       }),
     );
 
     await queryRunner.createIndex(
-      'companies',
+      'accounting_companies',
       new TableIndex({
-        name: 'idx_companies_accountant_id',
+        name: 'idx_accounting_companies_accountant_id',
         columnNames: ['accountant_id'],
       }),
     );
 
     await queryRunner.createIndex(
-      'companies',
+      'accounting_companies',
       new TableIndex({
-        name: 'idx_companies_request_id',
+        name: 'idx_accounting_companies_request_id',
         columnNames: ['request_id'],
       }),
     );
 
     await queryRunner.createIndex(
-      'companies',
+      'accounting_companies',
       new TableIndex({
-        name: 'idx_companies_cnpj',
+        name: 'idx_accounting_companies_cnpj',
         columnNames: ['cnpj'],
         isUnique: true,
       }),
     );
 
     await queryRunner.createIndex(
-      'companies',
+      'accounting_companies',
       new TableIndex({
-        name: 'idx_companies_status',
+        name: 'idx_accounting_companies_status',
         columnNames: ['status'],
       }),
     );
 
     await queryRunner.createIndex(
-      'companies',
+      'accounting_companies',
       new TableIndex({
-        name: 'idx_companies_created_at',
+        name: 'idx_accounting_companies_created_at',
         columnNames: ['created_at'],
       }),
     );
 
     await queryRunner.createIndex(
-      'companies',
+      'accounting_companies',
       new TableIndex({
-        name: 'idx_companies_user_status',
+        name: 'idx_accounting_companies_user_status',
         columnNames: ['user_id', 'status'],
       }),
     );
 
     await queryRunner.createIndex(
-      'companies',
+      'accounting_companies',
       new TableIndex({
-        name: 'idx_companies_accountant_status',
+        name: 'idx_accounting_companies_accountant_status',
         columnNames: ['accountant_id', 'status'],
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropIndex('companies', 'idx_companies_accountant_status');
-    await queryRunner.dropIndex('companies', 'idx_companies_user_status');
-    await queryRunner.dropIndex('companies', 'idx_companies_created_at');
-    await queryRunner.dropIndex('companies', 'idx_companies_status');
-    await queryRunner.dropIndex('companies', 'idx_companies_cnpj');
-    await queryRunner.dropIndex('companies', 'idx_companies_request_id');
-    await queryRunner.dropIndex('companies', 'idx_companies_accountant_id');
-    await queryRunner.dropIndex('companies', 'idx_companies_user_id');
+    await queryRunner.dropIndex('accounting_companies', 'idx_accounting_companies_accountant_status');
+    await queryRunner.dropIndex('accounting_companies', 'idx_accounting_companies_user_status');
+    await queryRunner.dropIndex('accounting_companies', 'idx_accounting_companies_created_at');
+    await queryRunner.dropIndex('accounting_companies', 'idx_accounting_companies_status');
+    await queryRunner.dropIndex('accounting_companies', 'idx_accounting_companies_cnpj');
+    await queryRunner.dropIndex('accounting_companies', 'idx_accounting_companies_request_id');
+    await queryRunner.dropIndex('accounting_companies', 'idx_accounting_companies_accountant_id');
+    await queryRunner.dropIndex('accounting_companies', 'idx_accounting_companies_user_id');
 
-    await queryRunner.dropForeignKey('companies', 'fk_companies_request');
-    await queryRunner.dropForeignKey('companies', 'fk_companies_accountant');
-    await queryRunner.dropForeignKey('companies', 'fk_companies_user');
+    await queryRunner.dropForeignKey('accounting_companies', 'fk_accounting_companies_request');
+    await queryRunner.dropForeignKey('accounting_companies', 'fk_accounting_companies_accountant');
+    await queryRunner.dropForeignKey('accounting_companies', 'fk_accounting_companies_user');
 
-    await queryRunner.dropTable('companies', true);
+    await queryRunner.dropTable('accounting_companies', true);
   }
 }

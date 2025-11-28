@@ -126,6 +126,7 @@ const AdminDashboard = () => {
       actions: [
         { label: 'View All Users', href: '/admin/users', icon: '👥' },
         { label: 'Manage User Roles', href: '/admin/roles', icon: '🔑' },
+        { label: 'Manage User Permissions', href: '/admin/permissions', icon: '✅' },
       ],
       roles: ['admin'] // Only admin can see this
     },
@@ -263,6 +264,13 @@ const AdminDashboard = () => {
                 >
                   <span className="text-3xl">🔑</span>
                   <span className="font-medium text-copilot-text-primary">Manage Roles</span>
+                </button>
+                <button
+                  onClick={() => navigate('/admin/permissions')}
+                  className="flex flex-col items-center gap-2 p-4 bg-copilot-bg-primary hover:bg-purple-50 border border-copilot-border-default rounded-copilot transition-colors"
+                >
+                  <span className="text-3xl">✅</span>
+                  <span className="font-medium text-copilot-text-primary">Manage Permissions</span>
                 </button>
                 <button
                   onClick={() => navigate('/admin/remote-jobs')}

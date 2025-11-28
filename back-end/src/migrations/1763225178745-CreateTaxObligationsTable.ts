@@ -172,9 +172,9 @@ export class CreateTaxObligationsTable1763225178745 implements MigrationInterfac
     await queryRunner.createForeignKey(
       'tax_obligations',
       new TableForeignKey({
-        name: 'fk_tax_obligations_company',
+        name: 'fk_tax_obligations_accounting_company',
         columnNames: ['company_id'],
-        referencedTableName: 'companies',
+        referencedTableName: 'accounting_companies',
         referencedColumnNames: ['id'],
         onDelete: 'CASCADE',
       }),
@@ -278,7 +278,7 @@ export class CreateTaxObligationsTable1763225178745 implements MigrationInterfac
     await queryRunner.dropIndex('tax_obligations', 'idx_tax_obligations_company_id');
 
     await queryRunner.dropForeignKey('tax_obligations', 'fk_tax_obligations_accountant');
-    await queryRunner.dropForeignKey('tax_obligations', 'fk_tax_obligations_company');
+    await queryRunner.dropForeignKey('tax_obligations', 'fk_tax_obligations_accounting_company');
 
     await queryRunner.dropTable('tax_obligations', true);
   }

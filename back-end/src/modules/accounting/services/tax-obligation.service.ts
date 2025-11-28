@@ -58,9 +58,23 @@ export class TaxObligationService {
     const interestAmount = Number(createDto.interestAmount || 0);
     const totalAmount = amount + fineAmount + interestAmount;
 
+    // Parse referenceMonth (format: YYYY-MM) into month and year
+    const [year, month] = createDto.referenceMonth.split('-').map(Number);
+
     // Create tax obligation
     const taxObligation = this.taxRepository.create({
-      ...createDto,
+      companyId: createDto.companyId,
+      taxType: createDto.taxType,
+      referenceMonth: month,
+      referenceYear: year,
+      dueDate: createDto.dueDate,
+      amount: createDto.amount,
+      fineAmount,
+      interestAmount,
+      barcode: createDto.barcode,
+      paymentLink: createDto.paymentLink,
+      documentUrl: createDto.documentUrl,
+      notes: createDto.notes,
       generatedById: accountantId,
       totalAmount,
       status: TaxObligationStatus.PENDING,
@@ -74,16 +88,28 @@ export class TaxObligationService {
    *
    * @param companyId - Company ID
    * @param status - Optional status filter
+   * @param referenceMonth - Optional month filter (1-12)
+   * @param referenceYear - Optional year filter
    * @returns List of tax obligations
    */
   async getTaxObligationsByCompany(
     companyId: string,
     status?: TaxObligationStatus,
+    referenceMonth?: number,
+    referenceYear?: number,
   ): Promise<TaxObligation[]> {
     const where: any = { companyId };
 
     if (status) {
       where.status = status;
+    }
+
+    if (referenceMonth !== undefined) {
+      where.referenceMonth = referenceMonth;
+    }
+
+    if (referenceYear !== undefined) {
+      where.referenceYear = referenceYear;
     }
 
     return await this.taxRepository.find({
@@ -275,15 +301,23 @@ export class TaxObligationService {
 
     // Create tax obligation with file metadata
     const taxObligation = this.taxRepository.create({
-      ...uploadDto,
+      companyId: uploadDto.companyId,
+      taxType: uploadDto.taxType,
+      referenceMonth: uploadDto.referenceMonth,
+      referenceYear: uploadDto.referenceYear,
+      dueDate: uploadDto.dueDate,
+      amount: uploadDto.amount,
+      fineAmount,
+      interestAmount,
+      barcode: uploadDto.barcode,
+      paymentLink: uploadDto.paymentLink,
+      notes: uploadDto.notes,
       fileName: file.filename,
       filePath: file.path,
       fileSize: file.size,
       mimeType: file.mimetype,
       generatedById: accountantId,
       totalAmount,
-      fineAmount,
-      interestAmount,
       status: TaxObligationStatus.PENDING,
     });
 

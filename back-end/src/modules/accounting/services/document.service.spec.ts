@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { RequestDocument } from '../entities/request-document.entity';
+import { RequestDocument, DocumentType } from '../entities/request-document.entity';
 import { CompanyRegistrationRequest } from '../entities/company-registration-request.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
@@ -100,7 +100,7 @@ describe('DocumentService', () => {
         'request-123',
         'user-456',
         mockFile,
-        'RG',
+        DocumentType.RG,
       );
 
       expect(mockRequestRepository.findOne).toHaveBeenCalledWith({
@@ -129,7 +129,7 @@ describe('DocumentService', () => {
         'request-123',
         'accountant-789',
         mockFile,
-        'CPF',
+        DocumentType.CPF,
       );
 
       expect(result).toEqual(mockDocument);
@@ -143,7 +143,7 @@ describe('DocumentService', () => {
           'invalid-request',
           'user-456',
           mockFile,
-          'RG',
+          DocumentType.RG,
         ),
       ).rejects.toThrow(NotFoundException);
 
@@ -160,7 +160,7 @@ describe('DocumentService', () => {
           'request-123',
           'unauthorized-user',
           mockFile,
-          'RG',
+          DocumentType.RG,
         ),
       ).rejects.toThrow(BadRequestException);
     });
@@ -178,7 +178,7 @@ describe('DocumentService', () => {
           'request-123',
           'user-456',
           largeFile,
-          'RG',
+          DocumentType.RG,
         ),
       ).rejects.toThrow(BadRequestException);
     });
@@ -197,7 +197,7 @@ describe('DocumentService', () => {
           'request-123',
           'user-456',
           invalidFile,
-          'RG',
+          DocumentType.RG,
         ),
       ).rejects.toThrow(BadRequestException);
     });
@@ -255,7 +255,7 @@ describe('DocumentService', () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.unlinkSync as jest.Mock).mockReturnValue(undefined);
 
-      await service.deleteDocument('doc-123', 'user-456');
+      await service.deleteDocument('doc-123', 'user-456', 'user');
 
       expect(mockDocumentRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'doc-123' },
@@ -268,7 +268,7 @@ describe('DocumentService', () => {
       mockDocumentRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.deleteDocument('invalid-doc', 'user-456'),
+        service.deleteDocument('invalid-doc', 'user-456', 'user'),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -276,7 +276,7 @@ describe('DocumentService', () => {
       mockDocumentRepository.findOne.mockResolvedValue(mockDocument);
 
       await expect(
-        service.deleteDocument('doc-123', 'unauthorized-user'),
+        service.deleteDocument('doc-123', 'unauthorized-user', 'user'),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -285,9 +285,39 @@ describe('DocumentService', () => {
       mockDocumentRepository.delete.mockResolvedValue({ affected: 1 });
       (fs.existsSync as jest.Mock).mockReturnValue(false);
 
-      await service.deleteDocument('doc-123', 'user-456');
+      await service.deleteDocument('doc-123', 'user-456', 'user');
 
       expect(fs.unlinkSync).not.toHaveBeenCalled();
+      expect(mockDocumentRepository.delete).toHaveBeenCalledWith('doc-123');
+    });
+
+    it('should allow accountant (partner_cnpj) to delete any document', async () => {
+      mockDocumentRepository.findOne.mockResolvedValue(mockDocument);
+      mockDocumentRepository.delete.mockResolvedValue({ affected: 1 });
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.unlinkSync as jest.Mock).mockReturnValue(undefined);
+
+      await service.deleteDocument('doc-123', 'accountant-789', 'partner_cnpj');
+
+      expect(mockDocumentRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 'doc-123' },
+      });
+      expect(fs.unlinkSync).toHaveBeenCalled();
+      expect(mockDocumentRepository.delete).toHaveBeenCalledWith('doc-123');
+    });
+
+    it('should allow admin to delete any document', async () => {
+      mockDocumentRepository.findOne.mockResolvedValue(mockDocument);
+      mockDocumentRepository.delete.mockResolvedValue({ affected: 1 });
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.unlinkSync as jest.Mock).mockReturnValue(undefined);
+
+      await service.deleteDocument('doc-123', 'admin-999', 'admin');
+
+      expect(mockDocumentRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 'doc-123' },
+      });
+      expect(fs.unlinkSync).toHaveBeenCalled();
       expect(mockDocumentRepository.delete).toHaveBeenCalledWith('doc-123');
     });
   });

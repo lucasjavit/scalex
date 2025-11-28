@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { accountingApi } from '../../../services/accountingApi';
+import BackButton from '../../../components/BackButton';
 
 /**
  * RequestCNPJ Page
@@ -45,22 +47,66 @@ export default function RequestCNPJ() {
     notes: '',
   });
 
+  // Format CPF: 123.456.789-00
+  const formatCPF = (value) => {
+    const numbers = value.replace(/\D/g, '').slice(0, 11);
+    return numbers
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  };
+
+  // Format phone: (11) 98765-4321
+  const formatPhone = (value) => {
+    const numbers = value.replace(/\D/g, '').slice(0, 11);
+    return numbers
+      .replace(/(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{5})(\d)/, '$1-$2');
+  };
+
+  // Format CEP: 12345-678
+  const formatCEP = (value) => {
+    const numbers = value.replace(/\D/g, '').slice(0, 8);
+    return numbers.replace(/(\d{5})(\d)/, '$1-$2');
+  };
+
+  // Only numbers
+  const onlyNumbers = (value) => {
+    return value.replace(/\D/g, '');
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (name.startsWith('address.')) {
       const addressField = name.split('.')[1];
+      let formattedValue = value;
+
+      if (addressField === 'zip_code') {
+        formattedValue = formatCEP(value);
+      } else if (addressField === 'number') {
+        formattedValue = onlyNumbers(value);
+      }
+
       setFormData((prev) => ({
         ...prev,
         address: {
           ...prev.address,
-          [addressField]: value,
+          [addressField]: formattedValue,
         },
       }));
     } else {
+      let formattedValue = type === 'checkbox' ? checked : value;
+
+      if (name === 'cpf') {
+        formattedValue = formatCPF(value);
+      } else if (name === 'phone') {
+        formattedValue = formatPhone(value);
+      }
+
       setFormData((prev) => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value,
+        [name]: formattedValue,
       }));
     }
   };
@@ -155,6 +201,7 @@ export default function RequestCNPJ() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      <BackButton to="/accounting" />
       <div className="bg-white shadow-lg rounded-lg p-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Solicitar Abertura de CNPJ</h1>
         <p className="text-gray-600 mb-6">
@@ -182,7 +229,7 @@ export default function RequestCNPJ() {
                   name="full_name"
                   value={formData.full_name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -197,7 +244,7 @@ export default function RequestCNPJ() {
                   value={formData.cpf}
                   onChange={handleChange}
                   placeholder="123.456.789-00"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -211,7 +258,7 @@ export default function RequestCNPJ() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -226,7 +273,7 @@ export default function RequestCNPJ() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="(11) 98765-4321"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -247,7 +294,7 @@ export default function RequestCNPJ() {
                   value={formData.business_type}
                   onChange={handleChange}
                   placeholder="Ex: Desenvolvimento de Software"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -260,7 +307,7 @@ export default function RequestCNPJ() {
                   name="estimated_revenue"
                   value={formData.estimated_revenue}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 >
                   <option value="">Selecione...</option>
@@ -279,7 +326,7 @@ export default function RequestCNPJ() {
                   name="preferred_company_type"
                   value={formData.preferred_company_type}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 >
                   <option value="MEI">MEI (Microempreendedor Individual)</option>
@@ -298,7 +345,7 @@ export default function RequestCNPJ() {
                   name="urgency"
                   value={formData.urgency}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                 >
                   <option value="low">Baixa</option>
                   <option value="medium">Média</option>
@@ -345,7 +392,7 @@ export default function RequestCNPJ() {
                   value={formData.address.zip_code}
                   onChange={handleChange}
                   placeholder="12345-678"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -357,7 +404,7 @@ export default function RequestCNPJ() {
                   name="address.street"
                   value={formData.address.street}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -369,7 +416,7 @@ export default function RequestCNPJ() {
                   name="address.number"
                   value={formData.address.number}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -381,7 +428,7 @@ export default function RequestCNPJ() {
                   name="address.complement"
                   value={formData.address.complement}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                 />
               </div>
 
@@ -392,7 +439,7 @@ export default function RequestCNPJ() {
                   name="address.neighborhood"
                   value={formData.address.neighborhood}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -404,7 +451,7 @@ export default function RequestCNPJ() {
                   name="address.city"
                   value={formData.address.city}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -418,7 +465,7 @@ export default function RequestCNPJ() {
                   onChange={handleChange}
                   placeholder="SP"
                   maxLength="2"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   required
                 />
               </div>
@@ -437,7 +484,7 @@ export default function RequestCNPJ() {
               rows="4"
               maxLength="1000"
               placeholder="Informações adicionais que possam ajudar o contador..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
             />
             <p className="text-sm text-gray-500 mt-1">{formData.notes.length}/1000 caracteres</p>
           </div>
