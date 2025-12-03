@@ -137,6 +137,7 @@ class PermissionsService {
           'learning.course': permissions.learningCourse,
           'learning.conversation': permissions.learningConversation,
           'business.accounting': permissions.businessAccounting,
+          'accounting.access': permissions.businessAccounting, // Alias for accounting access
           'business.career': permissions.businessCareer,
           'business.jobs': permissions.businessJobs,
           'business.insurance': permissions.businessInsurance,

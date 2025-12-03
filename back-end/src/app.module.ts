@@ -10,6 +10,8 @@ import { EnglishCourseModule } from './modules/english-learning/course/english-c
 import { UsersModule } from './users/users.module';
 import { FirebaseModule } from './common/firebase/firebase.module';
 import { RemoteJobsModule } from './modules/remote-jobs/remote-jobs.module';
+import { AccountingModule } from './modules/accounting/accounting.module';
+import { MessagingModule } from './modules/messaging/messaging.module';
 
 @Module({
   imports: [
@@ -43,7 +45,7 @@ import { RemoteJobsModule } from './modules/remote-jobs/remote-jobs.module';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: false, // IMPORTANT: Disabled - using migrations instead
-        migrationsRun: false, // Run migrations manually via CLI
+        migrationsRun: true, // Run pending migrations automatically on startup
         logging: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
@@ -53,6 +55,8 @@ import { RemoteJobsModule } from './modules/remote-jobs/remote-jobs.module';
     EnglishCourseModule,
     FirebaseModule,
     RemoteJobsModule,
+    AccountingModule,
+    MessagingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

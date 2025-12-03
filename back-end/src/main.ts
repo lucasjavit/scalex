@@ -9,30 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const logger = new Logger('Bootstrap');
 
-  // Serve static files from public directory (for company logos)
-  app.useStaticAssets(join(__dirname, '..', 'public'), {
-    prefix: '/',
-  });
-  logger.log('📁 Static files served from /public');
-
-  // Run migrations automatically on startup
-  try {
-    const dataSource = app.get(DataSource);
-    const migrations = await dataSource.runMigrations();
-    if (migrations.length > 0) {
-      logger.log(`✅ ${migrations.length} migration(s) executed successfully`);
-      migrations.forEach(migration => {
-        logger.log(`  - ${migration.name}`);
-      });
-    } else {
-      logger.log('✅ No pending migrations');
-    }
-  } catch (error) {
-    logger.error('❌ Migration failed', error);
-    throw error;
-  }
-
-  // Set global prefix for all routes
+  // Set global prefix for all routes BEFORE static files
   app.setGlobalPrefix('api');
 
   // Enable CORS - Only allow front-end domain (private back-end architecture)
@@ -71,6 +48,36 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'x-user-id'],
   });
+
+  // Serve static files from public directory (for company logos)
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    prefix: '/',
+  });
+  logger.log('📁 Static files served from /public');
+
+  // Serve uploaded documents from uploads directory
+  // __dirname in compiled code points to dist/src, so we need to go up two levels to reach project root
+  app.useStaticAssets(join(__dirname, '..', '..', 'uploads'), {
+    prefix: '/uploads',
+  });
+  logger.log('📁 Static files served from /uploads');
+
+  // Run migrations automatically on startup
+  try {
+    const dataSource = app.get(DataSource);
+    const migrations = await dataSource.runMigrations();
+    if (migrations.length > 0) {
+      logger.log(`✅ ${migrations.length} migration(s) executed successfully`);
+      migrations.forEach(migration => {
+        logger.log(`  - ${migration.name}`);
+      });
+    } else {
+      logger.log('✅ No pending migrations');
+    }
+  } catch (error) {
+    logger.error('❌ Migration failed', error);
+    throw error;
+  }
 
   // Enable validation pipes globally
   app.useGlobalPipes(

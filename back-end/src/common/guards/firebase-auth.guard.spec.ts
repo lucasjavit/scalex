@@ -65,6 +65,7 @@ describe('FirebaseAuthGuard', () => {
     firebase_uid: 'firebase-uid-123',
     email: 'test@example.com',
     full_name: 'Test User',
+    cpf: '12345678901',
     birth_date: new Date('1990-01-01'),
     phone: '+5511999999999',
     preferred_language: 'pt-BR',

@@ -34,12 +34,18 @@ $ npm install
 ## Compile and run the project
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
+# Back-end (watch mode)
+$ cd back-end
 $ npm run start:dev
+# Runs on http://localhost:3000
 
+# Front-end
+$ cd front-end
+$ npm run dev
+# Runs on http://localhost:5173
+```
+
+```bash
 # production mode
 $ npm run start:prod
 ```

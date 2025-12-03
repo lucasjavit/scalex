@@ -19,6 +19,7 @@ export default function UserProfile() {
   const [formData, setFormData] = useState({
     // Personal info
     full_name: '',
+    cpf: '',
     birth_date: '',
     phone: '',
     preferred_language: 'pt-BR',
@@ -65,6 +66,7 @@ export default function UserProfile() {
 
           setFormData({
             full_name: existingUser.full_name || '',
+            cpf: existingUser.cpf || '',
             birth_date: existingUser.birth_date ? existingUser.birth_date.split('T')[0] : '',
             phone: existingUser.phone || '',
             preferred_language: existingUser.preferred_language || 'pt-BR',
@@ -83,6 +85,7 @@ export default function UserProfile() {
           // User doesn't exist yet, show empty form
           setFormData({
             full_name: firebaseUser.displayName || '',
+            cpf: '',
             birth_date: '',
             phone: '',
             preferred_language: 'pt-BR',
@@ -152,6 +155,7 @@ export default function UserProfile() {
       // Separate user data and address data
       const userData = {
         full_name: formData.full_name,
+        cpf: formData.cpf ? formData.cpf.replace(/\D/g, '') : undefined, // Remove formatting and send only digits
         birth_date: formData.birth_date,
         phone: formData.phone,
         preferred_language: formData.preferred_language,
@@ -346,6 +350,28 @@ export default function UserProfile() {
                   value={formData.full_name}
                   onChange={handleInputChange}
                   required
+                  className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-copilot-text-primary mb-2">
+                    CPF
+                </label>
+                <input
+                  type="text"
+                  name="cpf"
+                  value={formData.cpf}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '');
+                    const formatted = value
+                      .replace(/(\d{3})(\d)/, '$1.$2')
+                      .replace(/(\d{3})(\d)/, '$1.$2')
+                      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                    setFormData(prev => ({ ...prev, cpf: formatted }));
+                  }}
+                  placeholder="000.000.000-00"
+                  maxLength={14}
                   className="w-full px-3 py-2 border border-copilot-border-default rounded-copilot focus:outline-none focus:ring-2 focus:ring-copilot-accent-primary focus:border-transparent"
                 />
               </div>

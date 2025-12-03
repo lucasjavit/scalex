@@ -5,6 +5,7 @@ import apiService from '../services/api';
 export const useUserStatus = () => {
   const { user } = useAuth();
   const [userStatus, setUserStatus] = useState(null);
+  const [userPermissions, setUserPermissions] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -12,6 +13,7 @@ export const useUserStatus = () => {
     const checkUserStatus = async () => {
       if (!user) {
         setUserStatus(null);
+        setUserPermissions(null);
         setLoading(false);
         return;
       }
@@ -27,6 +29,7 @@ export const useUserStatus = () => {
         if (!userData) {
           console.log('User not found in database - new user needs to complete registration');
           setUserStatus(null);
+          setUserPermissions(null);
           localStorage.removeItem('userId'); // Remove userId if user doesn't exist
         } else {
           setUserStatus(userData);
@@ -34,10 +37,19 @@ export const useUserStatus = () => {
           if (userData.id) {
             localStorage.setItem('userId', userData.id);
           }
+
+          // Get user permissions (uses /me endpoint to avoid admin guard)
+          try {
+            const permissions = await apiService.getMyPermissions();
+            setUserPermissions(permissions);
+          } catch (permErr) {
+            console.error('Error fetching user permissions:', permErr);
+            setUserPermissions(null);
+          }
         }
       } catch (err) {
         console.error('Error checking user status:', err);
-        
+
         // Handle connection errors gracefully
         if (err.message?.includes('Failed to fetch') || err.message?.includes('ERR_CONNECTION_REFUSED')) {
           console.warn('Backend server is not available. Please ensure the backend is running on port 3000.');
@@ -46,6 +58,7 @@ export const useUserStatus = () => {
           setError('Error checking user status');
         }
         setUserStatus(null);
+        setUserPermissions(null);
       } finally {
         setLoading(false);
       }
@@ -56,6 +69,7 @@ export const useUserStatus = () => {
 
   return {
     userStatus,
+    userPermissions,
     loading,
     error,
     isActive: userStatus?.is_active === true,

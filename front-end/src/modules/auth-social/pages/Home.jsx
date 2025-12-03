@@ -201,8 +201,8 @@ export default function Home() {
           </section>
         )}
 
-        {/* Macro-Module 2: Business Suite - Admin Only */}
-        {isAdmin && (
+        {/* Macro-Module 2: Business Suite */}
+        {!permissionsLoading && (
           <section>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-copilot flex items-center justify-center shadow-copilot">
@@ -219,46 +219,63 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Accounting module - available for ALL users */}
               <MacroModuleCard
                 icon="📊"
                 gradient="from-blue-500 to-cyan-500"
                 title={t('home.business.accounting', 'Contabilidade')}
                 description={t('home.business.accountingDesc', 'CNPJ e contador')}
                 onClick={() => navigate('/accounting')}
-                status="coming-soon"
-              />
-              <MacroModuleCard
-                icon="💼"
-                gradient="from-purple-500 to-pink-500"
-                title={t('home.business.career', 'Consultoria')}
-                description={t('home.business.careerDesc', 'LinkedIn e currículo')}
-                onClick={() => navigate('/career')}
-                status="coming-soon"
-              />
-              <MacroModuleCard
-                icon="🌍"
-                gradient="from-red-500 to-pink-500"
-                title={t('home.business.jobs', 'Vagas Remotas')}
-                description={t('home.business.jobsDesc', 'Trabalho internacional')}
-                onClick={() => navigate('/jobs')}
                 status="active"
               />
-              <MacroModuleCard
-                icon="🛡️"
-                gradient="from-indigo-500 to-blue-500"
-                title={t('home.business.insurance', 'Seguros')}
-                description={t('home.business.insuranceDesc', 'Planos e proteção')}
-                onClick={() => navigate('/insurance')}
-                status="coming-soon"
-              />
-              <MacroModuleCard
-                icon="💰"
-                gradient="from-teal-500 to-cyan-500"
-                title={t('home.business.banking', 'Banco Digital')}
-                description={t('home.business.bankingDesc', 'Pagamentos internacionais')}
-                onClick={() => navigate('/banking')}
-                status="coming-soon"
-              />
+
+              {/* Career - only for users with businessCareer permission or admins */}
+              {(hasPermission('business.career') || isAdmin) && (
+                <MacroModuleCard
+                  icon="💼"
+                  gradient="from-purple-500 to-pink-500"
+                  title={t('home.business.career', 'Consultoria')}
+                  description={t('home.business.careerDesc', 'LinkedIn e currículo')}
+                  onClick={() => navigate('/career')}
+                  status="coming-soon"
+                />
+              )}
+
+              {/* Jobs - only for users with businessJobs permission or admins */}
+              {(hasPermission('business.jobs') || isAdmin) && (
+                <MacroModuleCard
+                  icon="🌍"
+                  gradient="from-red-500 to-pink-500"
+                  title={t('home.business.jobs', 'Vagas Remotas')}
+                  description={t('home.business.jobsDesc', 'Trabalho internacional')}
+                  onClick={() => navigate('/jobs')}
+                  status="active"
+                />
+              )}
+
+              {/* Insurance - only for users with businessInsurance permission or admins */}
+              {(hasPermission('business.insurance') || isAdmin) && (
+                <MacroModuleCard
+                  icon="🛡️"
+                  gradient="from-indigo-500 to-blue-500"
+                  title={t('home.business.insurance', 'Seguros')}
+                  description={t('home.business.insuranceDesc', 'Planos e proteção')}
+                  onClick={() => navigate('/insurance')}
+                  status="coming-soon"
+                />
+              )}
+
+              {/* Banking - only for users with businessBanking permission or admins */}
+              {(hasPermission('business.banking') || isAdmin) && (
+                <MacroModuleCard
+                  icon="💰"
+                  gradient="from-teal-500 to-cyan-500"
+                  title={t('home.business.banking', 'Banco Digital')}
+                  description={t('home.business.bankingDesc', 'Pagamentos internacionais')}
+                  onClick={() => navigate('/banking')}
+                  status="coming-soon"
+                />
+              )}
             </div>
           </section>
         )}

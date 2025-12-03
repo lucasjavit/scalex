@@ -97,6 +97,22 @@ import JobsPage from "../modules/remote-jobs/pages/JobsPage";
 import SavedJobsPage from "../modules/remote-jobs/pages/SavedJobsPage";
 import JobDetailsPage from "../modules/remote-jobs/pages/JobDetailsPage";
 
+// Accounting Module
+import AccountingHome from "../modules/accounting/pages/AccountingHome";
+import RequestCNPJ from "../modules/accounting/pages/RequestCNPJ";
+import MyRequests from "../modules/accounting/pages/MyRequests";
+import RequestDetails from "../modules/accounting/pages/RequestDetails";
+import AccountantHome from "../modules/accounting/pages/accountant/AccountantHome";
+import AccountantDashboard from "../modules/accounting/pages/accountant/AccountantDashboard";
+import AccountantMessages from "../modules/accounting/pages/accountant/AccountantMessages";
+import GenerateTax from "../modules/accounting/pages/accountant/GenerateTax";
+import ManageCompanies from "../modules/accounting/pages/accountant/ManageCompanies";
+import UploadTaxes from "../modules/accounting/pages/accountant/UploadTaxes";
+import CompanyDashboard from "../modules/accounting/pages/CompanyDashboard";
+
+// Global Chat
+import GlobalChatButton from "../components/chat/GlobalChatButton";
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
@@ -202,12 +218,92 @@ export default function AppRoutes() {
               }
             />
 
-            {/* New Modules - Placeholder Routes */}
+            {/* Accounting Module Routes */}
             <Route
-              path="/accounting/*"
+              path="/accounting"
               element={
                 <PrivateRoute>
-                  <ComingSoonPage moduleName="Contabilidade" moduleIcon="📊" />
+                  <AccountingHome />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/request-cnpj"
+              element={
+                <PrivateRoute>
+                  <RequestCNPJ />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/my-requests"
+              element={
+                <PrivateRoute>
+                  <MyRequests />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/requests/:id"
+              element={
+                <PrivateRoute>
+                  <RequestDetails />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/accountant"
+              element={
+                <PrivateRoute>
+                  <AccountantHome />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/accountant/dashboard"
+              element={
+                <PrivateRoute>
+                  <AccountantDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/accountant/messages"
+              element={
+                <PrivateRoute>
+                  <AccountantMessages />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/accountant/generate-tax"
+              element={
+                <PrivateRoute>
+                  <GenerateTax />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/accountant/companies"
+              element={
+                <PrivateRoute>
+                  <ManageCompanies />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/accountant/upload-taxes/:companyId"
+              element={
+                <PrivateRoute>
+                  <UploadTaxes />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/accounting/company/:id"
+              element={
+                <PrivateRoute>
+                  <CompanyDashboard />
                 </PrivateRoute>
               }
             />
@@ -266,6 +362,9 @@ export default function AppRoutes() {
           </Routes>
         </main>
         <Footer />
+
+        {/* Global Chat Button - Detects module automatically */}
+        <GlobalChatButton />
       </div>
     </BrowserRouter>
   );

@@ -166,6 +166,15 @@ class ApiService {
   async getAllUsers() {
     return this.request('/users');
   }
+
+  // User permissions methods
+  async getMyPermissions() {
+    return this.request('/user-permissions/me');
+  }
+
+  async getUserPermissions(userId) {
+    return this.request(`/user-permissions/${userId}`);
+  }
 }
 
 // Create and export a singleton instance

@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useIsAdmin } from '../hooks/useIsAdmin';
+import { useUserStatus } from '../hooks/useUserStatus';
 import { useAuth } from '../modules/auth-social/context/AuthContext';
 import { auth } from '../modules/auth-social/services/firebaseAuth';
 import LanguageSelector from './LanguageSelector';
+import { messagingApi } from '../services/messagingApi';
 
 // Add CSS animation for gradient shift and glow effect
 const gradientAnimation = `
@@ -59,8 +61,15 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAdmin } = useIsAdmin();
+  const { userStatus } = useUserStatus();
   const [shouldGlow, setShouldGlow] = useState(false);
   const [hasGlowed, setHasGlowed] = useState(false);
+
+  // Check if user is an accountant
+  const isAccountant = userStatus?.role === 'partner_cnpj';
+
+  // Unread messages count
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Control glow effect - glow for 30 seconds after login, then stop permanently
   useEffect(() => {
@@ -99,7 +108,34 @@ export default function Navbar() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // Load unread messages count
+  useEffect(() => {
+    if (!user || !userStatus?.id) return;
+
+    const loadUnreadCount = async () => {
+      try {
+        const data = await messagingApi.getUnreadCount('accounting');
+        setUnreadCount(data?.count || data || 0);
+      } catch (error) {
+        console.error('Error loading unread count:', error);
+      }
+    };
+
+    loadUnreadCount();
+    const interval = setInterval(loadUnreadCount, 10000);
+    return () => clearInterval(interval);
+  }, [user, userStatus?.id]);
+
   const toggleTheme = () => setTheme((prev) => (prev === 'day' ? 'night' : 'day'));
+
+  // Navigate to appropriate chat route based on user role
+  const handleMessageClick = () => {
+    if (isAccountant || isAdmin) {
+      navigate('/accounting/accountant');
+    } else {
+      navigate('/accounting');
+    }
+  };
 
   // Don't render navbar if user is not logged in or on landing/login pages
   if (!user || location.pathname === '/' || location.pathname === '/login') {
@@ -169,6 +205,38 @@ export default function Navbar() {
                 <span>{t('navigation.adminPanel')}</span>
               </button>
             )}
+
+            {/* Accountant Dashboard Button - Only visible for accountants */}
+            {isAccountant && (
+              <button
+                onClick={() => navigate('/accounting/accountant')}
+                className={`text-xs font-medium transition-colors duration-200 flex items-center gap-1 px-2 py-1 rounded-lg ${
+                  location.pathname.startsWith('/accounting/accountant')
+                    ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                    : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+                }`}
+                title="Dashboard do Contador"
+              >
+                <span className="text-xs">📊</span>
+                <span>Contador</span>
+              </button>
+            )}
+
+            {/* Messages Icon */}
+            <button
+              onClick={handleMessageClick}
+              className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors duration-200"
+              title="Mensagens"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
 
             {/* Language Selector */}
             <LanguageSelector />
