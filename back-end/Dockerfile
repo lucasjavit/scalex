@@ -5,7 +5,8 @@ WORKDIR /app
 
 # Copiar apenas package.json primeiro (melhor cache)
 COPY package*.json ./
-RUN npm ci
+# Incluir devDependencies para ter acesso ao @nestjs/cli durante o build
+RUN npm ci --include=dev
 
 # Copiar código fonte e fazer build
 COPY . .
