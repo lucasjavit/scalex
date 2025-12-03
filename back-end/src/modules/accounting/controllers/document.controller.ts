@@ -13,6 +13,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { DocumentService } from '../services/document.service';
 import { FirebaseAuthGuard } from '../../../common/guards/firebase-auth.guard';
 import { UploadDocumentDto } from '../dto/upload-document.dto';
@@ -47,14 +48,14 @@ export class DocumentController {
    * @returns Created document record
    */
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async uploadDocument(
     @Req() req: any,
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: UploadDocumentDto,
   ) {
     if (!file) {
-      throw new BadRequestException('No file uploaded');
+      throw new BadRequestException('Nenhum arquivo foi enviado. Por favor, selecione um arquivo para upload.');
     }
 
     return await this.documentService.uploadRequestDocument(
@@ -114,14 +115,14 @@ export class DocumentController {
    * @returns Created accounting company document record
    */
   @Post('company/upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async uploadCompanyDocument(
     @Req() req: any,
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: UploadCompanyDocumentDto,
   ) {
     if (!file) {
-      throw new BadRequestException('No file uploaded');
+      throw new BadRequestException('Nenhum arquivo foi enviado. Por favor, selecione um arquivo para upload.');
     }
 
     return await this.documentService.uploadCompanyDocument(

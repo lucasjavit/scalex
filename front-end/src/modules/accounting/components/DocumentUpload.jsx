@@ -13,13 +13,15 @@ import { accountingApi } from '../../../services/accountingApi';
  * - File validation (type and size)
  * - Loading and error states
  * - Real-time document list updates
+ * - Read-only mode for completed requests
  *
  * @param {Object} props
  * @param {string} props.requestId - Request ID to attach documents to
  * @param {string} props.currentUserId - Current user ID (for delete authorization)
  * @param {boolean} props.isAccountant - Whether current user is an accountant (partner_cnpj or admin)
+ * @param {boolean} props.readOnly - Whether the component is in read-only mode (no upload/delete)
  */
-export default function DocumentUpload({ requestId, currentUserId, isAccountant = false }) {
+export default function DocumentUpload({ requestId, currentUserId, isAccountant = false, readOnly = false }) {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -206,73 +208,75 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
         </div>
       )}
 
-      {/* Upload Form */}
-      <form onSubmit={handleUpload} className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Enviar Novo Documento</h3>
+      {/* Upload Form - Hidden in read-only mode */}
+      {!readOnly && (
+        <form onSubmit={handleUpload} className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Enviar Novo Documento</h3>
 
-        <div className="space-y-4">
-          {/* Document Type Select */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo de Documento *
-            </label>
-            <select
-              value={documentType}
-              onChange={(e) => setDocumentType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              required
-              disabled={uploading}
-            >
-              <option value="">Selecione...</option>
-              {documentTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* File Input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Arquivo * (PDF, JPG, PNG - máx. 10MB)
-            </label>
-            <input
-              id="file-input"
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={handleFileSelect}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              required
-              disabled={uploading}
-            />
-            {selectedFile && (
-              <p className="mt-1 text-sm text-gray-600">
-                Arquivo selecionado: {selectedFile.name} ({formatFileSize(selectedFile.size)})
-              </p>
-            )}
-          </div>
-
-          {/* Upload Progress */}
-          {uploadProgress > 0 && (
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
+          <div className="space-y-4">
+            {/* Document Type Select */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tipo de Documento *
+              </label>
+              <select
+                value={documentType}
+                onChange={(e) => setDocumentType(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                required
+                disabled={uploading}
+              >
+                <option value="">Selecione...</option>
+                {documentTypes.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={uploading || !selectedFile || !documentType}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {uploading ? 'Enviando...' : 'Enviar Documento'}
-          </button>
-        </div>
-      </form>
+            {/* File Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Arquivo * (PDF, JPG, PNG - máx. 10MB)
+              </label>
+              <input
+                id="file-input"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={handleFileSelect}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                required
+                disabled={uploading}
+              />
+              {selectedFile && (
+                <p className="mt-1 text-sm text-gray-600">
+                  Arquivo selecionado: {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                </p>
+              )}
+            </div>
+
+            {/* Upload Progress */}
+            {uploadProgress > 0 && (
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={uploading || !selectedFile || !documentType}
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {uploading ? 'Enviando...' : 'Enviar Documento'}
+            </button>
+          </div>
+        </form>
+      )}
 
       {/* Documents List */}
       <div>
@@ -355,18 +359,8 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
                     ⬇️ Download
                   </button>
 
-                  {/* Delete Button - Show if user is uploader OR accountant */}
-                  {(() => {
-                    console.log('Debug Delete Button:', {
-                      docId: doc.id,
-                      uploadedBy: doc.uploadedBy,
-                      currentUserId,
-                      isAccountant,
-                      matches: doc.uploadedBy === currentUserId,
-                      fullDoc: doc
-                    });
-                    return (doc.uploadedBy === currentUserId || isAccountant);
-                  })() && (
+                  {/* Delete Button - Show if user is uploader OR accountant, hidden in read-only mode */}
+                  {!readOnly && (doc.uploadedBy === currentUserId || isAccountant) && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();

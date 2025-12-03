@@ -64,6 +64,36 @@ export class MessagingService {
     let partnerId: string;
     let userId: string;
 
+    // For accounting module: check if user already has an existing conversation
+    // This prevents duplicate conversations when user replies to a different partner/admin
+    if (dto.moduleType === ModuleType.ACCOUNTING && senderIsUser) {
+      const existingConversation = await this.conversationRepository.findOne({
+        where: {
+          userId: senderId,
+          moduleType: dto.moduleType,
+        },
+      });
+
+      if (existingConversation) {
+        // Use existing conversation - user replies go to the same conversation
+        // Update last message timestamp
+        existingConversation.lastMessageAt = new Date();
+        await this.conversationRepository.save(existingConversation);
+
+        // Create message in existing conversation
+        const message = this.messageRepository.create({
+          conversationId: existingConversation.id,
+          senderId,
+          receiverId: dto.receiverId,
+          content: dto.content,
+          attachment: dto.attachment || null,
+          isRead: false,
+        });
+
+        return await this.messageRepository.save(message);
+      }
+    }
+
     // Determine partner and user based on roles
     // Priority: actual partner role > admin (acting as partner) > user
     if (senderIsActualPartner && receiverIsUser) {
@@ -93,6 +123,33 @@ export class MessagingService {
     } else {
       console.log('❌ [sendMessage] Invalid participants - cannot determine partner/user relationship');
       throw new ForbiddenException('Invalid conversation participants');
+    }
+
+    // For accounting module with partner/admin sending: check if user already has conversation
+    if (dto.moduleType === ModuleType.ACCOUNTING && (senderIsActualPartner || senderIsAdmin)) {
+      const existingConversation = await this.conversationRepository.findOne({
+        where: {
+          userId,
+          moduleType: dto.moduleType,
+        },
+      });
+
+      if (existingConversation) {
+        // Use existing conversation instead of creating new one
+        existingConversation.lastMessageAt = new Date();
+        await this.conversationRepository.save(existingConversation);
+
+        const message = this.messageRepository.create({
+          conversationId: existingConversation.id,
+          senderId,
+          receiverId: dto.receiverId,
+          content: dto.content,
+          attachment: dto.attachment || null,
+          isRead: false,
+        });
+
+        return await this.messageRepository.save(message);
+      }
     }
 
     // Find or create conversation
@@ -157,18 +214,105 @@ export class MessagingService {
       .getMany();
 
     // Get existing conversations
+    // For accounting module: show ALL conversations (any partner can handle any user)
+    // For other modules: only show conversations for this specific partner
+    const conversationQuery: any = { moduleType };
+    if (moduleType !== ModuleType.ACCOUNTING) {
+      conversationQuery.partnerId = partnerId;
+    }
+
     const conversations = await this.conversationRepository.find({
-      where: {
-        partnerId,
-        moduleType,
-      },
+      where: conversationQuery,
       relations: ['user'],
       order: {
         lastMessageAt: 'DESC',
       },
     });
 
-    // Build response with unread counts
+    // For accounting module: group conversations by userId (deduplicate)
+    // This handles the case where multiple conversations exist for the same user
+    let uniqueConversations = conversations;
+    if (moduleType === ModuleType.ACCOUNTING) {
+      const userConversationMap = new Map<string, typeof conversations[0]>();
+      const userAllConversationIds = new Map<string, string[]>();
+
+      for (const conv of conversations) {
+        // Track all conversation IDs for this user
+        if (!userAllConversationIds.has(conv.userId)) {
+          userAllConversationIds.set(conv.userId, []);
+        }
+        userAllConversationIds.get(conv.userId)!.push(conv.id);
+
+        // Keep only the most recent conversation per user (first one due to DESC order)
+        if (!userConversationMap.has(conv.userId)) {
+          userConversationMap.set(conv.userId, conv);
+        }
+      }
+
+      uniqueConversations = Array.from(userConversationMap.values());
+
+      // Build response with unread counts (counting messages from ALL user's conversations)
+      const conversationsWithData = await Promise.all(
+        uniqueConversations.map(async (conv) => {
+          const allConvIds = userAllConversationIds.get(conv.userId) || [conv.id];
+
+          // Count unread from all conversations for this user
+          const unreadCount = await this.messageRepository
+            .createQueryBuilder('message')
+            .where('message.conversationId IN (:...convIds)', { convIds: allConvIds })
+            .andWhere('message.receiverId = :partnerId', { partnerId })
+            .andWhere('message.isRead = :isRead', { isRead: false })
+            .getCount();
+
+          // Get last message from all conversations for this user
+          const lastMessage = await this.messageRepository
+            .createQueryBuilder('message')
+            .where('message.conversationId IN (:...convIds)', { convIds: allConvIds })
+            .orderBy('message.createdAt', 'DESC')
+            .getOne();
+
+          return {
+            conversationId: conv.id,
+            allConversationIds: allConvIds, // Include all IDs for message loading
+            user: {
+              id: conv.user.id,
+              fullName: conv.user.full_name,
+              email: conv.user.email,
+            },
+            lastMessage: lastMessage
+              ? {
+                  content: lastMessage.content,
+                  createdAt: lastMessage.createdAt,
+                  senderId: lastMessage.senderId,
+                }
+              : null,
+            unreadCount,
+            lastMessageAt: conv.lastMessageAt,
+          };
+        }),
+      );
+
+      // Add users without conversations yet
+      const existingUserIds = new Set(uniqueConversations.map((c) => c.userId));
+      const newUsers = usersWithPermission
+        .filter((p) => !existingUserIds.has(p.user.id))
+        .map((p) => ({
+          conversationId: null,
+          allConversationIds: [],
+          user: {
+            id: p.user.id,
+            fullName: p.user.full_name,
+            email: p.user.email,
+          },
+          lastMessage: null,
+          unreadCount: 0,
+          lastMessageAt: null,
+        }));
+
+      return [...conversationsWithData, ...newUsers];
+    }
+
+    // For other modules: original logic
     const conversationsWithData = await Promise.all(
       conversations.map(async (conv) => {
         const unreadCount = await this.messageRepository.count({
@@ -236,8 +380,9 @@ export class MessagingService {
     const moduleConfig = getModuleConfig(moduleType);
     const isAdmin = user.role === 'admin';
 
-    // For non-admin users, verify they have permission for this module
-    if (!isAdmin) {
+    // For accounting module, allow any user (they may have active requests)
+    // For other modules, verify they have permission
+    if (!isAdmin && moduleType !== ModuleType.ACCOUNTING) {
       const permission = await this.userPermissionRepository.findOne({
         where: { userId },
       });
@@ -248,7 +393,38 @@ export class MessagingService {
       }
     }
 
-    // Find partner for this module (first one with the role)
+    // First, check if user already has a conversation in this module
+    // This handles the case where a partner already started a conversation with them
+    const existingConversation = await this.conversationRepository.findOne({
+      where: {
+        userId,
+        moduleType,
+      },
+      relations: ['partner'],
+    });
+
+    if (existingConversation) {
+      // User has an existing conversation, return it with the partner who started it
+      const unreadCount = await this.messageRepository.count({
+        where: {
+          conversationId: existingConversation.id,
+          receiverId: userId,
+          isRead: false,
+        },
+      });
+
+      return {
+        conversationId: existingConversation.id,
+        partner: {
+          id: existingConversation.partner.id,
+          fullName: existingConversation.partner.full_name,
+          email: existingConversation.partner.email,
+        },
+        unreadCount,
+      };
+    }
+
+    // No existing conversation, find any available partner for this module
     const partner = await this.userRepository.findOne({
       where: { role: moduleConfig.partnerRole },
     });
@@ -257,33 +433,15 @@ export class MessagingService {
       throw new NotFoundException('No partner available for this module');
     }
 
-    // Find conversation for THIS specific user
-    const conversation = await this.conversationRepository.findOne({
-      where: {
-        partnerId: partner.id,
-        userId,  // This ensures we only get THIS user's conversation
-        moduleType,
-      },
-    });
-
-    const unreadCount = conversation
-      ? await this.messageRepository.count({
-          where: {
-            conversationId: conversation.id,
-            receiverId: userId,
-            isRead: false,
-          },
-        })
-      : 0;
-
+    // Return partner info without conversation (user can start one)
     return {
-      conversationId: conversation?.id || null,
+      conversationId: null,
       partner: {
         id: partner.id,
         fullName: partner.full_name,
         email: partner.email,
       },
-      unreadCount,
+      unreadCount: 0,
     };
   }
 
@@ -299,9 +457,28 @@ export class MessagingService {
       throw new NotFoundException('Conversation not found');
     }
 
-    // Verify user is part of conversation - CRITICAL SECURITY CHECK
-    if (conversation.partnerId !== userId && conversation.userId !== userId) {
-      throw new ForbiddenException('Not authorized for this conversation');
+    // Get the requesting user's role
+    const requestingUser = await this.userRepository.findOne({ where: { id: userId } });
+    if (!requestingUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Verify user is authorized for this conversation
+    // For accounting module: allow any partner_cnpj or admin to access any conversation
+    // For other modules: only partnerId or userId can access
+    const isPartnerOrAdmin = requestingUser.role === 'partner_cnpj' || requestingUser.role === 'admin';
+    const isParticipant = conversation.partnerId === userId || conversation.userId === userId;
+
+    if (conversation.moduleType === ModuleType.ACCOUNTING) {
+      // Accounting module: allow partners/admins OR direct participants
+      if (!isPartnerOrAdmin && !isParticipant) {
+        throw new ForbiddenException('Not authorized for this conversation');
+      }
+    } else {
+      // Other modules: strict check - only direct participants
+      if (!isParticipant) {
+        throw new ForbiddenException('Not authorized for this conversation');
+      }
     }
 
     const messages = await this.messageRepository.find({

@@ -99,7 +99,7 @@ export default function RequestDetails() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* Header com botão voltar */}
-      <BackButton to="/accounting/my-requests" />
+      <BackButton to={isAccountant ? '/accounting/accountant/dashboard' : '/accounting/my-requests'} />
 
       {/* Card principal com header e abas */}
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -150,7 +150,7 @@ export default function RequestDetails() {
               </button>
             )}
 
-            {request.status !== 'cancelled' && request.status !== 'completed' && (
+            {request.status !== 'cancelled' && (
               <button
                 onClick={() => setActiveTab('documents')}
                 className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
@@ -432,7 +432,9 @@ export default function RequestDetails() {
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-4">Documentos</h2>
               <p className="text-gray-600 mb-6">
-                Envie os documentos solicitados pelo contador para agilizar o processo de abertura do CNPJ.
+                {request.status === 'completed'
+                  ? 'Documentos relacionados à abertura do CNPJ. Você pode visualizar, adicionar ou remover documentos.'
+                  : 'Envie os documentos solicitados pelo contador para agilizar o processo de abertura do CNPJ.'}
               </p>
               <DocumentUpload
                 requestId={request.id}

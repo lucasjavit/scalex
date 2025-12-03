@@ -93,5 +93,17 @@ export default function GlobalChatButton() {
     );
   }
 
+  // For accounting module: show chat for any user on user route (they may have active requests)
+  if (moduleConfig.moduleType === 'accounting' && isUserRoute) {
+    return (
+      <UserChatPanel
+        isOpen={isChatOpen}
+        onToggle={() => setIsChatOpen(!isChatOpen)}
+        moduleConfig={moduleConfig}
+        userId={userStatus.id}
+      />
+    );
+  }
+
   return null;
 }

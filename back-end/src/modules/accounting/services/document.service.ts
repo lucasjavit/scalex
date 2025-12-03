@@ -74,7 +74,7 @@ export class DocumentService {
     });
 
     if (!request) {
-      throw new NotFoundException(`Request with ID ${requestId} not found`);
+      throw new NotFoundException(`Solicitação não encontrada. Verifique se o ID está correto.`);
     }
 
     // 2. Validate user authorization
@@ -83,21 +83,21 @@ export class DocumentService {
 
     if (!isOwner && !isAssignedAccountant) {
       throw new BadRequestException(
-        'Only the request owner or assigned accountant can upload documents',
+        'Você não tem permissão para enviar documentos nesta solicitação. Apenas o solicitante ou o contador responsável podem fazer upload.',
       );
     }
 
     // 3. Validate file size
     if (file.size > this.MAX_FILE_SIZE) {
       throw new BadRequestException(
-        `File size exceeds maximum allowed size of ${this.MAX_FILE_SIZE / 1024 / 1024}MB`,
+        `O arquivo é muito grande. O tamanho máximo permitido é ${this.MAX_FILE_SIZE / 1024 / 1024}MB.`,
       );
     }
 
     // 4. Validate file type
     if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException(
-        `File type ${file.mimetype} is not allowed. Allowed types: ${this.ALLOWED_MIME_TYPES.join(', ')}`,
+        `Tipo de arquivo não permitido. Apenas arquivos PDF e imagens (JPG, PNG) são aceitos.`,
       );
     }
 
@@ -159,7 +159,7 @@ export class DocumentService {
     });
 
     if (!document) {
-      throw new NotFoundException(`Document with ID ${documentId} not found`);
+      throw new NotFoundException(`Documento não encontrado. Ele pode ter sido removido anteriormente.`);
     }
 
     // 2. Validate authorization
@@ -170,7 +170,7 @@ export class DocumentService {
 
     if (!isUploader && !isAccountant) {
       throw new BadRequestException(
-        'Only the document uploader or an accountant can delete this document',
+        'Você não tem permissão para excluir este documento. Apenas quem enviou ou um contador pode removê-lo.',
       );
     }
 
@@ -195,7 +195,7 @@ export class DocumentService {
     });
 
     if (!document) {
-      throw new NotFoundException(`Document with ID ${documentId} not found`);
+      throw new NotFoundException(`Documento não encontrado. Ele pode ter sido removido.`);
     }
 
     return document.filePath;
@@ -243,7 +243,7 @@ export class DocumentService {
     });
 
     if (!company) {
-      throw new NotFoundException(`Company with ID ${companyId} not found`);
+      throw new NotFoundException(`Empresa não encontrada. Verifique se o ID está correto.`);
     }
 
     // 2. Validate user authorization (company owner or accountant)
@@ -252,21 +252,21 @@ export class DocumentService {
 
     if (!isOwner && !isAccountant) {
       throw new BadRequestException(
-        'Only the company owner or accountant can upload documents',
+        'Você não tem permissão para enviar documentos nesta empresa. Apenas o proprietário ou o contador responsável podem fazer upload.',
       );
     }
 
     // 3. Validate file size
     if (file.size > this.MAX_FILE_SIZE) {
       throw new BadRequestException(
-        `File size exceeds maximum allowed size of ${this.MAX_FILE_SIZE / 1024 / 1024}MB`,
+        `O arquivo é muito grande. O tamanho máximo permitido é ${this.MAX_FILE_SIZE / 1024 / 1024}MB.`,
       );
     }
 
     // 4. Validate file type
     if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException(
-        `File type ${file.mimetype} is not allowed. Allowed types: ${this.ALLOWED_MIME_TYPES.join(', ')}`,
+        `Tipo de arquivo não permitido. Apenas arquivos PDF e imagens (JPG, PNG) são aceitos.`,
       );
     }
 
@@ -340,7 +340,7 @@ export class DocumentService {
     });
 
     if (!document) {
-      throw new NotFoundException(`Company document with ID ${documentId} not found`);
+      throw new NotFoundException(`Documento não encontrado. Ele pode ter sido removido.`);
     }
 
     return document;
@@ -361,7 +361,7 @@ export class DocumentService {
     });
 
     if (!document) {
-      throw new NotFoundException(`Company document with ID ${documentId} not found`);
+      throw new NotFoundException(`Documento não encontrado. Ele pode ter sido removido anteriormente.`);
     }
 
     // 2. Validate authorization
@@ -372,7 +372,7 @@ export class DocumentService {
 
     if (!isUploader && !isAccountant) {
       throw new BadRequestException(
-        'Only the document uploader or an accountant can delete this document',
+        'Você não tem permissão para excluir este documento. Apenas quem enviou ou um contador pode removê-lo.',
       );
     }
 
@@ -397,7 +397,7 @@ export class DocumentService {
     });
 
     if (!document) {
-      throw new NotFoundException(`Company document with ID ${documentId} not found`);
+      throw new NotFoundException(`Documento não encontrado. Ele pode ter sido removido.`);
     }
 
     return document.filePath;
