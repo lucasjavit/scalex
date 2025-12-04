@@ -48,13 +48,29 @@ import { UsersModule } from '../../users/users.module';
         destination: (req, file, cb) => {
           // Store tax obligation PDFs in uploads/tax-obligations
           const uploadPath = 'uploads/tax-obligations';
-          // Ensure directory exists (handles edge cases in Docker/production)
-          if (!existsSync(uploadPath)) {
-            mkdirSync(uploadPath, { recursive: true });
+          console.log('[MULTER] destination callback called');
+          console.log('[MULTER] uploadPath:', uploadPath);
+          console.log('[MULTER] cwd:', process.cwd());
+          console.log('[MULTER] file:', file?.originalname);
+          try {
+            // Ensure directory exists (handles edge cases in Docker/production)
+            if (!existsSync(uploadPath)) {
+              console.log('[MULTER] Directory does not exist, creating...');
+              mkdirSync(uploadPath, { recursive: true });
+              console.log('[MULTER] Directory created successfully');
+            } else {
+              console.log('[MULTER] Directory already exists');
+            }
+            console.log('[MULTER] Calling cb with uploadPath:', uploadPath);
+            cb(null, uploadPath);
+          } catch (error) {
+            console.error('[MULTER] Error in destination:', error);
+            cb(error as Error, uploadPath);
           }
-          cb(null, uploadPath);
         },
         filename: (req, file, cb) => {
+          console.log('[MULTER] filename callback called');
+          console.log('[MULTER] req.body:', JSON.stringify(req.body));
           // Generate unique filename: {taxType}-{month}-{year}-{timestamp}{ext}
           // Example: das-01-2024-1673894567890.pdf
           const uniqueSuffix = Date.now();
@@ -62,6 +78,7 @@ import { UsersModule } from '../../users/users.module';
           const body = req.body;
           const monthStr = String(body.referenceMonth).padStart(2, '0');
           const filename = `${body.taxType || 'tax'}-${monthStr}-${body.referenceYear || '0000'}-${uniqueSuffix}${ext}`;
+          console.log('[MULTER] Generated filename:', filename.toLowerCase());
           cb(null, filename.toLowerCase());
         },
       }),

@@ -14,6 +14,7 @@ import {
   BadRequestException,
   Res,
   StreamableFile,
+  Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -47,6 +48,8 @@ import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 @Controller('accounting/tax-obligations')
 @UseGuards(FirebaseAuthGuard)
 export class TaxObligationController {
+  private readonly logger = new Logger(TaxObligationController.name);
+
   constructor(private readonly taxObligationService: TaxObligationService) {}
 
   /**
@@ -205,11 +208,39 @@ export class TaxObligationController {
     @UploadedFile() file: Express.Multer.File,
     @Body() uploadDto: UploadMonthlyTaxDto,
   ): Promise<TaxObligation> {
+    this.logger.log('=== UPLOAD MONTHLY TAX PDF - START ===');
+    this.logger.log(`User: ${JSON.stringify({ id: user?.id, uid: user?.uid, email: user?.email })}`);
+    this.logger.log(`UploadDto: ${JSON.stringify(uploadDto)}`);
+    this.logger.log(`File received: ${file ? 'YES' : 'NO'}`);
+
+    if (file) {
+      this.logger.log(`File details: ${JSON.stringify({
+        fieldname: file.fieldname,
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        filename: file.filename,
+        path: file.path,
+        destination: file.destination,
+      })}`);
+    }
+
     if (!file) {
+      this.logger.error('No file uploaded - throwing BadRequestException');
       throw new BadRequestException('No file uploaded');
     }
 
-    return this.taxObligationService.uploadMonthlyTaxPdf(user.id, uploadDto, file);
+    try {
+      const result = await this.taxObligationService.uploadMonthlyTaxPdf(user.id, uploadDto, file);
+      this.logger.log(`Upload successful - Tax ID: ${result.id}`);
+      this.logger.log('=== UPLOAD MONTHLY TAX PDF - END ===');
+      return result;
+    } catch (error) {
+      this.logger.error(`Upload failed: ${error.message}`);
+      this.logger.error(`Error stack: ${error.stack}`);
+      this.logger.log('=== UPLOAD MONTHLY TAX PDF - ERROR ===');
+      throw error;
+    }
   }
 
   /**

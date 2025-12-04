@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaxObligation, TaxObligationStatus } from '../entities/tax-obligation.entity';
@@ -24,6 +24,8 @@ import { ConfirmPaymentDto } from '../dto/confirm-payment.dto';
  */
 @Injectable()
 export class TaxObligationService {
+  private readonly logger = new Logger(TaxObligationService.name);
+
   constructor(
     @InjectRepository(TaxObligation)
     private readonly taxRepository: Repository<TaxObligation>,
@@ -253,58 +255,83 @@ export class TaxObligationService {
     uploadDto: any,
     file: Express.Multer.File,
   ): Promise<TaxObligation> {
+    this.logger.log('=== SERVICE: uploadMonthlyTaxPdf - START ===');
+    this.logger.log(`AccountantId: ${accountantId}`);
+    this.logger.log(`UploadDto: ${JSON.stringify(uploadDto)}`);
+    this.logger.log(`File: ${JSON.stringify({
+      filename: file?.filename,
+      path: file?.path,
+      mimetype: file?.mimetype,
+      size: file?.size,
+    })}`);
+
     // Validate company exists
+    this.logger.log(`Looking for company: ${uploadDto.companyId}`);
     const company = await this.companyRepository.findOne({
       where: { id: uploadDto.companyId },
     });
 
     if (!company) {
+      this.logger.error(`Company not found: ${uploadDto.companyId}`);
       throw new NotFoundException(`Company with ID ${uploadDto.companyId} not found`);
     }
+    this.logger.log(`Company found: ${company.tradeName}`);
 
     // Validate file is PDF
     if (file.mimetype !== 'application/pdf') {
+      this.logger.error(`Invalid mimetype: ${file.mimetype}`);
       throw new BadRequestException('Only PDF files are allowed');
     }
 
     // Validate reference month (1-12)
-    if (uploadDto.referenceMonth < 1 || uploadDto.referenceMonth > 12) {
+    const refMonth = Number(uploadDto.referenceMonth);
+    const refYear = Number(uploadDto.referenceYear);
+    this.logger.log(`Reference: ${refMonth}/${refYear}`);
+
+    if (refMonth < 1 || refMonth > 12) {
+      this.logger.error(`Invalid month: ${refMonth}`);
       throw new BadRequestException('Reference month must be between 1 and 12');
     }
 
     // Validate reference year (2000-2100)
-    if (uploadDto.referenceYear < 2000 || uploadDto.referenceYear > 2100) {
+    if (refYear < 2000 || refYear > 2100) {
+      this.logger.error(`Invalid year: ${refYear}`);
       throw new BadRequestException('Reference year must be between 2000 and 2100');
     }
 
     // Check if tax already exists for this company, type, month, and year
+    this.logger.log(`Checking for existing tax: ${uploadDto.taxType} - ${refMonth}/${refYear}`);
     const existingTax = await this.taxRepository.findOne({
       where: {
         companyId: uploadDto.companyId,
         taxType: uploadDto.taxType,
-        referenceMonth: uploadDto.referenceMonth,
-        referenceYear: uploadDto.referenceYear,
+        referenceMonth: refMonth,
+        referenceYear: refYear,
       },
     });
 
     if (existingTax) {
+      this.logger.error(`Tax already exists: ${existingTax.id}`);
       throw new BadRequestException(
-        `Tax obligation for ${uploadDto.taxType} already exists for ${uploadDto.referenceMonth}/${uploadDto.referenceYear}`,
+        `Tax obligation for ${uploadDto.taxType} already exists for ${refMonth}/${refYear}`,
       );
     }
+    this.logger.log('No existing tax found - proceeding');
 
     // Calculate total amount
     const amount = Number(uploadDto.amount);
     const fineAmount = Number(uploadDto.fineAmount || 0);
     const interestAmount = Number(uploadDto.interestAmount || 0);
     const totalAmount = amount + fineAmount + interestAmount;
+    this.logger.log(`Amounts: base=${amount}, fine=${fineAmount}, interest=${interestAmount}, total=${totalAmount}`);
 
     // Create tax obligation with file metadata
+    this.logger.log('Creating tax obligation entity...');
     const taxObligation = this.taxRepository.create({
       companyId: uploadDto.companyId,
       taxType: uploadDto.taxType,
-      referenceMonth: uploadDto.referenceMonth,
-      referenceYear: uploadDto.referenceYear,
+      referenceMonth: refMonth,
+      referenceYear: refYear,
       dueDate: uploadDto.dueDate,
       amount: uploadDto.amount,
       fineAmount,
@@ -321,6 +348,24 @@ export class TaxObligationService {
       status: TaxObligationStatus.PENDING,
     });
 
-    return await this.taxRepository.save(taxObligation);
+    this.logger.log(`Entity created: ${JSON.stringify({
+      companyId: taxObligation.companyId,
+      taxType: taxObligation.taxType,
+      fileName: taxObligation.fileName,
+      filePath: taxObligation.filePath,
+      generatedById: taxObligation.generatedById,
+    })}`);
+
+    try {
+      const saved = await this.taxRepository.save(taxObligation);
+      this.logger.log(`Tax obligation saved with ID: ${saved.id}`);
+      this.logger.log('=== SERVICE: uploadMonthlyTaxPdf - SUCCESS ===');
+      return saved;
+    } catch (error) {
+      this.logger.error(`Failed to save tax obligation: ${error.message}`);
+      this.logger.error(`Error stack: ${error.stack}`);
+      this.logger.log('=== SERVICE: uploadMonthlyTaxPdf - ERROR ===');
+      throw error;
+    }
   }
 }
