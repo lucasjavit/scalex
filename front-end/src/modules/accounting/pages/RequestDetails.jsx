@@ -67,8 +67,8 @@ export default function RequestDetails() {
   const handleCompanyCreated = async (company) => {
     alert('Empresa criada com sucesso! A solicitação foi marcada como concluída.');
     setShowCompanyForm(false);
+    setActiveTab('company'); // Switch to company tab to show the created company
     await loadRequest();
-    navigate(`/accounting/companies/${company.id}`);
   };
 
   if (loading) {

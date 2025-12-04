@@ -31,6 +31,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
+# Criar diretório de uploads para PDFs de impostos
+RUN mkdir -p uploads/tax-obligations
+
 # Copiar script de inicialização
 COPY start.sh ./
 RUN chmod +x start.sh

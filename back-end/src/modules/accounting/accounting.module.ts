@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 import { CompanyRegistrationRequest } from './entities/company-registration-request.entity';
 import { RequestDocument } from './entities/request-document.entity';
 import { AccountingCompany } from './entities/accounting-company.entity';
@@ -47,6 +48,10 @@ import { UsersModule } from '../../users/users.module';
         destination: (req, file, cb) => {
           // Store tax obligation PDFs in uploads/tax-obligations
           const uploadPath = 'uploads/tax-obligations';
+          // Ensure directory exists (handles edge cases in Docker/production)
+          if (!existsSync(uploadPath)) {
+            mkdirSync(uploadPath, { recursive: true });
+          }
           cb(null, uploadPath);
         },
         filename: (req, file, cb) => {
