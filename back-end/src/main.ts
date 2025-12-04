@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { DataSource } from 'typeorm';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -78,6 +79,10 @@ async function bootstrap() {
     logger.error('❌ Migration failed', error);
     throw error;
   }
+
+  // Enable global exception filter to catch all errors with detailed logging
+  app.useGlobalFilters(new AllExceptionsFilter());
+  logger.log('🔍 Global exception filter enabled');
 
   // Enable validation pipes globally
   app.useGlobalPipes(
