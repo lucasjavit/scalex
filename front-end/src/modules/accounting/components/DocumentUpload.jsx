@@ -192,8 +192,8 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
   if (loading) {
     return (
       <div className="text-center py-6">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-2 text-gray-600">Carregando documentos...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-copilot-accent mx-auto"></div>
+        <p className="mt-2 text-copilot-text-secondary">Carregando documentos...</p>
       </div>
     );
   }
@@ -202,7 +202,7 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
     <div className="space-y-6">
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+        <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-4 py-3 rounded">
           <p className="font-semibold">Erro:</p>
           <p>{error}</p>
         </div>
@@ -210,19 +210,19 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
 
       {/* Upload Form - Hidden in read-only mode */}
       {!readOnly && (
-        <form onSubmit={handleUpload} className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Enviar Novo Documento</h3>
+        <form onSubmit={handleUpload} className="card-copilot p-6">
+          <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">Enviar Novo Documento</h3>
 
           <div className="space-y-4">
             {/* Document Type Select */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Tipo de Documento *
               </label>
               <select
                 value={documentType}
                 onChange={(e) => setDocumentType(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={uploading}
               >
@@ -237,7 +237,7 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
 
             {/* File Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Arquivo * (PDF, JPG, PNG - máx. 10MB)
               </label>
               <input
@@ -245,12 +245,12 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={handleFileSelect}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-copilot-border-default rounded-lg bg-copilot-bg-secondary text-copilot-text-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-600 file:text-white file:cursor-pointer hover:file:bg-slate-500"
                 required
                 disabled={uploading}
               />
               {selectedFile && (
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-copilot-text-secondary">
                   Arquivo selecionado: {selectedFile.name} ({formatFileSize(selectedFile.size)})
                 </p>
               )}
@@ -258,9 +258,9 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
 
             {/* Upload Progress */}
             {uploadProgress > 0 && (
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-copilot-bg-tertiary rounded-full h-2">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-copilot-accent h-2 rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 ></div>
               </div>
@@ -270,7 +270,7 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
             <button
               type="submit"
               disabled={uploading || !selectedFile || !documentType}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full btn-copilot-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploading ? 'Enviando...' : 'Enviar Documento'}
             </button>
@@ -280,12 +280,12 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
 
       {/* Documents List */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Documentos Enviados</h3>
+        <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">Documentos Enviados</h3>
 
         {documents.length === 0 ? (
-          <div className="text-center py-8 bg-gray-50 border border-gray-200 rounded-lg">
+          <div className="text-center py-8 card-copilot">
             <svg
-              className="w-12 h-12 mx-auto text-gray-400 mb-3"
+              className="w-12 h-12 mx-auto text-copilot-text-tertiary mb-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -297,14 +297,14 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
                 d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
               />
             </svg>
-            <p className="text-gray-600">Nenhum documento enviado ainda</p>
+            <p className="text-copilot-text-secondary">Nenhum documento enviado ainda</p>
           </div>
         ) : (
           <div className="space-y-3">
             {documents.map((doc) => (
               <div
                 key={doc.id}
-                className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition cursor-pointer"
+                className="card-copilot p-4 flex items-center justify-between cursor-pointer"
                 onClick={() => handleViewDocument(doc.id)}
                 title="Clique para visualizar o documento"
               >
@@ -313,7 +313,7 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
                   <div className="flex-shrink-0">
                     {doc.fileName.endsWith('.pdf') ? (
                       <svg
-                        className="w-10 h-10 text-red-500"
+                        className="w-10 h-10 text-red-400"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -325,7 +325,7 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
                       </svg>
                     ) : (
                       <svg
-                        className="w-10 h-10 text-blue-500"
+                        className="w-10 h-10 text-blue-400"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -340,9 +340,9 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
 
                   {/* Document Info */}
                   <div>
-                    <p className="font-medium text-gray-800">{doc.documentType}</p>
-                    <p className="text-sm text-gray-600">{doc.fileName}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="font-medium text-copilot-text-primary">{doc.documentType}</p>
+                    <p className="text-sm text-copilot-text-secondary">{doc.fileName}</p>
+                    <p className="text-xs text-copilot-text-tertiary">
                       {formatFileSize(doc.fileSize)} • Enviado em {formatDate(doc.createdAt)}
                     </p>
                   </div>
@@ -353,10 +353,10 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
                   {/* Download Button */}
                   <button
                     onClick={() => handleDownloadDocument(doc.id, doc.fileName)}
-                    className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition"
+                    className="px-3 py-1 text-sm text-copilot-accent border border-copilot-accent rounded hover:bg-copilot-accent/10 transition"
                     title="Baixar documento"
                   >
-                    ⬇️ Download
+                    Download
                   </button>
 
                   {/* Delete Button - Show if user is uploader OR accountant, hidden in read-only mode */}
@@ -368,10 +368,10 @@ export default function DocumentUpload({ requestId, currentUserId, isAccountant 
                           handleDelete(doc.id);
                         }
                       }}
-                      className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50 transition"
+                      className="px-3 py-1 text-sm text-red-400 border border-red-400 rounded hover:bg-red-500/10 transition"
                       title="Deletar documento"
                     >
-                      🗑️ Deletar
+                      Deletar
                     </button>
                   )}
                 </div>

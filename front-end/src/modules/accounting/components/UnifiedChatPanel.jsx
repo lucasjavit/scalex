@@ -71,25 +71,25 @@ export default function UnifiedChatPanel({ isOpen, onClose, currentUserId }) {
       />
 
       {/* Panel */}
-      <div className="fixed inset-y-0 right-0 z-50 w-full md:w-4/5 lg:w-3/4 xl:w-2/3 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out">
+      <div className="fixed inset-y-0 right-0 z-50 w-full md:w-4/5 lg:w-3/4 xl:w-2/3 bg-copilot-bg-primary shadow-2xl transform transition-transform duration-300 ease-in-out">
         <div className="flex h-full">
           {/* Left Column: Conversation List */}
-          <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0 border-r border-gray-200 overflow-hidden">
+          <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0 border-r border-slate-600 overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Carregando conversas...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent mx-auto mb-4"></div>
+                  <p className="text-copilot-text-secondary">Carregando conversas...</p>
                 </div>
               </div>
             ) : error ? (
               <div className="p-4">
-                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+                <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-4 py-3 rounded-lg">
                   <p className="font-semibold mb-2">Erro</p>
                   <p className="text-sm">{error}</p>
                   <button
                     onClick={loadConversations}
-                    className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                    className="mt-3 btn-copilot-primary text-sm"
                   >
                     Tentar Novamente
                   </button>
@@ -107,13 +107,13 @@ export default function UnifiedChatPanel({ isOpen, onClose, currentUserId }) {
           {/* Right Column: Active Chat */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Chat Header */}
-            <div className="flex-shrink-0 bg-purple-600 text-white px-6 py-4 flex items-center justify-between">
+            <div className="flex-shrink-0 bg-copilot-accent text-white px-6 py-4 flex items-center justify-between">
               {activeConversation ? (
                 <div className="flex-1 min-w-0">
                   <h2 className="text-lg font-bold truncate">
                     {activeConversation.request.companyName}
                   </h2>
-                  <p className="text-sm text-purple-100 truncate">
+                  <p className="text-sm text-white/70 truncate">
                     {activeConversation.request.user.full_name} •{' '}
                     {activeConversation.request.cnpj}
                   </p>
@@ -121,7 +121,7 @@ export default function UnifiedChatPanel({ isOpen, onClose, currentUserId }) {
               ) : (
                 <div className="flex-1">
                   <h2 className="text-lg font-bold">Chat</h2>
-                  <p className="text-sm text-purple-100">
+                  <p className="text-sm text-white/70">
                     Selecione uma conversa para começar
                   </p>
                 </div>
@@ -130,7 +130,7 @@ export default function UnifiedChatPanel({ isOpen, onClose, currentUserId }) {
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="ml-4 p-2 rounded-lg hover:bg-purple-700 transition-colors"
+                className="ml-4 p-2 rounded-lg hover:bg-copilot-accent-hover transition-colors"
                 aria-label="Fechar chat"
               >
                 <svg
@@ -158,10 +158,10 @@ export default function UnifiedChatPanel({ isOpen, onClose, currentUserId }) {
                   currentUserId={currentUserId}
                 />
               ) : (
-                <div className="flex items-center justify-center h-full bg-gray-50">
+                <div className="flex items-center justify-center h-full card-copilot rounded-none">
                   <div className="text-center">
                     <svg
-                      className="w-24 h-24 mx-auto text-gray-300 mb-4"
+                      className="w-24 h-24 mx-auto text-copilot-text-tertiary mb-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -173,10 +173,10 @@ export default function UnifiedChatPanel({ isOpen, onClose, currentUserId }) {
                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                       />
                     </svg>
-                    <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                    <h3 className="text-xl font-semibold text-copilot-text-secondary mb-2">
                       Selecione uma conversa
                     </h3>
-                    <p className="text-gray-500">
+                    <p className="text-copilot-text-tertiary">
                       Escolha uma solicitação da lista para ver as mensagens
                     </p>
                   </div>

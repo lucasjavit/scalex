@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { accountingApi } from '../../../services/accountingApi';
+import { getErrorMessage, ERROR_CONTEXTS } from '../../../utils/errorHandler';
 import BackButton from '../../../components/BackButton';
 
 /**
@@ -176,7 +177,7 @@ export default function RequestCNPJ() {
       }, 2000);
     } catch (err) {
       console.error('Erro ao criar solicitação:', err);
-      setError(err.message || 'Erro ao criar solicitação. Tente novamente.');
+      setError(getErrorMessage(err, ERROR_CONTEXTS.CREATE_REQUEST));
     } finally {
       setLoading(false);
     }
@@ -184,32 +185,32 @@ export default function RequestCNPJ() {
 
   if (success) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-          <svg className="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="max-w-2xl mx-auto p-6 relative z-10">
+        <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-6 text-center">
+          <svg className="w-16 h-16 text-green-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          <h2 className="text-2xl font-bold text-green-800 mb-2">Solicitação enviada com sucesso!</h2>
-          <p className="text-green-700">
+          <h2 className="text-2xl font-bold text-green-300 mb-2">Solicitação enviada com sucesso!</h2>
+          <p className="text-green-400">
             Em breve um contador entrará em contato com você.
           </p>
-          <p className="text-green-600 text-sm mt-2">Redirecionando...</p>
+          <p className="text-green-500 text-sm mt-2">Redirecionando...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 relative z-10">
       <BackButton to="/accounting" />
-      <div className="bg-white shadow-lg rounded-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Solicitar Abertura de CNPJ</h1>
-        <p className="text-gray-600 mb-6">
+      <div className="card-copilot p-8">
+        <h1 className="text-3xl font-bold text-copilot-text-primary mb-2">Solicitar Abertura de CNPJ</h1>
+        <p className="text-copilot-text-secondary mb-6">
           Preencha o formulário abaixo e um contador especializado entrará em contato.
         </p>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-6">
+          <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-4 py-3 rounded mb-6">
             <p className="font-semibold">Erro:</p>
             <p>{error}</p>
           </div>
@@ -218,10 +219,10 @@ export default function RequestCNPJ() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Dados Pessoais */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Dados Pessoais</h2>
+            <h2 className="text-xl font-semibold text-copilot-text-primary mb-4 border-b border-copilot-border-default pb-2">Dados Pessoais</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                   Nome Completo *
                 </label>
                 <input
@@ -229,13 +230,13 @@ export default function RequestCNPJ() {
                   name="full_name"
                   value={formData.full_name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                   CPF *
                 </label>
                 <input
@@ -244,13 +245,13 @@ export default function RequestCNPJ() {
                   value={formData.cpf}
                   onChange={handleChange}
                   placeholder="123.456.789-00"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                   Email *
                 </label>
                 <input
@@ -258,13 +259,13 @@ export default function RequestCNPJ() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                   Telefone *
                 </label>
                 <input
@@ -273,7 +274,7 @@ export default function RequestCNPJ() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="(11) 98765-4321"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
@@ -282,10 +283,10 @@ export default function RequestCNPJ() {
 
           {/* Dados da Empresa */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Dados da Empresa</h2>
+            <h2 className="text-xl font-semibold text-copilot-text-primary mb-4 border-b border-copilot-border-default pb-2">Dados da Empresa</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                   Tipo de Negócio *
                 </label>
                 <input
@@ -294,20 +295,20 @@ export default function RequestCNPJ() {
                   value={formData.business_type}
                   onChange={handleChange}
                   placeholder="Ex: Desenvolvimento de Software"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                   Faturamento Estimado *
                 </label>
                 <select
                   name="estimated_revenue"
                   value={formData.estimated_revenue}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 >
                   <option value="">Selecione...</option>
@@ -319,14 +320,14 @@ export default function RequestCNPJ() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                   Tipo de Empresa Desejada *
                 </label>
                 <select
                   name="preferred_company_type"
                   value={formData.preferred_company_type}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 >
                   <option value="MEI">MEI (Microempreendedor Individual)</option>
@@ -338,14 +339,14 @@ export default function RequestCNPJ() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                   Urgência
                 </label>
                 <select
                   name="urgency"
                   value={formData.urgency}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                 >
                   <option value="low">Baixa</option>
                   <option value="medium">Média</option>
@@ -361,9 +362,9 @@ export default function RequestCNPJ() {
                     name="will_have_employees"
                     checked={formData.will_have_employees}
                     onChange={handleChange}
-                    className="mr-2"
+                    className="mr-2 rounded border-copilot-border-default bg-copilot-bg-input"
                   />
-                  <span className="text-sm text-gray-700">Terá funcionários</span>
+                  <span className="text-sm text-copilot-text-secondary">Terá funcionários</span>
                 </label>
 
                 <label className="flex items-center">
@@ -372,9 +373,9 @@ export default function RequestCNPJ() {
                     name="has_commercial_address"
                     checked={formData.has_commercial_address}
                     onChange={handleChange}
-                    className="mr-2"
+                    className="mr-2 rounded border-copilot-border-default bg-copilot-bg-input"
                   />
-                  <span className="text-sm text-gray-700">Endereço comercial</span>
+                  <span className="text-sm text-copilot-text-secondary">Endereço comercial</span>
                 </label>
               </div>
             </div>
@@ -382,82 +383,82 @@ export default function RequestCNPJ() {
 
           {/* Endereço */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Endereço</h2>
+            <h2 className="text-xl font-semibold text-copilot-text-primary mb-4 border-b border-copilot-border-default pb-2">Endereço</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">CEP *</label>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">CEP *</label>
                 <input
                   type="text"
                   name="address.zip_code"
                   value={formData.address.zip_code}
                   onChange={handleChange}
                   placeholder="12345-678"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Rua *</label>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Rua *</label>
                 <input
                   type="text"
                   name="address.street"
                   value={formData.address.street}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Número *</label>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Número *</label>
                 <input
                   type="text"
                   name="address.number"
                   value={formData.address.number}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Complemento</label>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Complemento</label>
                 <input
                   type="text"
                   name="address.complement"
                   value={formData.address.complement}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Bairro *</label>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Bairro *</label>
                 <input
                   type="text"
                   name="address.neighborhood"
                   value={formData.address.neighborhood}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cidade *</label>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Cidade *</label>
                 <input
                   type="text"
                   name="address.city"
                   value={formData.address.city}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+                <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Estado *</label>
                 <input
                   type="text"
                   name="address.state"
@@ -465,7 +466,7 @@ export default function RequestCNPJ() {
                   onChange={handleChange}
                   placeholder="SP"
                   maxLength="2"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  className="input-copilot w-full"
                   required
                 />
               </div>
@@ -474,7 +475,7 @@ export default function RequestCNPJ() {
 
           {/* Observações */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
               Observações (opcional)
             </label>
             <textarea
@@ -484,24 +485,24 @@ export default function RequestCNPJ() {
               rows="4"
               maxLength="1000"
               placeholder="Informações adicionais que possam ajudar o contador..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+              className="input-copilot w-full"
             />
-            <p className="text-sm text-gray-500 mt-1">{formData.notes.length}/1000 caracteres</p>
+            <p className="text-sm text-copilot-text-tertiary mt-1">{formData.notes.length}/1000 caracteres</p>
           </div>
 
           {/* Botões */}
-          <div className="flex justify-end space-x-4 pt-6 border-t">
+          <div className="flex justify-end space-x-4 pt-6 border-t border-copilot-border-default">
             <button
               type="button"
               onClick={() => navigate('/accounting/my-requests')}
-              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition"
+              className="btn-copilot-secondary"
               disabled={loading}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="btn-copilot-primary"
               disabled={loading}
             >
               {loading ? (

@@ -66,20 +66,20 @@ export default function RequestTimeline({ request }) {
   // If cancelled, show special state
   if (request.status === 'cancelled') {
     return (
-      <div className="bg-white shadow-lg rounded-lg p-6">
+      <div className="card-copilot p-6">
         <div className="text-center py-8">
-          <div className="inline-block bg-red-100 p-4 rounded-full mb-4">
+          <div className="inline-block bg-red-500/20 p-4 rounded-full mb-4">
             <span className="text-4xl">❌</span>
           </div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          <h3 className="text-xl font-semibold text-copilot-text-primary mb-2">
             Solicitação Cancelada
           </h3>
-          <p className="text-gray-600">
+          <p className="text-copilot-text-secondary">
             Esta solicitação foi cancelada.
           </p>
           {request.statusNote && (
-            <div className="mt-4 bg-gray-50 p-3 rounded text-sm text-gray-700">
-              <p className="font-medium mb-1">Motivo:</p>
+            <div className="mt-4 bg-copilot-bg-tertiary p-3 rounded text-sm text-copilot-text-secondary">
+              <p className="font-medium mb-1 text-copilot-text-primary">Motivo:</p>
               <p>{request.statusNote}</p>
             </div>
           )}
@@ -89,14 +89,14 @@ export default function RequestTimeline({ request }) {
   }
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6">
-      <h2 className="text-xl font-semibold text-gray-700 mb-6">
+    <div className="card-copilot p-6">
+      <h2 className="text-xl font-semibold text-copilot-text-secondary mb-6">
         Progresso da Solicitação
       </h2>
 
       <div className="relative">
         {/* Timeline line */}
-        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-copilot-border-default"></div>
 
         {/* Steps */}
         <div className="space-y-8">
@@ -111,10 +111,10 @@ export default function RequestTimeline({ request }) {
                 <div
                   className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-4 ${
                     isCompleted
-                      ? 'bg-blue-600 border-blue-600'
+                      ? 'bg-copilot-accent border-copilot-accent'
                       : isCurrent
-                      ? 'bg-white border-blue-600'
-                      : 'bg-white border-gray-300'
+                      ? 'bg-copilot-bg-secondary border-copilot-accent'
+                      : 'bg-copilot-bg-secondary border-copilot-border-default'
                   }`}
                 >
                   <span className={`text-xl ${isCompleted ? 'opacity-100' : 'opacity-50'}`}>
@@ -127,25 +127,25 @@ export default function RequestTimeline({ request }) {
                   <div className="flex items-center justify-between">
                     <h3
                       className={`text-lg font-semibold ${
-                        isCompleted ? 'text-gray-800' : isCurrent ? 'text-blue-600' : 'text-gray-400'
+                        isCompleted ? 'text-copilot-text-primary' : isCurrent ? 'text-copilot-accent' : 'text-copilot-text-tertiary'
                       }`}
                     >
                       {step.label}
                     </h3>
                     {isCompleted && !isCurrent && (
-                      <span className="text-green-600 text-sm font-medium">
+                      <span className="text-green-400 text-sm font-medium">
                         Concluído ✓
                       </span>
                     )}
                     {isCurrent && (
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                      <span className="px-3 py-1 bg-copilot-accent/20 text-copilot-accent text-sm font-medium rounded-full">
                         Em Andamento
                       </span>
                     )}
                   </div>
                   <p
                     className={`mt-1 text-sm ${
-                      isCompleted || isCurrent ? 'text-gray-600' : 'text-gray-400'
+                      isCompleted || isCurrent ? 'text-copilot-text-secondary' : 'text-copilot-text-tertiary'
                     }`}
                   >
                     {step.description}
@@ -153,7 +153,7 @@ export default function RequestTimeline({ request }) {
 
                   {/* Show status note for current step */}
                   {isCurrent && request.statusNote && (
-                    <div className="mt-3 bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                    <div className="mt-3 bg-copilot-accent/10 border border-copilot-accent/30 rounded p-3 text-sm text-copilot-accent">
                       <p className="font-medium mb-1">Nota do contador:</p>
                       <p>{request.statusNote}</p>
                     </div>
@@ -161,7 +161,7 @@ export default function RequestTimeline({ request }) {
 
                   {/* Show timestamp for completed steps */}
                   {isCompleted && (
-                    <p className="mt-2 text-xs text-gray-500">
+                    <p className="mt-2 text-xs text-copilot-text-tertiary">
                       {index === 0 && request.createdAt && (
                         <>Criado em {new Date(request.createdAt).toLocaleString('pt-BR')}</>
                       )}
@@ -182,8 +182,8 @@ export default function RequestTimeline({ request }) {
 
       {/* Estimated time remaining (optional) */}
       {currentStepIndex < 4 && (
-        <div className="mt-8 pt-6 border-t">
-          <div className="flex items-center text-sm text-gray-600">
+        <div className="mt-8 pt-6 border-t border-copilot-border-default">
+          <div className="flex items-center text-sm text-copilot-text-secondary">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>

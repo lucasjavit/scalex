@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { accountingApi } from '../../../../services/accountingApi';
 import { useUserStatus } from '../../../../hooks/useUserStatus';
+import { getErrorMessage, ERROR_CONTEXTS } from '../../../../utils/errorHandler';
 import BackButton from '../../../../components/BackButton';
 
 const COMPANY_STATUS_LABELS = {
@@ -11,9 +12,9 @@ const COMPANY_STATUS_LABELS = {
 };
 
 const COMPANY_STATUS_COLORS = {
-  active: 'bg-green-100 text-green-800',
-  inactive: 'bg-gray-100 text-gray-800',
-  suspended: 'bg-red-100 text-red-800',
+  active: 'bg-green-500/20 text-green-400',
+  inactive: 'bg-gray-500/20 text-gray-400',
+  suspended: 'bg-red-500/20 text-red-400',
 };
 
 export default function ManageCompanies() {
@@ -45,23 +46,7 @@ export default function ManageCompanies() {
       setCompanies(data);
     } catch (err) {
       console.error('Error searching companies:', err);
-
-      // Provide user-friendly error messages
-      let errorMessage = 'Erro ao buscar empresas';
-
-      if (err.message?.includes('Cannot GET') || err.message?.includes('404')) {
-        errorMessage = 'Não foram encontradas empresas para este CPF. Verifique se o CPF está correto ou se a empresa já foi cadastrada no sistema.';
-      } else if (err.message?.includes('Network') || err.message?.includes('Failed to fetch')) {
-        errorMessage = 'Erro de conexão com o servidor. Verifique sua internet e tente novamente.';
-      } else if (err.message?.includes('401') || err.message?.includes('Unauthorized')) {
-        errorMessage = 'Sessão expirada. Por favor, faça login novamente.';
-      } else if (err.message?.includes('403') || err.message?.includes('Forbidden')) {
-        errorMessage = 'Você não tem permissão para acessar esta funcionalidade.';
-      } else if (err.message?.includes('500')) {
-        errorMessage = 'Erro interno do servidor. Tente novamente mais tarde ou contate o suporte.';
-      }
-
-      setError(errorMessage);
+      setError(getErrorMessage(err, ERROR_CONTEXTS.SEARCH_COMPANIES));
       setCompanies([]);
     } finally {
       setLoading(false);
@@ -119,42 +104,44 @@ export default function ManageCompanies() {
 
   if (!isAccountant) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Acesso Restrito</h2>
-          <p className="text-gray-600 mb-6">
-            Apenas contadores têm acesso a esta página.
-          </p>
-          <button
-            onClick={() => navigate('/home')}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-          >
-            Voltar para Home
-          </button>
-        </div>
+      <div className="bg-copilot-bg-primary min-h-screen">
+        <main className="max-w-6xl mx-auto px-6 py-12 flex items-center justify-center min-h-screen">
+          <div className="card-copilot p-8 max-w-md w-full text-center">
+            <h2 className="text-2xl font-bold text-copilot-text-primary mb-4">Acesso Restrito</h2>
+            <p className="text-copilot-text-secondary mb-6">
+              Apenas contadores têm acesso a esta página.
+            </p>
+            <button
+              onClick={() => navigate('/home')}
+              className="btn-copilot-primary"
+            >
+              Voltar para Home
+            </button>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="bg-copilot-bg-primary min-h-screen">
+      <main className="max-w-6xl mx-auto px-6 py-12">
         {/* Back Button */}
         <BackButton to="/accounting/accountant" />
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Gerenciar Empresas</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-copilot-text-primary">Gerenciar Empresas</h1>
+          <p className="text-copilot-text-secondary mt-2">
             Busque empresas por CPF do proprietário para fazer upload de impostos
           </p>
         </div>
 
         {/* Search Form */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="card-copilot p-6 mb-6">
           <form onSubmit={handleSearch} className="flex gap-4">
             <div className="flex-1">
-              <label htmlFor="cpf" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="cpf" className="block text-sm font-medium text-copilot-text-secondary mb-2">
                 CPF do Proprietário
               </label>
               <input
@@ -164,7 +151,7 @@ export default function ManageCompanies() {
                 onChange={handleCpfChange}
                 placeholder="000.000.000-00"
                 maxLength={14}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-copilot w-full"
                 disabled={loading}
               />
             </div>
@@ -172,7 +159,7 @@ export default function ManageCompanies() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="btn-copilot-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Buscando...' : 'Buscar'}
               </button>
@@ -180,7 +167,7 @@ export default function ManageCompanies() {
                 <button
                   type="button"
                   onClick={handleClearSearch}
-                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"
+                  className="btn-copilot-secondary"
                 >
                   Limpar
                 </button>
@@ -189,19 +176,19 @@ export default function ManageCompanies() {
           </form>
 
           {error && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800">{error}</p>
+            <div className="mt-4 p-4 bg-red-900/30 border border-red-500/50 rounded-lg">
+              <p className="text-red-300">{error}</p>
             </div>
           )}
         </div>
 
         {/* Results */}
         {searched && !loading && (
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="card-copilot p-6">
             {companies.length === 0 ? (
               <div className="text-center py-8">
                 <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
+                  className="mx-auto h-12 w-12 text-copilot-text-tertiary"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -213,52 +200,52 @@ export default function ManageCompanies() {
                     d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                   />
                 </svg>
-                <h3 className="mt-2 text-lg font-medium text-gray-900">Nenhuma empresa encontrada</h3>
-                <p className="mt-1 text-gray-500">
+                <h3 className="mt-2 text-lg font-medium text-copilot-text-primary">Nenhuma empresa encontrada</h3>
+                <p className="mt-1 text-copilot-text-secondary">
                   Não existem empresas cadastradas para o CPF informado.
                 </p>
               </div>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                <h2 className="text-xl font-bold text-copilot-text-primary mb-4">
                   {companies.length} {companies.length === 1 ? 'Empresa Encontrada' : 'Empresas Encontradas'}
                 </h2>
                 <div className="space-y-4">
                   {companies.map((company) => (
                     <div
                       key={company.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                      className="border border-copilot-border-default rounded-lg p-4 hover:border-copilot-border-hover transition-colors bg-copilot-bg-tertiary"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">
+                            <h3 className="text-lg font-semibold text-copilot-text-primary">
                               {company.legalName}
                             </h3>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                COMPANY_STATUS_COLORS[company.status] || 'bg-gray-100 text-gray-800'
+                                COMPANY_STATUS_COLORS[company.status] || 'bg-gray-500/20 text-gray-400'
                               }`}
                             >
                               {COMPANY_STATUS_LABELS[company.status] || company.status}
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-copilot-text-secondary">
                             <div>
-                              <span className="font-medium">CNPJ:</span>{' '}
+                              <span className="font-medium text-copilot-text-primary">CNPJ:</span>{' '}
                               {formatCnpj(company.cnpj)}
                             </div>
                             <div>
-                              <span className="font-medium">Proprietário:</span>{' '}
+                              <span className="font-medium text-copilot-text-primary">Proprietário:</span>{' '}
                               {company.user?.name || 'N/A'}
                             </div>
                             <div>
-                              <span className="font-medium">Contador:</span>{' '}
+                              <span className="font-medium text-copilot-text-primary">Contador:</span>{' '}
                               {company.accountant?.name || 'N/A'}
                             </div>
                             <div>
-                              <span className="font-medium">Criada em:</span>{' '}
+                              <span className="font-medium text-copilot-text-primary">Criada em:</span>{' '}
                               {formatDate(company.createdAt)}
                             </div>
                           </div>
@@ -266,7 +253,7 @@ export default function ManageCompanies() {
 
                         <button
                           onClick={() => handleUploadTaxes(company.id)}
-                          className="ml-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
+                          className="ml-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
                         >
                           <svg
                             className="w-5 h-5"
@@ -291,7 +278,7 @@ export default function ManageCompanies() {
             )}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

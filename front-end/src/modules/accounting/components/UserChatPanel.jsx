@@ -48,19 +48,19 @@ export default function UserChatPanel({ isOpen, onClose, currentUserId }) {
   const getStatusBadgeColor = (status) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-500/20 text-yellow-400';
       case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-500/20 text-blue-400';
       case 'waiting_documents':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-500/20 text-orange-400';
       case 'processing':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-500/20 text-purple-400';
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500/20 text-green-400';
       case 'cancelled':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500/20 text-gray-400';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500/20 text-gray-400';
     }
   };
 
@@ -96,14 +96,14 @@ export default function UserChatPanel({ isOpen, onClose, currentUserId }) {
       />
 
       {/* Panel */}
-      <div className="fixed inset-y-0 right-0 z-50 w-full md:w-4/5 lg:w-3/4 xl:w-2/3 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out">
+      <div className="fixed inset-y-0 right-0 z-50 w-full md:w-4/5 lg:w-3/4 xl:w-2/3 bg-copilot-bg-primary shadow-2xl transform transition-transform duration-300 ease-in-out">
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex-shrink-0 bg-blue-600 text-white px-6 py-4 flex items-center justify-between">
+          <div className="flex-shrink-0 bg-copilot-accent text-white px-6 py-4 flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold">Chat com Contador</h2>
               {activeRequest && (
-                <p className="text-sm text-blue-100 truncate">
+                <p className="text-sm text-white/70 truncate">
                   {activeRequest.requestData?.company_name || 'Empresa'} •{' '}
                   {formatCNPJ(activeRequest.requestData?.cnpj)}
                 </p>
@@ -113,7 +113,7 @@ export default function UserChatPanel({ isOpen, onClose, currentUserId }) {
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="ml-4 p-2 rounded-lg hover:bg-blue-700 transition-colors"
+              className="ml-4 p-2 rounded-lg hover:bg-copilot-accent-hover transition-colors"
               aria-label="Fechar chat"
             >
               <svg
@@ -136,9 +136,9 @@ export default function UserChatPanel({ isOpen, onClose, currentUserId }) {
           <div className="flex-1 overflow-hidden flex">
             {/* Left Sidebar: Request List (only show if multiple requests) */}
             {requests.length > 1 && (
-              <div className="w-64 border-r border-gray-200 overflow-y-auto bg-gray-50">
+              <div className="w-64 border-r border-slate-600 overflow-y-auto card-copilot rounded-none">
                 <div className="p-4">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  <h3 className="text-sm font-semibold text-copilot-text-secondary mb-3">
                     Minhas Solicitações
                   </h3>
                   <div className="space-y-2">
@@ -148,11 +148,11 @@ export default function UserChatPanel({ isOpen, onClose, currentUserId }) {
                         onClick={() => setActiveRequestId(request.id)}
                         className={`w-full text-left p-3 rounded-lg transition-colors ${
                           activeRequestId === request.id
-                            ? 'bg-blue-100 border-2 border-blue-500'
-                            : 'bg-white border-2 border-transparent hover:bg-gray-100'
+                            ? 'bg-copilot-accent/20 border-2 border-copilot-accent'
+                            : 'card-copilot border-2 border-transparent'
                         }`}
                       >
-                        <p className="font-medium text-sm text-gray-900 truncate">
+                        <p className="font-medium text-sm text-copilot-text-primary truncate">
                           {request.requestData?.company_name || 'Empresa sem nome'}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
@@ -176,28 +176,28 @@ export default function UserChatPanel({ isOpen, onClose, currentUserId }) {
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Carregando solicitações...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent mx-auto mb-4"></div>
+                    <p className="text-copilot-text-secondary">Carregando solicitações...</p>
                   </div>
                 </div>
               ) : error ? (
                 <div className="flex items-center justify-center h-full p-4">
-                  <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg max-w-md">
+                  <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-6 py-4 rounded-lg max-w-md">
                     <p className="font-semibold mb-2">Erro</p>
                     <p className="text-sm">{error}</p>
                     <button
                       onClick={loadRequests}
-                      className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                      className="mt-4 btn-copilot-primary text-sm"
                     >
                       Tentar Novamente
                     </button>
                   </div>
                 </div>
               ) : requests.length === 0 ? (
-                <div className="flex items-center justify-center h-full bg-gray-50">
+                <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-800 to-slate-900">
                   <div className="text-center">
                     <svg
-                      className="w-24 h-24 mx-auto text-gray-300 mb-4"
+                      className="w-24 h-24 mx-auto text-copilot-text-tertiary mb-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -209,15 +209,15 @@ export default function UserChatPanel({ isOpen, onClose, currentUserId }) {
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                    <h3 className="text-xl font-semibold text-copilot-text-secondary mb-2">
                       Nenhuma solicitação
                     </h3>
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-copilot-text-tertiary mb-4">
                       Você ainda não tem solicitações de CNPJ.
                     </p>
                     <button
                       onClick={onClose}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="btn-copilot-primary"
                     >
                       Criar Solicitação
                     </button>
@@ -230,9 +230,9 @@ export default function UserChatPanel({ isOpen, onClose, currentUserId }) {
                   currentUserId={currentUserId}
                 />
               ) : (
-                <div className="flex items-center justify-center h-full bg-gray-50">
+                <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-800 to-slate-900">
                   <div className="text-center">
-                    <p className="text-gray-500">Selecione uma solicitação para conversar</p>
+                    <p className="text-copilot-text-tertiary">Selecione uma solicitação para conversar</p>
                   </div>
                 </div>
               )}

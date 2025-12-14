@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import accountingApi from '../../../../services/accountingApi';
+import { useNotification } from '../../../../hooks/useNotification';
+import { getErrorMessage, ERROR_CONTEXTS } from '../../../../utils/errorHandler';
 
 /**
  * GenerateTax Component
@@ -24,6 +26,7 @@ import accountingApi from '../../../../services/accountingApi';
 export default function GenerateTax() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { showSuccess, showWarning, showConfirmation } = useNotification();
 
   // Get pre-selected company from navigation state (if coming from company list)
   const preSelectedCompanyId = location.state?.companyId || '';
@@ -73,7 +76,7 @@ export default function GenerateTax() {
       setCompanies(data);
     } catch (err) {
       console.error('Error loading companies:', err);
-      setError('Erro ao carregar empresas: ' + err.message);
+      setError(getErrorMessage(err, ERROR_CONTEXTS.LOAD_COMPANIES));
     } finally {
       setLoadingCompanies(false);
     }
@@ -92,13 +95,13 @@ export default function GenerateTax() {
     if (file) {
       // Validate file type (PDF only)
       if (file.type !== 'application/pdf') {
-        alert('Por favor, selecione um arquivo PDF.');
+        showWarning('Por favor, selecione um arquivo PDF.');
         e.target.value = '';
         return;
       }
       // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        alert('Arquivo muito grande. Tamanho máximo: 10MB.');
+        showWarning('Arquivo muito grande. Tamanho máximo: 10MB.');
         e.target.value = '';
         return;
       }
@@ -111,27 +114,27 @@ export default function GenerateTax() {
 
     // Validation
     if (!formData.companyId) {
-      alert('Por favor, selecione uma empresa.');
+      showWarning('Por favor, selecione uma empresa.');
       return;
     }
 
     if (!formData.taxType) {
-      alert('Por favor, selecione o tipo de imposto.');
+      showWarning('Por favor, selecione o tipo de imposto.');
       return;
     }
 
     if (!formData.referencePeriod) {
-      alert('Por favor, informe o período de referência.');
+      showWarning('Por favor, informe o período de referência.');
       return;
     }
 
     if (!formData.dueDate) {
-      alert('Por favor, informe a data de vencimento.');
+      showWarning('Por favor, informe a data de vencimento.');
       return;
     }
 
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      alert('Por favor, informe um valor válido.');
+      showWarning('Por favor, informe um valor válido.');
       return;
     }
 
@@ -141,12 +144,17 @@ export default function GenerateTax() {
     today.setHours(0, 0, 0, 0);
 
     if (dueDate < today) {
-      const confirmPast = window.confirm(
-        'A data de vencimento está no passado. Deseja continuar mesmo assim?'
+      showConfirmation(
+        'A data de vencimento está no passado. Deseja continuar mesmo assim?',
+        () => submitTax()
       );
-      if (!confirmPast) return;
+      return;
     }
 
+    submitTax();
+  };
+
+  const submitTax = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -176,7 +184,7 @@ export default function GenerateTax() {
       setSuccess(true);
 
       // Show success message
-      alert('Imposto gerado com sucesso!');
+      showSuccess('Imposto gerado com sucesso!');
 
       // Redirect after 2 seconds
       setTimeout(() => {
@@ -184,7 +192,7 @@ export default function GenerateTax() {
       }, 2000);
     } catch (err) {
       console.error('Error creating tax obligation:', err);
-      setError('Erro ao gerar imposto: ' + err.message);
+      setError(getErrorMessage(err, ERROR_CONTEXTS.CREATE_TAX));
     } finally {
       setLoading(false);
     }
@@ -196,62 +204,67 @@ export default function GenerateTax() {
 
   if (loadingCompanies) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Carregando empresas...</p>
-        </div>
+      <div className="bg-copilot-bg-primary min-h-screen">
+        <main className="max-w-4xl mx-auto px-6 py-12">
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent"></div>
+            <p className="mt-4 text-copilot-text-secondary">Carregando empresas...</p>
+          </div>
+        </main>
       </div>
     );
   }
 
   if (companies.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-            />
-          </svg>
-          <h3 className="mt-4 text-lg font-medium text-gray-900">Nenhuma empresa ativa</h3>
-          <p className="mt-2 text-sm text-gray-500">
-            Você não possui empresas ativas atribuídas a você.
-          </p>
-          <div className="mt-6">
-            <button
-              onClick={() => navigate('/accounting/accountant')}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+      <div className="bg-copilot-bg-primary min-h-screen">
+        <main className="max-w-4xl mx-auto px-6 py-12">
+          <div className="card-copilot p-8 text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-copilot-text-tertiary"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              Voltar ao Dashboard
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
+            </svg>
+            <h3 className="mt-4 text-lg font-medium text-copilot-text-primary">Nenhuma empresa ativa</h3>
+            <p className="mt-2 text-sm text-copilot-text-secondary">
+              Você não possui empresas ativas atribuídas a você.
+            </p>
+            <div className="mt-6">
+              <button
+                onClick={() => navigate('/accounting/accountant')}
+                className="btn-copilot-secondary"
+              >
+                Voltar ao Dashboard
+              </button>
+            </div>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="bg-copilot-bg-primary min-h-screen">
+      <main className="max-w-4xl mx-auto px-6 py-12">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Gerar Imposto</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-2xl font-bold text-copilot-text-primary">Gerar Imposto</h1>
+        <p className="mt-2 text-sm text-copilot-text-secondary">
           Preencha os dados abaixo para gerar uma nova guia de imposto para a empresa.
         </p>
       </div>
 
       {/* Success Message */}
       {success && (
-        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="mb-6 bg-green-900/30 border border-green-500/50 rounded-lg p-4">
           <div className="flex">
             <svg
               className="h-5 w-5 text-green-400"
@@ -264,7 +277,7 @@ export default function GenerateTax() {
                 clipRule="evenodd"
               />
             </svg>
-            <p className="ml-3 text-sm text-green-800">
+            <p className="ml-3 text-sm text-green-300">
               Imposto gerado com sucesso! Redirecionando...
             </p>
           </div>
@@ -273,7 +286,7 @@ export default function GenerateTax() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="mb-6 bg-red-900/30 border border-red-500/50 rounded-lg p-4">
           <div className="flex">
             <svg
               className="h-5 w-5 text-red-400"
@@ -286,25 +299,25 @@ export default function GenerateTax() {
                 clipRule="evenodd"
               />
             </svg>
-            <p className="ml-3 text-sm text-red-800">{error}</p>
+            <p className="ml-3 text-sm text-red-300">{error}</p>
           </div>
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-6">
+      <form onSubmit={handleSubmit} className="card-copilot p-6">
         <div className="space-y-6">
           {/* Company Selection */}
           <div>
-            <label htmlFor="companyId" className="block text-sm font-medium text-gray-700">
-              Empresa <span className="text-red-500">*</span>
+            <label htmlFor="companyId" className="block text-sm font-medium text-copilot-text-secondary">
+              Empresa <span className="text-red-400">*</span>
             </label>
             <select
               id="companyId"
               name="companyId"
               value={formData.companyId}
               onChange={handleInputChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="input-copilot w-full mt-1"
               required
             >
               <option value="">Selecione uma empresa</option>
@@ -318,15 +331,15 @@ export default function GenerateTax() {
 
           {/* Tax Type */}
           <div>
-            <label htmlFor="taxType" className="block text-sm font-medium text-gray-700">
-              Tipo de Imposto <span className="text-red-500">*</span>
+            <label htmlFor="taxType" className="block text-sm font-medium text-copilot-text-secondary">
+              Tipo de Imposto <span className="text-red-400">*</span>
             </label>
             <select
               id="taxType"
               name="taxType"
               value={formData.taxType}
               onChange={handleInputChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="input-copilot w-full mt-1"
               required
             >
               <option value="">Selecione o tipo</option>
@@ -342,8 +355,8 @@ export default function GenerateTax() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Reference Period */}
             <div>
-              <label htmlFor="referencePeriod" className="block text-sm font-medium text-gray-700">
-                Período de Referência <span className="text-red-500">*</span>
+              <label htmlFor="referencePeriod" className="block text-sm font-medium text-copilot-text-secondary">
+                Período de Referência <span className="text-red-400">*</span>
               </label>
               <input
                 type="month"
@@ -351,16 +364,16 @@ export default function GenerateTax() {
                 name="referencePeriod"
                 value={formData.referencePeriod}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full mt-1"
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">Mês/Ano de competência</p>
+              <p className="mt-1 text-xs text-copilot-text-tertiary">Mês/Ano de competência</p>
             </div>
 
             {/* Due Date */}
             <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700">
-                Data de Vencimento <span className="text-red-500">*</span>
+              <label htmlFor="dueDate" className="block text-sm font-medium text-copilot-text-secondary">
+                Data de Vencimento <span className="text-red-400">*</span>
               </label>
               <input
                 type="date"
@@ -368,7 +381,7 @@ export default function GenerateTax() {
                 name="dueDate"
                 value={formData.dueDate}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full mt-1"
                 required
               />
             </div>
@@ -376,8 +389,8 @@ export default function GenerateTax() {
 
           {/* Amount */}
           <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-              Valor (R$) <span className="text-red-500">*</span>
+            <label htmlFor="amount" className="block text-sm font-medium text-copilot-text-secondary">
+              Valor (R$) <span className="text-red-400">*</span>
             </label>
             <input
               type="number"
@@ -388,14 +401,14 @@ export default function GenerateTax() {
               step="0.01"
               min="0.01"
               placeholder="0.00"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="input-copilot w-full mt-1"
               required
             />
           </div>
 
           {/* Barcode (Optional) */}
           <div>
-            <label htmlFor="barcode" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="barcode" className="block text-sm font-medium text-copilot-text-secondary">
               Código de Barras (Opcional)
             </label>
             <input
@@ -405,16 +418,16 @@ export default function GenerateTax() {
               value={formData.barcode}
               onChange={handleInputChange}
               placeholder="Ex: 34191.09065 61713.001019 00190.991092 4 95370000012345"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+              className="input-copilot w-full mt-1 font-mono text-sm"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-copilot-text-tertiary">
               Código de barras ou linha digitável da guia
             </p>
           </div>
 
           {/* PDF Upload (Optional) */}
           <div>
-            <label htmlFor="pdfFile" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="pdfFile" className="block text-sm font-medium text-copilot-text-secondary">
               Upload da Guia (PDF - Opcional)
             </label>
             <input
@@ -422,21 +435,21 @@ export default function GenerateTax() {
               id="pdfFile"
               accept=".pdf"
               onChange={handleFileChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full mt-1 px-4 py-2 border border-copilot-border-default rounded-lg bg-copilot-bg-secondary text-copilot-text-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-600 file:text-white file:cursor-pointer hover:file:bg-slate-500"
             />
             {pdfFile && (
-              <p className="mt-2 text-sm text-green-600">
+              <p className="mt-2 text-sm text-green-400">
                 Arquivo selecionado: {pdfFile.name} ({(pdfFile.size / 1024).toFixed(2)} KB)
               </p>
             )}
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-copilot-text-tertiary">
               Arquivo PDF da guia de pagamento (máx: 10MB)
             </p>
           </div>
 
           {/* Notes (Optional) */}
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="notes" className="block text-sm font-medium text-copilot-text-secondary">
               Observações (Opcional)
             </label>
             <textarea
@@ -447,9 +460,9 @@ export default function GenerateTax() {
               rows={3}
               maxLength={500}
               placeholder="Informações adicionais sobre este imposto..."
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="input-copilot w-full mt-1"
             />
-            <p className="mt-1 text-xs text-gray-500 text-right">
+            <p className="mt-1 text-xs text-copilot-text-tertiary text-right">
               {formData.notes.length}/500 caracteres
             </p>
           </div>
@@ -461,19 +474,20 @@ export default function GenerateTax() {
             type="button"
             onClick={handleCancel}
             disabled={loading}
-            className="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            className="btn-copilot-secondary disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-copilot-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Gerando...' : 'Gerar Imposto'}
           </button>
         </div>
       </form>
+      </main>
     </div>
   );
 }

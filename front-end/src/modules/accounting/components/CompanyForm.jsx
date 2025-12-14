@@ -200,11 +200,11 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Registrar Empresa</h2>
+    <div className="card-copilot p-6">
+      <h2 className="text-2xl font-bold text-copilot-text-primary mb-6">Registrar Empresa</h2>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-4">
+        <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-4 py-3 rounded mb-4">
           <p className="font-semibold">Erro:</p>
           <p>{error}</p>
         </div>
@@ -212,12 +212,12 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
-        <div className="border-b border-gray-200 pb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Informações Básicas</h3>
+        <div className="border-b border-copilot-border-default pb-6">
+          <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">Informações Básicas</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Razão Social *
               </label>
               <input
@@ -225,26 +225,26 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
                 name="legalName"
                 value={formData.legalName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nome Fantasia</label>
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Nome Fantasia</label>
               <input
                 type="text"
                 name="tradeName"
                 value={formData.tradeName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">CNPJ *</label>
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">CNPJ *</label>
               <input
                 type="text"
                 name="cnpj"
@@ -252,21 +252,21 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
                 onChange={handleCNPJChange}
                 placeholder="XX.XXX.XXX/XXXX-XX"
                 maxLength={18}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Tipo de Empresa *
               </label>
               <select
                 name="companyType"
                 value={formData.companyType}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               >
@@ -279,14 +279,14 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Regime Tributário *
               </label>
               <select
                 name="taxRegime"
                 value={formData.taxRegime}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               >
@@ -299,7 +299,7 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Atividade Principal (CNAE) *
               </label>
               <input
@@ -308,14 +308,14 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
                 value={formData.mainActivity}
                 onChange={handleChange}
                 placeholder="Ex: 6201-5/00 - Desenvolvimento de programas de computador sob encomenda"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Data de Abertura *
               </label>
               <input
@@ -323,14 +323,14 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
                 name="openingDate"
                 value={formData.openingDate}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Faturamento Estimado Anual (R$) *
               </label>
               <input
@@ -340,7 +340,7 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
                 onChange={handleChange}
                 min="0"
                 step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
@@ -349,81 +349,81 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
         </div>
 
         {/* Address */}
-        <div className="border-b border-gray-200 pb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Endereço</h3>
+        <div className="border-b border-copilot-border-default pb-6">
+          <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">Endereço</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Rua *</label>
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Rua *</label>
               <input
                 type="text"
                 name="street"
                 value={formData.address.street}
                 onChange={handleAddressChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Número *</label>
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Número *</label>
               <input
                 type="text"
                 name="number"
                 value={formData.address.number}
                 onChange={handleAddressChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Complemento</label>
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Complemento</label>
               <input
                 type="text"
                 name="complement"
                 value={formData.address.complement}
                 onChange={handleAddressChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bairro *</label>
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Bairro *</label>
               <input
                 type="text"
                 name="neighborhood"
                 value={formData.address.neighborhood}
                 onChange={handleAddressChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cidade *</label>
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Cidade *</label>
               <input
                 type="text"
                 name="city"
                 value={formData.address.city}
                 onChange={handleAddressChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Estado *</label>
               <select
                 name="state"
                 value={formData.address.state}
                 onChange={handleAddressChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               >
@@ -437,7 +437,7 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">CEP *</label>
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">CEP *</label>
               <input
                 type="text"
                 name="zipCode"
@@ -445,7 +445,7 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
                 onChange={handleZipCodeChange}
                 placeholder="XXXXX-XXX"
                 maxLength={9}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 required
                 disabled={loading}
               />
@@ -455,13 +455,13 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
 
         {/* Optional Registrations */}
         <div className="pb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">
             Inscrições (Opcional)
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Inscrição Estadual
               </label>
               <input
@@ -469,13 +469,13 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
                 name="stateRegistration"
                 value={formData.stateRegistration}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-1">
                 Inscrição Municipal
               </label>
               <input
@@ -483,7 +483,7 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
                 name="municipalRegistration"
                 value={formData.municipalRegistration}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="input-copilot w-full"
                 disabled={loading}
               />
             </div>
@@ -491,11 +491,11 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
         </div>
 
         {/* Form Actions */}
-        <div className="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200">
+        <div className="flex items-center justify-end space-x-4 pt-4 border-t border-copilot-border-default">
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition"
+            className="btn-copilot-secondary"
             disabled={loading}
           >
             Cancelar
@@ -503,7 +503,7 @@ export default function CompanyForm({ requestId, request, onSuccess, onCancel })
 
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="btn-copilot-primary disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
             {loading ? 'Criando Empresa...' : 'Criar Empresa'}

@@ -158,8 +158,8 @@ export default function Home() {
         </div>
 
 
-        {/* English Learning Modules */}
-        {!permissionsLoading && (hasPermission('learning.course') || hasPermission('learning.conversation') || isAdmin) && (
+        {/* English Learning Modules - Available for ALL users */}
+        {!permissionsLoading && (
           <section className="mb-12">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-copilot flex items-center justify-center shadow-copilot">
@@ -176,27 +176,23 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {(hasPermission('learning.course') || isAdmin) && (
-                <MacroModuleCard
-                  icon="📖"
-                  gradient="from-green-500 to-emerald-500"
-                  title={t('home.learning.course', 'Aulas de Inglês')}
-                  description={t('home.learning.courseDesc', 'Sistema de spaced repetition')}
-                  onClick={() => navigate('/learning/course')}
-                  status="active"
-                />
-              )}
-              {(hasPermission('learning.conversation') || isAdmin) && (
-                <MacroModuleCard
-                  icon="💬"
-                  gradient="from-yellow-500 to-orange-500"
-                  title={t('home.learning.conversation', 'Conversação')}
-                  description={t('home.learning.conversationDesc', 'Pratique com outros usuários')}
-                  onClick={() => navigate('/learning/conversation')}
-                  status={conversationAvailable ? 'active' : 'disabled'}
-                  disabledReason={conversationDisabledReason}
-                />
-              )}
+              <MacroModuleCard
+                icon="📖"
+                gradient="from-green-500 to-emerald-500"
+                title={t('home.learning.course', 'Aulas de Inglês')}
+                description={t('home.learning.courseDesc', 'Sistema de spaced repetition')}
+                onClick={() => navigate('/learning/course')}
+                status="active"
+              />
+              <MacroModuleCard
+                icon="💬"
+                gradient="from-yellow-500 to-orange-500"
+                title={t('home.learning.conversation', 'Conversação')}
+                description={t('home.learning.conversationDesc', 'Pratique com outros usuários')}
+                onClick={() => navigate('/learning/conversation')}
+                status={conversationAvailable ? 'active' : 'disabled'}
+                disabledReason={conversationDisabledReason}
+              />
             </div>
           </section>
         )}

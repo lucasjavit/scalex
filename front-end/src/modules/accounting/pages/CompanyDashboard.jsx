@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { accountingApi } from '../../../services/accountingApi';
 import { useUserStatus } from '../../../hooks/useUserStatus';
-import ChatBox from '../components/ChatBox';
+import { useNotification } from '../../../hooks/useNotification';
+import { getErrorMessage, ERROR_CONTEXTS } from '../../../utils/errorHandler';
 import BackButton from '../../../components/BackButton';
 
 /**
@@ -12,7 +13,6 @@ import BackButton from '../../../components/BackButton';
  * Features:
  * - Company information (legal name, CNPJ, status, etc.)
  * - Company documents
- * - Chat with assigned accountant
  *
  * Access: Only company owner can view
  */
@@ -21,6 +21,7 @@ export default function CompanyDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { userStatus, loading: userLoading } = useUserStatus();
+  const { showSuccess, showError, showWarning, showConfirmation } = useNotification();
 
   // Get initial tab from URL parameter (e.g., ?tab=chat)
   const initialTab = searchParams.get('tab') || 'summary';
@@ -62,7 +63,7 @@ export default function CompanyDashboard() {
       setCompany(companyData);
     } catch (err) {
       console.error('Error loading company:', err);
-      setError('Erro ao carregar dados da empresa: ' + err.message);
+      setError(getErrorMessage(err, ERROR_CONTEXTS.LOAD_COMPANIES));
     } finally {
       setLoading(false);
     }
@@ -101,7 +102,7 @@ export default function CompanyDashboard() {
 
     // Validate file size (10MB)
     if (file.size > 10 * 1024 * 1024) {
-      alert('Arquivo muito grande. Tamanho máximo: 10MB.');
+      showWarning('Arquivo muito grande. Tamanho máximo: 10MB.');
       e.target.value = '';
       return;
     }
@@ -109,7 +110,7 @@ export default function CompanyDashboard() {
     // Validate file type
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
     if (!allowedTypes.includes(file.type)) {
-      alert('Tipo de arquivo não permitido. Use PDF, JPG ou PNG.');
+      showWarning('Tipo de arquivo não permitido. Use PDF, JPG ou PNG.');
       e.target.value = '';
       return;
     }
@@ -121,12 +122,12 @@ export default function CompanyDashboard() {
     e.preventDefault();
 
     if (!uploadFile) {
-      alert('Por favor, selecione um arquivo.');
+      showWarning('Por favor, selecione um arquivo.');
       return;
     }
 
     if (!uploadDocType.trim()) {
-      alert('Por favor, informe o tipo do documento.');
+      showWarning('Por favor, informe o tipo do documento.');
       return;
     }
 
@@ -152,24 +153,29 @@ export default function CompanyDashboard() {
       // Reload documents
       await loadDocuments();
 
-      alert('Documento enviado com sucesso!');
+      showSuccess('Documento enviado com sucesso!');
     } catch (err) {
       console.error('Error uploading document:', err);
-      alert('Erro ao enviar documento: ' + err.message);
+      showError(getErrorMessage(err, ERROR_CONTEXTS.UPLOAD_DOCUMENT));
     } finally {
       setUploading(false);
     }
   };
 
   const handleDeleteDocument = async (documentId) => {
-    try {
-      await accountingApi.deleteCompanyDocument(documentId);
-      await loadDocuments();
-      alert('Documento deletado com sucesso!');
-    } catch (err) {
-      console.error('Error deleting document:', err);
-      alert('Erro ao deletar documento: ' + err.message);
-    }
+    showConfirmation(
+      'Tem certeza que deseja excluir este documento? Esta ação não pode ser desfeita.',
+      async () => {
+        try {
+          await accountingApi.deleteCompanyDocument(documentId);
+          await loadDocuments();
+          showSuccess('Documento deletado com sucesso!');
+        } catch (err) {
+          console.error('Error deleting document:', err);
+          showError(getErrorMessage(err, ERROR_CONTEXTS.DELETE_DOCUMENT));
+        }
+      }
+    );
   };
 
   const handleViewDocument = async (documentId) => {
@@ -179,7 +185,7 @@ export default function CompanyDashboard() {
       window.open(`http://localhost:3000/${filePath}`, '_blank');
     } catch (err) {
       console.error('Error viewing document:', err);
-      alert('Erro ao visualizar documento: ' + err.message);
+      showError(getErrorMessage(err, ERROR_CONTEXTS.DOWNLOAD_DOCUMENT));
     }
   };
 
@@ -204,7 +210,7 @@ export default function CompanyDashboard() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error downloading document:', err);
-      alert('Erro ao baixar documento: ' + err.message);
+      showError(getErrorMessage(err, ERROR_CONTEXTS.DOWNLOAD_DOCUMENT));
     }
   };
 
@@ -262,20 +268,23 @@ export default function CompanyDashboard() {
   };
 
   const handleMarkAsPaid = async (taxId) => {
-    const paidAmount = prompt('Digite o valor pago (deixe em branco para usar o valor original):');
-
-    try {
-      await accountingApi.confirmTaxPayment(taxId, {
-        paidAmount: paidAmount ? parseFloat(paidAmount) : null,
-        paymentConfirmation: `Pago em ${new Date().toLocaleDateString('pt-BR')}`,
-      });
-      // Reload tax obligations with current filters
-      await loadTaxObligations(selectedMonth, selectedYear);
-      alert('Imposto marcado como pago com sucesso!');
-    } catch (err) {
-      console.error('Error marking as paid:', err);
-      alert('Erro ao marcar como pago: ' + err.message);
-    }
+    showConfirmation(
+      'Deseja marcar este imposto como pago?',
+      async () => {
+        try {
+          await accountingApi.confirmTaxPayment(taxId, {
+            paidAmount: null,
+            paymentConfirmation: `Pago em ${new Date().toLocaleDateString('pt-BR')}`,
+          });
+          // Reload tax obligations with current filters
+          await loadTaxObligations(selectedMonth, selectedYear);
+          showSuccess('Imposto marcado como pago com sucesso!');
+        } catch (err) {
+          console.error('Error marking as paid:', err);
+          showError(getErrorMessage(err, ERROR_CONTEXTS.PAY_TAX));
+        }
+      }
+    );
   };
 
   const handleDownloadTaxPdf = async (taxId, fileName) => {
@@ -295,7 +304,7 @@ export default function CompanyDashboard() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error downloading tax PDF:', err);
-      alert('Erro ao baixar PDF do imposto: ' + err.message);
+      showError(getErrorMessage(err, ERROR_CONTEXTS.DOWNLOAD_DOCUMENT));
     }
   };
 
@@ -316,12 +325,12 @@ export default function CompanyDashboard() {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      active: { label: 'Ativa', className: 'bg-green-100 text-green-800' },
-      inactive: { label: 'Inativa', className: 'bg-gray-100 text-gray-800' },
-      suspended: { label: 'Suspensa', className: 'bg-red-100 text-red-800' },
+      active: { label: 'Ativa', className: 'bg-green-500/20 text-green-400' },
+      inactive: { label: 'Inativa', className: 'bg-gray-500/20 text-gray-400' },
+      suspended: { label: 'Suspensa', className: 'bg-red-500/20 text-red-400' },
     };
 
-    const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-800' };
+    const config = statusConfig[status] || { label: status, className: 'bg-gray-500/20 text-gray-400' };
 
     return (
       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${config.className}`}>
@@ -332,10 +341,10 @@ export default function CompanyDashboard() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6 relative z-10">
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando empresa...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent mx-auto"></div>
+          <p className="mt-4 text-copilot-text-secondary">Carregando empresa...</p>
         </div>
       </div>
     );
@@ -343,13 +352,13 @@ export default function CompanyDashboard() {
 
   if (error || !company) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg">
+      <div className="max-w-7xl mx-auto p-6 relative z-10">
+        <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-6 py-4 rounded-lg">
           <h2 className="text-xl font-semibold mb-2">Erro</h2>
           <p>{error || 'Empresa não encontrada'}</p>
           <button
             onClick={() => navigate('/accounting')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="mt-4 btn-copilot-primary"
           >
             Voltar para Home
           </button>
@@ -359,7 +368,7 @@ export default function CompanyDashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-6 relative z-10">
       {/* Back Button */}
       <BackButton to="/accounting" />
 
@@ -367,56 +376,46 @@ export default function CompanyDashboard() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">{company.tradeName || company.legalName}</h1>
-            <p className="text-gray-600 text-sm mt-1">{formatCNPJ(company.cnpj)}</p>
+            <h1 className="text-3xl font-bold text-copilot-text-primary">{company.tradeName || company.legalName}</h1>
+            <p className="text-copilot-text-secondary text-sm mt-1">{formatCNPJ(company.cnpj)}</p>
           </div>
           {getStatusBadge(company.status)}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="border-b border-gray-200">
+      <div className="card-copilot">
+        <div className="border-b border-slate-600">
           <nav className="flex -mb-px">
             <button
               onClick={() => setActiveTab('summary')}
               className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
                 activeTab === 'summary'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-copilot-accent text-copilot-accent'
+                  : 'border-transparent text-copilot-text-secondary hover:text-copilot-text-primary hover:border-copilot-border-hover'
               }`}
             >
-              📋 Resumo
+              Resumo
             </button>
             <button
               onClick={() => setActiveTab('taxes')}
               className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
                 activeTab === 'taxes'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-copilot-accent text-copilot-accent'
+                  : 'border-transparent text-copilot-text-secondary hover:text-copilot-text-primary hover:border-copilot-border-hover'
               }`}
             >
-              💰 Impostos
+              Impostos
             </button>
             <button
               onClick={() => setActiveTab('documents')}
               className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
                 activeTab === 'documents'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-copilot-accent text-copilot-accent'
+                  : 'border-transparent text-copilot-text-secondary hover:text-copilot-text-primary hover:border-copilot-border-hover'
               }`}
             >
-              📄 Documentos
-            </button>
-            <button
-              onClick={() => setActiveTab('chat')}
-              className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
-                activeTab === 'chat'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              💬 Chat com Contador
+              Documentos
             </button>
           </nav>
         </div>
@@ -427,61 +426,61 @@ export default function CompanyDashboard() {
           {activeTab === 'summary' && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Informações Gerais</h3>
+                <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">Informações Gerais</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Razão Social</label>
-                    <p className="text-gray-900">{company.legalName}</p>
+                    <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Razão Social</label>
+                    <p className="text-copilot-text-primary">{company.legalName}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Nome Fantasia</label>
-                    <p className="text-gray-900">{company.tradeName || 'N/A'}</p>
+                    <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Nome Fantasia</label>
+                    <p className="text-copilot-text-primary">{company.tradeName || 'N/A'}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">CNPJ</label>
-                    <p className="text-gray-900 font-mono">{formatCNPJ(company.cnpj)}</p>
+                    <label className="block text-sm font-medium text-copilot-text-secondary mb-1">CNPJ</label>
+                    <p className="text-copilot-text-primary font-mono">{formatCNPJ(company.cnpj)}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Tipo de Empresa</label>
-                    <p className="text-gray-900">{company.companyType}</p>
+                    <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Tipo de Empresa</label>
+                    <p className="text-copilot-text-primary">{company.companyType}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Regime Tributário</label>
-                    <p className="text-gray-900">{company.taxRegime}</p>
+                    <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Regime Tributário</label>
+                    <p className="text-copilot-text-primary">{company.taxRegime}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Data de Abertura</label>
-                    <p className="text-gray-900">{formatDate(company.openingDate)}</p>
+                    <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Data de Abertura</label>
+                    <p className="text-copilot-text-primary">{formatDate(company.openingDate)}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Atividade Principal (CNAE)</label>
-                    <p className="text-gray-900">{company.mainActivity}</p>
+                    <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Atividade Principal (CNAE)</label>
+                    <p className="text-copilot-text-primary">{company.mainActivity}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Faturamento Estimado</label>
-                    <p className="text-gray-900">
+                    <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Faturamento Estimado</label>
+                    <p className="text-copilot-text-primary">
                       R$ {company.estimatedRevenue ? company.estimatedRevenue.toLocaleString('pt-BR') : 'N/A'}
                     </p>
                   </div>
 
                   {company.stateRegistration && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">Inscrição Estadual</label>
-                      <p className="text-gray-900">{company.stateRegistration}</p>
+                      <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Inscrição Estadual</label>
+                      <p className="text-copilot-text-primary">{company.stateRegistration}</p>
                     </div>
                   )}
 
                   {company.municipalRegistration && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">Inscrição Municipal</label>
-                      <p className="text-gray-900">{company.municipalRegistration}</p>
+                      <label className="block text-sm font-medium text-copilot-text-secondary mb-1">Inscrição Municipal</label>
+                      <p className="text-copilot-text-primary">{company.municipalRegistration}</p>
                     </div>
                   )}
                 </div>
@@ -490,16 +489,16 @@ export default function CompanyDashboard() {
               {/* Address */}
               {company.address && (
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Endereço</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-900">
+                  <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">Endereço</h3>
+                  <div className="bg-copilot-bg-tertiary p-4 rounded-lg border border-copilot-border-default">
+                    <p className="text-copilot-text-primary">
                       {company.address.street}, {company.address.number}
                       {company.address.complement && `, ${company.address.complement}`}
                     </p>
-                    <p className="text-gray-900">
+                    <p className="text-copilot-text-primary">
                       {company.address.neighborhood} - {company.address.city}/{company.address.state}
                     </p>
-                    <p className="text-gray-900">CEP: {company.address.zip_code}</p>
+                    <p className="text-copilot-text-primary">CEP: {company.address.zip_code}</p>
                   </div>
                 </div>
               )}
@@ -507,16 +506,16 @@ export default function CompanyDashboard() {
               {/* Accountant Info */}
               {company.accountant && (
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Contador Responsável</h3>
-                  <div className="bg-blue-50 p-4 rounded-lg flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">
-                      <span className="text-blue-800 font-bold text-lg">
+                  <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">Contador Responsável</h3>
+                  <div className="bg-copilot-accent/10 p-4 rounded-lg flex items-center gap-4 border border-copilot-accent/20">
+                    <div className="w-12 h-12 bg-copilot-accent/20 rounded-full flex items-center justify-center">
+                      <span className="text-copilot-accent font-bold text-lg">
                         {company.accountant.full_name?.charAt(0) || 'C'}
                       </span>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{company.accountant.full_name}</p>
-                      <p className="text-sm text-gray-600">{company.accountant.email}</p>
+                      <p className="font-semibold text-copilot-text-primary">{company.accountant.full_name}</p>
+                      <p className="text-sm text-copilot-text-secondary">{company.accountant.email}</p>
                     </div>
                   </div>
                 </div>
@@ -527,20 +526,44 @@ export default function CompanyDashboard() {
           {/* Taxes Tab */}
           {activeTab === 'taxes' && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-6">Impostos e Guias</h3>
-
-              {/* Period Filters */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
-                <h4 className="text-sm font-semibold text-gray-700 mb-4">Filtrar por Período</h4>
-
-                {/* Dropdowns */}
-                <div className="flex flex-wrap items-center gap-3 mb-4">
+              {/* Period Navigation - Clean Design */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                {/* Current Period Display */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-copilot-accent/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-copilot-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Mês</label>
+                    <h3 className="text-xl font-bold text-copilot-text-primary">
+                      {getMonthName(selectedMonth)} {selectedYear}
+                    </h3>
+                    <p className="text-sm text-copilot-text-tertiary">
+                      {taxObligations.length} {taxObligations.length === 1 ? 'imposto' : 'impostos'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Navigation Controls */}
+                <div className="flex items-center gap-2">
+                  {/* Previous */}
+                  <button
+                    onClick={handlePreviousMonth}
+                    className="p-2 text-copilot-text-secondary bg-copilot-bg-tertiary hover:bg-copilot-bg-secondary rounded-lg transition border border-copilot-border-default"
+                    title="Mês Anterior"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Month/Year Selectors */}
+                  <div className="flex items-center bg-copilot-bg-tertiary rounded-lg p-1 border border-copilot-border-default">
                     <select
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="bg-transparent px-2 py-1.5 text-sm font-medium text-copilot-text-primary focus:outline-none cursor-pointer"
                     >
                       {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
                         <option key={month} value={month}>
@@ -548,14 +571,11 @@ export default function CompanyDashboard() {
                         </option>
                       ))}
                     </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Ano</label>
+                    <span className="text-copilot-border-default">|</span>
                     <select
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="bg-transparent px-2 py-1.5 text-sm font-medium text-copilot-text-primary focus:outline-none cursor-pointer"
                     >
                       {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 3 + i).map((year) => (
                         <option key={year} value={year}>
@@ -564,59 +584,37 @@ export default function CompanyDashboard() {
                       ))}
                     </select>
                   </div>
-                </div>
 
-                {/* Quick Navigation Buttons */}
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={handlePreviousMonth}
-                    className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition flex items-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Mês Anterior
-                  </button>
-
-                  <button
-                    onClick={handleCurrentMonth}
-                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-                  >
-                    Mês Atual
-                  </button>
-
+                  {/* Next */}
                   <button
                     onClick={handleNextMonth}
-                    className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition flex items-center gap-2"
+                    className="p-2 text-copilot-text-secondary bg-copilot-bg-tertiary hover:bg-copilot-bg-secondary rounded-lg transition border border-copilot-border-default"
+                    title="Próximo Mês"
                   >
-                    Próximo Mês
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
-                </div>
 
-                {/* Period Info */}
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Exibindo impostos de:</span>{' '}
-                    <span className="text-blue-600 font-bold">{getMonthName(selectedMonth)}/{selectedYear}</span>
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {taxObligations.length} {taxObligations.length === 1 ? 'imposto encontrado' : 'impostos encontrados'}
-                  </p>
+                  {/* Today Button */}
+                  <button
+                    onClick={handleCurrentMonth}
+                    className="ml-1 btn-copilot-primary text-sm py-1.5"
+                  >
+                    Hoje
+                  </button>
                 </div>
               </div>
 
               {/* Loading State */}
               {loadingTaxes ? (
-                <div className="text-center py-12 bg-gray-50 border border-gray-200 rounded-lg">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Carregando impostos...</p>
+                <div className="text-center py-12 bg-copilot-bg-tertiary border border-copilot-border-default rounded-lg">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent mx-auto mb-4"></div>
+                  <p className="text-copilot-text-secondary">Carregando impostos...</p>
                 </div>
               ) : taxObligations.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 border border-gray-200 rounded-lg">
-                  <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center py-12 bg-copilot-bg-tertiary border border-copilot-border-default rounded-lg">
+                  <svg className="w-16 h-16 mx-auto text-copilot-text-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -624,8 +622,8 @@ export default function CompanyDashboard() {
                       d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"
                     />
                   </svg>
-                  <p className="text-gray-600">Nenhum imposto cadastrado para {getMonthName(selectedMonth)}/{selectedYear}</p>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-copilot-text-secondary">Nenhum imposto cadastrado para {getMonthName(selectedMonth)}/{selectedYear}</p>
+                  <p className="text-sm text-copilot-text-tertiary mt-2">
                     Seu contador irá gerar as guias de impostos mensalmente
                   </p>
                 </div>
@@ -637,10 +635,10 @@ export default function CompanyDashboard() {
                       new Date(tax.dueDate) - new Date() < 7 * 24 * 60 * 60 * 1000 && tax.status === 'pending';
 
                     const statusConfig = {
-                      pending: { label: 'Pendente', className: 'bg-yellow-100 text-yellow-800' },
-                      paid: { label: 'Pago', className: 'bg-green-100 text-green-800' },
-                      overdue: { label: 'Vencido', className: 'bg-red-100 text-red-800' },
-                      cancelled: { label: 'Cancelado', className: 'bg-gray-100 text-gray-800' },
+                      pending: { label: 'Pendente', className: 'bg-yellow-500/20 text-yellow-400' },
+                      paid: { label: 'Pago', className: 'bg-green-500/20 text-green-400' },
+                      overdue: { label: 'Vencido', className: 'bg-red-500/20 text-red-400' },
+                      cancelled: { label: 'Cancelado', className: 'bg-gray-500/20 text-gray-400' },
                     };
 
                     const status = isOverdue ? 'overdue' : tax.status;
@@ -649,12 +647,12 @@ export default function CompanyDashboard() {
                     return (
                       <div
                         key={tax.id}
-                        className={`bg-white border rounded-lg p-6 ${isOverdue ? 'border-red-300' : isDueSoon ? 'border-yellow-300' : 'border-gray-200'}`}
+                        className={`bg-copilot-bg-tertiary border rounded-lg p-6 ${isOverdue ? 'border-red-500/50' : isDueSoon ? 'border-yellow-500/50' : 'border-copilot-border-default'}`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <h4 className="text-lg font-semibold text-gray-900">
+                              <h4 className="text-lg font-semibold text-copilot-text-primary">
                                 {tax.taxType} - {new Date(tax.referencePeriod).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
                               </h4>
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${config.className}`}>
@@ -662,32 +660,32 @@ export default function CompanyDashboard() {
                               </span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-copilot-text-secondary">
                               <div>
-                                <span className="font-medium">Vencimento:</span>{' '}
-                                <span className={isOverdue ? 'text-red-600 font-semibold' : isDueSoon ? 'text-yellow-600 font-semibold' : ''}>
+                                <span className="font-medium text-copilot-text-primary">Vencimento:</span>{' '}
+                                <span className={isOverdue ? 'text-red-400 font-semibold' : isDueSoon ? 'text-yellow-400 font-semibold' : ''}>
                                   {formatDate(tax.dueDate)}
                                 </span>
                                 {isDueSoon && !isOverdue && (
-                                  <span className="ml-2 text-yellow-600 text-xs">⚠️ Vence em breve</span>
+                                  <span className="ml-2 text-yellow-400 text-xs">Vence em breve</span>
                                 )}
-                                {isOverdue && <span className="ml-2 text-red-600 text-xs">❌ Vencido</span>}
+                                {isOverdue && <span className="ml-2 text-red-400 text-xs">Vencido</span>}
                               </div>
                               <div>
-                                <span className="font-medium">Valor:</span>{' '}
-                                <span className="text-lg font-bold text-gray-900">
+                                <span className="font-medium text-copilot-text-primary">Valor:</span>{' '}
+                                <span className="text-lg font-bold text-copilot-text-primary">
                                   R$ {tax.amount?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 </span>
                               </div>
                               {tax.barcode && (
                                 <div className="col-span-2">
-                                  <span className="font-medium">Código de Barras:</span>{' '}
+                                  <span className="font-medium text-copilot-text-primary">Código de Barras:</span>{' '}
                                   <span className="font-mono text-xs">{tax.barcode}</span>
                                 </div>
                               )}
                               {tax.status === 'paid' && tax.paidAt && (
                                 <div className="col-span-2">
-                                  <span className="font-medium">Pago em:</span> {formatDate(tax.paidAt)}
+                                  <span className="font-medium text-copilot-text-primary">Pago em:</span> {formatDate(tax.paidAt)}
                                   {tax.paidAmount && tax.paidAmount !== tax.amount && (
                                     <span className="ml-2">
                                       (Valor pago: R$ {tax.paidAmount?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})
@@ -702,9 +700,9 @@ export default function CompanyDashboard() {
                             {tax.filePath && (
                               <button
                                 onClick={() => handleDownloadTaxPdf(tax.id, tax.fileName || `${tax.taxType}-${tax.referenceMonth}-${tax.referenceYear}.pdf`)}
-                                className="px-4 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 whitespace-nowrap"
+                                className="px-4 py-2 text-sm bg-copilot-bg-secondary text-copilot-text-primary border border-copilot-border-default rounded hover:bg-copilot-bg-tertiary whitespace-nowrap transition"
                               >
-                                📄 Download PDF
+                                Download PDF
                               </button>
                             )}
                             {tax.status === 'pending' && (
@@ -714,9 +712,9 @@ export default function CompanyDashboard() {
                                     handleMarkAsPaid(tax.id);
                                   }
                                 }}
-                                className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap"
+                                className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap transition"
                               >
-                                ✓ Marcar como Pago
+                                Marcar como Pago
                               </button>
                             )}
                           </div>
@@ -732,18 +730,18 @@ export default function CompanyDashboard() {
           {/* Documents Tab */}
           {activeTab === 'documents' && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-6">Documentos da Empresa</h3>
+              <h3 className="text-lg font-semibold text-copilot-text-primary mb-6">Documentos da Empresa</h3>
 
               {/* Expiring Documents Alert */}
               {expiringDocuments.length > 0 && (
-                <div className="mb-6 bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+                <div className="mb-6 bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4">
                   <div className="flex items-start">
-                    <svg className="w-5 h-5 text-yellow-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-yellow-400 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                     <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-yellow-800 mb-2">Documentos Vencendo</h4>
-                      <ul className="text-sm text-yellow-700 space-y-1">
+                      <h4 className="text-sm font-semibold text-yellow-300 mb-2">Documentos Vencendo</h4>
+                      <ul className="text-sm text-yellow-200 space-y-1">
                         {expiringDocuments.map((doc) => (
                           <li key={doc.id}>
                             • <strong>{doc.documentType}</strong> - Vence em{' '}
@@ -757,63 +755,65 @@ export default function CompanyDashboard() {
               )}
 
               {/* Upload Form */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-                <h4 className="text-md font-semibold text-gray-800 mb-4">Upload de Documento</h4>
+              <div className="bg-copilot-bg-tertiary border border-copilot-border-default rounded-lg p-6 mb-6">
+                <h4 className="text-md font-semibold text-copilot-text-primary mb-4">Upload de Documento</h4>
                 <form onSubmit={handleUploadDocument} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Category */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Categoria <span className="text-red-500">*</span>
+                      <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
+                        Categoria <span className="text-red-400">*</span>
                       </label>
                       <select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        className="input-copilot w-full"
                         required
                       >
                         <option value="constituicao">Constituição</option>
                         <option value="registros">Registros</option>
                         <option value="certidoes">Certidões</option>
                         <option value="fiscais">Fiscais</option>
+                        <option value="outros">Outros</option>
                       </select>
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 text-xs text-copilot-text-tertiary">
                         {selectedCategory === 'constituicao' && 'Contrato Social, Alterações'}
                         {selectedCategory === 'registros' && 'Cartão CNPJ, Alvarás, Certificado MEI'}
                         {selectedCategory === 'certidoes' && 'Certidões Negativas (Federal, Estadual, Municipal)'}
                         {selectedCategory === 'fiscais' && 'Guias Pagas, Declarações'}
+                        {selectedCategory === 'outros' && 'Documentos diversos'}
                       </p>
                     </div>
 
                     {/* Document Type */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Tipo do Documento <span className="text-red-500">*</span>
+                      <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
+                        Tipo do Documento <span className="text-red-400">*</span>
                       </label>
                       <input
                         type="text"
                         value={uploadDocType}
                         onChange={(e) => setUploadDocType(e.target.value)}
                         placeholder="Ex: Contrato Social, Cartão CNPJ"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        className="input-copilot w-full"
                         required
                       />
                     </div>
 
                     {/* File */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Arquivo <span className="text-red-500">*</span>
+                      <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
+                        Arquivo <span className="text-red-400">*</span>
                       </label>
                       <input
                         type="file"
                         onChange={handleFileSelect}
                         accept=".pdf,.jpg,.jpeg,.png"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-copilot-border-default rounded-lg bg-copilot-bg-secondary text-copilot-text-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-600 file:text-white file:cursor-pointer hover:file:bg-slate-500"
                         required
                       />
                       {uploadFile && (
-                        <p className="mt-1 text-xs text-green-600">
+                        <p className="mt-1 text-xs text-green-400">
                           {uploadFile.name} ({(uploadFile.size / 1024).toFixed(2)} KB)
                         </p>
                       )}
@@ -821,16 +821,16 @@ export default function CompanyDashboard() {
 
                     {/* Expiration Date (optional for certidões) */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                         Data de Vencimento (Opcional)
                       </label>
                       <input
                         type="date"
                         value={uploadExpirationDate}
                         onChange={(e) => setUploadExpirationDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        className="input-copilot w-full"
                       />
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 text-xs text-copilot-text-tertiary">
                         Para certidões e documentos com validade
                       </p>
                     </div>
@@ -838,7 +838,7 @@ export default function CompanyDashboard() {
 
                   {/* Notes */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                       Observações (Opcional)
                     </label>
                     <textarea
@@ -847,7 +847,7 @@ export default function CompanyDashboard() {
                       rows={2}
                       maxLength={500}
                       placeholder="Informações adicionais sobre o documento..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="input-copilot w-full"
                     />
                   </div>
 
@@ -856,31 +856,39 @@ export default function CompanyDashboard() {
                     <button
                       type="submit"
                       disabled={uploading}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn-copilot-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {uploading ? 'Enviando...' : '📤 Enviar Documento'}
+                      {uploading ? 'Enviando...' : 'Enviar Documento'}
                     </button>
                   </div>
                 </form>
               </div>
 
               {/* Category Tabs */}
-              <div className="border-b border-gray-200 mb-4">
+              <div className="border-b border-copilot-border-default mb-4">
                 <div className="flex space-x-4">
-                  {['constituicao', 'registros', 'certidoes', 'fiscais'].map((cat) => (
+                  {['constituicao', 'registros', 'certidoes', 'fiscais', 'outros'].map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
+                      title={
+                        cat === 'constituicao' ? 'Contrato Social, Alterações Contratuais, Estatuto Social' :
+                        cat === 'registros' ? 'Cartão CNPJ, Alvarás, Certificado MEI, Inscrição Estadual' :
+                        cat === 'certidoes' ? 'Certidões Negativas (Federal, Estadual, Municipal, FGTS)' :
+                        cat === 'fiscais' ? 'Guias Pagas, Declarações, Recibos de Impostos' :
+                        'Documentos diversos que não se encaixam nas outras categorias'
+                      }
                       className={`py-2 px-4 text-sm font-medium border-b-2 transition ${
                         selectedCategory === cat
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                          ? 'border-copilot-accent text-copilot-accent'
+                          : 'border-transparent text-copilot-text-secondary hover:text-copilot-text-primary'
                       }`}
                     >
-                      {cat === 'constituicao' && '📜 Constituição'}
-                      {cat === 'registros' && '📋 Registros'}
-                      {cat === 'certidoes' && '✅ Certidões'}
-                      {cat === 'fiscais' && '💰 Fiscais'}
+                      {cat === 'constituicao' && 'Constituição'}
+                      {cat === 'registros' && 'Registros'}
+                      {cat === 'certidoes' && 'Certidões'}
+                      {cat === 'fiscais' && 'Fiscais'}
+                      {cat === 'outros' && 'Outros'}
                     </button>
                   ))}
                 </div>
@@ -888,8 +896,8 @@ export default function CompanyDashboard() {
 
               {/* Documents List */}
               {documents.filter((doc) => doc.category === selectedCategory).length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 border border-gray-200 rounded-lg">
-                  <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center py-12 bg-copilot-bg-tertiary border border-copilot-border-default rounded-lg">
+                  <svg className="w-16 h-16 mx-auto text-copilot-text-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -897,15 +905,14 @@ export default function CompanyDashboard() {
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  <p className="text-gray-600">Nenhum documento nesta categoria</p>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-copilot-text-secondary">Nenhum documento nesta categoria</p>
+                  <p className="text-sm text-copilot-text-tertiary mt-2">
                     Use o formulário acima para fazer upload
                   </p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {documents
-                    .filter((doc) => doc.category === selectedCategory)
+                  {documents.filter((doc) => doc.category === selectedCategory)
                     .map((doc) => {
                       const hasExpiration = doc.expirationDate !== null;
                       const isExpired = hasExpiration && new Date(doc.expirationDate) < new Date();
@@ -915,8 +922,8 @@ export default function CompanyDashboard() {
                       return (
                         <div
                           key={doc.id}
-                          className={`bg-white border rounded-lg p-4 hover:shadow-md transition cursor-pointer ${
-                            isExpired ? 'border-red-300' : isExpiringSoon ? 'border-yellow-300' : 'border-gray-200'
+                          className={`bg-copilot-bg-tertiary border rounded-lg p-4 hover:border-copilot-border-hover transition cursor-pointer ${
+                            isExpired ? 'border-red-500/50' : isExpiringSoon ? 'border-yellow-500/50' : 'border-copilot-border-default'
                           }`}
                           onClick={() => handleViewDocument(doc.id)}
                           title="Clique para visualizar o documento"
@@ -927,9 +934,9 @@ export default function CompanyDashboard() {
                                 {doc.mimeType === 'application/pdf' ? '📄' : '🖼️'}
                               </div>
                               <div className="flex-1">
-                                <p className="font-medium text-gray-900">{doc.documentType}</p>
-                                <p className="text-sm text-gray-600">{doc.fileName}</p>
-                                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                <p className="font-medium text-copilot-text-primary">{doc.documentType}</p>
+                                <p className="text-sm text-copilot-text-secondary">{doc.fileName}</p>
+                                <div className="flex items-center gap-4 mt-2 text-xs text-copilot-text-tertiary">
                                   <span>
                                     {(doc.fileSize / 1024).toFixed(2) < 1024
                                       ? `${(doc.fileSize / 1024).toFixed(2)} KB`
@@ -942,16 +949,16 @@ export default function CompanyDashboard() {
                                   {hasExpiration && (
                                     <>
                                       <span>•</span>
-                                      <span className={isExpired ? 'text-red-600 font-semibold' : isExpiringSoon ? 'text-yellow-600 font-semibold' : ''}>
-                                        {isExpired ? '❌ Vencido em ' : 'Vence em '}
+                                      <span className={isExpired ? 'text-red-400 font-semibold' : isExpiringSoon ? 'text-yellow-400 font-semibold' : ''}>
+                                        {isExpired ? 'Vencido em ' : 'Vence em '}
                                         {new Date(doc.expirationDate).toLocaleDateString('pt-BR')}
                                       </span>
                                     </>
                                   )}
                                 </div>
                                 {doc.notes && (
-                                  <p className="mt-2 text-sm text-gray-600 italic">
-                                    💬 {doc.notes}
+                                  <p className="mt-2 text-sm text-copilot-text-secondary italic">
+                                    {doc.notes}
                                   </p>
                                 )}
                               </div>
@@ -959,10 +966,10 @@ export default function CompanyDashboard() {
                             <div className="flex gap-2 ml-4" onClick={(e) => e.stopPropagation()}>
                               <button
                                 onClick={() => handleDownloadDocument(doc.id, doc.fileName)}
-                                className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                                className="px-3 py-1.5 text-sm bg-copilot-bg-secondary text-copilot-text-primary border border-copilot-border-default rounded hover:bg-copilot-bg-tertiary transition"
                                 title="Baixar documento"
                               >
-                                ⬇️ Download
+                                Download
                               </button>
                               {/* Show delete button only if user is uploader OR accountant */}
                               {(doc.uploadedById === localStorage.getItem('userId') || isAccountant) && (
@@ -973,10 +980,10 @@ export default function CompanyDashboard() {
                                       handleDeleteDocument(doc.id);
                                     }
                                   }}
-                                  className="px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                                  className="px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition"
                                   title="Deletar"
                                 >
-                                  🗑️
+                                  Excluir
                                 </button>
                               )}
                             </div>
@@ -984,25 +991,6 @@ export default function CompanyDashboard() {
                         </div>
                       );
                     })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Chat Tab */}
-          {activeTab === 'chat' && (
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Chat com Contador</h3>
-              {company.accountant ? (
-                <ChatBox
-                  companyId={companyId}
-                  receiverId={company.accountantId}
-                  receiverName={company.accountant.full_name}
-                  currentUserId={localStorage.getItem('userId')}
-                />
-              ) : (
-                <div className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-3 rounded-lg">
-                  <p>Nenhum contador atribuído a esta empresa.</p>
                 </div>
               )}
             </div>

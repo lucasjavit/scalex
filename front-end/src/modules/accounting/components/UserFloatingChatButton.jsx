@@ -34,13 +34,13 @@ export default function UserFloatingChatButton({ onClick, isOpen }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 border-2 bg-white hover:bg-gray-50 focus:ring-blue-300 border-blue-500"
+      className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-copilot-accent/30 bg-copilot-accent hover:bg-copilot-accent-hover"
       aria-label="Abrir chat"
     >
       {/* Chat Icon */}
       <div className="relative">
         <svg
-          className="w-8 h-8 mx-auto text-blue-600"
+          className="w-8 h-8 mx-auto text-white"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

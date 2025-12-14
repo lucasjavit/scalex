@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { accountingApi } from '../../../../services/accountingApi';
 import { useUserStatus } from '../../../../hooks/useUserStatus';
+import { getErrorMessage, ERROR_CONTEXTS } from '../../../../utils/errorHandler';
 import BackButton from '../../../../components/BackButton';
 
 const TAX_TYPES = [
@@ -71,7 +72,7 @@ export default function UploadTaxes() {
       setCompany(data);
     } catch (err) {
       console.error('Error loading company:', err);
-      setError('Erro ao carregar dados da empresa: ' + err.message);
+      setError(getErrorMessage(err, ERROR_CONTEXTS.LOAD_COMPANIES));
     } finally {
       setLoading(false);
     }
@@ -160,7 +161,7 @@ export default function UploadTaxes() {
       }, 2000);
     } catch (err) {
       console.error('Error uploading tax:', err);
-      setError(err.message || 'Erro ao fazer upload do imposto');
+      setError(getErrorMessage(err, ERROR_CONTEXTS.UPLOAD_TAX));
     } finally {
       setUploading(false);
     }
@@ -173,86 +174,90 @@ export default function UploadTaxes() {
 
   if (!isAccountant) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Acesso Restrito</h2>
-          <p className="text-gray-600 mb-6">
-            Apenas contadores têm acesso a esta página.
-          </p>
-          <button
-            onClick={() => navigate('/home')}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-          >
-            Voltar para Home
-          </button>
-        </div>
+      <div className="bg-copilot-bg-primary min-h-screen">
+        <main className="max-w-4xl mx-auto px-6 py-12 flex items-center justify-center min-h-screen">
+          <div className="card-copilot p-8 max-w-md w-full text-center">
+            <h2 className="text-2xl font-bold text-copilot-text-primary mb-4">Acesso Restrito</h2>
+            <p className="text-copilot-text-secondary mb-6">
+              Apenas contadores têm acesso a esta página.
+            </p>
+            <button
+              onClick={() => navigate('/home')}
+              className="btn-copilot-primary"
+            >
+              Voltar para Home
+            </button>
+          </div>
+        </main>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando...</p>
-        </div>
+      <div className="bg-copilot-bg-primary min-h-screen">
+        <main className="max-w-4xl mx-auto px-6 py-12 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent mx-auto mb-4"></div>
+            <p className="text-copilot-text-secondary">Carregando...</p>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-copilot-bg-primary min-h-screen">
+      <main className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="mb-8">
           <BackButton to="/accounting/accountant/companies" />
-          <h1 className="text-3xl font-bold text-gray-900">Upload de Imposto Mensal</h1>
+          <h1 className="text-3xl font-bold text-copilot-text-primary">Upload de Imposto Mensal</h1>
           {company && (
-            <div className="mt-4 bg-white p-4 rounded-lg shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-800">{company.legalName}</h2>
-              <p className="text-gray-600">CNPJ: {formatCnpj(company.cnpj)}</p>
+            <div className="mt-4 card-copilot p-4">
+              <h2 className="text-xl font-semibold text-copilot-text-primary">{company.legalName}</h2>
+              <p className="text-copilot-text-secondary">CNPJ: {formatCnpj(company.cnpj)}</p>
             </div>
           )}
         </div>
 
         {/* Success Message */}
         {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mb-6 p-4 bg-green-900/30 border border-green-500/50 rounded-lg">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <p className="text-green-800">{success}</p>
+              <p className="text-green-300">{success}</p>
             </div>
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
-              <p className="text-red-800">{error}</p>
+              <p className="text-red-300">{error}</p>
             </div>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
+        <form onSubmit={handleSubmit} className="card-copilot p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Tax Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                 Tipo de Imposto *
               </label>
               <select
                 name="taxType"
                 value={formData.taxType}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-copilot w-full"
                 required
               >
                 {TAX_TYPES.map(type => (
@@ -265,14 +270,14 @@ export default function UploadTaxes() {
 
             {/* Reference Month */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                 Mês de Referência *
               </label>
               <select
                 name="referenceMonth"
                 value={formData.referenceMonth}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-copilot w-full"
                 required
               >
                 {MONTHS.map(month => (
@@ -285,7 +290,7 @@ export default function UploadTaxes() {
 
             {/* Reference Year */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                 Ano de Referência *
               </label>
               <input
@@ -295,14 +300,14 @@ export default function UploadTaxes() {
                 onChange={handleInputChange}
                 min="2000"
                 max="2100"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-copilot w-full"
                 required
               />
             </div>
 
             {/* Due Date */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                 Data de Vencimento *
               </label>
               <input
@@ -310,14 +315,14 @@ export default function UploadTaxes() {
                 name="dueDate"
                 value={formData.dueDate}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-copilot w-full"
                 required
               />
             </div>
 
             {/* Amount */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                 Valor do Imposto (R$) *
               </label>
               <input
@@ -328,14 +333,14 @@ export default function UploadTaxes() {
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-copilot w-full"
                 required
               />
             </div>
 
             {/* Barcode */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                 Código de Barras
               </label>
               <input
@@ -344,13 +349,13 @@ export default function UploadTaxes() {
                 value={formData.barcode}
                 onChange={handleInputChange}
                 placeholder="Ex: 12345678901234567890"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-copilot w-full"
               />
             </div>
 
             {/* PDF File Upload */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                 Arquivo PDF do Imposto *
               </label>
               <input
@@ -358,22 +363,22 @@ export default function UploadTaxes() {
                 type="file"
                 accept="application/pdf"
                 onChange={handleFileChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-copilot-border-default rounded-lg bg-copilot-bg-secondary text-copilot-text-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-600 file:text-white file:cursor-pointer hover:file:bg-slate-500"
                 required
               />
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-copilot-text-tertiary">
                 Arquivo PDF, tamanho máximo: 10MB
               </p>
               {file && (
-                <p className="mt-2 text-sm text-green-600">
-                  ✓ Arquivo selecionado: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                <p className="mt-2 text-sm text-green-400">
+                  Arquivo selecionado: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                 </p>
               )}
             </div>
 
             {/* Notes */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-copilot-text-secondary mb-2">
                 Observações
               </label>
               <textarea
@@ -382,7 +387,7 @@ export default function UploadTaxes() {
                 onChange={handleInputChange}
                 rows="3"
                 placeholder="Informações adicionais sobre o imposto..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-copilot w-full"
               />
             </div>
           </div>
@@ -392,7 +397,7 @@ export default function UploadTaxes() {
             <button
               type="submit"
               disabled={uploading}
-              className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+              className="flex-1 btn-copilot-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploading ? (
                 <span className="flex items-center justify-center">
@@ -409,13 +414,13 @@ export default function UploadTaxes() {
             <button
               type="button"
               onClick={() => navigate('/accounting/accountant/companies')}
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+              className="btn-copilot-secondary"
             >
               Cancelar
             </button>
           </div>
         </form>
-      </div>
+      </main>
     </div>
   );
 }

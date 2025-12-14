@@ -437,7 +437,8 @@ class AccountingApiService {
 
     const token = await this.getAuthToken();
 
-    const response = await fetch(`${this.baseURL}/accounting/documents/company/upload`, {
+    const url = getApiUrl('/accounting/documents/company/upload');
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

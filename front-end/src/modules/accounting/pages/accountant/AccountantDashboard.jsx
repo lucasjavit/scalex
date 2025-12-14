@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { accountingApi } from '../../../../services/accountingApi';
 import { useUserStatus } from '../../../../hooks/useUserStatus';
+import { useNotification } from '../../../../hooks/useNotification';
+import { getErrorMessage, ERROR_CONTEXTS } from '../../../../utils/errorHandler';
 import BackButton from '../../../../components/BackButton';
 
 const STATUS_LABELS = {
@@ -14,22 +16,26 @@ const STATUS_LABELS = {
 };
 
 const STATUS_COLORS = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  in_progress: 'bg-blue-100 text-blue-800',
-  waiting_documents: 'bg-purple-100 text-purple-800',
-  processing: 'bg-indigo-100 text-indigo-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
+  pending: 'bg-yellow-500/20 text-yellow-400',
+  in_progress: 'bg-blue-500/20 text-blue-400',
+  waiting_documents: 'bg-purple-500/20 text-purple-400',
+  processing: 'bg-indigo-500/20 text-indigo-400',
+  completed: 'bg-green-500/20 text-green-400',
+  cancelled: 'bg-red-500/20 text-red-400',
 };
 
 export default function AccountantDashboard() {
   const navigate = useNavigate();
   const { userStatus, loading: userLoading } = useUserStatus();
+  const { showSuccess, showError, showWarning, showConfirmation } = useNotification();
   const [activeTab, setActiveTab] = useState('pending'); // pending, active, completed, inactive
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState({ pending: 0, active: 0, completed: 0, inactive: 0 });
+  const [cancelReason, setCancelReason] = useState('');
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [pendingCancelRequestId, setPendingCancelRequestId] = useState(null);
 
   // Check if user has accountant role (partner_cnpj or admin)
   const isAccountant = userStatus?.role === 'partner_cnpj' || userStatus?.role === 'admin';
@@ -89,7 +95,7 @@ export default function AccountantDashboard() {
       setRequests(data);
     } catch (err) {
       console.error('Error loading requests:', err);
-      setError('Erro ao carregar solicitações: ' + err.message);
+      setError(getErrorMessage(err, ERROR_CONTEXTS.LOAD_REQUESTS));
     } finally {
       setLoading(false);
     }
@@ -111,9 +117,10 @@ export default function AccountantDashboard() {
       // Reload all data
       await loadAllRequests();
       await loadRequestsByTab(activeTab);
+      showSuccess('Solicitação atribuída a você com sucesso!');
     } catch (err) {
       console.error('Error self-assigning request:', err);
-      alert('Erro ao atribuir solicitação: ' + err.message);
+      showError(getErrorMessage(err, ERROR_CONTEXTS.ASSIGN_REQUEST));
     }
   };
 
@@ -121,58 +128,64 @@ export default function AccountantDashboard() {
     try {
       // If selecting "completed", ask for confirmation about the final status
       if (newStatus === 'completed') {
-        const finalStatus = window.confirm(
-          '✅ O processo foi concluído com SUCESSO?\n\n' +
-          'Clique "OK" se a empresa foi criada com sucesso.\n' +
-          'Clique "Cancelar" se houve algum problema/erro no processo.'
-        );
-
-        // If user clicked "OK" -> completed (success)
-        // If user clicked "Cancel" -> cancelled (error/problem)
-        newStatus = finalStatus ? 'completed' : 'cancelled';
-
-        // If cancelled, ask for a reason
-        if (newStatus === 'cancelled') {
-          const reason = prompt(
-            'Por favor, informe o motivo do cancelamento:\n' +
-            '(Ex: Cliente desistiu, documentação incorreta, etc.)'
-          );
-
-          if (!reason || reason.trim() === '') {
-            alert('É necessário informar um motivo para o cancelamento.');
-            return;
+        showConfirmation(
+          'O processo foi concluído com SUCESSO? A empresa foi criada corretamente?',
+          async () => {
+            // User confirmed success
+            await accountingApi.updateRequestStatus(requestId, 'completed');
+            await loadAllRequests();
+            await loadRequestsByTab(activeTab);
+            showSuccess('Solicitação marcada como concluída com sucesso!');
+          },
+          () => {
+            // User said there was a problem - open cancel modal
+            setPendingCancelRequestId(requestId);
+            setShowCancelModal(true);
           }
-
-          // Update with cancellation reason
-          await accountingApi.updateRequestStatus(requestId, newStatus, reason);
-          await loadAllRequests();
-          await loadRequestsByTab(activeTab);
-          alert('Solicitação cancelada com sucesso.');
-          return;
-        }
+        );
+        return;
       }
 
       await accountingApi.updateRequestStatus(requestId, newStatus);
       // Reload all data
       await loadAllRequests();
       await loadRequestsByTab(activeTab);
-
-      if (newStatus === 'completed') {
-        alert('✅ Solicitação marcada como concluída com sucesso!');
-      }
+      showSuccess('Status atualizado com sucesso!');
     } catch (err) {
       console.error('Error updating status:', err);
-      alert('Erro ao atualizar status: ' + err.message);
+      showError(getErrorMessage(err, ERROR_CONTEXTS.UPDATE_STATUS));
+    }
+  };
+
+  const handleCancelWithReason = async () => {
+    if (!cancelReason.trim()) {
+      showWarning('Por favor, informe o motivo do cancelamento.');
+      return;
+    }
+
+    try {
+      await accountingApi.updateRequestStatus(pendingCancelRequestId, 'cancelled', cancelReason);
+      await loadAllRequests();
+      await loadRequestsByTab(activeTab);
+      showSuccess('Solicitação cancelada com sucesso.');
+      setShowCancelModal(false);
+      setCancelReason('');
+      setPendingCancelRequestId(null);
+    } catch (err) {
+      console.error('Error cancelling request:', err);
+      showError(getErrorMessage(err, ERROR_CONTEXTS.CANCEL_REQUEST));
     }
   };
 
   // Show loading while checking user role
   if (userLoading) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Verificando permissões...</p>
+      <div className="bg-copilot-bg-primary min-h-screen">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent-primary mx-auto"></div>
+            <p className="mt-4 text-copilot-text-secondary">Verificando permissões...</p>
+          </div>
         </div>
       </div>
     );
@@ -181,85 +194,88 @@ export default function AccountantDashboard() {
   // If user is not an accountant, show access denied (before redirect)
   if (!isAccountant) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg">
-          <h2 className="text-xl font-semibold mb-2">Acesso Negado</h2>
-          <p>Você não tem permissão para acessar esta página.</p>
-          <p className="text-sm mt-2">Apenas contadores (Parceiro: Abertura de CNPJ) e administradores podem acessar o dashboard do contador.</p>
-          <button
-            onClick={() => navigate('/home')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Voltar para Home
-          </button>
+      <div className="bg-copilot-bg-primary min-h-screen">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-6 py-4 rounded-lg">
+            <h2 className="text-xl font-semibold mb-2">Acesso Negado</h2>
+            <p>Você não tem permissão para acessar esta página.</p>
+            <p className="text-sm mt-2">Apenas contadores (Parceiro: Abertura de CNPJ) e administradores podem acessar o dashboard do contador.</p>
+            <button
+              onClick={() => navigate('/home')}
+              className="mt-4 btn-copilot-primary"
+            >
+              Voltar para Home
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="bg-copilot-bg-primary min-h-screen">
+      <main className="max-w-7xl mx-auto px-6 py-12">
       {/* Back Button */}
       <BackButton to="/accounting/accountant" />
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Solicitações de CNPJ</h1>
-        <p className="text-gray-600 mt-2">Gerencie as solicitações de abertura de empresas</p>
+        <h1 className="text-3xl font-bold text-copilot-text-primary">Solicitações de CNPJ</h1>
+        <p className="text-copilot-text-secondary mt-2">Gerencie as solicitações de abertura de empresas</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-yellow-600 font-medium">Pendentes</p>
-              <p className="text-3xl font-bold text-yellow-900 mt-2">{stats.pending}</p>
+              <p className="text-sm text-yellow-400 font-medium">Pendentes</p>
+              <p className="text-3xl font-bold text-yellow-300 mt-2">{stats.pending}</p>
             </div>
-            <div className="bg-yellow-200 rounded-full p-3">
-              <svg className="w-8 h-8 text-yellow-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-yellow-500/20 rounded-full p-3">
+              <svg className="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-blue-600 font-medium">Ativas</p>
-              <p className="text-3xl font-bold text-blue-900 mt-2">{stats.active}</p>
+              <p className="text-sm text-blue-400 font-medium">Ativas</p>
+              <p className="text-3xl font-bold text-blue-300 mt-2">{stats.active}</p>
             </div>
-            <div className="bg-blue-200 rounded-full p-3">
-              <svg className="w-8 h-8 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-blue-500/20 rounded-full p-3">
+              <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-green-600 font-medium">Concluídas</p>
-              <p className="text-3xl font-bold text-green-900 mt-2">{stats.completed}</p>
+              <p className="text-sm text-green-400 font-medium">Concluídas</p>
+              <p className="text-3xl font-bold text-green-300 mt-2">{stats.completed}</p>
             </div>
-            <div className="bg-green-200 rounded-full p-3">
-              <svg className="w-8 h-8 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-green-500/20 rounded-full p-3">
+              <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-red-600 font-medium">Canceladas</p>
-              <p className="text-3xl font-bold text-red-900 mt-2">{stats.inactive}</p>
+              <p className="text-sm text-red-400 font-medium">Canceladas</p>
+              <p className="text-3xl font-bold text-red-300 mt-2">{stats.inactive}</p>
             </div>
-            <div className="bg-red-200 rounded-full p-3">
-              <svg className="w-8 h-8 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-red-500/20 rounded-full p-3">
+              <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
@@ -268,15 +284,15 @@ export default function AccountantDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="border-b border-gray-200">
+      <div className="card-copilot">
+        <div className="border-b border-copilot-border-default">
           <nav className="flex -mb-px">
             <button
               onClick={() => setActiveTab('pending')}
               className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
                 activeTab === 'pending'
-                  ? 'border-yellow-500 text-yellow-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-yellow-500 text-yellow-400'
+                  : 'border-transparent text-copilot-text-secondary hover:text-copilot-text-primary hover:border-copilot-border-default'
               }`}
             >
               Pendentes ({stats.pending})
@@ -285,8 +301,8 @@ export default function AccountantDashboard() {
               onClick={() => setActiveTab('active')}
               className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
                 activeTab === 'active'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-copilot-text-secondary hover:text-copilot-text-primary hover:border-copilot-border-default'
               }`}
             >
               Ativas ({stats.active})
@@ -295,8 +311,8 @@ export default function AccountantDashboard() {
               onClick={() => setActiveTab('completed')}
               className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
                 activeTab === 'completed'
-                  ? 'border-green-500 text-green-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-green-500 text-green-400'
+                  : 'border-transparent text-copilot-text-secondary hover:text-copilot-text-primary hover:border-copilot-border-default'
               }`}
             >
               Concluídas ({stats.completed})
@@ -305,8 +321,8 @@ export default function AccountantDashboard() {
               onClick={() => setActiveTab('inactive')}
               className={`py-4 px-6 text-sm font-medium border-b-2 transition ${
                 activeTab === 'inactive'
-                  ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-red-500 text-red-400'
+                  : 'border-transparent text-copilot-text-secondary hover:text-copilot-text-primary hover:border-copilot-border-default'
               }`}
             >
               Canceladas ({stats.inactive})
@@ -318,50 +334,50 @@ export default function AccountantDashboard() {
         <div className="p-6">
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Carregando solicitações...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent-primary mx-auto"></div>
+              <p className="mt-4 text-copilot-text-secondary">Carregando solicitações...</p>
             </div>
           ) : error ? (
-            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+            <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-4 py-3 rounded">
               <p className="font-semibold">Erro:</p>
               <p>{error}</p>
             </div>
           ) : requests.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 border border-gray-200 rounded-lg">
-              <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center py-12 bg-copilot-bg-tertiary border border-copilot-border-default rounded-lg">
+              <svg className="w-16 h-16 mx-auto text-copilot-text-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <p className="text-gray-600">Nenhuma solicitação encontrada</p>
+              <p className="text-copilot-text-secondary">Nenhuma solicitação encontrada</p>
             </div>
           ) : (
             <div className="space-y-4">
               {requests.map((request) => (
                 <div
                   key={request.id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
+                  className="bg-copilot-bg-secondary border border-copilot-border-default rounded-lg p-4 hover:border-copilot-border-focus transition"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-800">
+                        <h3 className="text-lg font-semibold text-copilot-text-primary">
                           {request.user?.full_name || request.requestData?.full_name || 'Nome não disponível'}
                         </h3>
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[request.status]}`}>
                           {STATUS_LABELS[request.status]}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                      <div className="grid grid-cols-2 gap-4 text-sm text-copilot-text-secondary">
                         <div>
-                          <span className="font-medium">Tipo:</span> {request.requestData?.preferred_company_type}
+                          <span className="font-medium text-copilot-text-tertiary">Tipo:</span> {request.requestData?.preferred_company_type}
                         </div>
                         <div>
-                          <span className="font-medium">Urgência:</span> {request.requestData?.urgency}
+                          <span className="font-medium text-copilot-text-tertiary">Urgência:</span> {request.requestData?.urgency}
                         </div>
                         <div>
-                          <span className="font-medium">Criado em:</span> {formatDate(request.createdAt)}
+                          <span className="font-medium text-copilot-text-tertiary">Criado em:</span> {formatDate(request.createdAt)}
                         </div>
                         <div>
-                          <span className="font-medium">Email:</span> {request.requestData?.email}
+                          <span className="font-medium text-copilot-text-tertiary">Email:</span> {request.requestData?.email}
                         </div>
                       </div>
                     </div>
@@ -373,7 +389,7 @@ export default function AccountantDashboard() {
                             e.stopPropagation();
                             handleSelfAssign(request.id);
                           }}
-                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition text-sm whitespace-nowrap"
+                          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm whitespace-nowrap"
                         >
                           Atribuir a mim
                         </button>
@@ -389,7 +405,7 @@ export default function AccountantDashboard() {
                               e.target.value = ''; // Reset select
                             }
                           }}
-                          className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 cursor-pointer"
+                          className="input-copilot text-sm cursor-pointer"
                           defaultValue=""
                         >
                           <option value="" disabled>Atualizar Status</option>
@@ -416,14 +432,14 @@ export default function AccountantDashboard() {
                               e.target.value = ''; // Reset select
                             }
                           }}
-                          className="px-3 py-2 border border-yellow-400 bg-yellow-50 rounded-md text-sm hover:bg-yellow-100 cursor-pointer font-medium"
+                          className="px-3 py-2 border border-yellow-500/50 bg-yellow-900/20 rounded text-sm hover:bg-yellow-900/30 cursor-pointer font-medium text-yellow-300"
                           defaultValue=""
                         >
-                          <option value="" disabled>⚠️ Corrigir Status</option>
-                          <option value="in_progress">↩️ Voltar para Em Andamento</option>
-                          <option value="waiting_documents">📄 Aguardando Documentos</option>
-                          <option value="processing">⚙️ Processando</option>
-                          <option value="cancelled">❌ Marcar como Cancelado</option>
+                          <option value="" disabled>Corrigir Status</option>
+                          <option value="in_progress">Voltar para Em Andamento</option>
+                          <option value="waiting_documents">Aguardando Documentos</option>
+                          <option value="processing">Processando</option>
+                          <option value="cancelled">Marcar como Cancelado</option>
                         </select>
                       )}
 
@@ -443,20 +459,20 @@ export default function AccountantDashboard() {
                               e.target.value = ''; // Reset select
                             }
                           }}
-                          className="px-3 py-2 border border-red-400 bg-red-50 rounded-md text-sm hover:bg-red-100 cursor-pointer font-medium"
+                          className="px-3 py-2 border border-red-500/50 bg-red-900/20 rounded text-sm hover:bg-red-900/30 cursor-pointer font-medium text-red-300"
                           defaultValue=""
                         >
-                          <option value="" disabled>🔄 Reativar Solicitação</option>
-                          <option value="in_progress">↩️ Em Andamento</option>
-                          <option value="waiting_documents">📄 Aguardando Documentos</option>
-                          <option value="processing">⚙️ Processando</option>
-                          <option value="completed">✅ Concluído</option>
+                          <option value="" disabled>Reativar Solicitação</option>
+                          <option value="in_progress">Em Andamento</option>
+                          <option value="waiting_documents">Aguardando Documentos</option>
+                          <option value="processing">Processando</option>
+                          <option value="completed">Concluído</option>
                         </select>
                       )}
 
                       <button
                         onClick={() => navigate(`/accounting/requests/${request.id}`)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm whitespace-nowrap"
+                        className="btn-copilot-primary text-sm whitespace-nowrap"
                       >
                         Ver Detalhes
                       </button>
@@ -468,6 +484,46 @@ export default function AccountantDashboard() {
           )}
         </div>
       </div>
+
+      {/* Cancel Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="card-copilot p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-copilot-text-primary mb-4">
+              Motivo do Cancelamento
+            </h3>
+            <p className="text-sm text-copilot-text-secondary mb-4">
+              Por favor, informe o motivo do cancelamento (Ex: Cliente desistiu, documentação incorreta, etc.)
+            </p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Digite o motivo..."
+              className="input-copilot w-full"
+              rows={3}
+            />
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => {
+                  setShowCancelModal(false);
+                  setCancelReason('');
+                  setPendingCancelRequestId(null);
+                }}
+                className="btn-copilot-secondary"
+              >
+                Voltar
+              </button>
+              <button
+                onClick={handleCancelWithReason}
+                className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700 transition"
+              >
+                Cancelar Solicitação
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      </main>
     </div>
   );
 }

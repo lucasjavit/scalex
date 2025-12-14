@@ -49,19 +49,19 @@ export default function ConversationList({ conversations, activeRequestId, onSel
   const getStatusBadgeColor = (status) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-500/20 text-yellow-400';
       case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-500/20 text-blue-400';
       case 'waiting_documents':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-500/20 text-orange-400';
       case 'processing':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-500/20 text-purple-400';
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500/20 text-green-400';
       case 'cancelled':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500/20 text-gray-400';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500/20 text-gray-400';
     }
   };
 
@@ -88,15 +88,15 @@ export default function ConversationList({ conversations, activeRequestId, onSel
   });
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-gray-200">
+    <div className="flex flex-col h-full card-copilot rounded-none border-r border-slate-600">
       {/* Header */}
-      <div className="flex-shrink-0 p-4 border-b border-gray-200">
-        <h2 className="text-lg font-bold text-gray-900 mb-3">Conversas</h2>
+      <div className="flex-shrink-0 p-4 border-b border-slate-600">
+        <h2 className="text-lg font-bold text-copilot-text-primary mb-3">Conversas</h2>
 
         {/* Search Bar */}
         <div className="relative">
           <svg
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-copilot-text-tertiary"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -113,7 +113,7 @@ export default function ConversationList({ conversations, activeRequestId, onSel
             placeholder="Buscar..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="input-copilot w-full pl-10 text-sm"
           />
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function ConversationList({ conversations, activeRequestId, onSel
         {filteredConversations.length === 0 ? (
           <div className="p-8 text-center">
             <svg
-              className="w-16 h-16 mx-auto text-gray-300 mb-3"
+              className="w-16 h-16 mx-auto text-copilot-text-tertiary mb-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -135,29 +135,29 @@ export default function ConversationList({ conversations, activeRequestId, onSel
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-copilot-text-tertiary">
               {searchTerm ? 'Nenhuma conversa encontrada' : 'Nenhuma conversa ainda'}
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-slate-600">
             {filteredConversations.map((item) => (
               <button
                 key={item.request.id}
                 onClick={() => onSelectConversation(item.request.id)}
-                className={`w-full p-4 text-left transition-colors hover:bg-gray-50 ${
+                className={`w-full p-4 text-left transition-colors hover:bg-slate-700 ${
                   activeRequestId === item.request.id
-                    ? 'bg-purple-50 border-l-4 border-purple-600'
+                    ? 'bg-copilot-accent/10 border-l-4 border-copilot-accent'
                     : 'border-l-4 border-transparent'
                 }`}
               >
                 {/* Company Name and Time */}
                 <div className="flex items-start justify-between mb-1">
-                  <h3 className="font-semibold text-gray-900 truncate flex-1 pr-2">
+                  <h3 className="font-semibold text-copilot-text-primary truncate flex-1 pr-2">
                     {item.request.companyName}
                   </h3>
                   {item.lastMessage && (
-                    <span className="text-xs text-gray-500 flex-shrink-0">
+                    <span className="text-xs text-copilot-text-tertiary flex-shrink-0">
                       {formatDate(item.lastMessage.createdAt)}
                     </span>
                   )}
@@ -165,7 +165,7 @@ export default function ConversationList({ conversations, activeRequestId, onSel
 
                 {/* CNPJ and Status */}
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs text-gray-600">{formatCNPJ(item.request.cnpj)}</span>
+                  <span className="text-xs text-copilot-text-secondary">{formatCNPJ(item.request.cnpj)}</span>
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStatusBadgeColor(
                       item.request.status
@@ -178,14 +178,14 @@ export default function ConversationList({ conversations, activeRequestId, onSel
                 {/* Last Message Preview */}
                 {item.lastMessage && (
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600 truncate flex-1 pr-2">
+                    <p className="text-sm text-copilot-text-secondary truncate flex-1 pr-2">
                       <span className="font-medium">
                         {item.lastMessage.isFromAccountant ? 'Você' : item.lastMessage.senderName}:
                       </span>{' '}
                       {item.lastMessage.message}
                     </p>
                     {item.unreadCount > 0 && (
-                      <span className="flex-shrink-0 bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[1.5rem] text-center">
+                      <span className="flex-shrink-0 bg-copilot-accent text-white text-xs font-bold px-2 py-1 rounded-full min-w-[1.5rem] text-center">
                         {item.unreadCount > 99 ? '99+' : item.unreadCount}
                       </span>
                     )}
@@ -199,8 +199,8 @@ export default function ConversationList({ conversations, activeRequestId, onSel
 
       {/* Footer Stats */}
       {filteredConversations.length > 0 && (
-        <div className="flex-shrink-0 p-3 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-between text-xs text-gray-600">
+        <div className="flex-shrink-0 p-3 border-t border-slate-600 bg-slate-800">
+          <div className="flex items-center justify-between text-xs text-copilot-text-secondary">
             <span>
               {filteredConversations.length}{' '}
               {filteredConversations.length === 1 ? 'conversa' : 'conversas'}

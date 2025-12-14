@@ -62,10 +62,10 @@ export default function AccountingHome() {
   // Loading state
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-6 relative z-10">
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copilot-accent-primary mx-auto"></div>
+          <p className="mt-4 text-copilot-text-secondary">Carregando...</p>
         </div>
       </div>
     );
@@ -74,14 +74,14 @@ export default function AccountingHome() {
   // Error state
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+      <div className="max-w-6xl mx-auto p-6 relative z-10">
+        <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-4 py-3 rounded">
           <p className="font-semibold">Erro ao carregar dados</p>
           <p>{error}</p>
         </div>
         <button
           onClick={loadUserData}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="btn-copilot-primary mt-4"
         >
           Tentar Novamente
         </button>
@@ -92,34 +92,34 @@ export default function AccountingHome() {
   // STATE 1: No request → Show CTA to request CNPJ
   if (!activeRequest) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-6 relative z-10">
         <BackButton to="/home" />
         {/* My Companies Section */}
         {companies.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-600 mb-6">Minhas Empresas</h2>
+            <h2 className="text-2xl font-bold text-copilot-text-primary mb-6">Minhas Empresas</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {companies.map(company => (
                 <div
                   key={company.id}
-                  className="bg-white border border-gray-200 rounded-lg p-6 cursor-pointer hover:shadow-lg transition"
+                  className="card-copilot p-6 cursor-pointer transition"
                   onClick={() => navigate(`/accounting/company/${company.id}`)}
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className="bg-blue-100 p-3 rounded-lg">
-                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="bg-copilot-accent-primary/20 p-3 rounded-lg">
+                      <svg className="w-6 h-6 text-copilot-accent-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                       </svg>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      company.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      company.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-copilot-bg-tertiary text-copilot-text-secondary'
                     }`}>
                       {company.status === 'active' ? 'Ativa' : company.status}
                     </span>
                   </div>
-                  <h3 className="font-bold text-lg text-gray-900 mb-2">{company.legalName}</h3>
-                  <p className="text-sm text-gray-600 mb-1">CNPJ: {company.cnpj}</p>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-bold text-lg text-copilot-text-primary mb-2">{company.legalName}</h3>
+                  <p className="text-sm text-copilot-text-secondary mb-1">CNPJ: {company.cnpj}</p>
+                  <p className="text-sm text-copilot-text-tertiary">
                     {company.companyType} • {company.taxRegime?.replace(/_/g, ' ')}
                   </p>
                 </div>
@@ -129,17 +129,17 @@ export default function AccountingHome() {
         )}
 
         <div className="text-center py-12">
-          <div className="inline-block bg-blue-100 p-6 rounded-full mb-6">
-            <svg className="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-block bg-copilot-accent-primary/20 p-6 rounded-full mb-6">
+            <svg className="w-16 h-16 text-copilot-accent-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          <h1 className="text-3xl font-bold text-copilot-text-primary mb-4">
             {companies.length > 0 ? 'Abrir Nova Empresa' : 'Abertura de CNPJ'}
           </h1>
 
-          <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-copilot-text-secondary text-lg mb-8 max-w-2xl mx-auto">
             {companies.length > 0
               ? 'Deseja abrir mais uma empresa com a ajuda de nossos contadores parceiros?'
               : 'Ainda não identificamos nenhuma solicitação de abertura de empresa. Deseja abrir um CNPJ com a ajuda de nossos contadores parceiros?'
@@ -148,37 +148,37 @@ export default function AccountingHome() {
 
           <button
             onClick={() => navigate('/accounting/request-cnpj')}
-            className="px-8 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition shadow-lg"
+            className="btn-copilot-primary px-8 py-3 text-lg font-semibold shadow-lg"
           >
             Solicitar Abertura de CNPJ
           </button>
 
           {/* Previous completed/cancelled requests */}
           {requests.length > 0 && (
-            <div className="mt-12 pt-8 border-t">
-              <h3 className="text-xl font-semibold text-gray-700 mb-4">
+            <div className="mt-12 pt-8 border-t border-copilot-border-default">
+              <h3 className="text-xl font-semibold text-copilot-text-primary mb-4">
                 Solicitações Anteriores
               </h3>
               <div className="space-y-3">
                 {requests.map(req => (
                   <div
                     key={req.id}
-                    className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-left cursor-pointer hover:bg-gray-100 transition"
+                    className="card-copilot p-4 text-left cursor-pointer transition"
                     onClick={() => navigate(`/accounting/requests/${req.id}`)}
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium text-gray-800">
+                        <p className="font-medium text-copilot-text-primary">
                           Solicitação #{req.id.slice(0, 8)}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-copilot-text-secondary">
                           {req.requestData.business_type} - {req.requestData.preferred_company_type}
                         </p>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         req.status === 'completed'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-copilot-bg-tertiary text-copilot-text-secondary'
                       }`}>
                         {req.status === 'completed' ? 'Concluída' : 'Cancelada'}
                       </span>
@@ -195,13 +195,13 @@ export default function AccountingHome() {
 
   // STATE 2: Has active request → Show timeline
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6 relative z-10">
       <BackButton to="/home" />
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">
+        <h1 className="text-3xl font-bold text-copilot-text-primary">
           Abertura de CNPJ em Andamento
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-copilot-text-secondary mt-2">
           Acompanhe o status da sua solicitação de abertura de empresa
         </p>
       </div>
@@ -210,38 +210,38 @@ export default function AccountingHome() {
       <RequestTimeline request={activeRequest} />
 
       {/* Request Details Card */}
-      <div className="mt-8 bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
+      <div className="mt-8 card-copilot p-6">
+        <h2 className="text-xl font-semibold text-copilot-text-primary mb-4">
           Detalhes da Solicitação
         </h2>
 
         <div className="grid grid-cols-2 gap-4 text-sm mb-6">
           <div>
-            <p className="text-gray-600">Tipo de Empresa:</p>
-            <p className="font-medium">{activeRequest.requestData.preferred_company_type}</p>
+            <p className="text-copilot-text-tertiary">Tipo de Empresa:</p>
+            <p className="font-medium text-copilot-text-primary">{activeRequest.requestData.preferred_company_type}</p>
           </div>
           <div>
-            <p className="text-gray-600">Tipo de Negócio:</p>
-            <p className="font-medium">{activeRequest.requestData.business_type}</p>
+            <p className="text-copilot-text-tertiary">Tipo de Negócio:</p>
+            <p className="font-medium text-copilot-text-primary">{activeRequest.requestData.business_type}</p>
           </div>
           <div>
-            <p className="text-gray-600">Faturamento Estimado:</p>
-            <p className="font-medium">{activeRequest.requestData.estimated_revenue}</p>
+            <p className="text-copilot-text-tertiary">Faturamento Estimado:</p>
+            <p className="font-medium text-copilot-text-primary">{activeRequest.requestData.estimated_revenue}</p>
           </div>
           <div>
-            <p className="text-gray-600">Urgência:</p>
-            <p className="font-medium capitalize">{activeRequest.requestData.urgency}</p>
+            <p className="text-copilot-text-tertiary">Urgência:</p>
+            <p className="font-medium text-copilot-text-primary capitalize">{activeRequest.requestData.urgency}</p>
           </div>
           <div>
-            <p className="text-gray-600">Solicitado em:</p>
-            <p className="font-medium">
+            <p className="text-copilot-text-tertiary">Solicitado em:</p>
+            <p className="font-medium text-copilot-text-primary">
               {new Date(activeRequest.createdAt).toLocaleDateString('pt-BR')}
             </p>
           </div>
           {activeRequest.assignedTo && (
             <div>
-              <p className="text-gray-600">Contador Responsável:</p>
-              <p className="font-medium">{activeRequest.assignedTo.full_name}</p>
+              <p className="text-copilot-text-tertiary">Contador Responsável:</p>
+              <p className="font-medium text-copilot-text-primary">{activeRequest.assignedTo.full_name}</p>
             </div>
           )}
         </div>
@@ -249,24 +249,19 @@ export default function AccountingHome() {
         <div className="flex gap-4">
           <button
             onClick={() => navigate(`/accounting/requests/${activeRequest.id}`)}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            className="btn-copilot-primary"
           >
             Ver Todos os Detalhes
           </button>
-
-          {/* TODO: Add Chat button when chat is implemented */}
-          {/* <button className="px-6 py-2 border border-gray-300 rounded hover:bg-gray-50 transition">
-            Chat com Contador
-          </button> */}
         </div>
       </div>
 
       {/* What to expect section */}
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-3">
-          📋 Próximos Passos
+      <div className="mt-8 bg-copilot-accent-primary/10 border border-copilot-accent-primary/30 rounded p-6">
+        <h3 className="text-lg font-semibold text-copilot-text-primary mb-3">
+          Próximos Passos
         </h3>
-        <ul className="space-y-2 text-blue-800">
+        <ul className="space-y-2 text-copilot-text-secondary">
           {activeRequest.status === 'pending' && (
             <>
               <li className="flex items-start">

@@ -35,10 +35,10 @@ export default function FloatingChatButton({ onClick, isOpen }) {
   return (
     <button
       onClick={onClick}
-      className={`fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 ${
+      className={`fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 ${
         isOpen
-          ? 'bg-gray-600 hover:bg-gray-700 focus:ring-gray-300'
-          : 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-300'
+          ? 'bg-gradient-to-br from-slate-600 to-slate-700 hover:from-slate-500 hover:to-slate-600 focus:ring-slate-500/30'
+          : 'bg-copilot-accent hover:bg-copilot-accent-hover focus:ring-copilot-accent/30'
       }`}
       aria-label="Abrir chat"
     >
