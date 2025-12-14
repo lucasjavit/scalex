@@ -367,10 +367,13 @@ export default function CompanyDashboard() {
     );
   }
 
+  // Determine back URL based on user role
+  const backUrl = isAccountant ? '/accounting/accountant/companies' : '/accounting';
+
   return (
     <div className="max-w-7xl mx-auto p-6 relative z-10">
       {/* Back Button */}
-      <BackButton to="/accounting" />
+      <BackButton to={backUrl} />
 
       {/* Header */}
       <div className="mb-6">

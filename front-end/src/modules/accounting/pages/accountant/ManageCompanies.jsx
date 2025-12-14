@@ -214,7 +214,8 @@ export default function ManageCompanies() {
                   {companies.map((company) => (
                     <div
                       key={company.id}
-                      className="border border-copilot-border-default rounded-lg p-4 hover:border-copilot-border-hover transition-colors bg-copilot-bg-tertiary"
+                      onClick={() => navigate(`/accounting/company/${company.id}`)}
+                      className="border border-copilot-border-default rounded-lg p-4 hover:border-copilot-accent-primary transition-colors bg-copilot-bg-tertiary cursor-pointer"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -251,25 +252,45 @@ export default function ManageCompanies() {
                           </div>
                         </div>
 
-                        <button
-                          onClick={() => handleUploadTaxes(company.id)}
-                          className="ml-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
+                        <div className="ml-4 flex items-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUploadTaxes(company.id);
+                            }}
+                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                            />
-                          </svg>
-                          Upload de Impostos
-                        </button>
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                              />
+                            </svg>
+                            Upload
+                          </button>
+                          <span className="text-copilot-text-tertiary">
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
